@@ -7,6 +7,9 @@ const ERROR_CONTEXT := "SettingsMenu"
 @warning_ignore("shadowed_global_identifier")
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
 const GameSave = preload("res://1.Codebase/src/scripts/core/game_save.gd")
+const SettingsMenuAudioSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_audio_section.gd")
+const SettingsMenuDisplaySectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_display_section.gd")
+const SettingsMenuVoiceSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_voice_section.gd")
 const SettingsMenuAgentServerSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_agent_server_section.gd")
 const SettingsMenuTutorialSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_tutorial_section.gd")
 const ICON_CHECK = preload("res://1.Codebase/src/assets/ui/icon_check.svg")
@@ -2363,34 +2366,11 @@ func _sync_voice_ui_state():
 	_update_voice_availability_label()
 func _update_voice_availability_label():
 	if not voice_availability_label: return
-	if not AIManager:
-		voice_availability_label.text = "Native voice unavailable (AI Manager missing)."
-		return
-	if voice_supported:
-		var provider_name := ""
-		var model_name := ""
-		match AIManager.current_provider:
-			AIManager.AIProvider.GEMINI:
-				provider_name = "Gemini"
-				model_name = AIManager.gemini_model
-			AIManager.AIProvider.OPENROUTER:
-				provider_name = "OpenRouter"
-				model_name = AIManager.openrouter_model
-			AIManager.AIProvider.OLLAMA:
-				provider_name = "Ollama (Local)"
-				model_name = AIManager.ollama_model
-			_:
-				provider_name = "Unknown"
-		voice_availability_label.text = "Native audio ready via %s (%s)." % [provider_name, model_name]
-	else:
-		voice_availability_label.text = "Current model does not expose native audio."
+	voice_availability_label.text = SettingsMenuVoiceSectionScript.build_availability_text(
+		AIManager, voice_supported
+	)
 func _try_enable_gemini_native_audio_support() -> bool:
-	if not AIManager:
-		return false
-	if AIManager.current_provider != AIManager.AIProvider.GEMINI:
-		return false
-	AIManager.refresh_voice_capabilities()
-	voice_supported = AIManager.is_native_voice_supported()
+	voice_supported = SettingsMenuVoiceSectionScript.try_enable_gemini_native_audio(AIManager)
 	_update_voice_availability_label()
 	return voice_supported
 func _update_voice_volume_display():
@@ -2403,18 +2383,12 @@ func _update_voice_status(message: String, is_error: bool = false):
 		voice_status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.45))
 	else:
 		voice_status_label.add_theme_color_override("font_color", Color(0.75, 0.9, 1.0))
-func _gather_voice_preferences() -> Dictionary:
-	return {
-		"prefer_native_audio": voice_enabled,
-		"voice_output_enabled": voice_output_enabled,
-		"voice_input_enabled": voice_input_enabled,
-		"preferred_voice_name": voice_voice_name,
-		"voice_input_mode": voice_input_mode,
-		"proactive_audio_enabled": voice_proactive_enabled,
-	}
 func _apply_voice_preferences():
 	if not AIManager: return
-	var prefs := _gather_voice_preferences()
+	var prefs := SettingsMenuVoiceSectionScript.gather_preferences(
+		voice_enabled, voice_output_enabled, voice_input_enabled,
+		voice_voice_name, voice_input_mode, voice_proactive_enabled
+	)
 	AIManager.apply_voice_settings(prefs)
 	AIManager.refresh_voice_capabilities()
 	AIManager.save_ai_settings()
@@ -2551,88 +2525,39 @@ func _on_touch_controls_toggled(button_pressed: bool) -> void:
 	var touch_controls = get_tree().get_root().find_child("TouchControls", true, false)
 	if touch_controls:
 		touch_controls.visible = touch_controls_enabled
+func _get_audio_settings_data() -> Dictionary:
+	return {
+		"master_volume": master_volume,
+		"music_volume": music_volume,
+		"sfx_volume": sfx_volume,
+		"voice_volume": voice_volume,
+		"gloria_voice_enabled": gloria_voice_enabled,
+		"muted": is_muted,
+	}
 func _on_master_volume_changed(value: float):
 	master_volume = value
-	if master_volume_hbox.has_node("MasterVolumeValue"):
-		master_volume_hbox.get_node("MasterVolumeValue").text = str(int(value)) + "%"
-	_apply_audio_settings()
+	SettingsMenuAudioSectionScript.update_volume_label(master_volume_hbox, "MasterVolumeValue", value)
+	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _on_music_volume_changed(value: float):
 	music_volume = value
-	if music_volume_hbox.has_node("MusicVolumeValue"):
-		music_volume_hbox.get_node("MusicVolumeValue").text = str(int(value)) + "%"
-	_apply_audio_settings()
+	SettingsMenuAudioSectionScript.update_volume_label(music_volume_hbox, "MusicVolumeValue", value)
+	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _on_sfx_volume_changed(value: float):
 	sfx_volume = value
-	if sfx_volume_hbox.has_node("SFXVolumeValue"):
-		sfx_volume_hbox.get_node("SFXVolumeValue").text = str(int(value)) + "%"
-	_apply_audio_settings()
+	SettingsMenuAudioSectionScript.update_volume_label(sfx_volume_hbox, "SFXVolumeValue", value)
+	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _on_gloria_voice_toggled(button_pressed: bool):
 	gloria_voice_enabled = button_pressed
-	_apply_audio_settings()
+	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _on_mute_toggled(button_pressed: bool):
 	is_muted = button_pressed
-	_apply_audio_settings()
+	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _apply_audio_settings():
-	if AudioManager:
-		AudioManager.apply_volume_settings(
-			{
-				"master_volume": master_volume,
-				"music_volume": music_volume,
-				"sfx_volume": sfx_volume,
-				"voice_volume": voice_volume,
-				"gloria_voice_enabled": gloria_voice_enabled,
-				"muted": is_muted,
-			},
-		)
-	else:
-		var master_bus_idx = AudioServer.get_bus_index("Master")
-		var music_bus_idx = AudioServer.get_bus_index("Music")
-		var sfx_bus_idx = AudioServer.get_bus_index("SFX")
-		var voice_bus_idx = AudioServer.get_bus_index("Voice")
-		if master_bus_idx != -1:
-			AudioServer.set_bus_mute(master_bus_idx, is_muted)
-			if not is_muted:
-				var master_db = linear_to_db(master_volume / 100.0)
-				var music_db = linear_to_db(music_volume / 100.0)
-				var sfx_db = linear_to_db(sfx_volume / 100.0)
-				var voice_db = linear_to_db(voice_volume / 100.0)
-				AudioServer.set_bus_volume_db(master_bus_idx, master_db)
-				if music_bus_idx != -1:
-					AudioServer.set_bus_volume_db(music_bus_idx, music_db)
-				if sfx_bus_idx != -1:
-					AudioServer.set_bus_volume_db(sfx_bus_idx, sfx_db)
-				if voice_bus_idx != -1:
-					AudioServer.set_bus_volume_db(voice_bus_idx, voice_db)
-func _coerce_vector2i(value: Variant, fallback: Vector2i) -> Vector2i:
-	if value is Vector2i:
-		return value
-	if value is Vector2:
-		var vec: Vector2 = value
-		return Vector2i(roundi(vec.x), roundi(vec.y))
-	if value is Array:
-		var arr: Array = value
-		if arr.size() >= 2:
-			return Vector2i(int(arr[0]), int(arr[1]))
-	return fallback
-func _get_closest_resolution_key(size: Vector2i) -> int:
-	var best_key: int = 0
-	var best_score: int = 2147483647
-	for key_variant: Variant in resolutions.keys():
-		var key: int = int(key_variant)
-		var candidate_variant: Variant = resolutions.get(key, resolutions[0])
-		var candidate: Vector2i = _coerce_vector2i(candidate_variant, resolutions[0])
-		var score: int = int(abs(candidate.x - size.x) + abs(candidate.y - size.y))
-		if score < best_score:
-			best_score = score
-			best_key = key
-	return best_key
+	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _normalize_selected_resolution(fallback_size: Vector2i) -> void:
-	var requested: Vector2i = selected_resolution
-	if requested.x <= 0 or requested.y <= 0:
-		requested = fallback_size
-	var nearest_key: int = _get_closest_resolution_key(requested)
-	var normalized_variant: Variant = resolutions.get(nearest_key, resolutions[0])
-	selected_resolution = _coerce_vector2i(normalized_variant, resolutions[0])
+	selected_resolution = SettingsMenuDisplaySectionScript.normalize_resolution(
+		selected_resolution, resolutions, fallback_size
+	)
 func _initialize_font_options() -> void:
 	if english_font_option == null or chinese_font_option == null:
 		return
@@ -2645,58 +2570,20 @@ func _initialize_font_options() -> void:
 		en_fonts.append(_get_default_font("en"))
 	if zh_fonts.is_empty():
 		zh_fonts.append(_get_default_font("zh"))
-	_populate_font_option(english_font_option, en_fonts)
-	_populate_font_option(chinese_font_option, zh_fonts)
+	SettingsMenuDisplaySectionScript.populate_font_option(english_font_option, en_fonts)
+	SettingsMenuDisplaySectionScript.populate_font_option(chinese_font_option, zh_fonts)
 	if selected_english_font.is_empty():
 		selected_english_font = en_fonts[0]
 	if selected_chinese_font.is_empty():
 		selected_chinese_font = zh_fonts[0]
 	_sync_font_option_selection()
-func _populate_font_option(option: OptionButton, items: Array) -> void:
-	if option == null:
-		return
-	option.clear()
-	for item in items:
-		var font_name := String(item)
-		option.add_item(font_name)
-		option.set_item_metadata(option.item_count - 1, font_name)
 func _sync_font_option_selection() -> void:
-	_select_option_by_metadata(english_font_option, selected_english_font, _get_default_font("en"))
-	_select_option_by_metadata(chinese_font_option, selected_chinese_font, _get_default_font("zh"))
-func _select_option_by_metadata(option: OptionButton, target: String, fallback: String) -> void:
-	if option == null:
-		return
-	var resolved := fallback
-	var selected_idx := 0
-	for i in range(option.item_count):
-		var meta: Variant = option.get_item_metadata(i)
-		var meta_str := ""
-		if typeof(meta) == TYPE_STRING:
-			meta_str = meta
-		var text := option.get_item_text(i)
-		if meta_str == target or text == target:
-			selected_idx = i
-			resolved = meta_str if not meta_str.is_empty() else text
-			break
-	option.select(selected_idx)
-	var chosen := _get_option_metadata(option, selected_idx)
-	if chosen.is_empty():
-		chosen = resolved
-	if option == english_font_option:
-		selected_english_font = chosen
-	elif option == chinese_font_option:
-		selected_chinese_font = chosen
-func _get_option_metadata(option: OptionButton, index: int) -> String:
-	if option == null:
-		return ""
-	if index < 0 or index >= option.item_count:
-		return ""
-	var meta: Variant = option.get_item_metadata(index)
-	if typeof(meta) == TYPE_STRING:
-		var meta_str: String = meta
-		if not meta_str.is_empty():
-			return meta_str
-	return option.get_item_text(index)
+	selected_english_font = SettingsMenuDisplaySectionScript.select_option_by_metadata(
+		english_font_option, selected_english_font, _get_default_font("en")
+	)
+	selected_chinese_font = SettingsMenuDisplaySectionScript.select_option_by_metadata(
+		chinese_font_option, selected_chinese_font, _get_default_font("zh")
+	)
 func _apply_selected_fonts_for_current_language() -> void:
 	if not FontManager:
 		return
@@ -2706,7 +2593,9 @@ func _apply_selected_fonts_for_current_language() -> void:
 	if FontManager.has_method("apply_language_font"):
 		FontManager.apply_language_font(selected_language)
 func _sync_display_options_with_state() -> void:
-	var resolution_key: int = _get_closest_resolution_key(selected_resolution)
+	var resolution_key: int = SettingsMenuDisplaySectionScript.get_closest_resolution_key(
+		selected_resolution, resolutions
+	)
 	resolution_option.select(resolution_key)
 	fullscreen_option.select(clampi(selected_mode, 0, 2))
 func _refresh_display_mode_availability() -> void:
@@ -2721,7 +2610,7 @@ func _refresh_display_mode_availability() -> void:
 		fullscreen_option.tooltip_text = ""
 func _on_resolution_changed(index: int):
 	var selected_variant: Variant = resolutions.get(index, resolutions[0])
-	selected_resolution = _coerce_vector2i(selected_variant, resolutions[0])
+	selected_resolution = SettingsMenuDisplaySectionScript.coerce_vector2i(selected_variant, resolutions[0])
 func _on_fullscreen_changed(index: int):
 	selected_mode = index
 func _on_language_changed(index: int):
@@ -2743,11 +2632,11 @@ func _on_font_size_changed(index: int):
 	else:
 		_report_info("Font size changed to index: %s" % selected_font_size)
 func _on_english_font_changed(index: int):
-	selected_english_font = _get_option_metadata(english_font_option, index)
+	selected_english_font = SettingsMenuDisplaySectionScript.get_option_metadata(english_font_option, index)
 	_report_info("English font changed to: %s" % selected_english_font)
 	_apply_selected_fonts_for_current_language()
 func _on_chinese_font_changed(index: int):
-	selected_chinese_font = _get_option_metadata(chinese_font_option, index)
+	selected_chinese_font = SettingsMenuDisplaySectionScript.get_option_metadata(chinese_font_option, index)
 	_report_info("Chinese font changed to: %s" % selected_chinese_font)
 	_apply_selected_fonts_for_current_language()
 func _on_apply_button_pressed():
