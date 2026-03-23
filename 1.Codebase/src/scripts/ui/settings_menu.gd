@@ -14,6 +14,8 @@ const SettingsMenuDeveloperSectionScript = preload("res://1.Codebase/src/scripts
 const SettingsMenuAIAnalyticsScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_ai_analytics.gd")
 const SettingsMenuAgentServerSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_agent_server_section.gd")
 const SettingsMenuTutorialSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_tutorial_section.gd")
+const SettingsMenuStylesScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_styles.gd")
+const SettingsMenuAILogSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_ai_log_section.gd")
 const ICON_CHECK = preload("res://1.Codebase/src/assets/ui/icon_check.svg")
 const ICON_BACK = preload("res://1.Codebase/src/assets/ui/icon_back.svg")
 const ICON_DELETE = preload("res://1.Codebase/src/assets/ui/icon_delete.svg")
@@ -486,377 +488,53 @@ func _create_tab_page(tab_name: String) -> VBoxContainer:
 	tab_container.add_child(scroll)
 	return vbox
 func _create_ai_log_tab_page() -> VBoxContainer:
-	var outer_vbox = VBoxContainer.new()
-	outer_vbox.name = "AILogOuterVBox"
-	outer_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	outer_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	outer_vbox.add_theme_constant_override("separation", 4)
-	tab_container.add_child(outer_vbox)
-	var header_margin = MarginContainer.new()
-	header_margin.add_theme_constant_override("margin_top", 8)
-	header_margin.add_theme_constant_override("margin_left", 14)
-	header_margin.add_theme_constant_override("margin_right", 14)
-	header_margin.add_theme_constant_override("margin_bottom", 4)
-	header_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	outer_vbox.add_child(header_margin)
-	var header_hbox = HBoxContainer.new()
-	header_hbox.add_theme_constant_override("separation", 6)
-	header_margin.add_child(header_hbox)
-	var title_lbl = Label.new()
-	title_lbl.name = "AILogTitle"
-	title_lbl.text = _tr_ai("SETTINGS_AI_LOG_TITLE", "AI Call Log")
-	title_lbl.add_theme_font_size_override("font_size", 16)
-	title_lbl.add_theme_color_override("font_color", Color(0.4, 0.85, 1.0))
-	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header_hbox.add_child(title_lbl)
-	var log_toggle = Button.new()
-	log_toggle.name = "AILogToggleLog"
-	log_toggle.text = _tr_ai("SETTINGS_AI_LOG_TOGGLE_LOG", "Log")
-	log_toggle.icon = ICON_HISTORY
-	log_toggle.expand_icon = true
-	log_toggle.toggle_mode = true
-	log_toggle.button_pressed = true
-	log_toggle.custom_minimum_size = Vector2(82, 32)
-	log_toggle.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	log_toggle.pressed.connect(_on_ai_log_toggle_log_pressed)
-	header_hbox.add_child(log_toggle)
-	var charts_toggle = Button.new()
-	charts_toggle.name = "AILogToggleCharts"
-	charts_toggle.text = _tr_ai("SETTINGS_AI_LOG_TOGGLE_CHARTS", "Charts")
-	charts_toggle.icon = ICON_OPTIONS
-	charts_toggle.expand_icon = true
-	charts_toggle.toggle_mode = true
-	charts_toggle.button_pressed = false
-	charts_toggle.custom_minimum_size = Vector2(92, 32)
-	charts_toggle.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	charts_toggle.pressed.connect(_on_ai_log_toggle_charts_pressed)
-	header_hbox.add_child(charts_toggle)
-	var sep = VSeparator.new()
-	sep.modulate = Color(1, 1, 1, 0.25)
-	sep.custom_minimum_size = Vector2(2, 28)
-	header_hbox.add_child(sep)
-	var refresh_btn = Button.new()
-	refresh_btn.name = "AILogRefreshButton"
-	refresh_btn.icon = ICON_REFRESH
-	refresh_btn.expand_icon = true
-	refresh_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_REFRESH_TOOLTIP", "Refresh")
-	refresh_btn.custom_minimum_size = Vector2(36, 32)
-	refresh_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	refresh_btn.pressed.connect(_on_ai_log_refresh_pressed)
-	header_hbox.add_child(refresh_btn)
-	var export_btn = Button.new()
-	export_btn.name = "AILogExportButton"
-	export_btn.icon = ICON_SAVE
-	export_btn.expand_icon = true
-	export_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_EXPORT_JSON_TOOLTIP", "Export log to JSON")
-	export_btn.custom_minimum_size = Vector2(36, 32)
-	export_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	export_btn.pressed.connect(_on_ai_export_pressed)
-	header_hbox.add_child(export_btn)
-	var export_csv_btn = Button.new()
-	export_csv_btn.name = "AILogExportCsvButton"
-	export_csv_btn.text = _tr_ai("SETTINGS_AI_LOG_EXPORT_CSV_SHORT", "CSV")
-	export_csv_btn.icon = ICON_SAVE
-	export_csv_btn.expand_icon = true
-	export_csv_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_EXPORT_CSV_TOOLTIP", "Export log and chart data to CSV")
-	export_csv_btn.custom_minimum_size = Vector2(72, 32)
-	export_csv_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	export_csv_btn.pressed.connect(_on_ai_export_csv_pressed)
-	header_hbox.add_child(export_csv_btn)
-	var clear_btn = Button.new()
-	clear_btn.name = "AILogClearButton"
-	clear_btn.icon = ICON_DELETE
-	clear_btn.expand_icon = true
-	clear_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_CLEAR_TOOLTIP", "Clear log")
-	clear_btn.custom_minimum_size = Vector2(36, 32)
-	clear_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	clear_btn.pressed.connect(_on_ai_log_clear_pressed)
-	header_hbox.add_child(clear_btn)
-	var log_view = VBoxContainer.new()
-	log_view.name = "AILogTableView"
-	log_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	log_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	log_view.add_theme_constant_override("separation", 2)
-	_ai_log_view_panel = log_view
-	outer_vbox.add_child(log_view)
-	var col_widths := [170, 90, 160, 70, 80, 80, 75, 90, 100]
-	var col_names_en := ["Time", "Provider", "Model", "Status", "In Tok", "Out Tok", "Time(s)", "Mode", "Purpose"]
-	var header_panel = PanelContainer.new()
-	header_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var header_style = StyleBoxFlat.new()
-	header_style.bg_color = Color(0.12, 0.22, 0.32, 1.0)
-	header_style.set_corner_radius_all(4)
-	header_style.border_width_bottom = 2
-	header_style.border_color = Color(0.3, 0.6, 0.9, 0.6)
-	header_panel.add_theme_stylebox_override("panel", header_style)
-	var header_margin2 = MarginContainer.new()
-	header_margin2.add_theme_constant_override("margin_top", 5)
-	header_margin2.add_theme_constant_override("margin_left", 14)
-	header_margin2.add_theme_constant_override("margin_right", 14)
-	header_margin2.add_theme_constant_override("margin_bottom", 5)
-	header_panel.add_child(header_margin2)
-	var header_row = HBoxContainer.new()
-	header_row.add_theme_constant_override("separation", 4)
-	header_margin2.add_child(header_row)
-	for i in range(col_names_en.size()):
-		var lbl = Label.new()
-		lbl.text = col_names_en[i]
-		lbl.add_theme_font_size_override("font_size", 12)
-		lbl.add_theme_color_override("font_color", Color(0.75, 0.88, 1.0))
-		lbl.custom_minimum_size = Vector2(col_widths[i], 0)
-		lbl.clip_text = true
-		lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
-		header_row.add_child(lbl)
-	log_view.add_child(header_panel)
-	var scroll = ScrollContainer.new()
-	scroll.name = "AILogScroll"
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	log_view.add_child(scroll)
-	_ai_log_rows_container = VBoxContainer.new()
-	_ai_log_rows_container.name = "AILogRows"
-	_ai_log_rows_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_ai_log_rows_container.add_theme_constant_override("separation", 2)
-	scroll.add_child(_ai_log_rows_container)
-	var empty_lbl = Label.new()
-	empty_lbl.name = "AILogEmptyLabel"
-	empty_lbl.text = _tr_ai("SETTINGS_AI_LOG_EMPTY", "No AI calls recorded yet.")
-	empty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	empty_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
-	empty_lbl.add_theme_font_size_override("font_size", 14)
-	_ai_log_rows_container.add_child(empty_lbl)
-	var analytics_scroll = ScrollContainer.new()
-	analytics_scroll.name = "AIAnalyticsScroll"
-	analytics_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	analytics_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	analytics_scroll.visible = false
-	_ai_analytics_view = analytics_scroll
-	outer_vbox.add_child(analytics_scroll)
-	_build_analytics_content(analytics_scroll)
-	tab_container.tab_changed.connect(_on_ai_log_tab_changed)
-	_normalize_ai_log_language_texts(outer_vbox)
-	return outer_vbox
-func _build_analytics_content(parent_scroll: ScrollContainer) -> void:
-	var av = VBoxContainer.new()
-	av.name = "AIAnalyticsVBox"
-	av.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	av.add_theme_constant_override("separation", 12)
-	parent_scroll.add_child(av)
-	var am = MarginContainer.new()
-	am.add_theme_constant_override("margin_top", 10)
-	am.add_theme_constant_override("margin_left", 14)
-	am.add_theme_constant_override("margin_right", 14)
-	am.add_theme_constant_override("margin_bottom", 14)
-	am.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	av.add_child(am)
-	var inner = VBoxContainer.new()
-	inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	inner.add_theme_constant_override("separation", 12)
-	am.add_child(inner)
-	_ai_chart_rows.clear()
-	_ai_chart_canvases.clear()
-	var controls_row = HBoxContainer.new()
-	controls_row.add_theme_constant_override("separation", 8)
-	controls_row.custom_minimum_size = Vector2(0, 34)
-	inner.add_child(controls_row)
-	var controls_title = Label.new()
-	controls_title.text = _tr_ai("SETTINGS_AI_LOG_CHART_CONTROLS", "Chart Controls")
-	controls_title.add_theme_font_size_override("font_size", 12)
-	controls_title.add_theme_color_override("font_color", Color(0.7, 0.88, 1.0))
-	controls_row.add_child(controls_title)
-	var width_label = Label.new()
-	width_label.text = "W"
-	width_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.95))
-	controls_row.add_child(width_label)
-	_ai_chart_width_spin = SpinBox.new()
-	_ai_chart_width_spin.min_value = 260
-	_ai_chart_width_spin.max_value = 1400
-	_ai_chart_width_spin.step = 10
-	_ai_chart_width_spin.value = _ai_chart_width
-	_ai_chart_width_spin.custom_minimum_size = Vector2(96, 0)
-	_ai_chart_width_spin.value_changed.connect(_on_ai_chart_size_changed)
-	controls_row.add_child(_ai_chart_width_spin)
-	var height_label = Label.new()
-	height_label.text = "H"
-	height_label.add_theme_color_override("font_color", Color(0.8, 0.85, 0.95))
-	controls_row.add_child(height_label)
-	_ai_chart_height_spin = SpinBox.new()
-	_ai_chart_height_spin.min_value = 140
-	_ai_chart_height_spin.max_value = 760
-	_ai_chart_height_spin.step = 10
-	_ai_chart_height_spin.value = _ai_chart_height
-	_ai_chart_height_spin.custom_minimum_size = Vector2(96, 0)
-	_ai_chart_height_spin.value_changed.connect(_on_ai_chart_size_changed)
-	controls_row.add_child(_ai_chart_height_spin)
-	_ai_chart_toggle_button = Button.new()
-	_ai_chart_toggle_button.text = _tr_ai("SETTINGS_AI_LOG_HIDE_GRAPHS", "Hide Graphs")
-	_ai_chart_toggle_button.toggle_mode = true
-	_ai_chart_toggle_button.button_pressed = true
-	_ai_chart_toggle_button.custom_minimum_size = Vector2(118, 30)
-	_ai_chart_toggle_button.pressed.connect(_on_ai_chart_visibility_toggled)
-	controls_row.add_child(_ai_chart_toggle_button)
-	var controls_sep = VSeparator.new()
-	controls_sep.custom_minimum_size = Vector2(2, 22)
-	controls_sep.modulate = Color(1, 1, 1, 0.2)
-	controls_row.add_child(controls_sep)
-	var export_csv_btn = Button.new()
-	export_csv_btn.text = _tr_ai("SETTINGS_AI_LOG_EXPORT_CSV", "Export CSV")
-	export_csv_btn.icon = ICON_SAVE
-	export_csv_btn.expand_icon = true
-	export_csv_btn.custom_minimum_size = Vector2(120, 30)
-	export_csv_btn.pressed.connect(_on_ai_export_csv_pressed)
-	controls_row.add_child(export_csv_btn)
-	var controls_spacer = Control.new()
-	controls_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	controls_row.add_child(controls_spacer)
-	var kpi_hbox = HBoxContainer.new()
-	kpi_hbox.add_theme_constant_override("separation", 8)
-	kpi_hbox.custom_minimum_size = Vector2(0, 78)
-	inner.add_child(kpi_hbox)
-	var kpi_icons := [ICON_INFO, ICON_CHECK, ICON_SYNC, ICON_REFRESH]
-	var kpi_titles := [_tr_ai("SETTINGS_AI_LOG_KPI_TOTAL_CALLS", "Total Calls"), _tr_ai("SETTINGS_AI_LOG_KPI_SUCCESS_RATE", "Success Rate"), _tr_ai("SETTINGS_AI_LOG_KPI_TOTAL_TOKENS", "Total Tokens"), _tr_ai("SETTINGS_AI_LOG_KPI_AVG_RESPONSE", "Avg Response")]
-	var kpi_defaults := ["0", "0%", "0", "0s"]
-	var kpi_accent_colors := [
-		Color(0.4, 0.75, 1.0), Color(0.35, 0.92, 0.55),
-		Color(1.0, 0.80, 0.30), Color(0.85, 0.60, 1.0)]
-	_ai_kpi_labels.clear()
-	for i in range(kpi_titles.size()):
-		var kpi_panel = PanelContainer.new()
-		kpi_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var kpi_style = StyleBoxFlat.new()
-		kpi_style.bg_color = Color(0.09, 0.14, 0.22, 1.0)
-		kpi_style.set_corner_radius_all(8)
-		kpi_style.border_width_bottom = 3
-		kpi_style.border_color = kpi_accent_colors[i]
-		kpi_panel.add_theme_stylebox_override("panel", kpi_style)
-		var kpi_inner = VBoxContainer.new()
-		kpi_inner.alignment = BoxContainer.ALIGNMENT_CENTER
-		kpi_inner.add_theme_constant_override("separation", 3)
-		kpi_panel.add_child(kpi_inner)
-		var icon_row = HBoxContainer.new()
-		icon_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		icon_row.add_theme_constant_override("separation", 4)
-		kpi_inner.add_child(icon_row)
-		var icon_rect = TextureRect.new()
-		icon_rect.texture = kpi_icons[i]
-		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon_rect.custom_minimum_size = Vector2(16, 16)
-		icon_rect.modulate = kpi_accent_colors[i]
-		icon_row.add_child(icon_rect)
-		var kpi_title = Label.new()
-		kpi_title.text = kpi_titles[i]
-		kpi_title.add_theme_font_size_override("font_size", 10)
-		kpi_title.add_theme_color_override("font_color", kpi_accent_colors[i])
-		kpi_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		kpi_title.autowrap_mode = TextServer.AUTOWRAP_WORD
-		icon_row.add_child(kpi_title)
-		var kpi_val = Label.new()
-		kpi_val.text = kpi_defaults[i]
-		kpi_val.add_theme_font_size_override("font_size", 20)
-		kpi_val.add_theme_color_override("font_color", Color(0.95, 0.95, 1.0))
-		kpi_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		kpi_inner.add_child(kpi_val)
-		kpi_hbox.add_child(kpi_panel)
-		_ai_kpi_labels.append(kpi_val)
-	_add_section_header(inner, ICON_CHECK, _tr_ai("SETTINGS_AI_LOG_HDR_PROVIDER_SUCCESS", "Provider Success Rate"))
-	_ai_chart_rows.append(inner.get_child(inner.get_child_count() - 1) as Control)
-	var row1 = HBoxContainer.new()
-	row1.add_theme_constant_override("separation", 10)
-	row1.custom_minimum_size = Vector2(0, _ai_chart_height)
-	inner.add_child(row1)
-	_ai_chart_rows.append(row1)
-	_chart_success_by_provider = _make_chart_canvas(row1, AIChartCanvas.Type.HORIZONTAL_BAR,
-		"Success Rate by Provider (%)")
-	_chart_mode_pie = _make_chart_canvas(row1, AIChartCanvas.Type.PIE,
-		"Call Mode Distribution")
-	_add_section_header(inner, ICON_HISTORY, _tr_ai("SETTINGS_AI_LOG_HDR_REQUESTS_TIMELINE", "Requests Timeline (last 24 h)"))
-	_ai_chart_rows.append(inner.get_child(inner.get_child_count() - 1) as Control)
-	var row2 = HBoxContainer.new()
-	row2.custom_minimum_size = Vector2(0, _ai_chart_height)
-	inner.add_child(row2)
-	_ai_chart_rows.append(row2)
-	_chart_hourly_requests = _make_chart_canvas(row2, AIChartCanvas.Type.VERTICAL_BAR,
-		"Requests / Hour (last 24 h)")
-	_add_section_header(inner, ICON_INFO, _tr_ai("SETTINGS_AI_LOG_HDR_SUCCESS_ERROR", "Success / Error per Hour"))
-	_ai_chart_rows.append(inner.get_child(inner.get_child_count() - 1) as Control)
-	var row3 = HBoxContainer.new()
-	row3.add_theme_constant_override("separation", 10)
-	row3.custom_minimum_size = Vector2(0, _ai_chart_height)
-	inner.add_child(row3)
-	_ai_chart_rows.append(row3)
-	_chart_success_per_hour = _make_chart_canvas(row3, AIChartCanvas.Type.LINE,
-		"Success Count / Hour (last 24 h)")
-	_chart_calls_by_model = _make_chart_canvas(row3, AIChartCanvas.Type.HORIZONTAL_BAR,
-		"Calls by Model")
-	_add_section_header(inner, ICON_SYNC, _tr_ai("SETTINGS_AI_LOG_HDR_TOKEN_LATENCY", "Token and Latency by Provider"))
-	_ai_chart_rows.append(inner.get_child(inner.get_child_count() - 1) as Control)
-	var row4 = HBoxContainer.new()
-	row4.add_theme_constant_override("separation", 10)
-	row4.custom_minimum_size = Vector2(0, _ai_chart_height)
-	inner.add_child(row4)
-	_ai_chart_rows.append(row4)
-	_chart_tokens_by_provider = _make_chart_canvas(row4, AIChartCanvas.Type.HORIZONTAL_BAR,
-		"Total Tokens by Provider")
-	_chart_response_by_provider = _make_chart_canvas(row4, AIChartCanvas.Type.HORIZONTAL_BAR,
-		"Avg Response Time / Provider (s)")
-	_add_section_header(inner, ICON_OPTIONS, _tr_ai("SETTINGS_AI_LOG_HDR_TOKEN_BREAKDOWN", "Token Breakdown and Speed"))
-	_ai_chart_rows.append(inner.get_child(inner.get_child_count() - 1) as Control)
-	var row5 = HBoxContainer.new()
-	row5.add_theme_constant_override("separation", 10)
-	row5.custom_minimum_size = Vector2(0, _ai_chart_height)
-	inner.add_child(row5)
-	_ai_chart_rows.append(row5)
-	_chart_input_output_tokens = _make_chart_canvas(row5, AIChartCanvas.Type.VERTICAL_BAR,
-		"Input vs Output Tokens by Provider")
-	_chart_tps_by_provider = _make_chart_canvas(row5, AIChartCanvas.Type.HORIZONTAL_BAR,
-		"Avg Tokens / Second by Provider (TPS)")
-	_add_section_header(inner, ICON_REFRESH, _tr_ai("SETTINGS_AI_LOG_HDR_TOKEN_TRENDS", "Token Trends (last 24 h)"))
-	_ai_chart_rows.append(inner.get_child(inner.get_child_count() - 1) as Control)
-	var row6 = HBoxContainer.new()
-	row6.custom_minimum_size = Vector2(0, _ai_chart_height)
-	inner.add_child(row6)
-	_ai_chart_rows.append(row6)
-	_chart_hourly_tokens = _make_chart_canvas(row6, AIChartCanvas.Type.LINE,
-		"Token Usage / Hour (last 24 h)")
-	var row7 = HBoxContainer.new()
-	row7.custom_minimum_size = Vector2(0, _ai_chart_height)
-	inner.add_child(row7)
-	_ai_chart_rows.append(row7)
-	_chart_cumulative_tokens = _make_chart_canvas(row7, AIChartCanvas.Type.LINE,
-		"Cumulative Total Tokens (session)")
+	var result: Dictionary = SettingsMenuAILogSectionScript.build_log_page(
+		tab_container,
+		{
+			"history": ICON_HISTORY, "options": ICON_OPTIONS, "refresh": ICON_REFRESH,
+			"save": ICON_SAVE, "delete": ICON_DELETE, "info": ICON_INFO,
+			"check": ICON_CHECK, "sync": ICON_SYNC,
+		},
+		Callable(self, "_tr_ai"),
+		_ai_chart_width,
+		_ai_chart_height,
+		{
+			"toggle_log": Callable(self, "_on_ai_log_toggle_log_pressed"),
+			"toggle_charts": Callable(self, "_on_ai_log_toggle_charts_pressed"),
+			"refresh": Callable(self, "_on_ai_log_refresh_pressed"),
+			"export_json": Callable(self, "_on_ai_export_pressed"),
+			"export_csv": Callable(self, "_on_ai_export_csv_pressed"),
+			"clear": Callable(self, "_on_ai_log_clear_pressed"),
+			"chart_size_changed": Callable(self, "_on_ai_chart_size_changed"),
+			"chart_visibility_toggled": Callable(self, "_on_ai_chart_visibility_toggled"),
+			"tab_changed": Callable(self, "_on_ai_log_tab_changed"),
+		},
+	)
+	_ai_log_view_panel = result["log_view_panel"] as Control
+	_ai_log_rows_container = result["log_rows_container"] as VBoxContainer
+	_ai_analytics_view = result["analytics_view"] as Control
+	_ai_chart_toggle_button = result["chart_toggle_button"] as Button
+	_ai_chart_width_spin = result["chart_width_spin"] as SpinBox
+	_ai_chart_height_spin = result["chart_height_spin"] as SpinBox
+	var kpi_result: Variant = result["kpi_labels"]
+	if kpi_result is Array:
+		_ai_kpi_labels = kpi_result
+	_ai_chart_rows.assign(result["chart_rows"])
+	_ai_chart_canvases.assign(result["chart_canvases"])
+	_chart_success_by_provider = result["chart_success_by_provider"] as Control
+	_chart_mode_pie = result["chart_mode_pie"] as Control
+	_chart_hourly_requests = result["chart_hourly_requests"] as Control
+	_chart_success_per_hour = result["chart_success_per_hour"] as Control
+	_chart_calls_by_model = result["chart_calls_by_model"] as Control
+	_chart_tokens_by_provider = result["chart_tokens_by_provider"] as Control
+	_chart_response_by_provider = result["chart_response_by_provider"] as Control
+	_chart_input_output_tokens = result["chart_input_output_tokens"] as Control
+	_chart_tps_by_provider = result["chart_tps_by_provider"] as Control
+	_chart_hourly_tokens = result["chart_hourly_tokens"] as Control
+	_chart_cumulative_tokens = result["chart_cumulative_tokens"] as Control
+	_normalize_ai_log_language_texts(result["outer_vbox"] as VBoxContainer)
 	_apply_ai_chart_layout()
-func _add_section_header(parent: Control, icon_tex: Texture2D, text: String) -> void:
-	var hbox = HBoxContainer.new()
-	hbox.add_theme_constant_override("separation", 8)
-	hbox.custom_minimum_size = Vector2(0, 24)
-	parent.add_child(hbox)
-	var icon_rect = TextureRect.new()
-	icon_rect.texture = icon_tex
-	icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon_rect.custom_minimum_size = Vector2(18, 18)
-	icon_rect.modulate = Color(0.55, 0.82, 1.0)
-	hbox.add_child(icon_rect)
-	var lbl = Label.new()
-	lbl.text = text
-	lbl.add_theme_font_size_override("font_size", 13)
-	lbl.add_theme_color_override("font_color", Color(0.7, 0.88, 1.0))
-	hbox.add_child(lbl)
-	var sep = HSeparator.new()
-	sep.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sep.modulate = Color(1, 1, 1, 0.15)
-	hbox.add_child(sep)
-func _make_chart_canvas(parent: Control, chart_type: int, title: String) -> Control:
-	var canvas = AIChartCanvas.new()
-	canvas.chart_type = chart_type
-	canvas.chart_title = title
-	canvas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	canvas.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	canvas.custom_minimum_size = Vector2(_ai_chart_width, _ai_chart_height)
-	parent.add_child(canvas)
-	_ai_chart_canvases.append(canvas)
-	return canvas
+	return result["outer_vbox"] as VBoxContainer
 func _on_ai_log_tab_changed(tab_idx: int) -> void:
 	if tab_container and tab_idx == tab_container.get_tab_count() - 1:
 		_refresh_ai_log_table()
@@ -1788,90 +1466,27 @@ func _clear_pending_ai_callback(force_clear: bool) -> void:
 	else:
 		AIManager.pending_callback = Callable()
 func _apply_modern_styles():
-	var panel_style = UIStyleManager.create_panel_style(0.98, 0)
-	panel.add_theme_stylebox_override("panel", panel_style)
-	if apply_button:
-		UIStyleManager.apply_button_style(apply_button, "accent", "large")
-		apply_button.icon = ICON_CHECK
-		apply_button.expand_icon = true
-		UIStyleManager.add_hover_scale_effect(apply_button, 1.06)
-		UIStyleManager.add_press_feedback(apply_button)
-		apply_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if ai_settings_button:
-		UIStyleManager.apply_button_style(ai_settings_button, "primary", "large")
-		ai_settings_button.icon = ICON_CREATIVE
-		ai_settings_button.expand_icon = true
-		UIStyleManager.add_hover_scale_effect(ai_settings_button, 1.06)
-		UIStyleManager.add_press_feedback(ai_settings_button)
-		ai_settings_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if back_button:
-		UIStyleManager.apply_button_style(back_button, "primary", "large")
-		back_button.icon = ICON_BACK
-		back_button.expand_icon = true
-		UIStyleManager.add_hover_scale_effect(back_button, 1.06)
-		UIStyleManager.add_press_feedback(back_button)
-		back_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if delete_logs_button:
-		UIStyleManager.apply_button_style(delete_logs_button, "danger", "medium")
-		delete_logs_button.icon = ICON_DELETE
-		delete_logs_button.expand_icon = true
-		UIStyleManager.add_hover_scale_effect(delete_logs_button, 1.05)
-		UIStyleManager.add_press_feedback(delete_logs_button)
-		delete_logs_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if master_volume_hbox.has_node("MasterVolumeSlider"):
-		master_volume_hbox.get_node("MasterVolumeSlider").mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if music_volume_hbox.has_node("MusicVolumeSlider"):
-		music_volume_hbox.get_node("MusicVolumeSlider").mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if sfx_volume_hbox.has_node("SFXVolumeSlider"):
-		sfx_volume_hbox.get_node("SFXVolumeSlider").mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if voice_preview_button:
-		UIStyleManager.apply_button_style(voice_preview_button, "secondary", "medium")
-		UIStyleManager.add_press_feedback(voice_preview_button)
-		voice_preview_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if voice_capture_button:
-		UIStyleManager.apply_button_style(voice_capture_button, "secondary", "medium")
-		voice_capture_button.icon = ICON_MIC
-		voice_capture_button.expand_icon = true
-		UIStyleManager.add_press_feedback(voice_capture_button)
-		voice_capture_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if reset_tutorials_button:
-		UIStyleManager.apply_button_style(reset_tutorials_button, "accent", "medium")
-		UIStyleManager.add_press_feedback(reset_tutorials_button)
-		reset_tutorials_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	if tab_tutorial:
-		if tab_tutorial.has_node("TutorialInfoPanel"):
-			var info_panel = tab_tutorial.get_node("TutorialInfoPanel")
-			var info_style = UIStyleManager.create_panel_style(0.92, UIStyleManager.CORNER_RADIUS_MEDIUM)
-			info_style.border_width_left = 3
-			info_style.border_width_top = 0
-			info_style.border_width_right = 0
-			info_style.border_width_bottom = 0
-			info_style.border_color = Color(0.4, 0.7, 1.0, 0.8)
-			info_panel.add_theme_stylebox_override("panel", info_style)
-		if tab_tutorial.has_node("ProgressPanel"):
-			var progress_panel = tab_tutorial.get_node("ProgressPanel")
-			var progress_style = UIStyleManager.create_panel_style(0.94, UIStyleManager.CORNER_RADIUS_MEDIUM)
-			progress_style.border_width_left = 0
-			progress_style.border_width_top = 2
-			progress_style.border_width_right = 0
-			progress_style.border_width_bottom = 2
-			progress_style.border_color = Color(0.7, 0.9, 1.0, 0.5)
-			progress_panel.add_theme_stylebox_override("panel", progress_style)
-	if tutorial_list_container:
-		for child in tutorial_list_container.get_children():
-			if child is PanelContainer:
-				var item_style = UIStyleManager.create_panel_style(0.9, UIStyleManager.CORNER_RADIUS_SMALL)
-				item_style.border_width_left = 2
-				item_style.border_width_top = 0
-				item_style.border_width_right = 0
-				item_style.border_width_bottom = 0
-				item_style.border_color = Color(0.5, 0.5, 0.5, 0.3)
-				child.add_theme_stylebox_override("panel", item_style)
-				var trigger_button = child.find_child("Trigger_*", true, false)
-				if trigger_button and trigger_button is Button:
-					UIStyleManager.apply_button_style(trigger_button, "primary", "small")
-					UIStyleManager.add_press_feedback(trigger_button)
-					trigger_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	SettingsMenuStylesScript.apply_modern_styles({
+		"panel": panel,
+		"apply_button": apply_button,
+		"ai_settings_button": ai_settings_button,
+		"back_button": back_button,
+		"delete_logs_button": delete_logs_button,
+		"master_volume_hbox": master_volume_hbox,
+		"music_volume_hbox": music_volume_hbox,
+		"sfx_volume_hbox": sfx_volume_hbox,
+		"voice_preview_button": voice_preview_button,
+		"voice_capture_button": voice_capture_button,
+		"reset_tutorials_button": reset_tutorials_button,
+		"tab_tutorial": tab_tutorial,
+		"tutorial_list_container": tutorial_list_container,
+	}, {
+		"check": ICON_CHECK,
+		"creative": ICON_CREATIVE,
+		"back": ICON_BACK,
+		"delete": ICON_DELETE,
+		"mic": ICON_MIC,
+	})
 	_connect_button_sounds()
 func _get_audio_manager() -> Node:
 	if is_instance_valid(_audio_manager):

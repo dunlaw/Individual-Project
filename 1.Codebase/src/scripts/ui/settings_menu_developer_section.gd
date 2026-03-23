@@ -31,7 +31,7 @@ static func build_section(
 		text_speed_option.add_item("Fast", 1)
 		text_speed_option.add_item("Normal", 2)
 		text_speed_option.add_item("Slow", 3)
-		var h := handlers.get("on_text_speed_selected")
+		var h := _get_handler(handlers, "on_text_speed_selected")
 		if h is Callable and h.is_valid():
 			text_speed_option.item_selected.connect(h)
 		var ts: float = float(initial.get("text_speed", 1.0))
@@ -43,7 +43,7 @@ static func build_section(
 	# ── Screen shake & max rounds ────────────────────────────────────────────────
 	var screen_shake_check: CheckBox = existing_nodes.get("screen_shake_check")
 	if screen_shake_check:
-		var h := handlers.get("on_screen_shake_toggled")
+		var h := _get_handler(handlers, "on_screen_shake_toggled")
 		if h is Callable and h.is_valid():
 			screen_shake_check.toggled.connect(h)
 		screen_shake_check.button_pressed = bool(initial.get("screen_shake_enabled", true))
@@ -56,13 +56,13 @@ static func build_section(
 		if game_state and game_state.settings.has("max_rounds_per_mission"):
 			mr = int(game_state.settings["max_rounds_per_mission"])
 		max_rounds_spinbox.value = mr
-		var h := handlers.get("on_max_rounds_changed")
+		var h := _get_handler(handlers, "on_max_rounds_changed")
 		if h is Callable and h.is_valid():
 			max_rounds_spinbox.value_changed.connect(h)
 	# ── Force mission complete ───────────────────────────────────────────────────
 	var force_mission_complete_check := CheckBox.new()
 	tab.add_child(force_mission_complete_check)
-	var h_fmc := handlers.get("on_force_mission_complete_toggled")
+	var h_fmc := _get_handler(handlers, "on_force_mission_complete_toggled")
 	if h_fmc is Callable and h_fmc.is_valid():
 		force_mission_complete_check.toggled.connect(h_fmc)
 	if game_state:
@@ -75,7 +75,7 @@ static func build_section(
 	force_gloria_button.text = "Queue Gloria (Next Turn)"
 	force_gloria_button.custom_minimum_size = Vector2(250, 40)
 	force_gloria_button.focus_mode = Control.FOCUS_NONE
-	var h_gloria := handlers.get("on_force_gloria_pressed")
+	var h_gloria := _get_handler(handlers, "on_force_gloria_pressed")
 	if h_gloria is Callable and h_gloria.is_valid():
 		force_gloria_button.pressed.connect(h_gloria)
 	gloria_hbox.add_child(force_gloria_button)
@@ -93,7 +93,7 @@ static func build_section(
 	force_trolley_button.text = "Force Trolley Problem Now"
 	force_trolley_button.custom_minimum_size = Vector2(250, 40)
 	force_trolley_button.focus_mode = Control.FOCUS_NONE
-	var h_trolley := handlers.get("on_force_trolley_pressed")
+	var h_trolley := _get_handler(handlers, "on_force_trolley_pressed")
 	if h_trolley is Callable and h_trolley.is_valid():
 		force_trolley_button.pressed.connect(h_trolley)
 	trolley_hbox.add_child(force_trolley_button)
@@ -108,7 +108,7 @@ static func build_section(
 	var force_honeymoon_check := CheckBox.new()
 	force_honeymoon_check.text = "Force Honeymoon Phase"
 	tab.add_child(force_honeymoon_check)
-	var h_honey := handlers.get("on_force_honeymoon_toggled")
+	var h_honey := _get_handler(handlers, "on_force_honeymoon_toggled")
 	if h_honey is Callable and h_honey.is_valid():
 		force_honeymoon_check.toggled.connect(h_honey)
 	if game_state:
@@ -120,7 +120,7 @@ static func build_section(
 	var reality_score_spinbox := SpinBox.new()
 	_build_spinbox_row(tab, reality_score_label, reality_score_spinbox, 0, 100,
 		int(game_state.reality_score) if game_state else 0)
-	var h_rs := handlers.get("on_reality_score_changed")
+	var h_rs := _get_handler(handlers, "on_reality_score_changed")
 	if h_rs is Callable and h_rs.is_valid():
 		reality_score_spinbox.value_changed.connect(h_rs)
 	result["reality_score_label"] = reality_score_label
@@ -129,7 +129,7 @@ static func build_section(
 	var positive_energy_spinbox := SpinBox.new()
 	_build_spinbox_row(tab, positive_energy_label, positive_energy_spinbox, 0, 100,
 		int(game_state.positive_energy) if game_state else 0)
-	var h_pe := handlers.get("on_positive_energy_changed")
+	var h_pe := _get_handler(handlers, "on_positive_energy_changed")
 	if h_pe is Callable and h_pe.is_valid():
 		positive_energy_spinbox.value_changed.connect(h_pe)
 	result["positive_energy_label"] = positive_energy_label
@@ -138,7 +138,7 @@ static func build_section(
 	var entropy_level_spinbox := SpinBox.new()
 	_build_spinbox_row(tab, entropy_level_label, entropy_level_spinbox, 0, 100,
 		int(game_state.entropy_level) if game_state else 0)
-	var h_el := handlers.get("on_entropy_level_changed")
+	var h_el := _get_handler(handlers, "on_entropy_level_changed")
 	if h_el is Callable and h_el.is_valid():
 		entropy_level_spinbox.value_changed.connect(h_el)
 	result["entropy_level_label"] = entropy_level_label
@@ -147,7 +147,7 @@ static func build_section(
 	var honeymoon_charges_spinbox := SpinBox.new()
 	_build_spinbox_row(tab, honeymoon_charges_label, honeymoon_charges_spinbox, 0, 10,
 		int(game_state.honeymoon_charges) if game_state else 0)
-	var h_hc := handlers.get("on_honeymoon_charges_changed")
+	var h_hc := _get_handler(handlers, "on_honeymoon_charges_changed")
 	if h_hc is Callable and h_hc.is_valid():
 		honeymoon_charges_spinbox.value_changed.connect(h_hc)
 	result["honeymoon_charges_label"] = honeymoon_charges_label
@@ -156,7 +156,7 @@ static func build_section(
 	var mission_turn_spinbox := SpinBox.new()
 	_build_spinbox_row(tab, mission_turn_label, mission_turn_spinbox, 0, 100,
 		int(game_state.mission_turn_count) if game_state else 0)
-	var h_mt := handlers.get("on_mission_turn_changed")
+	var h_mt := _get_handler(handlers, "on_mission_turn_changed")
 	if h_mt is Callable and h_mt.is_valid():
 		mission_turn_spinbox.value_changed.connect(h_mt)
 	result["mission_turn_label"] = mission_turn_label
@@ -176,28 +176,28 @@ static func build_section(
 	tab.add_child(quick_actions_grid)
 	var max_stats_button := Button.new()
 	max_stats_button.custom_minimum_size = Vector2(200, 40)
-	var h_ms := handlers.get("on_max_stats_pressed")
+	var h_ms := _get_handler(handlers, "on_max_stats_pressed")
 	if h_ms is Callable and h_ms.is_valid():
 		max_stats_button.pressed.connect(h_ms)
 	quick_actions_grid.add_child(max_stats_button)
 	result["max_stats_button"] = max_stats_button
 	var reset_stats_button := Button.new()
 	reset_stats_button.custom_minimum_size = Vector2(200, 40)
-	var h_reset := handlers.get("on_reset_stats_pressed")
+	var h_reset := _get_handler(handlers, "on_reset_stats_pressed")
 	if h_reset is Callable and h_reset.is_valid():
 		reset_stats_button.pressed.connect(h_reset)
 	quick_actions_grid.add_child(reset_stats_button)
 	result["reset_stats_button"] = reset_stats_button
 	var clear_debuffs_button := Button.new()
 	clear_debuffs_button.custom_minimum_size = Vector2(200, 40)
-	var h_cd := handlers.get("on_clear_debuffs_pressed")
+	var h_cd := _get_handler(handlers, "on_clear_debuffs_pressed")
 	if h_cd is Callable and h_cd.is_valid():
 		clear_debuffs_button.pressed.connect(h_cd)
 	quick_actions_grid.add_child(clear_debuffs_button)
 	result["clear_debuffs_button"] = clear_debuffs_button
 	var add_honeymoon_button := Button.new()
 	add_honeymoon_button.custom_minimum_size = Vector2(200, 40)
-	var h_ah := handlers.get("on_add_honeymoon_pressed")
+	var h_ah := _get_handler(handlers, "on_add_honeymoon_pressed")
 	if h_ah is Callable and h_ah.is_valid():
 		add_honeymoon_button.pressed.connect(h_ah)
 	quick_actions_grid.add_child(add_honeymoon_button)
@@ -213,7 +213,7 @@ static func build_section(
 	var autosave_toggle := CheckBox.new()
 	if game_state:
 		autosave_toggle.set_pressed_no_signal(game_state.autosave_enabled)
-	var h_as := handlers.get("on_autosave_toggled")
+	var h_as := _get_handler(handlers, "on_autosave_toggled")
 	if h_as is Callable and h_as.is_valid():
 		autosave_toggle.toggled.connect(h_as)
 	tab.add_child(autosave_toggle)
@@ -221,7 +221,7 @@ static func build_section(
 	var infinite_resources_toggle := CheckBox.new()
 	if game_state:
 		infinite_resources_toggle.set_pressed_no_signal(game_state.get_metadata("debug_infinite_resources", false))
-	var h_ir := handlers.get("on_infinite_resources_toggled")
+	var h_ir := _get_handler(handlers, "on_infinite_resources_toggled")
 	if h_ir is Callable and h_ir.is_valid():
 		infinite_resources_toggle.toggled.connect(h_ir)
 	tab.add_child(infinite_resources_toggle)
@@ -229,7 +229,7 @@ static func build_section(
 	var skip_dialogue_toggle := CheckBox.new()
 	if game_state:
 		skip_dialogue_toggle.set_pressed_no_signal(game_state.settings.get("auto_advance_enabled", false))
-	var h_sd := handlers.get("on_skip_dialogue_toggled")
+	var h_sd := _get_handler(handlers, "on_skip_dialogue_toggled")
 	if h_sd is Callable and h_sd.is_valid():
 		skip_dialogue_toggle.toggled.connect(h_sd)
 	tab.add_child(skip_dialogue_toggle)
@@ -237,7 +237,7 @@ static func build_section(
 	var god_mode_toggle := CheckBox.new()
 	if game_state:
 		god_mode_toggle.set_pressed_no_signal(game_state.get_metadata("debug_god_mode", false))
-	var h_gm := handlers.get("on_god_mode_toggled")
+	var h_gm := _get_handler(handlers, "on_god_mode_toggled")
 	if h_gm is Callable and h_gm.is_valid():
 		god_mode_toggle.toggled.connect(h_gm)
 	tab.add_child(god_mode_toggle)
@@ -315,7 +315,7 @@ static func build_section(
 	fsm_jump_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var fsm_jump_button := Button.new()
 	fsm_jump_button.text = "Apply"
-	var h_fj := handlers.get("on_fsm_jump_to_day_pressed")
+	var h_fj := _get_handler(handlers, "on_fsm_jump_to_day_pressed")
 	if h_fj is Callable and h_fj.is_valid():
 		fsm_jump_button.pressed.connect(func():
 			h_fj.call(fsm_jump_option.get_selected_id(), fsm_status_label)
@@ -326,7 +326,7 @@ static func build_section(
 	tab.add_child(fsm_jump_hbox)
 	var fsm_reset_button := Button.new()
 	fsm_reset_button.text = "Reset FSM Challenge"
-	var h_fr := handlers.get("on_fsm_reset_pressed")
+	var h_fr := _get_handler(handlers, "on_fsm_reset_pressed")
 	if h_fr is Callable and h_fr.is_valid():
 		fsm_reset_button.pressed.connect(func():
 			h_fr.call(fsm_status_label)
@@ -340,7 +340,7 @@ static func update_fsm_status_label(label: Label, game_state: Node) -> void:
 	if not game_state:
 		label.text = "Status: GameState not available"
 		return
-	var fsm_module = game_state.get_fsm_challenge_module()
+	var fsm_module: Variant = game_state.get_fsm_challenge_module()
 	if not fsm_module:
 		label.text = "Status: FSM Module not available"
 		return
@@ -395,3 +395,12 @@ static func _tr_bilingual(key: String) -> String:
 			return "%s / %s" % [zh, en]
 		return en if not en.is_empty() else key
 	return key
+
+## Safely extracts a Callable from a handlers dictionary by key.
+## Returns an invalid Callable if the key is missing or the value is not Callable.
+static func _get_handler(handlers: Dictionary, key: String) -> Callable:
+	if handlers.has(key):
+		var val: Variant = handlers[key]
+		if val is Callable:
+			return val as Callable
+	return Callable()
