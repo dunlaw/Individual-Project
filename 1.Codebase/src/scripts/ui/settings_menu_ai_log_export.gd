@@ -35,7 +35,7 @@ static func export_csv(
 	tr_callable: Callable,
 	notifier: Node,
 ) -> void:
-	var analytics: Dictionary = SettingsMenuAIAnalyticsScript.compute_analytics(log_entries)
+	var analytics: Dictionary = SettingsMenuAIAnalytics.compute_analytics(log_entries)
 	var ts: String = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	var path: String = "user://ai_usage_charts_%s.csv" % ts
 	var lines: PackedStringArray = []
@@ -46,7 +46,7 @@ static func export_csv(
 			status_text = str(int(entry.get("status_code", 200)))
 		elif str(entry.get("mode", "")) in ["mock", "mock_fallback"]:
 			status_text = "MOCK"
-		lines.append(SettingsMenuAIAnalyticsScript.csv_row([
+		lines.append(SettingsMenuAIAnalytics.csv_row([
 			"call_log",
 			str(entry.get("timestamp", "")),
 			str(entry.get("provider", "")),
@@ -61,22 +61,22 @@ static func export_csv(
 		]))
 	lines.append("")
 	lines.append("section,metric,label,value")
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "provider_success_rate", analytics.get("provider_labels", []), analytics.get("provider_success_rates", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "provider_total_tokens", analytics.get("provider_labels", []), analytics.get("provider_tokens", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "provider_avg_response_seconds", analytics.get("provider_labels", []), analytics.get("provider_response_times", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "provider_input_tokens", analytics.get("provider_labels", []), analytics.get("provider_input_tokens", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "provider_output_tokens", analytics.get("provider_labels", []), analytics.get("provider_output_tokens", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "provider_tps", analytics.get("provider_labels", []), analytics.get("provider_tps", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "mode_distribution", analytics.get("mode_labels", []), analytics.get("mode_counts", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "model_calls", analytics.get("model_labels", []), analytics.get("model_counts", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "hourly_calls", analytics.get("hourly_labels", []), analytics.get("hourly_calls", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "hourly_tokens", analytics.get("hourly_labels", []), analytics.get("hourly_tokens", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "hourly_successes", analytics.get("hourly_labels", []), analytics.get("hourly_successes", []))
-	SettingsMenuAIAnalyticsScript.append_metric_series(lines, "cumulative_tokens", analytics.get("cumulative_labels", []), analytics.get("cumulative_tokens", []))
-	lines.append(SettingsMenuAIAnalyticsScript.csv_row(["summary", "total_calls", "", str(int(analytics.get("total", 0)))]))
-	lines.append(SettingsMenuAIAnalyticsScript.csv_row(["summary", "success_rate_percent", "", "%.2f" % float(analytics.get("success_rate", 0.0))]))
-	lines.append(SettingsMenuAIAnalyticsScript.csv_row(["summary", "total_tokens", "", str(int(analytics.get("total_tokens", 0)))]))
-	lines.append(SettingsMenuAIAnalyticsScript.csv_row(["summary", "avg_response_seconds", "", "%.3f" % float(analytics.get("avg_response_time", 0.0))]))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "provider_success_rate", analytics.get("provider_labels", []), analytics.get("provider_success_rates", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "provider_total_tokens", analytics.get("provider_labels", []), analytics.get("provider_tokens", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "provider_avg_response_seconds", analytics.get("provider_labels", []), analytics.get("provider_response_times", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "provider_input_tokens", analytics.get("provider_labels", []), analytics.get("provider_input_tokens", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "provider_output_tokens", analytics.get("provider_labels", []), analytics.get("provider_output_tokens", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "provider_tps", analytics.get("provider_labels", []), analytics.get("provider_tps", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "mode_distribution", analytics.get("mode_labels", []), analytics.get("mode_counts", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "model_calls", analytics.get("model_labels", []), analytics.get("model_counts", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "hourly_calls", analytics.get("hourly_labels", []), analytics.get("hourly_calls", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "hourly_tokens", analytics.get("hourly_labels", []), analytics.get("hourly_tokens", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "hourly_successes", analytics.get("hourly_labels", []), analytics.get("hourly_successes", []))
+	SettingsMenuAIAnalytics.append_metric_series(lines, "cumulative_tokens", analytics.get("cumulative_labels", []), analytics.get("cumulative_tokens", []))
+	lines.append(SettingsMenuAIAnalytics.csv_row(["summary", "total_calls", "", str(int(analytics.get("total", 0)))]))
+	lines.append(SettingsMenuAIAnalytics.csv_row(["summary", "success_rate_percent", "", "%.2f" % float(analytics.get("success_rate", 0.0))]))
+	lines.append(SettingsMenuAIAnalytics.csv_row(["summary", "total_tokens", "", str(int(analytics.get("total_tokens", 0)))]))
+	lines.append(SettingsMenuAIAnalytics.csv_row(["summary", "avg_response_seconds", "", "%.3f" % float(analytics.get("avg_response_time", 0.0))]))
 	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	if file:
 		file.store_string("\n".join(lines))

@@ -13,11 +13,11 @@ static func refresh_analytics(
 	kpi_labels: Array,
 	log_entries: Array,
 ) -> void:
-	var a: Dictionary = SettingsMenuAIAnalyticsScript.compute_analytics(log_entries)
+	var a: Dictionary = SettingsMenuAIAnalytics.compute_analytics(log_entries)
 	var kpi_vals: Array = [
 		str(a.get("total", 0)),
 		"%.1f%%" % float(a.get("success_rate", 0.0)),
-		SettingsMenuAIAnalyticsScript.format_token_count(int(a.get("total_tokens", 0))),
+		SettingsMenuAIAnalytics.format_token_count(int(a.get("total_tokens", 0))),
 		"%.2fs" % float(a.get("avg_response_time", 0.0)),
 	]
 	for i in range(mini(kpi_labels.size(), kpi_vals.size())):
