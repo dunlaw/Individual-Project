@@ -6,6 +6,7 @@ const ErrorReporterBridge = preload("res://1.Codebase/src/scripts/core/error_rep
 const ERROR_CONTEXT := "SettingsMenu"
 @warning_ignore("shadowed_global_identifier")
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
+const GameSave = preload("res://1.Codebase/src/scripts/core/game_save.gd")
 const SettingsMenuAgentServerSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_agent_server_section.gd")
 const SettingsMenuTutorialSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_tutorial_section.gd")
 const ICON_CHECK = preload("res://1.Codebase/src/assets/ui/icon_check.svg")
@@ -2893,31 +2894,31 @@ func _get_default_font(language: String) -> String:
 		return FontManager.DEFAULT_ZH_FONT if FontManager else "Noto Sans SC"
 	return FontManager.DEFAULT_EN_FONT if FontManager else "Trajan Pro"
 func save_settings():
-	var config = ConfigFile.new()
-	config.set_value("display", "resolution", selected_resolution)
-	config.set_value("display", "mode", selected_mode)
-	config.set_value("display", "font_size", selected_font_size)
-	config.set_value("display", "font_en", selected_english_font)
-	config.set_value("display", "font_zh", selected_chinese_font)
-	config.set_value("display", "high_contrast", high_contrast_mode)
-	config.set_value("game", "language", selected_language)
-	config.set_value("game", "text_speed", text_speed)
-	config.set_value("game", "screen_shake", screen_shake_enabled)
-	config.set_value("game", "max_rounds_per_mission", max_rounds_per_mission)
-	config.set_value("audio", "master_volume", master_volume)
-	config.set_value("audio", "music_volume", music_volume)
-	config.set_value("audio", "sfx_volume", sfx_volume)
-	config.set_value("audio", "gloria_voice_enabled", gloria_voice_enabled)
-	config.set_value("audio", "muted", is_muted)
-	config.set_value("voice", "enabled", voice_enabled)
-	config.set_value("voice", "output_enabled", voice_output_enabled)
-	config.set_value("voice", "input_enabled", voice_input_enabled)
-	config.set_value("voice", "voice_volume", voice_volume)
-	config.set_value("voice", "voice_name", voice_voice_name)
-	config.set_value("voice", "voice_input_mode", voice_input_mode)
-	config.set_value("voice", "proactive_enabled", voice_proactive_enabled)
-	config.set_value("controls", "touch_controls_enabled", touch_controls_enabled)
-	config.save("user://settings.cfg")
+	GameSave.save_settings({
+		"resolution": selected_resolution,
+		"mode": selected_mode,
+		"font_size": selected_font_size,
+		"font_en": selected_english_font,
+		"font_zh": selected_chinese_font,
+		"high_contrast": high_contrast_mode,
+		"language": selected_language,
+		"text_speed": text_speed,
+		"screen_shake": screen_shake_enabled,
+		"max_rounds_per_mission": max_rounds_per_mission,
+		"master_volume": master_volume,
+		"music_volume": music_volume,
+		"sfx_volume": sfx_volume,
+		"gloria_voice_enabled": gloria_voice_enabled,
+		"muted": is_muted,
+		"voice_enabled": voice_enabled,
+		"voice_output_enabled": voice_output_enabled,
+		"voice_input_enabled": voice_input_enabled,
+		"voice_volume": voice_volume,
+		"voice_voice_name": voice_voice_name,
+		"voice_input_mode": voice_input_mode,
+		"voice_proactive_enabled": voice_proactive_enabled,
+		"touch_controls_enabled": touch_controls_enabled,
+	})
 	var game_state := _get_game_state()
 	if game_state:
 		game_state.settings.text_speed = text_speed
@@ -2925,35 +2926,45 @@ func save_settings():
 		game_state.settings.high_contrast_mode = high_contrast_mode
 		game_state.settings["max_rounds_per_mission"] = max_rounds_per_mission
 func load_settings():
-	var config = ConfigFile.new()
-	var err = config.load("user://settings.cfg")
 	var fallback_window_size: Vector2i = Vector2i(DisplayServer.window_get_size())
-	if err == OK:
-		var stored_resolution: Variant = config.get_value("display", "resolution", fallback_window_size)
-		selected_resolution = _coerce_vector2i(stored_resolution, fallback_window_size)
+	var defaults := {
+		"resolution": fallback_window_size,
+		"font_en": _get_default_font("en"),
+		"font_zh": _get_default_font("zh"),
+		"voice_enabled": voice_enabled,
+		"voice_output_enabled": voice_output_enabled,
+		"voice_input_enabled": voice_input_enabled,
+		"voice_volume": voice_volume,
+		"voice_voice_name": voice_voice_name,
+		"voice_input_mode": voice_input_mode,
+		"voice_proactive_enabled": voice_proactive_enabled,
+	}
+	var data := GameSave.load_settings(defaults)
+	if not data.is_empty():
+		selected_resolution = data["resolution"]
 		_normalize_selected_resolution(fallback_window_size)
-		selected_mode = clampi(int(config.get_value("display", "mode", 0)), 0, 2)
-		selected_font_size = int(config.get_value("display", "font_size", 2))
-		selected_english_font = String(config.get_value("display", "font_en", _get_default_font("en")))
-		selected_chinese_font = String(config.get_value("display", "font_zh", _get_default_font("zh")))
-		high_contrast_mode = bool(config.get_value("display", "high_contrast", false))
-		selected_language = String(config.get_value("game", "language", "en"))
-		text_speed = float(config.get_value("game", "text_speed", 1.0))
-		screen_shake_enabled = bool(config.get_value("game", "screen_shake", true))
-		max_rounds_per_mission = int(config.get_value("game", "max_rounds_per_mission", 0))
-		master_volume = float(config.get_value("audio", "master_volume", 100.0))
-		music_volume = float(config.get_value("audio", "music_volume", 100.0))
-		sfx_volume = float(config.get_value("audio", "sfx_volume", 100.0))
-		gloria_voice_enabled = bool(config.get_value("audio", "gloria_voice_enabled", true))
-		is_muted = bool(config.get_value("audio", "muted", false))
-		voice_enabled = bool(config.get_value("voice", "enabled", voice_enabled))
-		voice_output_enabled = bool(config.get_value("voice", "output_enabled", voice_output_enabled))
-		voice_input_enabled = bool(config.get_value("voice", "input_enabled", voice_input_enabled))
-		voice_volume = float(config.get_value("voice", "voice_volume", voice_volume))
-		voice_voice_name = String(config.get_value("voice", "voice_name", voice_voice_name))
-		voice_input_mode = int(config.get_value("voice", "voice_input_mode", voice_input_mode))
-		voice_proactive_enabled = bool(config.get_value("voice", "proactive_enabled", voice_proactive_enabled))
-		touch_controls_enabled = bool(config.get_value("controls", "touch_controls_enabled", false))
+		selected_mode = data["mode"]
+		selected_font_size = data["font_size"]
+		selected_english_font = data["font_en"]
+		selected_chinese_font = data["font_zh"]
+		high_contrast_mode = data["high_contrast"]
+		selected_language = data["language"]
+		text_speed = data["text_speed"]
+		screen_shake_enabled = data["screen_shake"]
+		max_rounds_per_mission = data["max_rounds_per_mission"]
+		master_volume = data["master_volume"]
+		music_volume = data["music_volume"]
+		sfx_volume = data["sfx_volume"]
+		gloria_voice_enabled = data["gloria_voice_enabled"]
+		is_muted = data["muted"]
+		voice_enabled = data["voice_enabled"]
+		voice_output_enabled = data["voice_output_enabled"]
+		voice_input_enabled = data["voice_input_enabled"]
+		voice_volume = data["voice_volume"]
+		voice_voice_name = data["voice_voice_name"]
+		voice_input_mode = data["voice_input_mode"]
+		voice_proactive_enabled = data["voice_proactive_enabled"]
+		touch_controls_enabled = data["touch_controls_enabled"]
 		_apply_audio_settings()
 		var game_state := _get_game_state()
 		if game_state:
