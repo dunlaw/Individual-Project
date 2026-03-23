@@ -96,7 +96,7 @@ sprint={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://1.Codebase/localization/gda1_translations.en.translation", "res://1.Codebase/localization/gda1_translations.zh.translation")
+locale/translations=PackedStringArray("res://1.Codebase/localization/gda1_translations.en.translation", "res://1.Codebase/localization/gda1_translations.zh.translation", "res://1.Codebase/localization/gda1_translations.de.translation")
 
 [rendering]
 
