@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-gda1-mcp-server = "gda1_server:main"
+gda1-mcp-server = "server:main"
 
 [build-system]
 requires = ["hatchling"]
