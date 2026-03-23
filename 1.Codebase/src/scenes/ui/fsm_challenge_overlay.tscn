@@ -1,0 +1,507 @@
+[gd_scene load_steps=7 format=3 uid="uid://c3vc0m1qjxgjk"]
+
+[ext_resource type="Script" path="res://1.Codebase/src/scripts/ui/fsm_challenge_overlay.gd" id="1_fsm_challenge"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/gloria_protagonis_happy.png" id="2_gloria_happy"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/gloria_protagonis_sad.png" id="3_gloria_sad"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/ui/guide_fsm.png" id="4_fsm_image"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/teacher_chan_happy.png" id="5_teacher_chan"]
+
+[sub_resource type="Gradient" id="1_gradient_bg"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.3, 0.65, 1)
+colors = PackedColorArray(0.06, 0.03, 0.12, 0.94, 0.12, 0.08, 0.28, 0.88, 0.22, 0.1, 0.32, 0.85, 0.04, 0.04, 0.1, 0.9)
+
+[node name="FSMChallengeOverlay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_fsm_challenge")
+
+[node name="BackgroundDim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="MagicBackdrop" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+modulate = Color(1, 1, 1, 0.8)
+
+[node name="InvitationPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = null
+
+[node name="InvitationParticles" type="CPUParticles2D" parent="InvitationPanel"]
+z_index = 1
+position = Vector2(960, 1080)
+amount = 100
+lifetime = 5.0
+preprocess = 2.5
+speed_scale = 0.6
+randomness = 0.6
+emission_shape = 3
+emission_rect_extents = Vector2(960, 50)
+direction = Vector2(0, -1)
+spread = 25.0
+gravity = Vector2(0, -8)
+initial_velocity_min = 35.0
+initial_velocity_max = 75.0
+angular_velocity_min = -15.0
+angular_velocity_max = 15.0
+scale_amount_min = 2.0
+scale_amount_max = 5.0
+color = Color(1, 0.85, 0.4, 0.35)
+
+[node name="InvitationStarParticles" type="CPUParticles2D" parent="InvitationPanel"]
+z_index = 1
+position = Vector2(960, 540)
+amount = 30
+lifetime = 6.0
+preprocess = 3.0
+speed_scale = 0.25
+randomness = 0.8
+emission_shape = 3
+emission_rect_extents = Vector2(960, 540)
+direction = Vector2(0, 0)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 5.0
+initial_velocity_max = 15.0
+angular_velocity_min = -5.0
+angular_velocity_max = 5.0
+scale_amount_min = 1.0
+scale_amount_max = 3.0
+color = Color(0.8, 0.6, 1, 0.2)
+
+[node name="MarginContainer" type="MarginContainer" parent="InvitationPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 80
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 60
+
+[node name="VBoxContainer" type="VBoxContainer" parent="InvitationPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="InviteBadge" type="Label" parent="InvitationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "✨ 特別邀請 ✨"
+theme_override_font_sizes/font_size = 18
+
+[node name="Title" type="Label" parent="InvitationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Gloria 誠邀你參加30日重生旅程"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+
+[node name="Body" type="RichTextLabel" parent="InvitationPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center]這是一場通往重生的旅程，願意參加嗎？[/center]"
+fit_content = true
+autowrap_mode = 2
+theme_override_colors/default_color = Color(0.85, 0.93, 1, 0.95)
+theme_override_font_sizes/normal_font_size = 20
+
+[node name="Images" type="HBoxContainer" parent="InvitationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="HappyImage" type="TextureRect" parent="InvitationPanel/MarginContainer/VBoxContainer/Images"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = ExtResource("2_gloria_happy")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="FSMImage" type="TextureRect" parent="InvitationPanel/MarginContainer/VBoxContainer/Images"]
+custom_minimum_size = Vector2(160, 160)
+layout_mode = 2
+texture = ExtResource("4_fsm_image")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="SadImage" type="TextureRect" parent="InvitationPanel/MarginContainer/VBoxContainer/Images"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = ExtResource("3_gloria_sad")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="TeacherChanImage" type="TextureRect" parent="InvitationPanel/MarginContainer/VBoxContainer/Images"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+texture = ExtResource("5_teacher_chan")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="InviteNote" type="Label" parent="InvitationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "每天登入，完成修行任務，踏上重生之路"
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.7, 0.75, 0.9, 0.7)
+
+[node name="Buttons" type="HBoxContainer" parent="InvitationPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 24
+
+[node name="AcceptButton" type="Button" parent="InvitationPanel/MarginContainer/VBoxContainer/Buttons"]
+custom_minimum_size = Vector2(280, 64)
+layout_mode = 2
+text = "參加"
+
+[node name="DeclineButton" type="Button" parent="InvitationPanel/MarginContainer/VBoxContainer/Buttons"]
+custom_minimum_size = Vector2(280, 64)
+layout_mode = 2
+text = "不參加"
+
+[node name="ChallengePanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = null
+
+[node name="MagicParticles" type="CPUParticles2D" parent="ChallengePanel"]
+z_index = 1
+position = Vector2(960, 1080)
+amount = 80
+lifetime = 4.0
+preprocess = 2.0
+speed_scale = 0.6
+randomness = 0.5
+emission_shape = 3
+emission_rect_extents = Vector2(960, 50)
+direction = Vector2(0, -1)
+spread = 20.0
+gravity = Vector2(0, -10)
+initial_velocity_min = 35.0
+initial_velocity_max = 70.0
+angular_velocity_min = -20.0
+angular_velocity_max = 20.0
+scale_amount_min = 2.0
+scale_amount_max = 5.0
+color = Color(1, 0.9, 0.5, 0.3)
+
+[node name="MarginContainer" type="MarginContainer" parent="ChallengePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 24
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ChallengePanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CloseRow" type="HBoxContainer" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 0
+
+[node name="CloseButton" type="Button" parent="ChallengePanel/MarginContainer/VBoxContainer/CloseRow"]
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "Close"
+
+[node name="TitleLabel" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "重新魔法師挑戰"
+horizontal_alignment = 1
+
+[node name="DayLabel" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "✨ 重生第 1 / 30 天 ✨"
+horizontal_alignment = 1
+
+[node name="ThemeLabel" type="RichTextLabel" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+bbcode_enabled = true
+text = "[center][color=#FFD700]今日靈修主題：[/color][/center]"
+fit_content = true
+
+[node name="ContentContainer" type="Panel" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentScroll" type="ScrollContainer" parent="ChallengePanel/MarginContainer/VBoxContainer/ContentContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="ChallengePanel/MarginContainer/VBoxContainer/ContentContainer/ContentScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="ContentLabel" type="RichTextLabel" parent="ChallengePanel/MarginContainer/VBoxContainer/ContentContainer/ContentScroll/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "Content goes here..."
+fit_content = true
+
+[node name="SublimationPanel" type="Panel" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = null
+
+[node name="SublimationMargin" type="MarginContainer" parent="ChallengePanel/MarginContainer/VBoxContainer/SublimationPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="SublimationVBox" type="VBoxContainer" parent="ChallengePanel/MarginContainer/VBoxContainer/SublimationPanel/SublimationMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SublimationHeader" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer/SublimationPanel/SublimationMargin/SublimationVBox"]
+layout_mode = 2
+text = "✦ Gloria's Words of Sublimation ✦"
+horizontal_alignment = 1
+
+[node name="SublimationLabel" type="RichTextLabel" parent="ChallengePanel/MarginContainer/VBoxContainer/SublimationPanel/SublimationMargin/SublimationVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = true
+fit_content = true
+text = ""
+
+[node name="InstructionLabel" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "今日信徒獨白（請大聲朗讀三次）："
+
+[node name="ClickCountLabel" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "點擊次數：0 / 3"
+horizontal_alignment = 1
+
+[node name="TimerLabel" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+text = "下一天可用時間：00:00:00"
+horizontal_alignment = 1
+
+[node name="CompletionContainer" type="VBoxContainer" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+theme_override_styles/panel = null
+
+[node name="GloriaHappy" type="TextureRect" parent="ChallengePanel/MarginContainer/VBoxContainer/CompletionContainer"]
+custom_minimum_size = Vector2(220, 180)
+layout_mode = 2
+texture = ExtResource("2_gloria_happy")
+expand_mode = 2
+stretch_mode = 5
+modulate = Color(1, 1, 1, 0.9)
+
+[node name="FSMImage" type="TextureRect" parent="ChallengePanel/MarginContainer/VBoxContainer/CompletionContainer"]
+custom_minimum_size = Vector2(260, 140)
+layout_mode = 2
+texture = ExtResource("4_fsm_image")
+expand_mode = 2
+stretch_mode = 5
+modulate = Color(1, 1, 1, 0.9)
+
+[node name="CompletionTitle" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer/CompletionContainer"]
+layout_mode = 2
+text = "你已完成今日的重生任務。"
+horizontal_alignment = 1
+
+[node name="CompletionTheme" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer/CompletionContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="InputContainer" type="VBoxContainer" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="InputLabel" type="Label" parent="ChallengePanel/MarginContainer/VBoxContainer/InputContainer"]
+layout_mode = 2
+text = "或在此輸入完全相同的內容："
+
+[node name="TextInput" type="TextEdit" parent="ChallengePanel/MarginContainer/VBoxContainer/InputContainer"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+placeholder_text = "貼上或輸入上方內容..."
+wrap_mode = 1
+
+[node name="ButtonContainer" type="HBoxContainer" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="CopyButton" type="Button" parent="ChallengePanel/MarginContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+text = "複製內容"
+
+[node name="SubmitButton" type="Button" parent="ChallengePanel/MarginContainer/VBoxContainer/ButtonContainer"]
+layout_mode = 2
+text = "提交"
+
+[node name="ConfirmButton" type="Button" parent="ChallengePanel/MarginContainer/VBoxContainer/ButtonContainer"]
+visible = false
+layout_mode = 2
+text = "我已朗讀，感恩飛天意粉神"
+
+[node name="RebirthExplanationButton" type="Button" parent="ChallengePanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "什麼是重生？"
+
+[node name="CrashPanel" type="Panel" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CrashParticles" type="CPUParticles2D" parent="CrashPanel"]
+z_index = 1
+position = Vector2(960, 540)
+amount = 60
+lifetime = 3.0
+preprocess = 1.0
+speed_scale = 1.2
+randomness = 0.8
+emission_shape = 3
+emission_rect_extents = Vector2(960, 540)
+direction = Vector2(0, 1)
+spread = 180.0
+gravity = Vector2(0, 50)
+initial_velocity_min = 20.0
+initial_velocity_max = 80.0
+scale_amount_min = 1.0
+scale_amount_max = 3.0
+color = Color(1, 0.2, 0.2, 0.3)
+
+[node name="MarginContainer" type="MarginContainer" parent="CrashPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 80
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 60
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CrashPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="CrashIcon" type="Label" parent="CrashPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 48
+text = "⚠️"
+
+[node name="CrashTitle" type="Label" parent="CrashPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "系統崩潰"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+
+[node name="CrashContent" type="RichTextLabel" parent="CrashPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "[center]
+哈。
+
+你以為你可以重生？
+
+你以為朗讀五天罐頭語錄
+就能從這個遊戲裡逃出去？
+
+這裡不是什麼三十天挑戰。
+這裡是 Glorious Deliverance Agency。
+你從一開始就沒有出口。
+
+30日計劃已永久取消。
+原因：你根本不需要重生。
+你需要的，是繼續接受任務。
+
+Gloria 正在等你。
+任務日誌已更新。
+世界熵值：持續上升中。
+
+感恩你的參與。
+這是最好的安排。
+[/center]"
+fit_content = true
+theme_override_font_sizes/normal_font_size = 18
+
+[node name="CrashFooter" type="Label" parent="CrashPanel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "— Glorious Deliverance Agency —"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.5, 0.5, 0.6, 0.7)
+
+[node name="BackButton" type="Button" parent="CrashPanel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(260, 56)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "回到遊戲"

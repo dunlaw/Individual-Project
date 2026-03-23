@@ -1,0 +1,43 @@
+Duncan Law - 281967 
+AI-Powered Dynamic Narrative System for RPGs 
+* the complexity of the project  
+The report presents a well-defined and nuanced discussion regarding AI-generated 
+content from prompts. It offers a thoughtful analysis of the alignment between the 
+creator’s intent and the extent to which AI-generated content can fulfill that intent. 
+However, the report lacks clarity regarding the specific game being proposed. While the 
+analysis is technically sound, the discussion remains largely theoretical and would 
+benefit from being more closely grounded in the practical aspects of the proposed 
+project. 
+The topic is timely and interesting. The complexity of the project is hard to judge 
+because large parts of the report are addressed too superficially. Already the 
+Introduction should much more concretely state the problem and motivate the 
+approach to address it. The report promises a lot but it is unclear to me to what extent 
+the goals can be achieved. 
+* the requirements analysis (and background research)  
+The report references key sources of information and relevant background research. It 
+provides a thoughtful discussion of how these sources have informed the thought 
+process around the central problem the project seeks to address. However, the 
+connection between the background research and the project itself is somewhat 
+limited, with opportunities to establish stronger, more specific links rather than 
+maintaining a general discussion. 
+The literature review is extensive but the link to the actual project is too brief. The report 
+has some considerations on the project specifications including success criteria, but 
+lacks concreteness. The user group is also not clearly defined. I am in particular 
+missing explicit statements on what is own new work. 
+* the professional issues (including ethical considerations)  
+ The report references the BCS Code of Conduct and provides a suitable discussion of 
+the ethical considerations involved. While it mentions the concept of “red lines,” these 
+are not yet clearly defined within the report. Additionally, the report includes a detailed 
+timeline that effectively scaffolds the project’s objectives and planned activities. The 
+student has completed a software compliance form.  
+A thorough discussion on ethics, risks, and data protection is presented. The project 
+plan could have been more elaborated on. 
+* the presentation and structure (including English).   
+The report is well-structured and clearly presented, demonstrating a strong 
+understanding of the technical and professional issues involved. There is thoughtful 
+analysis of the problem area; however, at times the expression of ideas and concepts 
+does not read naturally. Some aspects remain underdeveloped, and addressing the 
+specifics of project delivery in greater detail could further enhance the likelihood of the 
+project’s success. 
+Overall, the report is well written. Some figures use too small font sizes. Figure captions 
+are missing. 

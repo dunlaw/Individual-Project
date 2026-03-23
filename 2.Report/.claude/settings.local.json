@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.overleaf.com)",
+      "Bash(where:*)",
+      "Bash(pdflatex:*)",
+      "Bash(mpm --install=natbib:*)",
+      "Bash(findstr:*)",
+      "Bash(cd:*)",
+      "WebFetch(domain:deepmind.google)",
+      "WebFetch(domain:arxiv.org)"
+    ]
+  }
+}

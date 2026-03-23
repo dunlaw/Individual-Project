@@ -1,0 +1,311 @@
+name: Run Unit Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.6.1"
+  GODOT_VERSION_FULL: "4.6.1-stable"
+
+jobs:
+  unit-tests:
+    name: Run Unit Tests & Sync Assets
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          lfs: false
+          fetch-depth: 0
+
+      - name: Cache Godot data
+        id: cache-import
+        uses: actions/cache@v5
+        with:
+          path: .godot
+          key: godot-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-${{ hashFiles('1.Codebase/**/*.gd', '1.Codebase/**/*.csv') }}
+          restore-keys: |
+            godot-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-
+
+      - name: Setup Godot
+        uses: ./.github/actions/setup-godot
+        with:
+          godot-version: ${{ env.GODOT_VERSION }}
+          godot-version-full: ${{ env.GODOT_VERSION_FULL }}
+
+      - name: Force Import Assets (Headless)
+        run: |
+          echo "Importing project assets to generate .import and .translation files..."
+          ./godot_executable --headless --editor --quit --path . || true
+          ./godot_executable --headless --editor --quit --path . || true
+          echo "Import complete."
+
+      - name: Auto-Commit Missing Assets
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Checking for auto-generated files (.import, .translation)..."
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -f "1.Codebase/**/*.import"
+          git add -f "1.Codebase/**/*.translation" 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "No missing .import or .translation files found. Repository is clean."
+          else
+            echo "Found missing generated assets. Committing them back to the branch."
+            git commit -m "chore: auto-sync generated import metadata and translations [skip ci]"
+            git push origin HEAD
+          fi
+
+      - name: Create test output directory
+        run: mkdir -p test-results
+
+      - name: Audit unit test coverage
+        id: audit-tests
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import os
+          import sys
+
+          all_tests = sorted(path.as_posix() for path in Path("1.Codebase").rglob("test_*.gd"))
+          discovery_roots = (
+              "1.Codebase/Unit Test/",
+              "1.Codebase/src/scripts/tests/",
+              "1.Codebase/src/scripts/ui/",
+          )
+          skip_files = {
+              "all_tests_runner.gd",
+              "ui_tests_runner.gd",
+              "quick_verify.gd",
+              "test_achievement_system_api.gd",
+              "test_providers_mock.gd",
+          }
+          standalone = {
+              "1.Codebase/src/scripts/tests/test_achievement_system_api.gd",
+              "1.Codebase/src/scripts/tests/test_providers_mock.gd",
+          }
+
+          discovered = sorted(
+              path for path in all_tests
+              if path.startswith(discovery_roots) and Path(path).name not in skip_files
+          )
+          accounted = sorted(set(discovered) | standalone)
+          missing = sorted(path for path in all_tests if path not in accounted)
+
+          print(f"All test scripts found : {len(all_tests)}")
+          print(f"Runner-discovered     : {len(discovered)}")
+          print(f"Standalone scripts    : {len(standalone)}")
+          print(f"Accounted for         : {len(accounted)}")
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"all_tests={len(all_tests)}\n")
+              fh.write(f"discovered_tests={len(discovered)}\n")
+              fh.write(f"standalone_tests={len(standalone)}\n")
+              fh.write(f"accounted_tests={len(accounted)}\n")
+
+          if missing:
+              print("The following test scripts are not covered by CI:")
+              for path in missing:
+                  print(f" - {path}")
+              sys.exit(1)
+
+          print("Every test_*.gd file is covered by the current CI entrypoints.")
+          PY
+
+      - name: Run all unit tests
+        id: run-tests
+        shell: bash
+        run: |
+          set -uo pipefail
+          echo "Running all unit tests via all_tests_runner.tscn..."
+          echo "============================================"
+
+          OVERALL_EXIT=0
+          MAIN_EXIT_CODE=0
+          STANDALONE_PASSED=0
+          STANDALONE_FAILED=0
+
+          set +e
+          timeout 300 ./godot_executable --headless --path . --scene "res://1.Codebase/src/scenes/tests/all_tests_runner.tscn" 2>&1 | tee test-results/test-output.log
+          MAIN_EXIT_CODE=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$MAIN_EXIT_CODE" -eq 124 ]; then
+            if grep -q "ALL TRACKED TESTS PASSED!" test-results/test-output.log && \
+               grep -Eq "^[[:space:]]+Failed[[:space:]]+:[[:space:]]+0" test-results/test-output.log; then
+              echo "::warning::Main Godot test runner hit the 300s timeout after printing a passing final summary. Treating this timeout as non-fatal."
+              MAIN_EXIT_CODE=0
+            else
+              echo "::error::Main Godot test runner timed out before a clean successful finish (exit 124)."
+            fi
+          fi
+
+          if [ "$MAIN_EXIT_CODE" -ne 0 ]; then
+            OVERALL_EXIT=$MAIN_EXIT_CODE
+          fi
+
+          run_standalone_test() {
+            local script_path="$1"
+            echo "" | tee -a test-results/test-output.log
+            echo ">> Running standalone script: $script_path" | tee -a test-results/test-output.log
+            set +e
+            timeout 120 ./godot_executable --headless --path . --script "$script_path" 2>&1 | tee -a test-results/test-output.log
+            local exit_code=${PIPESTATUS[0]}
+            set -e
+
+            if [ "$exit_code" -eq 0 ]; then
+              STANDALONE_PASSED=$((STANDALONE_PASSED + 1))
+              echo ">> PASS standalone: $script_path" | tee -a test-results/test-output.log
+            else
+              STANDALONE_FAILED=$((STANDALONE_FAILED + 1))
+              OVERALL_EXIT=$exit_code
+              echo ">> FAIL standalone: $script_path (exit $exit_code)" | tee -a test-results/test-output.log
+            fi
+          }
+
+          run_standalone_test "res://1.Codebase/src/scripts/tests/test_achievement_system_api.gd"
+          run_standalone_test "res://1.Codebase/src/scripts/tests/test_providers_mock.gd"
+
+          echo "" | tee -a test-results/test-output.log
+          echo "STANDALONE TEST SUMMARY" | tee -a test-results/test-output.log
+          echo "  Standalone passed : $STANDALONE_PASSED" | tee -a test-results/test-output.log
+          echo "  Standalone failed : $STANDALONE_FAILED" | tee -a test-results/test-output.log
+
+          echo "main_exit_code=$MAIN_EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "test_exit_code=$OVERALL_EXIT" >> $GITHUB_OUTPUT
+          echo "Test execution completed with exit code: $OVERALL_EXIT"
+        continue-on-error: true
+
+      - name: Parse test results
+        id: parse-results
+        shell: bash
+        run: |
+          echo "Parsing test results..."
+          OUTPUT_FILE="test-results/test-output.log"
+          SUMMARY_FILE="test-results/summary.md"
+
+          echo "# Test Results Summary" > $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+          echo "**Branch:** \`${{ github.ref_name }}\` | **Commit:** \`${{ github.sha }}\`" >> $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+
+          if [ ! -f "$OUTPUT_FILE" ]; then
+            echo "CRITICAL: Test output log missing!" >> $SUMMARY_FILE
+            exit 1
+          fi
+
+          extract_last_metric() {
+            local pattern="$1"
+            local value
+            value=$(grep -E "$pattern" "$OUTPUT_FILE" | tail -1 | grep -oE '[0-9]+' | head -1 || true)
+            echo "${value:-0}"
+          }
+
+          PASSED_TESTS=$(extract_last_metric "^[[:space:]]+Passed[[:space:]]+:")
+          FAILED_TESTS=$(extract_last_metric "^[[:space:]]+Failed[[:space:]]+:")
+          TOTAL_TESTS=$(extract_last_metric "^[[:space:]]+Total assertions[[:space:]]+:")
+          STANDALONE_PASSED=$(grep -E "^[[:space:]]+Standalone passed[[:space:]]+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1 || true)
+          STANDALONE_FAILED=$(grep -E "^[[:space:]]+Standalone failed[[:space:]]+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1 || true)
+
+          PASSED_TESTS=${PASSED_TESTS:-0}
+          FAILED_TESTS=${FAILED_TESTS:-0}
+          TOTAL_TESTS=${TOTAL_TESTS:-0}
+          STANDALONE_PASSED=${STANDALONE_PASSED:-0}
+          STANDALONE_FAILED=${STANDALONE_FAILED:-0}
+
+          echo "## Statistics" >> $SUMMARY_FILE
+          echo "| Metric | Value |" >> $SUMMARY_FILE
+          echo "|--------|-------|" >> $SUMMARY_FILE
+          echo "| Total Tests | $TOTAL_TESTS |" >> $SUMMARY_FILE
+          echo "| All test scripts found | ${{ steps.audit-tests.outputs.all_tests }} |" >> $SUMMARY_FILE
+          echo "| Runner-discovered scripts | ${{ steps.audit-tests.outputs.discovered_tests }} |" >> $SUMMARY_FILE
+          echo "| Standalone scripts | ${{ steps.audit-tests.outputs.standalone_tests }} |" >> $SUMMARY_FILE
+          echo "| Standalone Suites Passed | $STANDALONE_PASSED |" >> $SUMMARY_FILE
+          echo "| Standalone Suites Failed | $STANDALONE_FAILED |" >> $SUMMARY_FILE
+          echo "| Passed | $PASSED_TESTS |" >> $SUMMARY_FILE
+          echo "| Failed | $FAILED_TESTS |" >> $SUMMARY_FILE
+
+          if [ "$TOTAL_TESTS" -gt 0 ]; then
+            PASS_RATE=$(awk "BEGIN {printf \"%.1f%%\", ($PASSED_TESTS / $TOTAL_TESTS) * 100}")
+            echo "| Pass Rate | $PASS_RATE |" >> $SUMMARY_FILE
+          fi
+
+          GODOT_EXIT="${{ steps.run-tests.outputs.test_exit_code }}"
+          MAIN_EXIT="${{ steps.run-tests.outputs.main_exit_code }}"
+          echo "| Main runner exit code | ${MAIN_EXIT:-unknown} |" >> $SUMMARY_FILE
+          echo "| Overall workflow exit code | ${GODOT_EXIT:-unknown} |" >> $SUMMARY_FILE
+
+          if [ "$FAILED_TESTS" -gt 0 ] || [ "$STANDALONE_FAILED" -gt 0 ] || [ "${GODOT_EXIT:-1}" != "0" ]; then
+            echo "test_status=failure" >> $GITHUB_OUTPUT
+            echo "## Failures Detected" >> $SUMMARY_FILE
+            grep -E "^[[:space:]]+FAIL[[:space:]]+" "$OUTPUT_FILE" | head -20 >> $SUMMARY_FILE || true
+            grep -E "^>> FAIL standalone:" "$OUTPUT_FILE" | head -20 >> $SUMMARY_FILE || true
+          elif [ "$TOTAL_TESTS" -eq 0 ]; then
+            echo "test_status=error" >> $GITHUB_OUTPUT
+            echo "## Warning: No tests detected in output!" >> $SUMMARY_FILE
+          else
+            echo "test_status=success" >> $GITHUB_OUTPUT
+            echo "## All Tests Passed" >> $SUMMARY_FILE
+          fi
+
+          echo "" >> $SUMMARY_FILE
+          echo "<details><summary>View Full Logs (last 200 lines)</summary>" >> $SUMMARY_FILE
+          echo "" >> $SUMMARY_FILE
+          echo '```' >> $SUMMARY_FILE
+          tail -n 200 "$OUTPUT_FILE" >> $SUMMARY_FILE
+          echo '```' >> $SUMMARY_FILE
+          echo "</details>" >> $SUMMARY_FILE
+
+      - name: Add summary to GitHub Job
+        if: always()
+        run: cat test-results/summary.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload unit test artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: unit-test-results
+          path: test-results
+          if-no-files-found: error
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            let summary = fs.readFileSync('test-results/summary.md', 'utf8');
+            const MAX = 65000;
+            if (summary.length > MAX) {
+              const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+              summary = summary.substring(0, MAX) + `\n\n_[(truncated) full output in Actions](${runUrl})_`;
+            }
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+      - name: Final Status Check
+        if: always()
+        run: |
+          if [ "${{ steps.parse-results.outputs.test_status }}" != "success" ]; then
+            echo "Tests did not pass. Failing workflow."
+            exit 1
+          fi

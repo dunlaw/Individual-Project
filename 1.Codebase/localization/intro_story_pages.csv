@@ -1,0 +1,484 @@
+page,chapter_id,chapter_title_zh,chapter_title_en,title_zh,title_en,text_zh,text_en,image_path
+1,1,第一幕,Act I,第1頁,Page 1,"場景：第1號邊界廢墟。天空常年被厚重的酸性灰霾籠罩，四周是生鏽的鋼鐵殘骸。
+畫面：主角與老友 One 坐在一個用廢棄金屬拼湊的掩體下。One 是主角在這片廢土上唯一信任的戰友，他總是很安靜，此刻正低著頭，默默地修補著一件防護服。
+突然，掩體外一台佈滿刮痕的公共全息收音機發出刺耳的電流聲。隨後，一陣極度輕柔、與周遭廢墟格格不入的甜美流行樂聲傳了出來。
+全息收音機（陳老師的歌聲）：
+「做甚麼都不被看好……」
+「誰都可發光，只要找對地方……」
+「讓我做我的主角……」
+「成敗與否，看我是怎麼看……」
+畫面：主角皺起眉頭，看著收音機投射出的陳老師虛擬影像。她穿著一襲純白色的長裙，在滿是輻射塵的投影中顯得聖潔無比。","Scene: Boundary Ruins No. 1. The sky is perpetually shrouded in thick acidic smog, surrounded by rusted steel wreckage.
+Visual: The protagonist and their old friend One sit under a shelter pieced together from scrap metal. One is the only comrade the protagonist trusts in this wasteland; always quiet, currently bent over, silently repairing a protective suit.
+Suddenly, a scratched public holographic radio outside the shelter emits a harsh electrical noise. Then, an extremely gentle, sweet pop melody, completely out of place among the ruins, begins to play.
+Holographic Radio (Teacher Chan's voice singing):
+""No matter what you do, no one believes in you...""
+""Everyone can shine, as long as you find the right place...""
+""Let me be my own protagonist...""
+""Success or failure depends on how I see it...""
+Visual: The protagonist frowns, watching the holographic image of Teacher Chan projected by the radio. She wears a pure white dress, appearing impossibly sacred amid the radiation-filled projection.",res://1.Codebase/src/assets/ui/intro/page_1_story_intro.png
+2,1,第一幕,Act I,第2頁,Page 2,"全息收音機（陳老師的廣播獨白）：
+「各位在廢墟中迷惘的靈魂，你們好。或許你們已經察覺，這個世界的資源正在枯竭，『虛無熵增』的終局正在逼近。是的，舊世界正在崩塌……但請不要恐懼！」
+全息收音機（陳老師雙手合十，笑容溫暖）：
+「只要我們將一切交託給『飛天意粉神 (FSM)』，奇蹟就會降臨。記住，宇宙的法則是『吸引力法則』！只要你保持絕對的正能量，拒絕所有的負面情緒，美好的事物就會被你吸引而來。不要活埋在世俗的眼光中，假使相信，就拼命去闖吧！」
+主角（低聲自嘲）：「『成敗與否，看我是怎麼看』？難道我不承認肚子餓，胃就不會痛了嗎？真是一派胡言。我根本就不相信,而且這個世界是不是真的接近結局也不知道吧可能還有一千年一萬年之後才到達」
+畫面：雖然嘴上這麼說，但連續幾個月的生存高壓與以及無助，讓主角的眼中閃過一絲微弱的疲憊。他轉頭看向 One，One 只是停下了手中的工作，勉強擠出一個溫和的、不置可否的微笑。","Holographic Radio (Teacher Chan's broadcast monologue):
+""Dear lost souls wandering in the ruins, hello. Perhaps you've already noticed that the resources of this world are depleting, and the end of 'entropy towards nothingness' is approaching. Yes, the old world is collapsing... but do not fear!""
+Holographic Radio (Teacher Chan clasps her hands together, smiling warmly):
+""As long as we entrust everything to the 'Flying Spaghetti Monster (FSM)', miracles will come. Remember, the law of the universe is the 'Law of Attraction'! As long as you maintain absolute positive energy and reject all negative emotions, beautiful things will be drawn to you. Don't let yourself be buried by worldly judgments, if you believe, charge forward fearlessly!""
+Protagonist (muttering sarcastically): ""'Success or failure depends on how I see it'? If I don't admit I'm hungry, will my stomach stop hurting? What nonsense. I don't believe it at all, and who knows if the world is really ending, maybe it'll be another thousand or ten thousand years.""
+Visual: Despite the words, months of survival pressure and helplessness have left a trace of faint exhaustion in the protagonist's eyes. They turn to look at One, who simply stops working and forces a gentle, noncommittal smile.",res://1.Codebase/src/assets/ui/intro/page_2_story_doubt.png
+3,1,第一幕,Act I,第3頁,Page 3,"場景：廢墟集散地    拾荒者營地。
+畫面：廣播結束後，One 站起身，輕輕拍了拍主角的肩膀。他用手勢比劃著，指了指營地邊緣一個孤零零的身影。
+主角（看懂了 One 的手勢，眉頭緊鎖）：「你想幫她？One，你總是這麼好心。但我們自己生存都很困難了。過去幾年，我被那些自私的外人出賣過太多次，只有你相信好，我根本信不過這裡的任何人。」
+畫面：One 沒有說話，只是用懇求且真誠的眼神看著主角。One 知道那女孩剛流落到這片廢墟，人生路不熟，如果沒有人帶帶她，她根本活不下去。One 表達了想和她結伴同行的意願，並且希望主角也能一起加入，互相照應。
+主角（嘆了一口氣，語氣軟了下來）：「既然是你開口……好吧。在這個見鬼的地方，我只信任你。既然你覺得她沒問題，那就一起走吧。」","Scene: Ruins Market, Scavenger Camp.
+Visual: After the broadcast ends, One stands up and gently pats the protagonist's shoulder. He gestures, pointing toward a solitary figure at the edge of the camp.
+Protagonist (understanding One's gesture, frowning): ""You want to help her? One, you're always so kind. But we're barely surviving ourselves. Over the past few years, I've been betrayed too many times by selfish outsiders. Only you I trust, I can't trust anyone else here.""
+Visual: One doesn't speak, just looks at the protagonist with pleading, sincere eyes. One knows the girl has just drifted into this wasteland, unfamiliar with everything, without someone to guide her, she won't survive. One expresses his wish to travel with her and hopes the protagonist will join them, watching out for each other.
+Protagonist (sighing, tone softening): ""Since it's you asking... fine. In this godforsaken place, I only trust you. If you think she's okay, then let's go together.""",res://1.Codebase/src/assets/ui/intro/page_3_story_camp.png
+4,1,第一幕,Act I,第4頁,Page 4,"畫面：One 露出欣慰的笑容，轉身走向營地角落。不一會兒，他帶著一個穿著乾淨白色斗篷的女孩走了過來。在這片滿是污垢的廢土上，她乾淨得有些不真實。這就是 Gloria。
+Gloria（走到兩人面前，沒有像其他拾荒者那樣滿臉戒備，反而帶著一種溫柔的微笑）：「你們好，謝謝你們願意帶著我。我才剛來到這裡，很多事情都不懂。」
+畫面：主角轉過身去整理地上的裝備零件，刻意避開了她的目光，表現得極度冷淡與被動。
+主角（頭也不抬，語氣生硬）：「謝他（指 One）就好，是他要幫你的。上了路就跟緊點，別惹麻煩。」
+Gloria（笑容依舊，輕輕點頭）：「好的，希望能合作愉快。」
+畫面：主角沒有再主動與她搭話，甚至連正眼都沒看她。主角的內心獨白浮現：【我只是看在 One 的份上才答應的。我絕對不會輕易對陌生人卸下心防。】","Visual: One smiles with relief and walks toward the corner of the camp. Soon, he returns with a girl wearing a clean white cloak. In this filthy wasteland, her cleanliness seems almost unreal. This is Gloria.
+Gloria (approaching them, not showing the usual scavenger wariness but wearing a gentle smile): ""Hello, thank you for being willing to take me along. I just arrived here and don't understand much yet.""
+Visual: The protagonist turns away to organize equipment parts on the ground, deliberately avoiding her gaze, appearing extremely cold and passive.
+Protagonist (not looking up, tone curt): ""Thank him (pointing to One), not me. He's the one helping you. Stay close when we're on the road and don't cause trouble.""
+Gloria (smile unchanged, nodding gently): ""Okay, I hope we can work well together.""
+Visual: The protagonist doesn't initiate further conversation with her, doesn't even look at her properly. The protagonist's inner monologue emerges: [I'm only agreeing because of One. I absolutely won't let my guard down with strangers easily.]",res://1.Codebase/src/assets/ui/intro/page_4_story_gloria.png
+5,1,第一幕,Act I,第5頁,Page 5,"場景：前往「史坦文國家公園」的荒土路上。
+畫面：這不是什麼任務，純粹是因為營地裡太過壓抑，三人漫無目的地朝著據說曾有變異牛羊出現的廢棄公園走去，當作打發時間。One 默默地走在最前面探路，主角刻意落後了幾步，與那個穿白斗篷的女孩保持著安全距離。
+突然，Gloria 放慢了腳步，退到了主角身旁。她轉過頭，毫無預警地直視著主角的眼睛，露出了一個極度燦爛的笑容。
+Gloria（輕聲說道，語氣帶著一絲俏皮）：
+「Btw，其實這幾天都未正式打過招呼[laugh]。我剛才留意到你外套上的舊區徽章……好巧，我發現我們都是來自『金融中心廢墟』的。而且，我看你一直默默觀察周遭的樣子……我也是 6767性格的人喔。」
+畫面：主角猛地停下腳步，瞳孔微縮，彷彿被閃電擊中。
+主角（內心劇烈震動）：【6767？這片廢土上最稀有、最容易內耗、也最渴望被理解的靈魂頻率？我曾在這片荒蕪中許願，希望能遇到一個懂我的人……她竟然跟我一樣？】","Scene: On the desolate road toward ""Stanfield National Park.""
+Visual: This isn't a mission, just an escape from the oppressive camp. The three wander aimlessly toward an abandoned park where mutated cattle and sheep were reportedly seen, killing time. One silently walks ahead scouting, while the protagonist deliberately lags behind, maintaining a safe distance from the girl in the white cloak.
+Suddenly, Gloria slows down and falls back beside the protagonist. She turns her head and, without warning, looks directly into the protagonist's eyes, breaking into a brilliant smile.
+Gloria (speaking softly, with a hint of playfulness):
+""Btw, we haven't actually introduced ourselves properly these past few days [laugh]. I just noticed the old district badge on your jacket... what a coincidence, I found out we're both from the 'Financial Center Ruins.' And also, I see you're always quietly observing your surroundings... I'm also a 6767 personality type.""
+Visual: The protagonist abruptly stops, pupils contracting slightly, as if struck by lightning.
+Protagonist (inner turmoil): [6767? The rarest soul frequency in this wasteland, prone to internal conflict and desperately craving understanding? I once wished in this barren place to meet someone who understood me... could she really be like me?]",res://1.Codebase/src/assets/ui/intro/page_5_story_walk.png
+6,1,第一幕,Act I,第6頁,Page 6,"畫面：主角抬起頭，看著眼前這個笑容純粹的女孩。他原本冰冷防備的眼神，瞬間軟化了下來，甚至不自覺地戴上了一層名為「同類」的善意濾鏡。
+主角（語氣變得有些侷促，帶著掩飾不住的驚訝）：「其實……你剛剛是不是一直走在我後面？抱歉，我之前對你那麼冷淡，我只是……對這裡的人沒什麼自信心。」
+Gloria（輕輕搖頭，眼神清澈且充滿包容）：「沒關係的。我知道你只是在保護自己。我們 6767的人，總是能立刻察覺到周遭的惡意，所以才會豎起高牆，對吧？」
+畫面：這句話精準地擊中了主角內心最柔軟的地方。長久以來的孤獨感彷彿找到了一個宣洩口。
+走在前面的 One 聽到對話，也放慢了腳步，回頭給了主角一個鼓勵的微笑。三人來到了枯樹下，席地而坐。","Visual: The protagonist looks up at this girl with a pure smile. Their previously cold, defensive gaze instantly softens, unconsciously applying a benevolent filter labeled ""kindred spirit.""
+Protagonist (tone becoming somewhat awkward, unable to hide surprise): ""Actually... were you walking behind me the whole time? Sorry I was so cold to you before. I just... don't have much confidence in people here.""
+Gloria (shaking her head gently, eyes clear and full of understanding): ""It's okay. I know you're just protecting yourself. We 6767 types can always immediately sense the malice around us, so we build walls, right?""
+Visual: This sentence precisely strikes the softest place in the protagonist's heart. The long-standing loneliness seems to have found an outlet.
+One, walking ahead, hears the conversation and slows down, turning back to give the protagonist an encouraging smile. The three come to a dead tree and sit down on the ground.",res://1.Codebase/src/assets/ui/intro/page_6_story_soften.png
+7,1,第一幕,Act I,第7頁,Page 7,"場景：史坦文國家公園的枯樹下。
+畫面：沒有牛羊，只有滿地的荒蕪。但主角並不在意，他開始了一場被他視為「靈魂共鳴」的 Deep Talk。
+主角（卸下所有防備，語氣低沉）：「你不知道我以前經歷過什麼。在原來的營地，我被最信任的同伴孤立、背叛。這世界上根本沒有絕對的好人，我只能靠冰冷的邏輯去防備所有人，否則就會死得很慘。」
+Gloria（靜靜地聽著，眼神裡充滿了悲憫。她伸出手，輕輕拍了拍主角的手背）：
+「你太辛苦了。你講多少，我就聽多少。但你知道嗎？你之所以這麼痛苦，是因為你還沒有聽懂陳老師廣播裡的真理。」
+主角（眉頭微皺，理智稍微回歸）：「陳老師？那個叫大家放棄思考、去信什麼飛天意粉神 (FSM) 的邪教廣播？那都是騙人的廢話，我不信那些。」","Scene: Under a dead tree at Stanfield National Park.
+Visual: No cattle or sheep, just desolation everywhere. But the protagonist doesn't care, they begin what they consider a ""soul resonance"" deep talk.
+Protagonist (dropping all defenses, tone low): ""You don't know what I've been through. At my previous camp, I was isolated and betrayed by the comrades I trusted most. There are no absolutely good people in this world. I can only rely on cold logic to guard against everyone, or I'll die miserably.""
+Gloria (listening quietly, eyes full of compassion. She reaches out and gently pats the protagonist's hand):
+""You've been through so much. I'll listen to however much you want to say. But you know what? The reason you're in such pain is because you haven't yet understood the truth in Teacher Chan's broadcast.""
+Protagonist (frowning slightly, rationality partially returning): ""Teacher Chan? That cult broadcast telling everyone to abandon thinking and believe in some Flying Spaghetti Monster (FSM)? That's all deceptive nonsense. I don't believe in that.""",res://1.Codebase/src/assets/ui/intro/page_7_story_deeptalk.png
+8,1,第一幕,Act I,第8頁,Page 8,"畫面：Gloria 沒有生氣，反而用一種高高在上、彷彿看著迷途羔羊的眼神看著主角和旁邊的 One。
+Gloria（語氣變得神聖且充滿壓迫感）：
+「那不是邪教，那是宇宙的頻率。你們兩個都太累了，因為你們認總是為這個世界充滿惡意。其實，生命中出現的每件事、每個人，必有佢嘅意思。你過去經歷的那些背叛，不過是飛天意粉神和 FSM 給你的考驗罷了。」
+Gloria（盯著主角，拋出了極具 PUA 色彩的言論）：
+「其實好多時，只要你用善良去對待，唔篤人背脊，仇恨心冇咁大，人哋根本並唔會唔鍾意你。你之所以被排擠，是因為你的負能量太重了。唔好諗咁多，盞激死自己。」
+畫面：主角微微一愣。這句話在邏輯上其實是「受害者有罪論」（你被排擠是因為你不夠善良）。但在當時極度渴望被這個「同類」接納的情緒下，主角的大腦開始當機。","Visual: Gloria doesn't get angry. Instead, she looks at the protagonist and One with a superior gaze, as if viewing lost lambs.
+Gloria (tone becoming sacred and oppressive):
+""That's not a cult, that's the frequency of the universe. You two are both exhausted because you always think the world is full of malice. Actually, everything that happens in life, every person you meet, has its purpose. Those betrayals you experienced were just tests given to you by the Flying Spaghetti Monster and FSM.""
+Gloria (staring at the protagonist, delivering a statement heavily laden with manipulation):
+""Actually, most of the time, if you just treat others with kindness, don't stab people in the back, and don't have such a heavy heart of hatred, people won't dislike you. The reason you were excluded is because your negative energy is too strong. Don't overthink things and stress yourself out to death.""
+Visual: The protagonist is slightly stunned. This statement is logically ""victim-blaming"" (you were excluded because you weren't kind enough). But in that moment of desperately wanting to be accepted by this ""kindred spirit,"" the protagonist's brain starts to malfunction.",res://1.Codebase/src/assets/ui/intro/page_8_story_superior.png
+9,1,第一幕,Act I,第9頁,Page 9,"場景：Gloria 搭建的臨時庇護所 「美麗的溫室」。
+畫面：散步結束後，Gloria 將他們帶到了她用垃圾拼湊的私人庇護所。這裡掛著一塊破爛的紙皮，而且沒有wi-fi但卻有卻有一個看著像wi-fi的logo寫著：「CONNECT TO FSM，密碼：PRAYER」。
+溫室內點著一盞昏暗的燈，燈罩是用廢棄的「生命麵包」包裝紙粗糙地套在發熱燈泡上製成的；旁邊還有一個長滿霉斑的舊褲，被塞滿了棉花當作抱枕。
+主角（看著那個隨時會起火的麵包包裝燈罩，理性的本能再次掙扎）：「等等……這個燈罩會起火的！還有那條發霉的內褲，這完全不符合衛生和安全邏輯啊！」
+Gloria（雙手交握於胸前，宛如聖女般看著主角，語氣無比溫柔卻充滿不容置疑的壓迫感）：
+「你看，你的負能量又跑出來了。這明明就是一些好的事情，你應該要感恩。我把這些被遺棄的垃圾變成充滿溫度的藝術品，這就是重生的魔術，我簡直就是一個魔法師。」
+Gloria（突然走近主角，眼神閃爍著狂熱的光芒）：
+「你不相信陳老師的話，不相信飛天意粉神 (FSM)……但你想想，為甚麼在這片廣闊無垠的廢土上，偏偏是我們三個相遇？為甚麼你這個滿心戒備、不再相信任何人的人，會剛好遇到我這個能完全讀懂你的 6767 同類？」","Scene: Gloria's makeshift shelter, ""The Beautiful Greenhouse.""
+Visual: After the walk, Gloria brings them to her personal shelter pieced together from garbage. A tattered piece of cardboard hangs here, and though there's no wi-fi, there's a logo that looks like a wi-fi symbol reading: ""CONNECT TO FSM, Password: PRAYER.""
+Inside the greenhouse, a dim lamp is lit, its shade crudely made by wrapping waste ""Life Bread"" packaging paper around a heating bulb; nearby is a mold-covered old pair of pants stuffed with cotton to serve as a pillow.
+Protagonist (looking at the bread-wrapper lampshade that could catch fire any moment, rational instinct struggling again): ""Wait... this lampshade is a fire hazard! And those moldy pants, this completely violates hygiene and safety logic!""
+Gloria (hands clasped at her chest, looking at the protagonist like a saint, tone incredibly gentle yet filled with unquestionable pressure):
+""See, your negative energy is showing again. These are clearly good things, you should be grateful. I've transformed this abandoned garbage into art filled with warmth. This is the magic of rebirth. I'm practically a wizard.""
+Gloria (suddenly approaching the protagonist, eyes gleaming with fervent light):
+""You don't believe Teacher Chan's words, don't believe in the Flying Spaghetti Monster (FSM)... but think about it, why, on this vast wasteland, did the three of us specifically meet? Why would you, someone so guarded who no longer trusts anyone, happen to encounter me, a 6767 kindred spirit who can completely understand you?""",res://1.Codebase/src/assets/ui/intro/page_9_story_greenhouse.png
+10,1,第一幕,Act I,第10頁,Page 10,"畫面：主角愣住了，回想起今天這場如同奇蹟般的相遇，腦海中理性的防線出現了一絲裂縫。
+Gloria（張開雙臂，語氣激昂地宣告）：
+「這絕對不是巧合！這就是『吸引力法則』正在運作的鐵證！因為我每天都在祈禱，每天都向宇宙發射最純粹的正能量，所以 FSM 聽到了我的聲音，將你們精準地吸引到了我的身邊！」
+Gloria（伸出手，示意主角和 One 牽手）：
+「事實就擺在眼前，宇宙的法則是真的！放下你那冰冷又無用的攻擊性思想吧。既然 FSM 讓我們相聚，只要我們把處理不了的事情交託給祂，繼續保持絕對的正能量，我們就能重組這個殘破的世界。我們三個，組成『光榮解脫機構(gda)』，好嗎？」
+畫面：Gloria 轉過頭，目光掃過 One。
+One（害怕破壞這份『神聖』的氣氛，低下頭，順從地輕聲說道）：「……嗯，很溫暖，我沒事，我覺得這安排很好。」
+畫面：主角看著 Gloria 那真誠無比的雙眼，又轉頭看了看已經選擇妥協的 One。
+主角的內心劇烈掙扎：一邊是常識與邏輯的瘋狂警告，另一邊是所謂「命中注定的吸引力法則」和好不容易找到的 INFJ 知己。
+主角（內心獨白）：【連這麼不可思議的相遇都發生了……也許她說得對，也許真的是因為我太負面，才一直活在地獄裡。如果這就是被同類接納的代價……那我寧願放棄思考。】
+主角（深吸了一口氣，主動掐斷了理智的警報，將手搭了上去，勉強擠出一個微笑）：「好，我相信你……我相信這是我們的緣分。我們組隊吧。」
+畫面：三人圍成一個圈，在隨時可能起火的生命麵包燈光下，Gloria 露出了勝利的慈愛微笑。
+「光榮解脫機構 (GDA1)」就此成立。主角為了那份被 PUA 包裝成「宇宙奇蹟」的虛幻共鳴，親手將自己推入了一個名為「毒性正能量」的無底深淵。
+【前十頁完  第一幕：致命的蜜月期 結束】","Visual: The protagonist freezes, recalling today's miracle-like encounter, a crack appearing in their rational defenses.
+Gloria (spreading her arms, declaring passionately):
+""This is absolutely not a coincidence! This is iron-clad proof that the 'Law of Attraction' is working! Because I pray every day, every day I emit the purest positive energy to the universe, so FSM heard my voice and precisely attracted you to my side!""
+Gloria (extending her hand, gesturing for the protagonist and One to join hands):
+""The facts are right before your eyes, the laws of the universe are real! Let go of those cold, useless aggressive thoughts. Since FSM brought us together, as long as we entrust what we can't handle to Him and continue maintaining absolute positive energy, we can rebuild this broken world. The three of us, forming the 'Glorious Deliverance Agency (GDA)', okay?""
+Visual: Gloria turns her head, her gaze sweeping over One.
+One (afraid of disrupting this 'sacred' atmosphere, bowing his head, compliantly saying softly): ""...Mm, it's warm, I'm fine, I think this arrangement is good.""
+Visual: The protagonist looks at Gloria's incredibly sincere eyes, then turns to look at One who has already chosen to compromise.
+The protagonist's inner turmoil: On one side, common sense and logic are screaming warnings; on the other, the so-called ""destined Law of Attraction"" and the hard-found INFJ soulmate.
+Protagonist (inner monologue): [Even such an incredible meeting has happened... maybe she's right, maybe it really is because I'm too negative that I've been living in hell. If this is the price of being accepted by a kindred spirit... then I'd rather abandon thinking.]
+Protagonist (taking a deep breath, actively cutting off rational alarms, placing their hand forward, forcing a smile): ""Okay, I believe you... I believe this is our fate. Let's form a team.""
+Visual: The three form a circle under the Life Bread lamp light that could catch fire any moment, Gloria revealing a victorious, loving smile.
+The ""Glorious Deliverance Agency (GDA1)"" is thus established. For that illusory resonance packaged as a ""cosmic miracle"" through manipulation, the protagonist has personally pushed themselves into a bottomless abyss called ""toxic positivity.""
+[Pages 1-10 Complete, Act I: The Fatal Honeymoon Ends]",res://1.Codebase/src/assets/ui/intro/page_10_story_team.png
+11,1,第一幕,Act I,第11頁,Page 11,"場景：深夜的「溫室」庇護所。
+畫面：外面颳起了帶有腐蝕性的廢土沙暴，狂風拍打著拼湊而成的紙皮和鐵皮牆壁，發出令人不安的嘎吱聲。屋內，生命麵包燈罩下的光線搖曳不定。
+主角眉頭緊鎖，正借著微弱的光線，試圖拆解並修復一台不斷發出警報聲的「便攜式淨水器」。One 坐在角落，雖然冷得微微發抖，但依然一言不發地擦拭著一把生鏽的小刀。
+主角（語氣焦慮，帶著現實的緊迫感）：
+「淨水器的濾芯徹底報廢了。如果明天我們不往『西區廢料場』走一趟去找替換零件，我們後天就會因為喝下重金屬污染的水而器官衰竭。One，明天你掩護我，我們得早點出發……」
+畫面：突然，一隻白皙的手按在了主角正在修理淨水器的雙手上。是 Gloria。她不知何時已經換上了一副極度安詳、宛如聖女般的面容。","Scene: Late night at the 'Greenhouse' shelter.
+Visual: Outside, a corrosive wasteland sandstorm rages. The protagonist works anxiously to repair a broken water purifier, without it, they'll face organ failure from contaminated water.
+Protagonist: 'The filter is completely broken. If we don't go to the West District Scrapyard tomorrow to find replacement parts, we'll die of heavy metal poisoning the day after.'
+Gloria suddenly places her hand on the protagonist's, taking away the tools with a saintly expression.",res://1.Codebase/src/assets/ui/intro/page_11_story_repair.png
+12,1,第一幕,Act I,第12頁,Page 12,"Gloria（輕輕拿走主角手裡的工具，語氣輕柔卻帶著一絲責備）：
+「停下來吧。你聽，外面的風聲多麼狂躁？那是因為你內心的焦慮，擾亂了我們溫室的磁場。」
+主角（愣住，指著淨水器）：「可是……這不是焦慮，這是生存的客觀數據。淨水器壞了，這是一個必須解決的物理問題！」
+Gloria（搖了搖頭，走到那張畫著向日葵的破結他旁，盤腿坐下）：
+「你又陷入那種冰冷的悲觀思想裡了。這就是為什麼你以前會活得那麼痛苦。來，坐到我身邊來。現在是我們的『感恩與交託』時間。」
+畫面：Gloria 拍了拍身邊的空地，示意主角和 One 坐過來。One 順從地放下小刀，安靜地坐了過去。主角猶豫了一下，為了剛建立的「同類」友誼，只能強壓下焦慮，坐了下來。","Gloria: 'Stop. Listen to the wind, it's so violent because your anxiety is disturbing our greenhouse's magnetic field.'
+Protagonist (stunned): 'But... this isn't anxiety, this is objective survival data. The purifier is broken, this is a physical problem that must be solved!'
+Gloria: 'You're trapped in that cold, pessimistic thinking again. This is why you suffered so much before. Come, sit beside me. It's time for our 'Gratitude and Entrustment' session.'
+Gloria pats the ground, gesturing for the protagonist and One to sit. One obediently puts down his knife and sits. The protagonist, suppressing anxiety for the sake of this newfound 'kindred spirit' friendship, reluctantly sits down.",res://1.Codebase/src/assets/ui/intro/page_12_story_sit.png
+13,1,第一幕,Act I,第13頁,Page 13,"Gloria（雙手交握，閉上眼睛，聲音宛如催眠）：
+「在這個修羅場裡，我們每天都會遇到很多看似可怕的事情。但其實，這都是宇宙的功課。所以我每晚都會感恩，同埋將處理唔到的事情交託俾飛天意粉神，交託俾飛天意粉神 (FSM)。」
+Gloria（睜開眼，直勾勾地盯著主角）：
+「告訴我，你現在心裡那個『處理唔到』的問題是什麼？把它說出來，然後交給 FSM。」
+主角（深吸一口氣，試圖講理）：
+「我處理不到的是這個淨水器。沒有濾芯，它就無法過濾輻射水。FSM 是一個精神信仰，祂不可能憑空變出一個物理濾芯給我們。我們需要的是明天的行動計劃，而不是坐在這裡祈禱。」
+畫面：空氣突然安靜。Gloria 的笑容慢慢消失了，她的眼神中閃過一絲受傷和極度的失望。","Gloria (hands clasped, eyes closed, voice hypnotic): 'In this hellish place, we encounter many seemingly terrible things every day. But actually, these are all lessons from the universe. So every night I give thanks and entrust what I cannot handle to the Flying Spaghetti Monster (FSM).'
+Gloria (opening eyes, staring directly at protagonist): 'Tell me, what is the problem you 'cannot handle'? Say it out loud, then give it to FSM.'
+Protagonist (taking a deep breath, trying to reason): 'What I can't handle is this water purifier. Without a filter, it can't purify radioactive water. FSM is a spiritual belief, He can't conjure a physical filter out of thin air. What we need is tomorrow's action plan, not sitting here praying.'
+Visual: The air suddenly goes quiet. Gloria's smile slowly disappears, a flash of hurt and profound disappointment crossing her eyes.",res://1.Codebase/src/assets/ui/intro/page_13_story_disappointment.png
+14,1,第一幕,Act I,第14頁,Page 14,"Gloria（微微低下頭，聲音變得委屈，開始施展道德勒索）：
+「你覺得這只是一個濾芯的問題嗎？不……你威力強大的負能量，正在破壞我們這個來之不易的家。你總是在抱怨『做不到』、『有危險』，你是在質疑宇宙的安排，也是在質疑我建立這個團隊的初衷。」
+主角（感到一陣荒謬）：「我沒有質疑你！我只是在陳述一個關乎生死的客觀事實！指出問題難道也是負能量嗎？」
+Gloria（猛地抬起頭，語氣變得嚴厲且充滿 PUA 色彩）：
+「事實？什麼是事實？你的恐懼就是事實嗎？你知不知道，你這種永遠盯著『壞處』看的心態，正在慢慢帶我走入人生的情緒低谷？我好不容易才用愛和包容建起了這個溫室，而你卻非要這種有害的思想去思考把它撕碎！」
+畫面：Gloria 轉向一旁的 One。
+Gloria：「One，你也覺得沒有濾芯我們就會死嗎？你也覺得宇宙會拋棄我們嗎？」
+One（身體微微一震，看了看滿臉委屈的 Gloria，又看了看焦急的主角。為了維持和平，他默默低下了頭）：「……。」","Gloria (lowering her head slightly, voice becoming aggrieved, deploying moral blackmail): 'You think this is just about a filter? No... your powerful negative energy is destroying this hard-won home. You're always complaining about 'can't do it' and 'it's dangerous', you're questioning the universe's arrangements and questioning my purpose in building this team.'
+Protagonist (feeling absurd): 'I'm not questioning you! I'm just stating an objective fact of life and death! Is pointing out problems also negative energy?'
+Gloria (looking up sharply, tone severe and heavily manipulative): 'Facts? What are facts? Is your fear the fact? Do you know that your mentality of always focusing on the 'bad side' is slowly dragging me into an emotional low point? I worked so hard to build this greenhouse with love and tolerance, and you insist on tearing it apart with harmful thoughts!'
+Gloria turns to One: 'One, do you also think we'll die without a filter? Do you also think the universe will abandon us?'
+One (body trembling, looking between the aggrieved Gloria and anxious protagonist, choosing peace, silently lowers his head): '...'",res://1.Codebase/src/assets/ui/intro/page_14_story_pressure.png
+15,1,第一幕,Act I,第15頁,Page 15,"畫面：主角不可置信地看著 One。One 的妥協，瞬間抽空了主角堅持他的邏輯的最後一絲勇氣。在 Gloria 的敘事裡，主角已經成了一個破壞團隊和諧、傷害隊友感情的「加害者」。
+Gloria（重新換上那副慈愛的面容，輕輕握住主角僵硬的手）：
+「你看，只要我們有犧牲和包容的意願，問題就不存在了。不要讓你的仇恨心和恐懼那麼大。嘗試下忘記背後的邏輯，努力面前的信仰吧。只要你做個善良的人，相信 FSM，明天一定會有奇蹟發生的。」
+Gloria（用一種近乎命令的溫柔語氣）：「現在，跟我一起說：感謝 FSM 的考驗，我願意放下一切焦慮。」
+畫面：外面的風暴依舊在肆虐，淨水器的紅燈還在無聲地閃爍。主角看著 Gloria 期待的雙眼，又看了看甘願不為自己爭取任何東西的 One。
+一股深深的窒息感湧上心頭。主角意識到，也許可以嘗試一下。
+主角（聲音沙啞，屈服於這場精神控制，機械地跟著念道）：
+「……感謝 FSM 的考驗，我願意……放下一切焦慮。」
+畫面：Gloria 滿意地笑了，溫室裡再次充滿了「毒性正能量」的虛假祥和。而主角的心中，仍然是有些疑惑的感覺。
+鏡頭緩緩變暗，字幕浮現：【第二天：奇蹟沒有降臨，但『英雄』們來了。】
+【第 11-15 頁完  致命的 PUA 夜晚 結束】","Visual: The protagonist looks at One in disbelief. One's compromise instantly drains the last bit of courage to stick to logic. In Gloria's narrative, the protagonist has become the 'perpetrator' who destroys team harmony and hurts teammates' feelings.
+Gloria (resuming her loving expression, gently grasping the protagonist's stiff hand): 'See, as long as we have the will to sacrifice and tolerate, the problem doesn't exist. Don't let your hatred and fear be so great. Try to forget the logic behind and work on the faith ahead. As long as you're a good person and believe in FSM, miracles will happen tomorrow.'
+Gloria (with an almost commanding gentle tone): 'Now, say with me: Thank you FSM for the test, I am willing to let go of all anxiety.'
+Visual: The storm still rages outside, the purifier's red light still silently flashing. The protagonist looks at Gloria's expectant eyes, then at One who's willingly not fighting for anything.
+A deep sense of suffocation wells up. The protagonist realizes there might be a need to try.
+Protagonist (voice hoarse, submitting to this mental control, mechanically repeating): '...Thank you FSM for the test, I am willing to... let go of all anxiety.'
+Visual: Gloria smiles with satisfaction, the greenhouse once again filled with the false peace of 'toxic positivity.' But in the protagonist's heart, there's still a confused feeling.
+Screen slowly darkens, subtitles emerge: [The Next Day: The Miracle Didn't Come, But 'Heroes' Did.]
+[Pages 11-15 Complete, Fatal PUA Night Ends]",res://1.Codebase/src/assets/ui/intro/page_15_story_submit.png
+16,2,第二幕,Act II,第16頁,Page 16,"場景：第二天清晨的「溫室」。
+畫面：淨水器已經徹底停止運作，發出焦臭味。主角因為缺水，嘴唇乾裂，正準備走向桌上那台破舊的「機構調度列印機」（GDA用來派發拾荒許可的生鏽機器），看看有沒有尋找水源的委託。
+突然，列印機發出刺耳的齒輪摩擦聲，嘎吱嘎吱地吐出了一張蓋著紅印的牛皮紙。
+畫面：主角扯下那張紙，上面寫著：
+【人事異動通知：拾荒者代號「ARK」已透過飛天意粉神的特批漏洞，強制填補了貴小隊的空缺。】
+主角（猛地站起來，死死捏著那張紙）：「這他媽是誰？！One，你向機構遞交招募申請了嗎？你認識他嗎?」
+One（一臉茫然地搖了搖頭，打著手語）：「（沒有，我連這個名字都沒聽過。）」
+主角（咬牙切齒，將紙拍在桌上）：「三唔識七，招呼都不打一個，直接走後門硬插進我們的隊伍？你看附帶的這份人員檔案  履歷一片空白，連張大頭照都沒有，唯一的戳章日期還是今天早上！這絕對是個雷！」","Scene: Next morning at the 'Greenhouse.'
+Visual: The water purifier has completely stopped working, emitting a burnt smell. The protagonist, lips cracked from dehydration, prepares to check the rusty 'Agency Dispatch Printer' (GDA's device for issuing scavenging permits) for water source commissions.
+Suddenly, the printer emits harsh gear-grinding sounds and spits out a red-stamped cowhide paper.
+The protagonist tears off the paper, which reads: [Personnel Change Notice: Scavenger codenamed 'ARK' has been forcibly filled into your squad's vacancy through FSM's special approval loophole.]
+Protagonist (jumping up, gripping the paper tightly): 'Who the hell is this?! One, did you submit a recruitment application to the agency? Do you know him?'
+One (looking bewildered, shaking his head, signing): '(No, I've never even heard this name.)'
+Protagonist (grinding teeth, slapping the paper on the table): 'A complete stranger, no greeting, just barging through backdoor channels into our team? Look at this attached personnel file, completely blank resume, not even a headshot, the only stamp date is this morning! This is definitely trouble!'",res://1.Codebase/src/assets/ui/intro/page_16_story_ark_notice.png
+17,2,第二幕,Act II,第17頁,Page 17,"畫面：Gloria 剛在角落做完早晨的祈禱，聽到動靜，面帶聖母般的微笑走了過來，輕輕拿起了那張牛皮紙。
+Gloria（看著紙上的名字，雙手交握於胸前，眼神發亮）：
+「Ark（方舟）……這名字多麼神聖呀。你們看，這就是『吸引力法則』在運作！昨晚我們才剛剛將煩惱交託給 FSM，今天祂就親自施展奇蹟，為我們安排了一位新的家人。這是飛天意粉神的恩典！」
+主角（強忍著怒火，試圖講理）：
+「Gloria，這不是神蹟！我們根本不認識他，不知道他的底細。在廢土上，把背後交給一個毫無禮貌、底細不明的陌生人，等於自殺！」
+Gloria（微微皺眉，語氣帶著一絲責備）：
+「你為什麼總是把人想得那麼壞？也許他只是一個孤單的靈魂，正在尋找避風港呢？我們應該包容他，給他愛。」","Visual: Gloria, having just finished her morning prayer in the corner, walks over with a saintly smile, gently picking up the cowhide paper.
+Gloria (looking at the name, hands clasped at chest, eyes shining): 'Ark (Noah's Ark)... such a sacred name. You see, this is the 'Law of Attraction' at work! Just last night we entrusted our worries to FSM, and today He personally performs a miracle, arranging a new family member for us. This is the grace of the Flying Spaghetti Monster!'
+Protagonist (suppressing fury, trying to reason): 'Gloria, this isn't a miracle! We don't know him at all, don't know his background. In the wasteland, exposing your back to a stranger with no manners and unknown background equals suicide!'
+Gloria (frowning slightly, tone carrying a hint of reproach): 'Why do you always think the worst of people? Maybe he's just a lonely soul looking for shelter. We should embrace him, give him love.'",res://1.Codebase/src/assets/ui/intro/page_17_story_saint_smile.png
+18,2,第二幕,Act II,第18頁,Page 18,"畫面：就在這時，調度列印機再次「嘎吱嘎吱」作響。新成員「ARK」的遠端電報傳來了。
+沒有「你好」，沒有「請多多指教」，紙帶上只印著幾段冷冰冰的指令。
+列印機吐出的紙條寫著：
+「已確認隊伍。今日任務：前往西區廢料場。我已經制定好完整的戰略表格。12:00 在廢料場入口集合。」
+（停頓了兩秒，機器又吐出一截）
+「等等，12:00 可能要進食，改為 12:30。」
+（又停頓了三秒）
+「不對，我還要修補裝備。13:00 集合。看完立刻報備。」
+主角（氣極反笑，指著那堆碎紙條）：「這傢伙有病吧？！一進來連個自我介紹都沒有，直接搶隊長的位置發號施令？而且連個集合時間都改了三次，我們連一句話都還沒說，他就把行程全黑箱作業定好了？！」
+Gloria（輕輕拍了拍主角的手臂，柔聲安撫）：
+「大道啲啦。他願意主動安排行程，證明他很有責任心呀！我們只要聽話照做，不就輕鬆多了嗎？不要總是覺得別人在針對你，他只是比較有領導才能罷了。」","Visual: Just then, the dispatch printer 'ka-chak ka-chak' sounds again. A remote telegraph from new member 'ARK' arrives.
+No 'hello,' no 'please take care of me', the paper tape only prints a few cold commands.
+The printer spits out: 'Team confirmed. Today's mission: Head to West District Scrapyard. I've already formulated a complete strategic schedule. Meet at scrapyard entrance at 12:00.'
+(Pause two seconds, machine spits another segment)
+'Wait, 12:00 might need to eat, change to 12:30.'
+(Pause three more seconds)
+'No, I still need to repair equipment. 13:00 meeting. Report immediately after reading.'
+Protagonist (laughing bitterly with anger, pointing at the pile of paper scraps): 'Is this guy sick?! He just joined, not even introducing himself, directly seizing the leader position and giving orders? And changed the meeting time three times, we haven't said a single word, and he's already made all the arrangements in a black box?!'
+Gloria (gently patting the protagonist's arm, softly soothing): 'Relax. He's willing to proactively arrange the schedule, proving he's very responsible! We just need to obediently follow, wouldn't that be easier? Don't always feel others are targeting you, he just has more leadership talent.'",res://1.Codebase/src/assets/ui/intro/page_18_story_ark_orders.png
+19,2,第二幕,Act II,第19頁,Page 19,"畫面：主角被 Gloria 這種「喪事喜辦」的邏輯堵得啞口無言。One 則默默地拿起筆，在同意書上簽了個字，再次選擇了妥協。
+主角正準備發作，門外突然飛來一隻很有可能是由根本就不存在的飛天意粉神引導過來的的機械傳信鴿，將一封羊皮紙信件重重地砸在桌上。
+信件封面寫著：
+【來自「榮光騎士・Donkey」的入隊申請書】
+畫面：主角拆開信件，大聲讀了出來：
+「致 GDA1 的各位：我是一名被命運詛咒的英雄。我之前的隊友全都是一群自私、無能的廢物！我承擔了所有的粗活，但他們卻用愚蠢拖累了我拯救公主的偉大計畫！我已經受夠了那群累贅。我看到你們的隊伍還有空缺，我決定賦予你們與我並肩作戰的榮耀。立刻批准我的加入。」
+主角（目瞪口呆地把信摔在桌上）：
+「這他媽又是什麼極品？！整封信都在狂踩前隊友，把責任推得一乾二淨！這種只會推卸責任、滿腦子封建童話的自大狂，絕對不能讓他進來！」","Visual: The protagonist is rendered speechless by Gloria's 'turning disasters into blessings' logic. One silently picks up a pen and signs the consent form, once again choosing compromise.
+The protagonist is about to explode when suddenly a mechanical messenger pigeon, quite possibly guided by the non-existent Flying Spaghetti Monster, flies in from outside the door, heavily slamming a parchment letter onto the table.
+The envelope reads: [Application to Join from 'Glory Knight Donkey']
+Visual: The protagonist tears open the letter and reads aloud:
+'To the members of GDA1: I am a hero cursed by fate. My previous teammates were all a bunch of selfish, incompetent wastes! I bore all the hard work, but they dragged down my great plan to save the princess with their stupidity! I'm fed up with those burdens. I saw your team has a vacancy, so I've decided to grant you the honor of fighting alongside me. Immediately approve my joining.'
+Protagonist (dumbfounded, throwing the letter on the table): 'What kind of weirdo is this?! The entire letter is trampling on former teammates, pushing off all responsibility! This kind of person who only shifts blame, with a head full of feudal fairy tales and delusions of grandeur, absolutely cannot let him in!'",res://1.Codebase/src/assets/ui/intro/page_19_story_donkey_letter.png
+20,2,第二幕,Act II,第20頁,Page 20,"Gloria（捧起那封信，眼中卻泛起了同情的淚光）：
+「天哪，他好可憐。他一定是在之前的隊伍裡受了很大的委屈，才會寫出這麼充滿防備的信。他只是一個受了傷、渴望被接納的英雄啊。這也是 FSM 給我們的考驗，我們要用愛去治癒他。」
+主角（抓狂，一把奪過申請書）：「Gloria！你清醒一點！他字裡行間全都是推卸責任，這種人一旦出事，絕對會第一個把我們賣了！我現在就去把這封申請書撕了！」
+畫面：主角正準備撕毀信件，調度列印機突然發出一聲極其刺耳的長鳴，吐出了最後一張蓋著官方鋼印的紙條。
+紙條上寫著：
+【gda1檔案更新：新成員「Donkey」已成功入隊。批核人：小隊戰略官 ARK。隊伍集結完畢。】
+主角（震驚地瞪大眼睛）：「Ark？！他憑什麼越過我們，直接向fsm提交了批核？！」
+Gloria（歡快地拍了拍手，笑容燦爛得令人窒息）：
+「太好了！Ark 真是有決斷力。現在我們有了一位負責任的軍師，還有一位受傷的英雄。看，只要我們心中有愛，不帶偏見，宇宙就會把最好的團隊送到我們身邊！GDA1，今天正式出發！」
+畫面：主角站在原地，看著自作主張的 Ark 留下的冷冰冰指令紙條，看著 Donkey 那封荒謬的推卸責任信，再看著滿臉「愛與包容」的 Gloria 和默默低頭的 One。
+主角知道，這不是什麼宇宙的恩賜。這是一艘被所謂的「神蹟」和「正能量」綁架，即將駛向毀滅的幽靈船。
+【第 16-20 頁完  第二幕：毒性隊友集結 結束】
+《光榮解脫機構 (GDA1)》遊戲開場腳本 (Page 21 - 25)","Gloria (holding the letter, eyes welling with sympathetic tears): 'Oh my, he's so pitiful. He must have suffered great grievances in his previous team to write such a defensive letter. He's just a wounded hero longing to be accepted. This is also FSM's test for us, we must heal him with love.'
+Protagonist (losing it, snatching back the application): 'Gloria! Wake up! Every line of this is shirking responsibility. This kind of person will sell us out first when something goes wrong! I'm going to tear up this application right now!'
+Visual: As the protagonist prepares to destroy the letter, the dispatch printer suddenly emits an extremely harsh long beep, spitting out one last paper with an official steel seal.
+The paper reads: [GDA1 File Update: New member 'Donkey' has successfully joined the team. Approver: Squad Strategist ARK. Team assembly complete.]
+Protagonist (eyes wide with shock): 'Ark?! How dare he bypass us and directly submit approval to FSM?!'
+Gloria (happily clapping hands, smile dazzlingly suffocating): 'Wonderful! Ark is so decisive. Now we have a responsible strategist and a wounded hero. See, as long as we have love in our hearts without prejudice, the universe will send us the best team! GDA1, officially setting out today!'
+Visual: The protagonist stands in place, looking at Ark's cold command notes, at Donkey's absurd responsibility-shifting letter, then at Gloria's face full of 'love and tolerance' and silently bowing One.
+The protagonist knows this isn't some cosmic blessing. This is a ghost ship hijacked by so-called 'miracles' and 'positive energy,' sailing toward destruction.
+[Pages 16-20 Complete, Act II: Toxic Teammates Assemble Ends]",res://1.Codebase/src/assets/ui/intro/page_20_story_gda_formed.png
+21,3,第三幕,Act III,第21頁,Page 21,"場景：西區廢料場入口。酸雨剛停，地上滿是泥濘。13:00。
+畫面：主角與 One 準時到達。不遠處，站著一個戴著厚重方形防毒面具、把自己裹得像個鐵桶的男人，這就是「ARK」。他手裡拿著一疊密密麻麻、畫滿網格的紙本表格。
+ARK（聲音隔著面具傳來，刻板且毫無起伏）：
+「GDA1 小隊。我是本次行動的戰略官 Ark。這是我為廢料場規劃的『絕對秩序路線圖』。你們有什麼意見嗎？我們是一個民主的團隊，歡迎提出。」
+主角（接過表格看了一眼，眉頭緊鎖）：
+「這路線有問題。你把我們導向了『高輻射沼澤區』。我昨晚查過廢料場的地形，走東邊的廢棄高架橋才是安全的。這條路線是自殺。」
+ARK（推了推防毒面具，在表格上打了一個勾）：
+「嗯，你的意見我聽到了。不過，我十分鐘前已經把這份路線圖當作最終決議，提交給機構系統鎖定了。所以我們還是照我的路線走。出發吧。」
+主角（目瞪口呆）：「那你他媽剛才問我意見幹嘛？！這叫民主？這根本是黑箱作業！」","Scene: West District Scrapyard entrance. Acid rain just stopped, ground full of mud. 13:00.
+Visual: Protagonist and One arrive on time. Not far away stands a man wrapped like an iron barrel with a thick square gas mask, this is ARK. He holds a stack of densely gridded paper schedules.
+ARK (voice muffled through mask, stiff and monotone): 'GDA1 squad. I am the strategic officer Ark for this operation. This is my 'Absolute Order Route Map' planned for the scrapyard. Do you have any opinions? We are a democratic team, welcome to propose.'
+Protagonist (taking the schedule, frowning): 'This route has problems. You're directing us toward the 'High Radiation Swamp Zone.' I checked the scrapyard terrain last night, taking the abandoned elevated bridge on the east is safe. This route is suicide.'
+ARK (pushing his gas mask, checking a box on the schedule): 'Mm, I heard your opinion. However, I already submitted this route map as the final resolution to the agency system and locked it ten minutes ago. So we'll still follow my route. Let's go.'
+Protagonist (stunned): 'Then why the hell did you just ask for my opinion?! You call this democracy? This is a complete black box operation!'",res://1.Codebase/src/assets/ui/intro/page_21_story_ark_arrives.png
+22,3,第三幕,Act III,第22頁,Page 22,"畫面：就在主角準備發飆時，一個穿著浮誇、閃閃發亮（但其實是用廢鋁罐敲出來的）的「盔甲」，披著一條破紅布的男人大搖大擺地走了過來。這就是「榮光騎士・Donkey」。
+Donkey（擺出一個極其做作的英雄拔劍姿勢，大聲宣告）：
+「命運的齒輪開始轉動！巨龍的咆哮在深淵迴盪！各位，榮光騎士 Donkey 閃亮登場！這座廢料場裡，一定有位被囚禁的公主等著我去拯救！」
+主角（痛苦地扶著額頭）：「這裡是廢料場！只有生鏽的鐵皮和變異的老鼠！哪來的公主和巨龍？你是不是腦子有問題？」
+Gloria（笑意盈盈地走上前，雙手合十看著 Donkey）：
+「天哪，Donkey，你的能量頻率好高！你看他眼裡閃爍著光芒，這就是我們團隊需要的英雄氣概呀。我們不能用世俗的眼光去限制他的想像力。」","Visual: As the protagonist prepares to blow up, a man wearing flashy, shiny armor (actually made from hammered waste aluminum cans) with a tattered red cloth swaggers over. This is 'Glory Knight Donkey.'
+Donkey (striking an exaggerated heroic sword-drawing pose, loudly proclaiming): 'The gears of fate begin to turn! The dragon's roar echoes in the abyss! Everyone, Glory Knight Donkey makes his dazzling entrance! In this scrapyard, there must be a pure princess imprisoned waiting for me to rescue!'
+Protagonist (painfully clutching forehead): 'This is a scrapyard! Only rusty metal sheets and mutated rats! Where are these princesses and dragons you're talking about? Is there something wrong with your brain?'
+Gloria (walking up with a bright smile, hands clasped looking at Donkey): 'Oh my, Donkey, your energy frequency is so high! Look at the light shining in his eyes, this is the heroic spirit our team needs. We can't use worldly perspectives to limit his imagination.'",res://1.Codebase/src/assets/ui/intro/page_22_story_donkey_entrance.png
+23,3,第三幕,Act III,第23頁,Page 23,"畫面：主角深吸一口氣，決定放棄與他們爭論常識，轉而處理眼前的生存問題。
+主角（冷靜下來）：「隨便你們。但進入輻射區需要『探測器』，我們隊伍的配額早用光了。沒有探測器，我們走進去就是送死。」
+Gloria（突然從白斗篷裡拿出一個生鏽的破鐵罐，笑得很甜美）：
+「不用擔心，交給我！我昨天遇到一個流浪商人，我用我們隊伍一半的口糧，跟他換了這個『心靈探測器』喔！」
+畫面：主角接過那個鐵罐。那根本不是什麼探測器，就是一個破罐子，上面用劣質水彩畫了一朵歪歪扭扭的向日葵，罐底還寫著一句英文雞湯：「Be your own sunshine（成為自己的陽光）」。
+主角（氣得手都在發抖）：「Gloria！你被騙了！這就是個破爛垃圾罐！裡面的指針是畫上去的！你用我們一半的生存口糧換了個垃圾？！」","Visual: The protagonist takes a deep breath, deciding to give up arguing common sense with them, turning instead to handle the immediate survival problem.
+Protagonist (calming down): 'Whatever. But entering the radiation zone requires a 'detector.' Our team's quota is long used up. Without a detector, going in is suicide.'
+Gloria (suddenly pulling out a rusty tin can from her white cloak, smiling sweetly): 'Don't worry, leave it to me! Yesterday I met a wandering merchant and traded half our team's rations for this 'Soul Detector'!'
+Visual: The protagonist takes the tin can. It's not a detector at all, just a broken can with a crooked sunflower painted in cheap watercolor, and English chicken soup written on the bottom: 'Be your own sunshine.'
+Protagonist (hands trembling with anger): 'Gloria! You've been scammed! This is just broken garbage! The pointer inside is painted on! You traded half our survival rations for trash?!'",res://1.Codebase/src/assets/ui/intro/page_23_story_fake_detector.png
+24,3,第三幕,Act III,第24頁,Page 24,"Gloria（臉上的笑容沒有絲毫減少，反而用一種悲憫的眼神看著主角）：
+「騙？為什麼你要用這麼負面的詞？它雖然沒有世俗定義上的『功能』，但它是一件充滿故事的環保藝術品呀！當你在廢料場感到恐懼時，看著這朵向日葵，你就能找到內心的光。」
+Gloria（走近主角，語氣輕柔卻帶著極強的 PUA 意味）：
+「你太執著於『有用』和『無用』份手繪的詳細地圖和安全守則）：
+「夠了。我不想聽你的心靈雞湯。我了。你的憤怒，其實是你內心深處匱乏安全感的投射。只要我們心裡有光，不承認這是一場騙局，它就是 FSM 賜予我們的禮物呀。你要學會感恩。」
+畫面：主角被這種「強行把壞事變好事」的邏輯震驚得說不出話來。他知道跟這群人講理是沒用的，他只能靠自己。
+主角（咬牙切齒，從背包裡掏出昨晚熬夜對比了過去三年的拾荒數據，畫出了這份『安全避險地圖』，上面標註了所有隱藏的毒氣坑。你們每人拿一份，按照上面的標記走，我們就能活著出來。」","Gloria (smile not diminishing, looking at protagonist with compassionate eyes): 'Scammed? Why use such a negative word? Though it doesn't have what the worldly define as 'function,' it's an environmentally-friendly art piece full of stories! When you feel fear in the scrapyard, looking at this sunflower, you can find inner light.'
+Gloria (approaching protagonist, tone gentle yet carrying strong manipulation): 'You're too obsessed with 'useful' and 'useless.' Your anger is actually a projection of your inner lack of security. As long as we have light in our hearts and don't admit this is a scam, it's a gift from FSM. You must learn gratitude.'
+Visual: The protagonist is shocked speechless by this 'forcibly turning bad into good' logic. Knowing reasoning with these people is useless, they can only rely on themselves.
+Protagonist (grinding teeth, pulling from backpack a hand-drawn detailed map and safety guidelines worked on all last night): 'Enough. I don't want to hear your spiritual chicken soup. I stayed up all night comparing three years of scavenging data and drew this 'Safety Avoidance Map,' marking all hidden toxic pits. Each of you take one, follow the markers and we can survive.'",res://1.Codebase/src/assets/ui/intro/page_24_story_safety_map.png
+25,3,第三幕,Act III,第25頁,Page 25,"畫面：主角將凝聚著心血的地圖遞給隊友。這是他為了團隊生存做出的最大努力。
+Donkey（隨手接過地圖，看都沒看，直接折成了一個紙飛機，用力擲向半空）：
+「我什麼都沒有看到都有地圖嗎好像沒有不如我們直接進去吧！」
+ARK（連手都沒伸，冷冷地隔著面具說道）：
+「我也沒有看到有任何地圖你沒有看到嗎,應該是本來就沒有人進過去所以沒有的。」
+Gloria（並沒有看到地圖）：
+「沒關係那麼我們就自己直接進去吧。只要我們帶著愛與包容出發，就什麼都不用怕了。走吧！」
+畫面：主角僵在原地。他熬夜畫出的救命地圖，就這樣被踩在泥濘裡，沒有人看一眼，甚至沒有人知道，也沒有人在乎。One 還沒來得及回答，卻被 Gloria 笑著拉走了。
+主角看著這群興高采烈走向死亡沼澤的隊友，內心深處，一種名為「心累與絕望」的寒意，徹底將他吞沒。
+【第 21-25 頁完  第三幕：對牛彈琴 結束】
+
+【第三幕：美麗包裝下的裂痕】","Visual: The protagonist hands over the life-saving map condensing so much effort to teammates. This is the greatest effort made for team survival.
+Donkey (casually taking the map, not even looking, directly folding it into a paper airplane and forcefully throwing it into the air): 'I don't see any map. Are there even maps? Seems like no one has gone in before, so there aren't any. Why don't we just go in directly!'
+ARK (not even extending a hand, coldly saying through the mask): 'I also don't see any map. You didn't see it either, right? There probably was never anyone who went in before, so there isn't one.'
+Gloria (not seeing the map): 'Never mind, then let's just go in directly ourselves. As long as we set out with love and tolerance, we have nothing to fear. Let's go!'
+Visual: The protagonist freezes in place. The life-saving map worked on all night is trampled in the mud, no one looks at it, no one even knows, no one cares. One hasn't had time to respond before being pulled away by Gloria with a smile.
+The protagonist watches these teammates cheerfully walking toward the death swamp. Deep inside, a chill called 'exhaustion and despair' completely consumes them.
+[Pages 21-25 Complete, Act III: Casting Pearls Before Swine Ends]",res://1.Codebase/src/assets/ui/intro/page_25_story_map_ignored.png
+26,3,第三幕,Act III,第26頁,Page 26,"場景：西區廢料場內部    污染分揀區。
+畫面：四周堆滿了散發著微弱螢光的輻射廢料。小隊面臨第一個合作任務：清理出一條通往核心區的安全通道。
+主角正準備攤開手繪地圖分配站位，ARK 卻突然從背包裡拿出了剛找到的三套舊式戰術對講機麥克風。他毫不猶豫地將其中兩套遞給了 Gloria 和 Donkey，自己戴上了最後一套。三人立刻圍成了一個緊密的小圈子，背對著主角和 One。
+主角：「Ark，你幹什麼？我們這裡有五個人，你只拿三個麥克風連線，為什麼要把我們隔開？」
+ARK（轉過頭，語氣充滿了盲目的自信與敷衍）：「No worries（唔使擔心）。設備有限，我心裡已經有完美的計畫了，交給我處理就好，你們不用管細節。」","Scene: Inside West District Scrapyard, Contamination Sorting Area.
+Visual: Surroundings piled with faintly glowing radioactive waste. The squad faces their first cooperation task: clearing a safe passage to the core area.
+The protagonist prepares to spread out the hand-drawn map to assign positions, but ARK suddenly pulls out three sets of old tactical radio microphones just found from his backpack. Without hesitation, he hands two sets to Gloria and Donkey, putting on the last set himself. The three immediately form a tight small circle, backs turned to the protagonist and One.
+Protagonist: 'Ark, what are you doing? We have five people here. You only take three microphones for connection, why separate us?'
+ARK (turning head, tone full of blind confidence and dismissiveness): 'No worries. Equipment is limited. I already have the perfect plan in mind, leave it to me. You don't need to worry about details.'",res://1.Codebase/src/assets/ui/intro/page_26_story_radio_exclusion.png
+27,3,第三幕,Act III,第27頁,Page 27,"畫面：更荒謬的事情發生了。ARK 為了不讓沒有麥克風的 One 聽懂他們的「完美計畫」，竟然開始用生硬的德語大聲下達指令。
+ARK（對著麥克風，刻意賣弄地大喊）：
+「Das war ein Befehl! Ich habe das 2024 gemacht!（這是一項命令！我在2024年就是這麼幹的！）」
+雖然主角也能聽得懂德文因為他以前去過德國留學,但是one卻完全不會.而在他們三人形成的小圈子之外，沒有對講機、也完全聽不懂這番對話的 One，像個透明人一樣，尷尬地站在泥水裡，手足無措。","Visual: Something even more absurd happens. To prevent One without a microphone from understanding their 'perfect plan,' ARK actually starts loudly issuing commands in broken German.
+ARK (shouting into microphone, deliberately showing off): 'Das war ein Befehl! Ich habe das 2024 gemacht! (This is an order! I did it this way in 2024!)'
+Though the protagonist can understand German from studying abroad, One cannot. Outside their three-person circle, One, without a radio and unable to understand this conversation, stands awkwardly in the muddy water like a transparent person, at a loss.",res://1.Codebase/src/assets/ui/intro/page_27_story_german_commands.png
+28,3,第三幕,Act III,第28頁,Page 28,"畫面：One 試圖靠近一步，想聽聽他們到底在計畫什麼，但 ARK 刻意轉過身，用寬大的背影擋住了他。One 的眼神黯淡下來，默默地退回了原位。
+主角（一把拉開 ARK，怒吼）：
+「你他媽在幹什麼？！我們是一個團隊！One 聽不懂你那見鬼的語言，你們連麥克風都不分給我們！你連計畫都不公開，是在刻意排擠他嗎？！」
+ARK（攤開雙手，一臉『你太大驚小怪』的表情）：
+「Relax，No worries 啦！我這是在提高效率。反正我已經定好方向了，你們跟著走就行，有什麼好擔心的？」","Visual: One tries to step closer to hear what they're planning, but ARK deliberately turns around, using his wide back to block him. One's eyes dim, silently retreating to his original position.
+Protagonist (pulling ARK aside, roaring): 'What the hell are you doing?! We're a team! One can't understand your damn language, you won't even share microphones with us! You won't even disclose the plan, are you deliberately excluding him?!'
+ARK (spreading hands, expression of 'you're making a big fuss'): 'Relax, no worries! I'm improving efficiency. I've already decided the direction, you just need to follow. What's there to worry about?'",res://1.Codebase/src/assets/ui/intro/page_28_story_blocking_one.png
+29,3,第三幕,Act III,第29頁,Page 29,"Gloria（連忙走過來，將 ARK 護在身後，用溫柔卻帶刺的語氣對主角說）：
+「哎呀，你怎麼又生氣了？No worries 啦，我們三個剛才討論得很順利呀。等一下我們再把結論『翻譯』給 One 聽不就好了嗎？你為什麼非要逼著大家迎合你所謂的『公平』呢？」
+Gloria（轉向 One，露出一個施捨般的微笑）：
+「One，你不會介意的，對吧？我們都在為團隊努力呀。」
+One（身體微微一僵。為了不破壞這份『和諧』，他勉強擠出一個比哭還難看的笑容）：「……我不介意。我聽從安排就好。」
+畫面：主角看著 One 那委曲求全的模樣，心裡彷彿被狠狠刺了一刀。他看到了過去那個在營地裡被孤立、卻只能默默忍受的自己。","Gloria (hurrying over, shielding ARK, addressing protagonist in gentle yet barbed tone): 'Oh dear, why are you angry again? No worries, the three of us just had a very smooth discussion. We can 'translate' the conclusion to One later, can't we? Why must you force everyone to cater to your so-called 'fairness'?'
+Gloria (turning to One, revealing a patronizing smile): 'One, you don't mind, right? We're all working for the team.'
+One (body stiffening slightly. To avoid breaking this 'harmony,' he forces a smile uglier than crying): '...I don't mind. I'll just follow arrangements.'
+Visual: The protagonist looks at One's accommodating appearance, feeling as if their heart was viciously stabbed. They see their past self, isolated in the camp, silently enduring.",res://1.Codebase/src/assets/ui/intro/page_29_story_gloria_pua.png
+30,3,第三幕,Act III,第30頁,Page 30,"場景：廢料場深處    輻射障礙物前。
+畫面：一塊巨大的、被酸雨腐蝕的重金屬防爆門擋住了去路。必須有人徒手將它移開。這是一項極度耗費體力且有輻射灼傷風險的粗活。
+主角（看向身穿鋁罐盔甲的 Donkey）：「到你了。你不是說自己是騎士嗎？搬開它。」
+Donkey（走到防爆門前，裝模作樣地伸出手比劃了一下，突然，他捂住額頭，擺出一個極其誇張的痛苦表情）：
+「啊！這股邪惡的氣息……等等！我那敏銳的英雄雷達感知到了！在廢料場的東南方，有一位純潔的公主正在被變異鼠群圍攻！她在呼喚我的名字！」","Scene: Deep in scrapyard, before a radiation obstacle.
+Visual: A huge acid-rain-corroded heavy metal blast door blocks the way. Someone must move it bare-handed. This is extremely exhausting dirty work with radiation burn risk.
+Protagonist (looking at aluminum-can-armored Donkey): 'Your turn. You said you're a knight? Move it.'
+Donkey (walking to the blast door, pretending to gesture, suddenly clutching his forehead with an extremely exaggerated pained expression): 'Ah! This evil aura... wait! My keen hero radar senses it! In the southeast of the scrapyard, a pure princess is being besieged by mutant rat swarms! She's calling my name!'",res://1.Codebase/src/assets/ui/intro/page_30_story_blast_door.png
+31,4,第四幕,Act IV,第31頁,Page 31,"主角（指著一片死寂的東南方，忍無可忍）：「放屁！那邊連個鬼影都沒有！你就是想逃避這又髒又累的粗活！」
+Donkey（猛地甩開那件破紅布披風，義正辭嚴地大喊）：
+「粗鄙的凡人怎能理解英雄的使命？！移開一塊破鐵門，怎能與拯救公主的偉大榮耀相提並論？！命運在召喚我，我必須先行一步！」
+畫面：Donkey 說完，竟然真的轉身就跑，像一陣風一樣消失在了廢料場的拐角處。
+主角愣在原地，看著 ARK：「這就是你的『No worries』計畫？！」
+ARK（聳了聳肩，依然一臉輕鬆）：「No worries，只是一扇門而已，總有人會搬的。放輕鬆。」","Protagonist (pointing at the completely silent southeast, unable to take it anymore): 'Bullshit! There's not even a ghost there! You're just trying to escape this dirty, exhausting work!'
+Donkey (violently throwing off tattered red cloth cape, righteously shouting): 'How can vulgar mortals understand a hero's mission?! Moving a broken iron door, how can that compare with the great glory of rescuing a princess?! Fate is calling me, I must go ahead first!'
+Visual: After speaking, Donkey actually turns and runs, disappearing around a scrapyard corner like the wind.
+The protagonist freezes in place, looking at ARK: 'This is your 'No worries' plan?!'
+ARK (shrugging, still relaxed): 'No worries, it's just a door. Someone will move it eventually. Relax.'",res://1.Codebase/src/assets/ui/intro/page_31_story_donkey_runs.png
+32,4,第四幕,Act IV,第32頁,Page 32,"畫面：沒有人去追 Donkey，ARK 甚至在一旁哼起了小曲。
+只有 One。他一言不發地走到那塊散發著危險螢光的防爆門前，默默地彎下腰，用那雙沒有任何防護的手，死死扣住生鏽的邊緣，拼盡全力往上抬。尖銳的鐵鏽刺破了他的手心，鮮血混著泥水滴落。
+Gloria（看著這一幕，沒有幫忙，反而雙手合十，閉上眼睛祈禱）：
+「偉大的 FSM，請賜予 Donkey 拯救公主的力量，也請保佑我們眼前的障礙順利消除……」
+畫面（【正能量詛咒觸發】）：就在 Gloria 虔誠祈禱的瞬間，廢料場上方本來搖搖欲墜的生鏽鐵架，突然因為某種無法解釋的物理衰變，發出刺耳的斷裂聲，「轟」的一聲砸落下來，差點砸中正在搬門的 One！
+（祈禱沒有帶來奇蹟，反而加速了周遭環境的崩塌。）","Visual: No one chases Donkey. ARK even starts humming a tune.
+Only One. He silently walks to the dangerously glowing blast door, wordlessly bends down, and with bare hands without any protection, firmly grips the rusty edge, using all his strength to lift. Sharp rust pierces his palms, blood mixed with muddy water dripping.
+Gloria (watching this scene, not helping, instead clasping hands and closing eyes to pray): 'Great FSM, please grant Donkey the power to rescue the princess, and please bless our current obstacle to be smoothly removed...'
+Visual ([Positive Energy Curse Triggered]): Just as Gloria devoutly prays, a rusty iron frame above the scrapyard that was already precariously hanging suddenly emits a harsh breaking sound due to some inexplicable physical decay, crashing down with a 'boom,' nearly hitting One who's moving the door!
+(The prayer didn't bring miracles, but instead accelerated the collapse of the surrounding environment.)",res://1.Codebase/src/assets/ui/intro/page_32_story_one_lifting_door.png
+33,4,第四幕,Act IV,第33頁,Page 33,"主角（一把將 One 撲倒躲過鐵架，眼眶發紅地怒吼）：
+「夠了！！這就是你們所謂的團隊？！Ark，你的計畫根本是個黑箱笑話！你只會說『No worries』，卻眼睜睜看著隊友去送死！還有 Donkey，那個滿腦子封建垃圾的逃兵，把最危險的工作全丟給 One！」
+畫面：主角猛地站起身，逼近 Gloria。
+主角：「還有你！你沒看到你越祈禱，這個鬼地方崩塌得越快嗎？！這艘船正在沉沒，你們的盲目和推卸責任，會害死我們所有人的！」","Protagonist (tackling One to dodge the iron frame, eyes reddening with fury): 'Enough!! Is this your so-called team?! Ark, your plan is a complete black box joke! You only say 'No worries' while watching teammates walk to their deaths! And Donkey, that deserter with a head full of feudal garbage, throwing all the most dangerous work to One!'
+Visual: The protagonist suddenly stands, pressing close to Gloria.
+Protagonist: 'And you! Don't you see that the more you pray, the faster this godforsaken place collapses?! This ship is sinking. Your blindness and shirking responsibility will get us all killed!'",res://1.Codebase/src/assets/ui/intro/page_33_story_protagonist_rage.png
+34,4,第四幕,Act IV,第34頁,Page 34,"畫面：空氣瞬間降至冰點。ARK 皺了皺眉，似乎覺得主角破壞了他「No worries」的氣氛。
+而 Gloria，她慢慢睜開了眼睛。她沒有看受傷的 One，也沒有看差點砸死人的鐵架。她看向主角的眼神，不再是溫柔，而是一種高高在上的、令人毛骨悚然的失望。
+此時，Gloria 口袋裡那台破舊的收音機，恰好因為接觸不良，自動播放起了陳老師的歌聲，輕柔的旋律在危險的廢料場裡迴盪：
+「【歌聲】讓我做我的主角……成敗與否，看我是怎麼看……」
+Gloria（伴隨著陳老師的歌聲，聲音無比輕柔，卻像毒蛇一樣纏繞上主角的脖子）：
+「你知不知道，你剛才的話，有多麼傷人？我一直都在包容你，甚至包容和接納你平時那種兩倍速的、充滿壓迫感的說話方式。但我發現，我錯了。」","Visual: The air instantly drops to freezing. ARK frowns, seeming to feel the protagonist has disrupted his 'No worries' atmosphere.
+And Gloria slowly opens her eyes. She doesn't look at injured One, doesn't look at the iron frame that nearly killed someone. She looks at the protagonist, no longer with gentleness, but with a superior, bone-chillingly disappointing gaze.
+At this moment, Gloria's broken radio in her pocket, due to poor contact, automatically starts playing Teacher Chan's song, the gentle melody echoing in the dangerous scrapyard:
+'[Singing] Let me be my own protagonist... Success or failure depends on how I see it...'
+Gloria (accompanied by Teacher Chan's singing, voice incredibly gentle yet wrapping around the protagonist's neck like a poisonous snake): 'Do you know how hurtful your words just were? I've always been tolerating you, even tolerating and accepting your usual double-speed, oppressively pressured way of speaking. But I've discovered I was wrong.'",res://1.Codebase/src/assets/ui/intro/page_34_story_gloria_disappointing_gaze.png
+35,4,第四幕,Act IV,第35頁,Page 35,"Gloria（向前一步，眼神中充滿了道德審判的壓迫感，對主角展開無情的 PUA）：
+「你是不是忘了愛與包容？Donkey 只是去追尋他的夢想，Ark 只是不想給大家壓力。可是你呢？你威力強大的負能量，正在破壞我們整個氣場！你總是用你那冰冷的邏輯去挑剔別人，你以為你是在解決問題？不，你是在製造分裂！」
+Gloria（眼眶泛紅，彷彿她才是最大的受害者）：
+「我剛來這個廢墟，每天都活在恐懼裡。是你的負能量，慢慢帶我走入了人生的第一個情緒低谷！其實好多時，只要你用善良去對待，唔篤人背脊，仇恨心冇咁大，人哋根本並唔會唔鍾意你！你為什麼就不能大方一點，把這一切交託給飛天意粉神，交託給 FSM 呢？！誰都可發光,只是你還沒有找到正確的地方,雖然正確的地方可能是你死了之後的地方。」
+畫面：主角大口喘著粗氣，原本準備反駁的嘴唇微微顫抖。在陳老師「誰都可發光」的背景音中，Gloria 的這番話像一柄重錘，狠狠砸碎了主角內心最後的防線。
+主角看著 Gloria 眼角的淚水，長久以來對「同類」的渴望、對孤獨的恐懼，在這一刻徹底反噬了他。","Gloria (stepping forward, eyes filled with moral judgment's oppressive weight, launching merciless manipulation): 'Have you forgotten love and tolerance? Donkey is just pursuing his dream. Ark just doesn't want to pressure everyone. But you? Your powerful negative energy is destroying our entire energy field! You always use your cold logic to nitpick others. You think you're solving problems? No, you're creating division!'
+Gloria (eyes welling with tears, as if she's the biggest victim): 'I just came to this wasteland, living in fear every day. It's your negative energy that slowly led me into my first emotional low point in life! Actually, most times, as long as you treat others with kindness, don't stab people in the back, don't have such a heavy hatred heart, people wouldn't dislike you at all! Why can't you be more generous and entrust everything to the Flying Spaghetti Monster, to FSM?! Everyone can shine, you just haven't found the right place yet, though the right place might be where you are after you're dead.'
+Visual: The protagonist gasps heavily, lips trembling as they prepare to retort. Against Teacher Chan's 'Everyone can shine' background music, Gloria's words hammer down like a heavy weight, shattering the protagonist's last inner defenses.
+Looking at tears in Gloria's eyes, the long-standing desire for 'kindred spirits' and fear of loneliness completely backlashes at this moment.",res://1.Codebase/src/assets/ui/intro/page_35_story_protagonist_breakdown.png
+36,4,第四幕,Act IV,第36頁,Page 36,"主角（瞳孔劇烈地震，內心的理智全面崩盤）：
+【她哭了……是我讓她陷入了情緒低谷？是我的邏輯太冰冷，是我講話太快、太具攻擊性？原來問題一直都在我身上……是我可悲的過去讓我變成了這樣一個充滿負能量的怪物……】
+畫面：主角看著自己因為憤怒而握緊的雙拳，突然感到一陣強烈的自我厭惡。他緩緩鬆開了手，雙腿一軟，竟然半跪在了泥水裡。
+主角（聲音沙啞，充滿了悔恨與深深的愧疚）：
+「對不起……Gloria。妳說得對，是我的錯。是我太敏感，仇恨心太重了。我……我一直活在過去的陰影裡，卻把這些負能量發洩在你們身上。對不起，我真的對不起妳。」
+Gloria（眼中的冰冷瞬間消散，換上了一副極度慈愛、聖母般的笑容。她伸出手，輕輕撫摸主角的頭頂）：
+「沒關係的。只要你願意承認自己的軟弱，FSM 會寬恕你的。來，我們一起把這些處理不了的煩惱，都交託給祂。」
+
+【第四幕：名義上的集結與真正的考驗】","Protagonist (pupils violently shaking, inner rationality completely collapsing): [She's crying... Did I drag her into an emotional low? Is my logic too cold? Do I speak too fast, too aggressively? So the problem has always been with me... My pathetic past turned me into this negative energy monster...]
+Visual: The protagonist looks at their own fists clenched in anger, suddenly feeling intense self-loathing. They slowly release their hands, legs weakening, actually half-kneeling in the muddy water.
+Protagonist (voice hoarse, filled with remorse and deep guilt): 'I'm sorry... Gloria. You're right. It's my fault. I'm too sensitive, my hatred heart too heavy. I... I've been living in past shadows, venting these negative energies on you all. Sorry, I'm truly sorry.'
+Gloria (the coldness in her eyes instantly dissipates, replaced by an extremely loving, saintly smile. She extends her hand, gently stroking the protagonist's head): 'It's okay. As long as you're willing to admit your weakness, FSM will forgive you. Come, let's entrust these troubles we can't handle together to Him.'
+[Act IV: The Nominal Assembly and True Test]",res://1.Codebase/src/assets/ui/intro/page_36_story_submission_apology.png
+37,4,第四幕,Act IV,第37頁,Page 37,"場景：傍晚的「溫室」庇護所。
+畫面：歷經廢料場的風波後，小隊回到了營地。那個臨陣脫逃的 Donkey 竟然已經坐在溫室裡了，手裡拿著一根乾枯的玫瑰花，正在向 Gloria 吹噓他虛假的戰績。
+但這一次，主角沒有生氣。他安靜地坐在角落，眼神中失去了往日的銳利，取而代之的是一種被洗腦後的狂熱與卑微。
+Gloria（將那個會起火的生命麵包燈罩調到最亮，臉上洋溢著狂熱的幸福）：
+「各位家人，今天我們經歷了考驗，但宇宙的頻率讓我們再次緊緊相連！現在，我們將正式在 FSM 的見證下，締結永恆的團隊羈絆！」","Scene: Evening at the 'Greenhouse' shelter.
+Visual: After the scrapyard turmoil, the squad returns to camp. Donkey, who deserted in the face of battle, is already sitting in the greenhouse, holding a withered rose, boasting to Gloria about his false achievements.
+But this time, the protagonist isn't angry. They sit quietly in the corner, eyes having lost their former sharpness, replaced by a post-brainwashing fervor and humility.
+Gloria (turning the fire-hazard Life Bread lampshade to maximum brightness, face glowing with fanatical happiness): 'Dear family, today we experienced trials, but the universe's frequency has bound us tightly together again! Now, we will officially establish eternal team bonds witnessed by FSM!'",res://1.Codebase/src/assets/ui/intro/page_37_story_greenhouse_return_ceremony_setup.png
+38,4,第四幕,Act IV,第38頁,Page 38,"畫面：這是一場荒誕至極的儀式。
+Donkey（單腳踩在生鏽的鐵桶上，高舉那根枯玫瑰）：「為了榮耀！我將用這把無形的聖劍，為 GDA1 斬開一切荊棘！公主們，等著我！」
+ARK（雙手插在口袋裡，一臉輕鬆地笑著）：
+「No worries，一切都在我的掌控之中。未來的拾荒計畫絕對順風順水。」
+Gloria（雙手捧著那個畫著向日葵的破垃圾罐，虔誠地閉上眼睛）：
+「偉大的飛天意粉神 (FSM)，感謝祢賜予我們這完美的團隊。我們發誓，將永遠用愛與包容面對一切，拒絕所有負能量的侵擾。Ramen。」
+Donkey & ARK（齊聲）：「Ramen。」","Visual: This is an absurdly ridiculous ceremony.
+Donkey (standing on one foot on a rusty barrel, raising the withered rose high): 'For glory! I shall use this invisible holy sword to cut through all thorns for GDA1! Princesses, wait for me!'
+ARK (hands in pockets, relaxedly smiling): 'No worries, everything is under my control. Future scavenging plans will absolutely go smoothly.'
+Gloria (holding the sunflower-painted broken garbage can, devoutly closing eyes): 'Great Flying Spaghetti Monster (FSM), thank You for granting us this perfect team. We vow to forever face everything with love and tolerance, rejecting all negative energy intrusions. Ramen.'
+Donkey & ARK (in unison): 'Ramen.'",res://1.Codebase/src/assets/ui/intro/page_37_story_greenhouse_return_ceremony_setup.png
+39,4,第四幕,Act IV,第39頁,Page 39,"畫面：鏡頭切換至主角的第一人稱主觀視角（玩家視角）。
+主角看著眼前這荒謬的景象：一個逃兵、一個瞎指揮的盲人，以及一個強迫所有人樂觀的聖女。但此刻的主角，心中再也沒有半點諷刺。
+他看了一眼角落裡還在流血的 One，心中湧起的竟然不是同情，而是對自己過去「多管閒事」的自責。
+主角（內心獨白，充滿了被 PUA 後的病態虔誠）：
+【我必須祈禱。這個世界之所以殘破，是因為我還不夠善良，是因為我充滿了負能量。我要跟上 Gloria 的頻率，我要用愛與包容去彌補我的過錯。FSM，請淨化我吧。】
+主角（緊緊閉上雙眼，雙手用力合十，語氣無比真誠且狂熱）：「Ramen！我相信吸引力法則，我相信一切都會變好！」
+畫面（【正能量詛咒觸發】）：就在主角真心實意地喊出這句正能量祈禱的瞬間，溫室外的天空突然劈下一道慘綠色的閃電！周圍的輻射濃度肉眼可見地飆升，連生命麵包的燈罩都開始冒出刺鼻的黑煙。
+（他們越是強行製造正能量，世界的「熵增」就越是狂暴！）","Visual: Camera switches to protagonist's first-person subjective view (player perspective).
+The protagonist watches this absurd scene before them: a deserter, a blindly commanding blind man, and a saint forcing everyone to be optimistic. But at this moment, the protagonist's heart no longer holds half a trace of sarcasm.
+They glance at One still bleeding in the corner, heart welling up not with sympathy but self-blame for past 'meddling.'
+Protagonist (inner monologue, filled with post-manipulation morbid devotion): [I must pray. This world is broken because I'm not kind enough, because I'm full of negative energy. I must keep up with Gloria's frequency. I must use love and tolerance to make up for my mistakes. FSM, please purify me.]
+Protagonist (eyes tightly closed, hands forcefully clasped, tone incredibly sincere and fervent): 'Ramen! I believe in the Law of Attraction. I believe everything will get better!'
+Visual ([Positive Energy Curse Triggered]): Just as the protagonist sincerely shouts this positive energy prayer, a ghastly green lightning suddenly strikes outside the greenhouse! The surrounding radiation concentration visibly spikes, even the Life Bread lampshade begins emitting acrid black smoke.
+(The more they forcibly create positive energy, the more violently the world's 'entropy increase' rages!)",res://1.Codebase/src/assets/ui/intro/page_39_story_protagonist_pov_brainwashed.png
+40,4,第四幕,Act IV,第40頁,Page 40,"畫面：就在主角沉浸在自我感動的救贖中時  
+「嗚  嗚  嗚  ！！！」
+營地外突然響起了最高級別的猩紅色防空警報！狂暴的酸雨夾雜著一隻巨大變異獸的嘶吼聲，瞬間撕裂了溫室脆弱的紙皮牆壁！第一個真正的生死危機降臨了！
+主角（迎著變異獸走上前，嘴裡神經質地念叨著）：
+「這只是考驗……這都是因為我的負能量引來的考驗。我要用愛與包容，清除這一切！FSM 會保佑我們的！」
+鏡頭猛地拉遠，螢幕瞬間陷入純黑。
+血紅色的字幕在黑暗中緩緩浮現：
+【歡迎來到「光榮解脫機構 (Glorious Deliverance Agency)」。】
+【你已成為他們的一員。祝你好運，因為在這場名為「正能量」的詛咒中，你將無處可逃。】
+【遊戲標題 Logo 砸下，伴隨著陳老師那句空洞的「誰都可發光」與強勁的工業金屬音樂爆發！】
+【 完】","Visual: Just as the protagonist is immersed in self-moved redemption, 
+'Woo, woo, woo, !!!'
+Outside the camp, the highest-level crimson air raid alarm suddenly sounds! Violent acid rain mixed with a giant mutant beast's roar instantly tears through the greenhouse's fragile cardboard walls! The first real life-or-death crisis has arrived!
+Protagonist (walking toward the mutant beast, neurotically muttering): 'This is just a test... all because my negative energy attracted this test. I must use love and tolerance to eliminate everything! FSM will protect us!'
+Camera suddenly pulls back, screen instantly plunging into pure black.
+Blood-red subtitles slowly emerge in the darkness:
+[Welcome to the 'Glorious Deliverance Agency.'][You have become one of them. Good luck, because in this curse called 'positive energy,' you have nowhere to escape.]
+[Game title logo crashes down, accompanied by Teacher Chan's hollow 'Everyone can shine' and explosive industrial metal music!]
+[THE END]",res://1.Codebase/src/assets/ui/intro/page_40_story_departure_one_luggage.png
+41,4,第四幕,Act IV,第41頁,Page 41,"畫面：警報聲尚未停息，主角、One、Gloria、Ark 和 Donkey 在溫室外肩並肩站成一線，背光的霧霾勾勒出他們的剪影。即使疲憊、矛盾未解，所有人仍抬頭望向前方，準備迎接真正的挑戰。
+字幕：『這一次，他們將並肩作戰。』","Visual: Sirens still wail as the protagonist, One, Gloria, Ark, and Donkey stand shoulder to shoulder outside the greenhouse, backlit smog outlining their silhouettes. Though exhausted and full of unresolved tension, everyone lifts their gaze forward, ready to face the real challenge together.
+Subtitle: 'This time, they stand together.'",res://1.Codebase/src/assets/ui/intro/page_41_story_final_logo.png

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Godot Editor",
+      "runtimeExecutable": "godot",
+      "runtimeArgs": ["--editor", "--path", ".."],
+      "port": 9876
+    },
+    {
+      "name": "Ollama Server",
+      "runtimeExecutable": "ollama",
+      "runtimeArgs": ["serve"],
+      "port": 11434
+    }
+  ]
+}

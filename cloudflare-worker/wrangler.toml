@@ -1,0 +1,6 @@
+name = "gda1-gemini-proxy"
+main = "gemini-proxy.js"
+compatibility_date = "2024-01-01"
+
+# Set your GEMINI_API_KEY as a secret (never put it here):
+#   wrangler secret put GEMINI_API_KEY

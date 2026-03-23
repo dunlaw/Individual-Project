@@ -1,0 +1,1411 @@
+181388
+BSc Computer Science & Artificial Intelligence
+Department of Informatics
+An Exploration into View-Based Navigation via Temporal Difference Learning
+Dr James Bennett
+Professor Thomas Nowotny
+2020
+
+Statement of Originality
+This report is submitted as part requirement for the degree of Computer Science &
+Artificial Intelligence at the University of Sussex. It is the product of my own labour except
+where indicated in the text. This work is based on a model created by Dr James Bennett,
+and was developed and improved throughout the project. The report may be freely copied
+and distributed provided the source is acknowledged. I hereby give permission for a copy
+of this report to be loaned out to students in future years.
+
+ii
+
+Acknowledgments
+I would like to thank Dr James Bennett for his immeasurable contribution, patience and
+guidance, as well as Professor Thomas Nowotny for introducing me to Dr Bennett and
+supervising our project.
+
+iii
+
+Professional Considerations
+Since this project involves scientific research based around literature and computer
+modelling, there are no major ethical issues to be considered. However, having
+familiarised myself with the Chartered Institute of IT’s Code of Conduct*, I can certify that
+I will abide by sections 1 (Public Interest), 2 (Professional Competence and Integrity) and 3
+(Duty to Relevant Authority), which are relevant to any IT project.
+
+* Full code of conduct available at: https://www.bcs.org/membership/become-a-member/bcs-code-of-conduct/
+
+iv
+
+Abstract
+View-based navigation (VBN) requires a form of associative learning, in which actions
+must be associated with visual cues to guide an agent towards a reward or target. There
+are numerous candidate brain areas in insects that may be involved in learning for VBN
+tasks, one of which is the mushroom bodies (MB), a pair of structures that have been
+readily studied to investigate their relation to learning and memory. Although evidence of
+specific circuitry is lacking, dopamine neurons (DANs) in the MB hint at measuring
+reward predictions, crucial in predicting possible outcomes. Reward predictions are
+updated proportionally to reward prediction errors (RPEs), which are the differences
+between predicted and received rewards. Temporal Difference (TD) learning, a form of
+Reinforcement Learning, calculates TD errors, which are analogous to RPEs. Using a TD
+learning model based on the Drosophila melanogaster’s MB, we test our model in a virtual
+task akin to the Morris water maze, a widely used paradigm for studying learning in
+rodents. One of the objectives of this project is therefore to determine how certain
+components of the MB may influence learned behaviours, predicated on the hypothesis
+that MBs implement TD learning. The aim of the project was threefold. First, to translate
+the model from Matlab to Python, as an exercise to better understand the workings of the
+model, as well as for openness (code will be made public on GitHub) and for compatibility
+with other neural network simulators used in the Nowotny lab (Yavuz, Turner &
+Nowotny; 2016)[1]. Secondly, to find a learning rate that ensures fast learning, comparable
+to that in insects, whilst maintaining stability. Thirdly, to investigate how the discount
+factor modulates learned behaviour. We found that the propensity of agents to move
+towards the target depends on the extent to which they discounts future rewards. We
+show that TD learning is a good match to model view-based navigation, exhibiting
+comparable behaviour to Drosophila, and therefore propose experiments for researchers to
+investigate the role of the discount factor in vivo.
+
+v
+
+Table of Contents
+Statement of Originality ...........................................................................ii
+Acknowledgments ..................................................................................iii
+Professional Considerations ...................................................................iv
+Abstract ...................................................................................................v
+Table of Contents ...................................................................................vi
+1 Introduction ..........................................................................................1
+1.1 Associative Learning
+
+1
+
+1.2 The Mushroom Bodies
+
+1
+
+1.3 Reinforcement Learning
+
+3
+
+1.4 View-Based Navigation
+
+5
+
+2 Method .................................................................................................7
+2.1 Experimental Paradigm
+
+7
+
+2.2 Network Set Up
+
+9
+
+2.2.1 Inputs and KC Sensory Representation
+
+9
+
+2.2.2 Connectivity and Synaptic Weights
+
+11
+
+2.2.3 MBON Firing Rates and Reward Prediction
+
+12
+
+2.2.4 Decision Making
+
+12
+
+2.2.5 DAN Firing Rates
+
+13
+
+2.2.6 Synaptic Plasticity
+
+14
+
+2.2.7 Eligibility Trace
+
+14
+
+2.2.8 KC → MBON Weight Updates
+
+14
+
+2.3 Model Fine Tuning
+
+15
+
+2.3.1 Model Translation
+
+15
+
+2.3.3 Stable Learning Rate
+
+15
+
+2.4 Performance Metrics
+
+16
+
+2.4.1 Direction Index
+
+16
+
+2.4.2 Probe Learning Index
+
+16
+
+3 Results ...............................................................................................18
+3.1 TD Learning in a 1D Environment
+
+18
+
+3.2 Indications of Stable Learning
+
+19
+
+3.3 Searching for a Stable Learning Rate
+
+20
+
+3.4 An Investigation on the Role of the Discount Factor
+
+21
+
+4 Discussion ..........................................................................................25
+vi
+
+4.1 Overview
+
+25
+
+4.2 Previous MB Models
+
+25
+
+4.3 Model Limitations
+
+25
+
+4.4 Further Work
+
+26
+
+References ............................................................................................28
+Appendices ...........................................................................................31
+Appendix A
+
+31
+
+vii
+
+1 Introduction
+1.1 Associative Learning
+To interact with its environment, an organism must develop a system capable of
+accurately predicting the possible outcomes of an action to reap the largest benefits. The
+organism must be able to differentiate between rewarding and punishing signals for each
+action and associate the valence of each outcome with the incoming sensory cues. The
+Rescorla Wagner (RW) rule[2] is a compelling theory of reward learning that illustrates how
+organisms can predict rewards. Reward predictions are updated proportionally to reward
+prediction errors (RPEs), which are the differences between predicted and received
+rewards. RPEs are preferred to absolute rewards as a learning signal since they will
+decrease as the accuracy of the prediction increases, which will add stability to the
+learning process. An exciting prospect is that animal brains, specifically mammals, are
+capable of implementing approximations to the RW rule[3, 4] as the dopamine neurons
+(DANs) in the ventral segmental area and substantia nigra signal RPEs.
+
+1.2 The Mushroom Bodies
+The mushroom bodies (MB) (Figure 1), a pair of structures in insect brains, have
+been readily studied to investigate their relation to learning and memory[5]. In Drosophila
+melanogaster, DANs project onto the MB where they deliver reward signals, a key
+requirement for learning cue-reward associations[6]. The MB is further innervated by the
+axons of Kenyon cells (KCs), which encode visual and olfactory information, and the
+dendrites of MB output neurons (MBONs), which are involved in modulating behaviour,
+thus providing a means for associations between sensory cues and behaviour to be
+learned. The MB is loosely split into two lobes that encode opposite valences of reward
+information and actions, according to current models[7-13]. Approach behaviours are
+learned by a depression at the synapses between KCs and avoidance MBONs, which is
+induced by a positive reinforcement activating DANs in the protocerebral anterior medial
+(PAM) cluster. Similarly, avoidance behaviours are also learned by a depression at the
+synapses between KCs and approach MBONs, which is induced by negative reinforcement
+1
+
+activating DANs in the protocerebral posterior lateral 1 (PPL1) cluster. Drosophila,
+therefore, can learn to associate cues to prompt approach or avoidance behaviours as a
+result of the synaptic depression at KC outputs.
+
+Figure 1 (From Bennett et al., in prep)
+A 2D render of the Drosophila’s brain, comprising of several neuropils, including
+the Mushroom Body (highlighted in green Labels: MB – mushroom body; AL –
+antennal lobe; SOG – suboesophogeal ganglion; ME – medulla.
+
+Currently, direct evidence of RPEs in the MB is lacking since MB DAN activity is
+usually considered to signal absolute reinforcement, although several lines of indirect
+evidence in support of the RPE hypothesis exist[14]. Feedforward reward signals modulate
+DAN activity, however it is also known that MBONs whose axons are proximal to DAN
+dendrites also deliver excitatory feedback to them[15-19]. DANs, in turn, modulate the
+plasticity of KC → MBON synapses[12, 20, 21]. Since the difference between approach and
+avoidance MBON firing rates scales behavioural valence, we interpret them as a reward
+prediction that stimulates behaviour[11]. Therefore, by amalgamating these processes, we
+notice that DANs that combine feedforward reward signals and feedback reward
+predictions are capable of signalling RPEs for learning. As far as we know, most
+computational models of the MB are yet to incorporate these features[22-24]. A new model
+was proposed by Bennett et al.[25], which extends previous MB models by proposing that
+DANs signal RPEs via feedback from MBONs. Our work is based on this model.
+
+2
+
+1.3 Reinforcement Learning
+Machine Learning (ML) is arguably the most rapidly advancing subfield of
+Artificial Intelligence (AI)*. This field can be summarised by Tom M. Mitchell’s formal
+definition:
+
+“A computer program is said to learn from experience E with respect to some class of tasks T
+and performance measure P if its performance at tasks in T, as measured by P, improves
+with experience E[26]"
+ML can be expressed in three main learning paradigms: Supervised Learning,
+Unsupervised Learning and Reinforcement Learning[27] (RL). To implement our model we
+shall focus on the latter.
+RL does not require labelled data or sub-optimal actions to be explicitly corrected.
+Instead, RL strikes a balance between exploration (by performing new actions) and
+exploitation (by using its acquired knowledge of positively rewarding actions) through
+sparse rewarding events. A domain of RL, known as temporal-difference (TD) learning, is
+particularly attractive for our study, since this algorithm was inspired by behavioural data
+on how animals learn predictions[28]. In its standard form, TD learning consists of an agent
+interacting with its environment by choosing appropriate actions to transition through
+states. The agent receives rewards based on its chosen actions and resulting states, leading
+the agent to base its decision making on maximising its received reward. The name TD
+comes from the fact that the agent uses differences in predictions over time steps to drive
+the learning process. Montague, Dayan & Sejnowski (1996)[29] were the first to propose a
+framework that demonstrated how dopamine systems could signal information about
+future expectations. Schultz, Dayan & Montague (1997)[3] showed how the TD error (more
+about this in the ‘Method’ section) concept from RL accounts for many features of the
+phasic activity of DANs in mammals. Several models have already been implemented in
+an attempt to further the physiological basis of reward-based learning, such as Frémaux,
+
+* According to Google Trends, which tracks the popularity of search terms, ML searches are close to out-pacing AI
+
+searches
+
+3
+
+Sprekeler & Gerstner’s (2013)[30] continuous time actor-critic framework with spiking
+neurons. The authors propose model architectures that have similar properties to those
+observed in the hippocampus place cells[31], but are otherwise not further constrained by
+anatomical details. The goal was to create a model as simple and general as possible for an
+actor-critic architecture, and not to map it to a particular brain structure. They do,
+however, propose a network architecture that could implement TD learning, and explain
+its relevance to navigational tasks. Rao & Sejnowski (2001)[32] showed how spike-timingdependent plasticity[33] could be interpreted as a form of TD learning for prediction, by
+creating a model based on a previous study that demonstrated the ability to reproduce a
+range of cortical response properties[34]. In our work, we deliberately constrain our model
+to the anatomical details of the MB, so as to make testable predictions for a specific model
+organism.
+Bennett et al. (2019) used the Rescorla-Wagner learning rule, and investigated the
+hypothesis that the Drosophila’s MB implement this rule. However, there are limitations to
+the RW learning rule, such as the ‘secondary conditioning’[35] paradigm which, in
+behavioural psychology, is used to describe the following associative learning paradigm:
+
+s1 → r | s2 → s1 | s2 → ‘r’
+Here, s1 and s2 are stimuli, r is the reward and ‘r’ is the expected reward. This
+involves one stimulus becoming associated with a reward, then a second stimulus to be
+associated with the first stimulus, resulting in the second stimulus to evoke expectation of
+the reward even though it was never directly paired with the reward. The RW rule cannot
+account for this secondary conditioning, since there is no reward during the s2 → s1
+training.
+A solution to this problem is TD learning, since the prediction of future rewards can
+be used as rewards themselves, therefore acting as secondary reinforcers. Although the
+specific circuity for implementing it are lacking, the DANs in the MB hint at the capability
+to incorporate this learning rule[36]. In this new version of the Drosophila model, we
+implement TD(λ) learning, which incorporates eligibility traces (ETs) with standard TD
+4
+
+learning. The TD learning algorithm only updates the immediately preceding reward
+prediction, but since the prediction in the current time step also provides valuable
+information for multiple preceding predictions, it is useful to update these preceding
+predictions as well. While the weight vectors act as a form of long-term memory, ETs acts
+more as a form of short-term memory, by remembering a number of previous input signals
+and enabling the weights associated with these signals to be updated in the current time
+step. The discount factor determines the strength of future rewards predictions in the
+current prediction, and if we are able to observe concrete differences in learning as the
+discount factor varies, we can make a strong prediction that experimenters can test. By
+targeting specific synapses, we would expect the behaviour of the real flies to change like
+our model. We are interested in what this would mean for the actual biological system.
+
+1.4 View-Based Navigation
+Drosophila have been studied in the context of visual associative learning, for
+example Schnaitmann et al.[37] explored a new paradigm for classical conditioning, where
+flies were trained en masse to associate one of two cues (blue and green light) to appetitive
+or aversive reward. Results demonstrated that a group of flies that received appetitive
+reward when approaching the green light during training showed a notably higher
+preference for the green stimulus during testing compared to a group of flies that received
+the same reward when approaching the blue light.
+View-based navigation (VBN) requires a more complex form of associative learning,
+in which visual cues must somehow be associated with actions that move an agent
+towards a reward, even though the cues and reward may not co-occur. VBN in insects is a
+well studied topic, with extensive research being done on ants[38] and bees[39]. However,
+there is comparatively little literature on visual navigation in Drosophila melanogaster, not to
+mention the neural underpinnings of visual navigation in any insect. A very recent study
+by Stern et al.[40] demonstrates that MB play a role in promoting spatial learning after
+observing that learning was reduced when MB were ablated.
+Ofstad et al.[41] looked at VBN in Drosophila by developing a thermal-visual arena
+inspired by the Morris water maze, which is a widely used paradigm for studying
+5
+
+learning in rodents[42]. The objective is for the flies to locate a concealed ‘safe’ tile that is
+cooler than the rest of the arena. The safe tile constitutes a positively reinforced location in
+comparison to the other aversive locations. Furthermore, there are no cues in the
+environment that a priori reveal the exact location of the ‘safe’ tile, meaning the agents
+must learn its location through experience in the arena. Surrounding the arena is a circular
+LED display with three different patterns, which enables the agent to learn about the
+location of the ‘safe’ tile relative to the environment’s visual cues (Figure 2a). Ofstad et al.’s
+results show that over the course of several training trials, the flies drastically reduce their
+path length and time to reach the safe tile, which demonstrates learning (Figure 2b-e), all
+the while maintaining a constant speed (Figure 2f), showing the decreased time it took
+them to find the reward was not due to an increase in speed. Flies tested in the dark
+showed no improvement over time, suggesting it was the circular LED display that
+enabled the flies to perform VBN.
+
+Figure 2 (From Ofstad et al., 2011)
+a) An illustration of the arena used for the experiment.Three different patterns were displayed on the circular LEDs to provide visual cues
+to the flies. The flies’ movements were recorded using a camera under infrared (IR) illumination.
+b) Top: Diagrammatic representation of the arena and its visual landscape, the location of the ‘safe’ tile from the previous trial (dashed
+square) and the new location of the ‘safe’ tile (blue square). The location of the ‘safe’ tile remains constant in relative terms to the visual
+panorama even though the absolute position in subsequent trials is shifted.
+Bottom: Trajectories of 4 different flies across trials 1, 2 and 10.
+c, d, e, f) Flies were trained with a coupled visual panorama (red; n = 33 experiments, 495 flies), an uncoupled visual panorama (grey; n =
+21 experiments, 315 flies) or in the dark (black; n = 23 experiments, 345 flies)
+
+6
+
+2 Method
+2.1 Experimental Paradigm
+We mimic the experimental setup of Ofstad et al.’s study, which was described in
+the previous section (1.4). The objective of our agent is the same as theirs, to locate a ‘safe’
+cool tile (positive reward - value attributed is Rc = 10 ) amidst a hot arena (negative
+reward - value attributed is Rh = 0.01 ). Our arena is square shaped into a 20 by 20 grid,
+making it a discrete location space. To most closely match Ofstad et al.’s experimental set
+up, we place our agent near the centre of the upper left quadrant (Q1) and the reward in
+the adjacent upper right quadrant (Q2) with a width of 1/8 of the arena size (Figure 3).
+Q1
+
+Q2
+
+Q4
+
+Q3
+
+Figure 3 Simulation Arena Set Up
+The arena set up for our simulation. The agent starts at
+position y = 5, x = 5 in Q1 (red), while the reward (blue)
+is located at y = 4 : 6, x = 14 : 16 in Q2
+
+Through a sequence of trials, Ntr , the naive agent is free to explore the arena in
+search of the reward. Each location outside the reward bears a small negative reward,
+capturing the energy expended by the flies to keep cool. Thus, in order to maximise
+reward, the agent must learn, over successive trials, to accurately predict the estimated
+reward from a specific location to lead it most efficiently to the reward location. To best
+match our simulations to the experiments, we computed the number of time steps per
+trial, Nt , based on the following intuition. Given the walking speed of flies in Ofstad et al.,
+
+Vof , the diameter of the arena, Dof , in unites of tiles, and the trial duration, Tof , a fly
+should be able to walk the diameter of the arena N times. Therefore, given a walking
+7
+
+speed, Vm , of 1 tile per time step in our model, and an arena width of Wm, in units of tiles,
+we need to compute the number of time steps needed for our agent to walk the width of
+the arena N times. For Ofstad et al., we calculate Nof as:
+
+Nof =
+
+Dof ⋅ Sof
+Vof ⋅ Tof
+
+,
+
+(1)
+
+where Sof is the size of tiles in millimetres. In our model, we calculated Nm as:
+
+Wm ⋅ Sm
+Vm ⋅ Nt
+W
+= m,
+Nt
+
+Nm =
+
+(2)
+
+where Sm is the size of tiles, Sm = 1 and Vm = 1 since our agent moves by one tile in
+
+each time step. Setting Nof = Nm , and substituting eq. 1 into eq. 2, we get:
+
+Dof ⋅ Sof
+Vof ⋅ Tof
+
+=
+
+Wm
+Nt
+
+Nt = Wm ⋅
+
+(3)
+
+Vof ⋅ Tof
+Sof ⋅ Dof
+
+,
+
+where Nt is the number of time steps per trial in our model.
+
+Since we are implementing the backward view of TD learning (more on this in
+section 2.2.5, ‘DAN Firing Rates’), at least two time points are needed before weights can
+be updated using the TD in reward predictions. Therefore, each trial is made up of an
+initial time step followed by a maximum of Nt − 1 subsequent time steps during which the
+agent searches for the reward. The trial is terminated upon the agent encountering the
+reward. Below is pseudocode for how our model runs:
+
+8
+
+for each trial:
+if t = 1:
+calculateFiringRates(MBON)
+chooseAction()
+updatedLocation()
+resetEligibilityTrace()
+updateEligibilityTrace()
+while t <= Nt and not rewardFound:
+update(rewardFound)
+calculateFiringRates(MBON)
+calculateFiringRates(DAN)
+updateWeights(KC → MBON)
+chooseAction()
+updatedLocation()
+updateEligibilityTrace()
+increment(t)
+
+Note that t denotes a time step in a trial, and the update(rewardFound) takes place at
+the start of the time step, since we are implementing the backward view of TD learning
+and require the additional step to calculate the prediction error of the previous state.
+
+2.2 Network Set Up
+A schematic of the model developed for this experiment is presented in Figure 4. In
+this section we will expand on how the network is set up and initialised.
+
+2.2.1 Inputs and KC Sensory Representation
+The inputs of KCs are mainly projection neurons from the antennal lobe and optic
+lobes. These inputs carry olfactory and visual information, and alongside recurrent
+inhibition from the anterior paired lateral neuron, elicit a sparse representation of sensory
+information in around 5-10% of KCs[43-45]. For simplicity, and since much less is known
+about the visual representations in Drosophila as opposed to olfactory representations, our
+9
+
+model implements a one-to-one mapping of KCs, simply referred to as K in our model, to
+discrete locations, since we assume different scenes elicit different responses in Ks.
+Adjacent locations provide similar views of the environment, therefore correlations are
+induced between Ks by filtering each K's spatial response profile with a Gaussian kernel
+with σ = 1 and amplitude = 10/ (2πσ 2 ) . Therefore, the location dependence of the
+firing rate for a given K, j , which is governed by the 2D Gaussian centred on xj and yj is
+given by:
+
+G(x, y) = A exp −
+( (
+
+(x − xj )2 + (y − yj )2
+2σ 2
+
+))
+
+,
+
+(4)
+
+where A is the amplitude.
+
+Figure 4 (Adapted from Bennett et al., in prep)
+A schematic representation of the model of the Drosophila’s MB, which implements temporal difference learning to perform view-based navigation in
+a simulated arena. The model is split into two parts, the actor and the critic. The sensory cue received at a specific location elicits a response in a
+subset of KCs, which in turn drive responses in the approach (M+) and avoidance (M-) MBONS (the critic neurons). These excite the same-valence
+DANs, as well as the inhibitory interneuron (grey) synapsing onto the opposite-valence DAN. Critic MBONs encode reinforcement predictions (RPs),
+which are fed back to DANs via delayed and non-delayed synapses. Delayed feedback has the opposite sign to non-delayed feedback, enabling
+DANs to compute the temporal difference in RPs. Critic MBONs, as well as the subset of KCs activated by the sensory cue and the reward signal
+determine the DANs’ firing rate. In turn, DANs calculate the TD error and modulate Ks’ weights onto the critic MBONs and the actor MBONs
+(through LTP and LTD). The four actor MBONs (red stars) represent the four directions our agents can move in (down, left, up or right). These can fire
+positively for approach behaviour or negatively for avoidance behaviour. for simplicity, we do not rectify the firing rates of actor MBONs. As such,
+negative firing rates in one actor MBON (for example M_left) is equivalent to positive firing rates in another actor MBON (M_right).The actor part of
+our model is less biologically realistic, since organisms drive behaviour through complex motor circuits. Here, our actor neurons are hypothetical
+neurons that drive behaviour.
+
+10
+
+2.2.2 Connectivity and Synaptic Weights
+KC → MBON
+Ks are responsible for the sensory input in our model. Sensory information is
+channeled from the Ks, of which there are Nk , through excitatory feedforward synapses to
+two separate MBONs. The appetitive value neurons, M+c , and aversive value neurons, M−c ,
+play the role of the critic, while the action neurons, M a , representing the 4 directions of
+movement (down, left, up and right), play the role of the actor. For simplicity, to
+differentiate between positive and negative valences, we use the subscript + for positive
+valence (approach MBONs are therefore M+c ) and the subscript - for negative valence
+(avoidance MBONs are therefore M−c ). For the different directions, we use subscript d for
+down, subscript u for up, and so on (actor MBON for downwards direction is therefore
+
+Mda). Ki synapses onto M±c and M a with a synaptic weights w±i and wai respectively, which
+are initialised with w±i = 0.1ξ±i and wai = 0.1ξai for each initial time step in a trial, where
+
+ξ±i and ξai are uniform random variables in the range 0-1. For simplicity, the KC → M a
+synaptic weights can go negative (for avoidance), as well as the M a firing rates. Since these
+actor neurons are not thought to exist in the MB, but rather downstream of the MB, we do
+not model them with biological plausibility in mind.
+
+KC → DAN
+Ks drive excitatory responses in DANs, D± in our model. Therefore, Ki drives D±
+through fixed excitatory synapses with weights wK = ϕ1 , where 1 = [1, 1, …, 1]T is a
+vector of ones of length Nk , superscript T denotes the transpose and ϕ is a constant that
+sets the synaptic weight from KCs to DANs. Throughout this text, vectors are denoted by
+bold fonts.
+
+MBON → DAN
+MBONS provide excitatory feedback to their respective DANs[16-18]. M±c , the critic
+MBONS in our model, synapse onto D± with a unit synaptic weight. Therefore, we simply
+describe the feedback weight as wm = 1, and specify if the input is excitatory or inhibitory
+in the firing rates equations (eqs. 9 & 10).
+11
+
+2.2.3 MBON Firing Rates and Reward Prediction
+Our model implements two sets of MBONs. M±c neurons are modelled as linearnonlinear (LN) units that output a firing rate, y , equal to the rectified linear sum of their
+inputs, x:
+
+y=f
+
+(∑
+j
+
+wj xj ,
+)
+
+(5)
+
+where f (z) = max(0, z) is the rectifying nonlinearity. Eq. 5 can be written more
+succinct in vector notation: y = f (w T x) , where w T = [w1, …, wn] for n presynaptic
+neurons. M a are modelled similarly, but since they can go negative they are not passed
+through the rectifying nonlinearity function.
+At the start of each trial, the MBON firing rates, and thus reward predictions, are
+calculated for the current location. The firing rate, m±c , of MBON M± , signals the associated
+reward (positive or negative) to a given cue, labeled i, according to:
+
+m±ci = f (wT±ki) ,
+
+(6)
+
+where ki is the vector of KC responses to stimulus i , associated with the sensory
+
+representation of being in a particular state, and w± are plastic, excitatory synaptic
+
+weights. The net reward predicted by sensory cue i is then determined by m̂ ci = m+ci − m−ci.
+The firing rate, md,a l, u, r , for the actor MBONs is the same as eq. 6 but once again without
+being passed through the rectifying nonlinearity function.
+
+2.2.4 Decision Making
+In each trial, reward predictions for all available actions are compared, and the
+model is forced to choose an action. Decisions are made probabilistically using a softmax
+function, p[A] , which specifies the probability of choosing action, A , as a function of the
+
+M a firing rate, m a, as:
+
+p[a] =
+
+exp(βmAa)
+
+N
+a)
+∑A′A=1 exp(βmA′
+
+12
+
+,
+
+(7)
+
+where β is a constant and determines the variability of the agent’s actions and plays
+a large role in the exploration-exploitation dilemma and possible actions are down, left, up
+or right. A small β will favour exploration, whereas a large β will favour exploitation. The
+selected action is ultimately determined on a given trial by drawing a single, random
+sample, ξ , from a uniform distribution in the range of 0-1, and obeying the following
+principle:
+
+A = max
+
+{
+
+x∈ℕ
+
+x
+
+∑
+i=1
+
+p(A) ≤ ξ, 1 ≤ x ≤ 4 ,
+}
+
+(8)
+
+2.2.5 DAN Firing Rates
+Once an action has been taken, the reward prediction specific to the resulting state
+and previous state is fed back to the DANs where they are compared to the net reward,
+
+r ̂(t) = r (t)+ − r (t)− , received in that time step t, where r (t)+ is positive reinforcement and
+r (t)− is negative reinforcement. Given the resulting state, D± firing rates are given by:
+
+d(t)± = f (wk(k) ∓ wm(m+c (t − 1) − m−c (t − 1)) ±
+̂
+,
+γ wm(m+c (t) − m−c (t)) ± r(t))
+
+(9)
+
+where wm are the MBON → DANs weight vectors, m+ the firing rates of the
+
+appetitive neurons and m− the aversive neurons, which can be written more concisely as:
+
+̂
+d(t)± = f (wk(k) ∓ wm m̂ c(t − 1) ± γ wm m̂ c(t) ± r(t))
+,
+
+(10)
+
+where m̂ c(t − 1) is the reward prediction from previous state, m̂ c(t) is the reward
+prediction for the current state.
+The TD error from TD learning is calculated by:
+
+δt−1 =· Rt + γV(St ) − V(St−1) ,
+
+(11)
+
+where Rt is the reward in the current time step, γ denotes the discount factor, V is an
+
+estimate of the true state value function and S(t) is the state at time t in which the agent
+
+finds itself. Here we show the TD error in its backward view, since our agent can only rely
+on its current knowledge of the environment. Therefore, eq. 11’s estimated state value,
+
+V(St ), is analogous to our model’s wm(m̂ c(t)). The state values in our model are the reward
+predictions, given by the difference in M+c and M−c firing rates. Thus, our DAN firing rates
+implement the TD error.
+13
+
+2.2.6 Synaptic Plasticity
+In this work, we assume the MB’s objective is to create accurate reward predictions
+by minimising TD errors. The plasticity rule, P±RPE , is then defined by the negative
+gradient:
+
+P±RPE = ηk(d± − d∓) ,
+
+(12)
+
+where η is the learning rate.
+
+2.2.7 Eligibility Trace
+Eligibility traces, E , are a way of improving the performance of TD learning by
+producing a computationally efficient algorithmic mechanism to provide short-term
+memory for a system by storing a single vector rather than a list of vectors. Explicitly, ET is
+a function of state E(s) and encode a decaying memory of the states visited (a low pass
+filtered version of the KC firing rates). As mentioned in section 2.2.5, we implement the
+backward view of TD learning, since the forward view requires future events or rewards
+which are not available at the current time. We initialise E as a (Nk , 1) vector, where Nk is
+the number of KCs. E is updated at each time step as:
+
+E(t + 1) = λE(t) +
+
+k(t)
+,
+τ
+
+(13)
+
+τ is the timescale over which E decays and λ = 1 − (1/τ), the factor that iteratively
+decays E on each time step. E is reset to zero at the beginning of each trial.
+
+2.2.8 KC → MBON Weight Updates
+After computing the TD error in the DANs, the KC → MBON weights are updated
+for the critic MBON by:
+
+w±(t) = f (w±(t − 1) + P±RPE (t) ⋅ E(t)T ) ,
+
+(14)
+
+and the actor MBON by:
+
+wa(t) = wa(t − 1) + P±RPE (t) ⋅ E(t)T
+
+14
+
+(15)
+
+2.3 Model Fine Tuning
+2.3.1 Model Translation
+The first major task of this project consisted in translating Bennett’s model, written
+in MatLab, into Python. This was done for several reasons, including my preference for the
+Python language, as an exercise to better understand the workings of the model, for
+openness (code will be made public on GitHub) and for further uses (eg. GeNN
+compatibility). This process took longer than expected, but helped to expose and remove
+bugs, as well as streamline the code making it easier for others to take on, in addition to
+moving closer to making it publicly accessible.
+
+2.3.3 Stable Learning Rate
+Before beginning our investigation on the discount factor’s effect on learning, we
+had to find a suitable learning rate. In Ofstad et al.’s study, Drosophila show substantial
+improvements in task performance within 10 trials. We therefore sought a learning rate
+that allows similarly rapid learning without destabilising the synaptic weight dynamics.
+This was done by searching for the fastest stable learning rate, η, when the discount factor,
+
+γ, was equal to 1. By measuring an estimate of the variability in state values, m̂ c , we can
+assess the stability of the synaptic weight dynamics between trials. This variability for a
+given learning rate was calculated as:
+
+1 100
+σ=
+(m̂ c(t = 0, tr) − μ̄)2
+,
+⟨⟨ 90 ∑
+⟩ ⟩
+𝒳 N
+tr=11
+
+(16)
+
+a
+
+where μ̄ is the average of m̂ c over the chosen range of trials, 𝒳 denotes the set of
+
+tiles where y = 5 and 5 ⩽ x ⩽ 13 (ie. the optimal path from starting position to reward),
+and Na represents the number of unique agents. The fastest our agent could learn was
+around 10 trials, during which the state values are expected to change substantially. We
+therefore analyse state values between trials 11 and 100 in order to assess the stability of
+learning.
+
+15
+
+2.4 Performance Metrics
+We borrow several performance metrics from Ofstad et al., including the direction
+index and probe learning index (detailed below), as well as the path length, which we
+measure as the number of time steps needed to reach the reward (since our agent updates
+its position each time step).
+
+2.4.1 Direction Index
+In order to measure the propensity of an agent to navigate towards the target
+throughout learning, we compute a direction index, DI, according to:
+
+DI =
+
+NQ2 − NQ4
+Na
+
+,
+
+(17)
+
+where NQ2 is the number of agents entering Q2, in which the reward is located, and
+
+similarly for NQ4 , where Q4 is the opposite quadrant to Q2 . Na is the number of unique
+agents in the simulation.
+
+2.4.2 Probe Learning Index
+As an additional test of visual place memory, Ofstad et al. define the probe trial,
+which takes place after training and where the reward is removed. The flies, therefore,
+roam around the arena in search of the now non-existent cool tile. This allows for a
+measure of the flies’ bias to search the area close to where they have learnt the reward
+should be located. The probe learning index (PLI) in Ofstad et al. is calculated by:
+
+PLI =
+
+TQ2 − TQ4
+
+TQ2 + TQ4
+
+,
+
+(18)
+
+where TQ2 is the time spent in Q2, and similarly for TQ4, during the first 60 seconds
+after leaving Q1 (the quadrant in which the agent begins). This way of calculating the PLI
+did not transfer well to our experiment, as our agents would too often spend all of their
+time in Q2 or all of it in Q4, which resulted in the PLI being uninformative. Seeking a more
+uniformly distributed PLI, we chose instead to measure the mean distance, μd , from the
+centre of both quadrants, to then calculate the PLI as:
+
+PLI =
+
+μd from Q4c − μd from Q2c
+,
+μd from Q4c + μd from Q2c
+16
+
+(19)
+
+where the subscript c denotes the centre of the quadrant. The difference in
+distribution between Ofstad et al.’s version of the PLI and our version (Figure 5) shows
+that our method transfers well to our model by providing a better distribution and
+therefore will provide a better understanding of how the discount factor affects learning.
+
+a
+
+b
+
+Figure 5 - Distribution of the Two Versions of the Probe Learning Index
+A: The distribution of the PLI using Ofstad et al.’s method (eq. 14). B: The distribution of the PLI using our method (eq. 15). Using our version, we
+obtain a better distributed result, which gives a better indication of the propensity of our agents to search the reward quadrant instead of the
+adjacent quadrant during the probe trial after the training period.
+Parameters for this experiment: γ = 1, η = 2 * 10−3, Na = 400, Ntr = 10
+
+17
+
+3 Results
+In this section, we present the results of our investigations. First, we demonstrate
+our model works as expected by forcing our agent to move across a simple 1D
+environment and plotting the state values and TD error. Then, we test our model in the
+main experimental paradigm described in section 2.1. We show the trajectories of several
+agents (simulated separately) searching for the reward in different trials, the state values
+changing over trials and the state value map as a way to demonstrate learning. Next, we
+search for the fastest stable learning rate before investigating the role of the discount factor
+in modulating behaviour.
+
+3.1 TD Learning in a 1D Environment
+As a proof of principle, we implemented a simple 1D experimental paradigm. The
+agent is forced to move to the right along the track until reaching the reward in the final
+state, over multiple trials. Figure 6a shows that the state value rises when the reward is
+first encountered (dark blue lines) in the state preceding the reward location and gradually
+increases to approach the actual reward (Rc = 10) over trials. This reward is propagated
+through previously encountered states, and since future rewards are discounted, a gradual
+decay is visible. Figure 6b shows that in the early trials, the dopamine neurons signal the
+TD error when it reaches the reward. This signal gets propagated through previously
+encountered states (location corresponds to time since the agent is forced to move to the
+right in each time step) to the initial starting position.
+
+a
+
+b
+
+Figure 6 - TD Learning in a 1D Environment
+Proof of principle demonstrating TD learning taking place in our model. The agent begins in a null state (no KC activity) before being
+forced to move to the right along the track, until obtaining a positive reward in the terminal state. A: Shows the progression of state
+values over trials. Each coloured line shows the value function represented by the critic neurons’ activity against trials (from dark blue in
+trial 1 to dark red in trial 40). B: Shows the progression of TD error over trials. Each coloured line shows the TD error represented by the
+DANs activity against trials.
+Parameters for this experiment: γ = 0.9, η = 2 * 10−3, Ntr = 40
+
+18
+
+3.2 Indications of Stable Learning
+Figure 7 presents several indices of stable learning in our main experimental
+paradigm. As a reminder, the agent begins in the upper left quadrant (Q1) and must find
+the reward tile in the upper right quadrant (Q2) to obtain a reward. In Figure 7a, we show
+several agents’ trajectories (simulated separately) across trials, demonstrating a significant
+improvement in locating the reward more rapidly. The state values along the optimal path
+(Figure 7b) show increasingly greater values as the agent approaches the reward, as well
+as seemingly starting to level out after 100 trials, presumably as they get closer to their true
+value. Finally, the action and state value map (Figure 7c) displays the agents’ propensity to
+move towards the reward (action values) and associate high values to the optimal path
+(state values).
+
+a
+
+b
+
+c
+
+Figure 7 - Indications of Stable Learning
+In arena plots, the red square indicates the starting position and the blue square indicates the reward location. A: Trajectories of 10 agents from trials 1,
+10 and 20. Over trials, the agents find more direct paths to the reward. B: State values over 100 trials along the optimal path (straight line to the right
+from starting position to reward). The colour indicates the location of the tile in terms of its distance from the reward. The state values begin to level out
+after 100 trials, seemingly approaching their true value. Values shown are mean across 400 agents. C: Action and state value map of an agent after 100
+trials superimposed. Red arrows indicate the preferred direction of movement for the actor neurons at each location (the longer the arrow, the stronger
+the action value). The grayscale plot underneath shows the state values. A corridor of high state values demonstrates the learnt optimal route to the
+reward. Parameters for this experiment: γ = 1, η = 2.25 * 10−2
+
+19
+
+3.3 Searching for a Stable Learning Rate
+As explained in section 2.3.3, we wanted to find the fastest stable learning rate to
+mimic fast learning in insects. We use eq. 16 to assess the stability of a particular learning
+rate and show the results in Figure 8. At lower learning rates, the standard deviation, σ ,
+rises progressively due to the weight updates increasing as the learning rate increases from
+zero before levelling out, presumably because the state values are approaching their true
+value. The σ then increases again as a result of increasingly unstable learning. To reduce
+
+the chances of running into unstable regimes, we selected η = 2.25 * 10−2 , which is used
+in all simulations hereafter. Showing the state values across trials (Figure 8c) shows slow
+stabilisation when η = 1.0 * 10−2 , better stabilisation when η = 2.25 * 10−2
+
+and
+
+−2
+
+increasingly large values when η = 3.0 * 10 .
+
+a
+
+b
+
+c
+η = 0.01
+
+η = 0.03
+
+η = 0.0225
+
+Figure 8 - Standard Deviation of State Values across Learning Rates
+To find a fast yet stable learning rate, we calculated the standard deviation of state values across a selection of learning rates. A low learning rate meant
+a better stabilisation of the weights, an indication of more stable learning. A: Shows the standard deviation on a large scale of learning rates. When
+η > 0.0275, the standard deviation of state values starts growing rapidly, a sign of instability. The red rectangle shows the cut in for B: the standard
+deviation on a reduced scale to show our chosen learning rate (circled in red) at η = 0.0225. C: Examples of how the state values evolve for different
+learning rates, η = 0.01 (slow), η = 0.0225 (our chosen learning rate) and η = 0.03 (unstable). Furthermore, the state values do not stabilise with our
+chosen value of η, this is because at lower learning rates, the state values take longer to stabilise. When the learning rate becomes unstable (η = 0.03),
+we can see the state values growing rapidly instead of stabilising. Therefore there is a tradeoff between rapid learning and stable learning.
+Parameters for this experiment: Na = 400, Ntr = 100, γ = 1
+
+20
+
+3.4 An Investigation on the Role of the Discount Factor
+One of our objectives was to investigate how the discount factor, γ , modulates
+
+learned behaviour. To do this, we look at how γ affects various learning indices such as the
+path length (PL), the discount factor (DI) and the probe learning index (PLI) (described in
+
+section 2.4). To illustrate the agent’s estimate of a state’s value, we show the state values as
+a function of location along the optimal path from the starting position to the target, over
+trials, and for the 6 discount factors we are investigating (Figure 9). Similarly to Figure 6a,
+the reward is propagated through previously encountered states, and since future rewards
+are discounted, a gradual decay is visible - except for when γ = 1 , we can see the state
+values after 100 trials are flattening out, since future rewards are not discounted. Figure 10
+shows the state value maps for different discount factors, providing another way of
+visualising the effect of the discount factor on agents’ estimated state values. It shows the
+state values growing away from the reward towards the starting position as the discount
+factor increases.
+Figure 11 presents our results for the learning indices. Across all discount factors,
+the agents learn to significantly reduce their path length to the reward (Figure 11a). At
+higher discounts (γ ≥ 0.8), agents almost exclusively travel along the optimal path after
+less than 50 trials. At lower discounts, future reward predictions are given less importance
+in the current reward prediction, therefore agents cannot propagate backwards the high
+reward predictions associated with states in close proximity of the reward back to their
+starting position. This results in agents exhibiting more sinuous trajectories to locate the
+reward as the discount factor decreases. The direction index, similarly to the path length, is
+affected by the discount factor (Figure 11b). At higher discounts (γ ≥ 0.8), agents almost
+exclusively enter Q2 rather than Q4 after less than 50 trials. As with the path length, a
+lower discount prohibits high reward predictions to reach the states in proximity of the
+starting position, therefore the propensity for the agent to enter Q2 rather than Q4 is
+weaker. The probe learning index is also dependent on the discount factor (Figure 11c).
+Higher discounts lead to a higher PLI and smaller interquartile range (IQR). This can once
+again be related back to agents with lower discount factors having less accurate reward
+predictions further away from the reward, leading to more exploratory behaviour, as
+shown by the lower median and larger IQR. As expected, a higher value of γ results in
+quicker learning (fast reduction in PL and increase in DI) and better performance (PL and
+DI reach optimal values, PLI is higher and narrower) since high reward predictions travel
+back to the starting location.
+
+21
+
+Figure 9 - State Values as a Function of Location
+State values as a function of location (y = 5, x = 5 : 13, optimal path from starting position to target) over trials for different discount factors. Similarly to
+Figure 5, the reward is propagated through previously encountered states, and since future rewards are discounted, a gradual decay is visible. When the
+discount factor is 1, the reward is propagated further back, resulting in a stabilisation around the maximum state value, noticeable as the increments
+between trials get smaller. As the discount factor decreases, less of the reward is propagated backwards, resulting in a steeper gradient away from the
+reward location. Values shown are mean across 400 agents. Parameters for this experiment: Na = 400, Ntr = 100, η = 2.25 * 10−2
+
+22
+
+Figure 10 - State Value Map for Various Discount Factors
+Another way of visualising how the discount factor influences estimated state values. As the discount factor increases, the reward is propagated further
+through previously encountered states, showing a gradual increase in the state values from the reward back towards the starting position. When the
+discount factor is 1, the reward is propagated further back, resulting in a stabilisation around the maximum state value, noticeable as the increments
+between trials get smaller. As the discount factor decreases, less of the reward is propagated backwards, resulting in a steeper gradient away from the
+reward location. Values shown are mean across 400 agents. Parameters for this experiment: Na = 400, Ntr = 100, η = 2.25 * 10−2
+
+23
+
+a
+
+b
+
+c
+
+Figure 11 - Path Length, Direction
+Index and Probe Learning Index
+A: Path length (measured as the number
+of tiles visited to reach target) over 100
+trials for different discount factors. The red
+line indicates the shortest path (9 tiles)
+between start location and reward.
+B: Direction Index (DI) over 100 trials for
+different discount factors. The red line
+indicates the optimal DI of 1.0, meaning
+all agents entered Q2 first instead of Q4.
+C: Probe Learning Index for different
+discount factors. Box plots indicate the
+median value (orange line), 25th and 75th
+percentiles (box), the data range
+(whiskers), and outliers (circles).
+See methods for details of calculation.
+Values shown in A & B are mean ± s.e.m.
+Parameters for this figure:
+
+Na = 400, Ntr = 100, η = 2.25 * 10−2
+
+24
+
+4 Discussion
+4.1 Overview
+This project consisted of three main objectives. Firstly, to translate our model from
+Matlab to Python to better understand the model and its workings, as well as for openness
+and for compatibility with other neural network simulators used in the Nowotny lab.
+Although this took longer than expected, it enabled us to fix various bugs as well as
+improve and further the functionality of the model (such as removing redundancy and
+creating more complex experimental paradigms - more in section 4.4). Secondly, to find a
+learning rate that ensures fast learning, comparable to that in insects, whilst maintaining
+stability. This was done by measuring the variability in state values. Thirdly, to explore
+how learned behaviour is modulated by the discount factor. We demonstrated that TD
+learning could successfully be applied to a view-based navigation task, exhibiting
+behaviour comparable to Drosophila. Learning seems to take place in two phases, fast
+learning between trials 1 to 30, and slow learning from 30 trials and onwards. Learning
+indices in both phases seems to be dependent on the discount factor, suggesting the
+propensity of agents to move towards the reward depends on the extent to which it
+discounts future rewards. Thus, the learning indices used in Ofstad et al. provide a
+behavioural means of probing the discount factor in Drosophila.
+
+4.2 Previous MB Models
+The model developed for this work sits apart from previous MB models[22-24] since it
+doesn’t utilise bounded synapses that prevent reward predictions from growing
+continuously with sustained reward experience. Bounded synapses preclude the models
+from, given sufficient training, differentiating between two rewards of the same valency
+but of different magnitudes. Our model, instead, incorporates feedback from MBONs to
+DANs, which enables KC → MBON synapses to accurately and stably encode the reward
+magnitude when the RPE signalled by DANs reduces to zero.
+
+4.3 Model Limitations
+A key assumption embedded in this work is that the MB’s objective is singular: to
+minimise RPEs. However, in reality, an organism has to satisfy numerous objectives to
+survive. In Drosophila, anatomically segregated DANs in the γ-lobe encode rewards such as
+water and sugar, as well as motor activity[9, 10, 20, 46], indicating Drosophila can indeed learn
+to satisfy different objectives. Multi-objective optimisation is a difficult problem, and goes
+25
+
+beyond the scope of this project. Nonetheless, the concept that accurate predictions
+support decision making is still applicable to many objectives.
+Furthermore, our use of a Gaussian kernel to induce correlations between states
+would not work in non open-arena spaces, such as mazes or other bounded spaces. In our
+model, a Gaussian kernel is an appropriate method to induce correlations between states,
+since the virtual arena is open and unobstructed. The spatial structure of correlations is
+therefore uniform around a specific state. However, in more complex settings, such as a
+maze made up of walls, two locations may be adjacent but elicit very different sensory
+representations if they are on different sides of the wall.
+
+4.4 Further Work
+There are several further line of inquiries that can stem from this work. A deeper
+investigation on how Drosophila discount future rewards, under the assumption they
+implement TD learning, could be done by searching for a proxy for state values. This
+could provide additional behavioural means to probe the discount factor in vivo. A
+possible candidate could be an extended version of the direction index. By dividing the
+arena into smaller subsections (e.g. 8x8 instead of 2x2), and computing a direction index
+for each tile in the grid, you could calculate a finer scale version of the direction index. For
+each subsection, the first quadrant the agent enters becomes Q1, and Q2 the quadrant
+closest to the reward. This extended direction index would have the advantage of being
+easily transferable to in vivo experimental designs.
+Foucaud et al. (2010)[47] implemented a heat-maze experimental paradigm similar to
+Ofstad et al. They created an algorithm to classify search strategies into different categories
+such as thigmotaxis, where flies exhibit a strong propensity to explore in close proximity of
+the arena walls, random search, where flies explore most of the arena surface, scanning,
+where flies mainly explore the centre of the arena and directed search, where flies mainly
+explore in a corridor between the starting position and the reward location. Now that our
+model has been shown to work, developing a similar classification algorithm to apply to
+our model would yield additional indices to analyse behaviour and learning patterns.
+Additional work on the experimental paradigm could include adding obstacles for
+the agents to learn a more complex route to reach the reward (See appendix A for
+preliminary results using our current model). In more complex experimental paradigms
+including walls, it is possible that optimal performance will require a discount factor less
+than 1. With γ = 1, one may find that agents are willing to cross the wall (negative reward)
+in order to reach the positive reward on the other side. Additionally, developing a 3D
+virtual arena could allow for an experimental paradigm that better aligns with that of
+Ofstad et al.’s, by creating more realistic correlations between adjacent states.
+26
+
+Ultimately, by developing biologically plausible neural networks and studying
+agents behaviour in various experimental paradigms, we can yield predictions that can be
+tested using existing experimental protocols, for example experimenting with discounting
+in the Drosophila MB by optogenetically stimulating* neurons or by silencing certain
+weights between the feedback neurons and comparing the elicited behaviour to our
+model’s. This is an exciting prospect, as it can help elucidate the precise neural
+underpinnings required for view-based navigation which will lead to a better
+understanding of the general organisation and implementation of spatial memories in
+Drosophila and beyond.
+
+* optogenetic stimulation is a technique that uses light to control genetically modified neurons expressing light-sensitive
+
+ion channels
+
+27
+
+References
+1.
+
+Yavuz, E., J. Turner, and T. Nowotny, GeNN: a code generation framework for
+
+accelerated brain simulations. Scientific reports, 2016. 6: p. 18854.
+2.
+
+Rescorla, R.A. and A.R. Wagner, A theory of Pavlovian conditioning: Variations in
+
+the effectiveness of reinforcement and nonreinforcement. Classical conditioning II: Current
+research and theory, 1972. 2: p. 64-99.
+3.
+
+Schultz, W., P. Dayan, and P.R. Montague, A neural substrate of prediction and reward.
+
+Science, 1997. 275(5306): p. 1593-1599.
+4.
+
+Schultz, W., Neuronal reward and decision signals: from theories to data.
+
+Physiological reviews, 2015. 95(3): p. 853-951.
+5.
+
+Waddell, S. and W.G. Quinn, What can we teach Drosophila? What can they teach
+
+us? Trends Genet, 2001. 17(12): p. 719-26.
+6.
+
+Waddell, S., Reinforcement signalling in Drosophila; dopamine does it all after all.
+
+Current opinion in neurobiology, 2013. 23(3): p. 324-329.
+7.
+
+Schwaerzel, M., et al., Dopamine and octopamine differentiate between aversive
+
+and appetitive olfactory memories in Drosophila. Journal of Neuroscience, 2003. 23(33): p.
+10495-10502.
+8.
+
+Mao, Z. and R.L. Davis, Eight different types of dopaminergic neurons innervate
+
+the Drosophila mushroom body neuropil: anatomical and physiological heterogeneity.
+Frontiers in neural circuits, 2009. 3: p. 5.
+9.
+
+Burke, C.J., et al., Layered reward signalling through octopamine and dopamine in
+
+Drosophila. Nature, 2012. 492(7429): p. 433-437.
+10.
+
+Liu, C., et al., A subset of dopamine neurons signals reward for odour memory in
+
+Drosophila. Nature, 2012. 488(7412): p. 512-516.
+11.
+
+Aso, Y., et al., Mushroom body output neurons encode valence and guide memory-
+
+based action selection in Drosophila. Elife, 2014. 3: p. e04580.
+12.
+
+Owald, D., et al., Activity of defined mushroom body output neurons underlies
+
+learned olfactory behavior in Drosophila. Neuron, 2015. 86(2): p. 417-427.
+13.
+
+Perisse, E., et al., Aversive learning and appetitive motivation toggle feed-forward
+
+inhibition in the Drosophila mushroom body. Neuron, 2016. 90(5): p. 1086-1099.
+14.
+
+Perisse, E., et al., Different kenyon cell populations drive learned approach and
+
+avoidance in Drosophila. Neuron, 2013. 79(5): p. 945-56.
+15.
+
+Aso, Y., et al., The neuronal architecture of the mushroom body provides a logic for
+
+associative learning. elife, 2014. 3: p. e04577.
+16.
+
+Ichinose, T., et al., Reward signal in a recurrent circuit drives appetitive long-term
+
+memory formation. Elife, 2015. 4: p. e10719.
+28
+
+17.
+
+Felsenberg, J., et al., Re-evaluation of learned information in Drosophila. Nature,
+
+2017. 544(7649): p. 240-244.
+18.
+
+Felsenberg, J., et al., Integration of parallel opposing memories underlies memory
+
+extinction. Cell, 2018. 175(3): p. 709-722. e15.
+19.
+
+Zhao, X., et al., Persistent activity in a recurrent circuit underlies courtship memory
+
+in Drosophila. Elife, 2018. 7: p. e31425.
+20.
+
+Cohn, R., I. Morantte, and V. Ruta, Coordinated and compartmentalized
+
+neuromodulation shapes sensory processing in Drosophila. Cell, 2015. 163(7): p. 1742-1755.
+21.
+
+Hige, T., et al., Heterosynaptic plasticity underlies aversive olfactory learning in
+
+Drosophila. Neuron, 2015. 88(5): p. 985-998.
+22.
+
+Bazhenov, M., R. Huerta, and B.H. Smith, A computational framework for
+
+understanding decision making through integration of basic learning rules. Journal of
+Neuroscience, 2013. 33(13): p. 5686-5697.
+23.
+
+Peng, F. and L. Chittka, A simple computational model of the bee mushroom body
+
+can explain seemingly complex forms of olfactory learning and memory. Current Biology,
+2017. 27(2): p. 224-230.
+24.
+
+Cope, A.J., et al., Abstract concept learning in a simple neural network inspired by
+
+the insect brain. PLoS computational biology, 2018. 14(9): p. e1006435.
+25.
+
+Bennett, J.E.M., A. Philippides, and T. Nowotny, Learning with reward prediction
+
+errors in a model of the <em>Drosophila</em> mushroom body. bioRxiv, 2019: p. 776401.
+26.
+
+Mitchell, T.M., Machine learning. 1997, McGraw-hill New York.
+
+27.
+
+Sutton, R.S. and A.G. Barto, Reinforcement learning : an introduction. Second edition.
+
+ed. Adaptive computation and machine learning. 2018, Cambridge, Massachusetts: The
+MIT Press. xxii, 526 pages.
+28.
+
+Sutton, R., Learning to Predict by the Method of Temporal Differences. Machine
+
+Learning, 1988. 3: p. 9-44.
+29.
+
+Montague, P., P. Dayan, and T. Sejnowski, A framework for mesencephalic
+
+dopamine systems based on predictive Hebbian learning. The Journal of Neuroscience,
+1996. 16(5): p. 1936-1947.
+30.
+
+Frémaux, N., H. Sprekeler, and W. Gerstner, Reinforcement learning using a
+
+continuous time actor-critic framework with spiking neurons. PLoS computational
+biology, 2013. 9(4).
+31.
+
+O'Keefe, J. and J. Dostrovsky, The hippocampus as a spatial map: preliminary
+
+evidence from unit activity in the freely-moving rat. Brain research, 1971.
+32.
+
+Rao, R.P. and T.J. Sejnowski, Spike-timing-dependent Hebbian plasticity as
+
+temporal difference learning. Neural computation, 2001. 13(10): p. 2221-2237.
+33.
+
+Sejnowski, T.J., The book of Hebb. Neuron, 1999. 24(4): p. 773-776.
+29
+
+34.
+
+Mainen, Z.F. and T.J. Sejnowski, Influence of dendritic structure on firing pattern in
+
+model neocortical neurons. Nature, 1996. 382(6589): p. 363-366.
+35.
+
+Pavlov, I.P., Conditioned reflexes, translated by GV Anrep. London: Oxford, 1927.
+
+36.
+
+Dylla, K.V., et al., Trace conditioning in Drosophila induces associative plasticity in
+
+mushroom body Kenyon cells and dopaminergic neurons. Frontiers in neural circuits,
+2017. 11: p. 42.
+37.
+
+Schnaitmann, C., et al., Appetitive and aversive visual learning in freely moving
+
+Drosophila. Frontiers in Behavioral Neuroscience, 2010. 4(10).
+38.
+
+Graham, P. and T.S. Collett, View-based navigation in insects: how wood ants
+
+(Formica rufa L.) look at and are guided by extended landmarks. J Exp Biol, 2002. 205(Pt
+16): p. 2499-509.
+39.
+
+Menzel, R., et al., The knowledge base of bee navigation. The Journal of Experimental
+
+Biology, 1996. 199(1): p. 141-146.
+40.
+
+Stern, U., et al., Learning a Spatial Task by Trial and Error in Drosophila. Curr Biol,
+
+2019. 29(15): p. 2517-2525.e5.
+41.
+
+Ofstad, T.A., C.S. Zuker, and M.B. Reiser, Visual place learning in Drosophila
+
+melanogaster. Nature, 2011. 474(7350): p. 204-7.
+42.
+
+Morris, R.G., Spatial localization does not require the presence of local cues.
+
+Learning and motivation, 1981. 12(2): p. 239-260.
+43.
+
+Wang, Y., et al., Stereotyped odor-evoked activity in the mushroom body of
+
+Drosophila revealed by green fluorescent protein-based Ca2+ imaging. Journal of
+Neuroscience, 2004. 24(29): p. 6507-6514.
+44.
+
+Turner, G.C., M. Bazhenov, and G. Laurent, Olfactory representations by Drosophila
+
+mushroom body neurons. Journal of neurophysiology, 2008. 99(2): p. 734-746.
+45.
+
+Lin, A.C., et al., Sparse, decorrelated odor coding in the mushroom body enhances
+
+learned odor discrimination. Nature neuroscience, 2014. 17(4): p. 559-568.
+46.
+
+Lin, S., et al., Neural correlates of water reward in thirsty Drosophila. Nature
+
+neuroscience, 2014. 17(11): p. 1536-1542.
+47.
+
+Foucaud, J., J.G. Burns, and F. Mery, Use of spatial information and search strategies
+
+in a water maze analog in Drosophila melanogaster. PLoS One, 2010. 5(12).
+
+30
+
+Appendices
+Appendix A
+
+a
+
+b
+
+Appendix A - Learning To Avoid Obstacles
+In arena plots, the red square indicates the starting position, blue square indicates the reward location (Rb = 10) and the green rectangle represents the
+obstacle, assigned a strong negative reward (Rg = − 50). A: State-value map after 100 trials shows convergence in state values for tiles on the optimal
+
+route to the reward, whilst learning about the strong negative reward in the centre of the arena. B: Trajectories of 10 agents from trials 1, 10 and 30. Over
+trials, the agents find more direct paths to the reward, while avoiding the obstacle (Since this obstacle is represented only by a strong negative reward,
+agents can still choose to go through it, as seen in the first trial as they explore). Parameters for this experiment: δ = 1, η = 2.25 * 10−2
+
+31
+
+

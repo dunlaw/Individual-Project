@@ -1,0 +1,39 @@
+Hi Duncan
+ 
+Many thanks for your understanding. Regarding if Google releases a new model. Your report, and presentation, gives you opportunity to say what you have done and explain if a new model is released. You would not be expected to adapt to this – just recognise the challenge if this happens.
+ 
+Project Management/Time Planning:
+ 
+You’re right here insofar as the gantt chart etc. can be in your aooendices rather than in the report. For the interim it is about making sure students have considered the timescale and have a plan. However, in the body of your final report refer to how you have managed the project – this means if you want to add a gantt chart please do. You are being reflective in this though – so write about the strengths of your planning and the impact it had on your project.
+ 
+Signposting:
+ 
+This and the final point on chapter summaries is about flow of the report and might be something you return to. In the closing of one chapter, you are trying to provide a contextual statement summarising the purpose and point of the chapter that links to the next part. So, for example the literature review helps explore what others have written about the topic and in the next chapter you will draw upon this when creating your own methods and methodology. You don’t need to state this explicitly.
+ 
+Front Matter (Originality & Acknowledgements):
+ 
+This is a copy of the info on Canvas for you:
+ 
+The final report should contain the following sections in the order indicated:
+A cover sheet. This should contain your name, candidate number, your degree course and department, the title of the project, the name of your project supervisor and the calendar year of submission.
+A signed statement of originality together with an overview of any intellectual property rights agreements that you have made. The statement of originality should be worded as follows. 'This report is submitted as part requirement for the degree of ... at the University of Sussex. It is the product of my own labour except where indicated in the text. The report may be freely copied and distributed provided the source is acknowledged. I hereby give / withhold permission for a copy of this report to be loaned out to students in future years (delete as necessary).'
+Acknowledgements (optional) — this might include your supervisor(s), other students if part of a related project and any other person or organisation that has assisted in any way in the conduct of the project and its documentation.
+Summary — a one page resumé of your report.
+Table of contents (with page numbers).
+Introduction — this should give the motivation for the project. The aims of the project should at least be stated in the first paragraph, but preferably in the first sentence. The first chapter should also explain the structure of the report.
+ Professional considerations — in your interim report you will have described any ethical issues relevant to your project work, taking the BCS Code of Conduct as a starting point; in this section you should discuss how you addressed these issues. If the interim report noted that human participants would be involved but there was no need to apply for ethical approval then the completed and signed User Testing Compliance Form for UG and PGT Projects should be included in an Appendix. If the interim report identified ethical review as being necessary, it should be described here and its approval must be stated (details could be included in an Appendix). For a project that is affected only slightly by ethical issues, it is sufficient to discuss them in the introduction section. See here for more details of ethical clearance and user testing: http://www.sussex.ac.uk/ei/internal/research/researchgov
+Body of report — this should include a requirements analysis and specification of the problem you have tackled. It should also include a description of how you designed, built and evaluated your system. The exact form of this will vary from project to project but it will usually occupy several chapters and will often include sections on implementation and testing (which kinds of testing?). Any software projects should include a discussion of the principles which underlie the program that has been written: the significance of its data structures, the way that its procedures and modules interact etc. A line-by-line description of your code is not the best way of achieving this and is not encouraged.You should evaluate your finished product using appropriate methods, backing up your claims with evidence. If reporting user feedback, this will be more convincing if it comes from a wider audience than just a small group of your peers (for example it could be gathered online via forums etc). Evaluation results should be related back to the original requirements. A summary of the evaluation should appear in the Conclusion section. 
+Conclusion — this should include an assessment of the success of the finished product. Have you achieved your objectives? If not, why not? It should also contain suggestions for future extensions, or alternative methodologies that, with hindsight, might have led to a better system.
+References — these must be given correctly. Full references with page numbers are required. If you consulted a similar project done in previous years you must reference it (using the Name (or Candidate Number) of the author, Title and Year). The references should be cited in the body of your report where appropriate. Webpages you consulted need to be listed as well. You need to add the title/topic of the Webpage and the last time you accessed it, not just the URL.
+Appendices — you should include your project logs and any additional relevant system or test data as appendices. You may also include any technical material which you estimate as too detailed for the main body of the report. You should make sure that any technical material is appropriately annotated and consistently presented. The source code of your project (including documentation) must be submitted separately and should not be included in the Appendix. Also, any material that does not fit in the report's Appendix that you nevertheless deem important can be included in the source code submission. Note, however, that it is left to the markers' discretion whether they look at such extra material in the source code submission.
+ 
+ 
+Chapter Summaries:
+ 
+This is just a closing paragraph drawing the purpose – think about it as what did I learn from doing this part of the project. Why does it matter? In other words “so what?” I have just explained the literature I have read – but does it matter to my project. It is about linking back to the project.
+
+Let me know if any of this doesn'​t make sense.
+
+Kind regards
+
+Dan

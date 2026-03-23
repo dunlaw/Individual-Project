@@ -1,0 +1,80 @@
+name: 'Setup Godot'
+description: 'Download and cache Godot executable for CI testing'
+
+inputs:
+  godot-version:
+    description: 'Godot version to install'
+    required: true
+    default: '4.6.1'
+  godot-version-full:
+    description: 'Full Godot version string (e.g., 4.6.1-stable)'
+    required: true
+    default: '4.6.1-stable'
+
+outputs:
+  godot-path:
+    description: 'Path to the Godot executable'
+    value: ${{ steps.setup.outputs.godot_path }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache Godot executable
+      id: cache-godot
+      uses: actions/cache@v5
+      with:
+        path: godot_executable
+        key: godot-${{ inputs.godot-version }}-linux-x86_64
+
+    - name: Cache Godot export templates
+      id: cache-templates
+      uses: actions/cache@v5
+      with:
+        path: godot_export_templates
+        key: godot-templates-${{ inputs.godot-version-full }}-linux-x86_64
+
+    - name: Download Godot
+      if: steps.cache-godot.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        echo "Downloading Godot ${{ inputs.godot-version }}..."
+        wget -q https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version-full }}/Godot_v${{ inputs.godot-version-full }}_linux.x86_64.zip -O godot.zip
+        unzip -q godot.zip
+        mv Godot_v${{ inputs.godot-version-full }}_linux.x86_64 godot_executable
+        chmod +x godot_executable
+
+    - name: Download export templates
+      if: steps.cache-templates.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        echo "Downloading Godot export templates ${{ inputs.godot-version-full }}..."
+        wget -q https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version-full }}/Godot_v${{ inputs.godot-version-full }}_export_templates.tpz -O godot_export_templates.tpz
+        rm -rf godot_export_templates
+        mkdir -p godot_export_templates
+        unzip -q godot_export_templates.tpz -d godot_export_templates
+
+    - name: Install export templates
+      shell: bash
+      run: |
+        TEMPLATE_VERSION="${{ inputs.godot-version-full }}"
+        TEMPLATE_VERSION="${TEMPLATE_VERSION//-/.}"
+        TARGET_DIR="$HOME/.local/share/godot/export_templates/$TEMPLATE_VERSION"
+
+        rm -rf "$TARGET_DIR"
+        mkdir -p "$TARGET_DIR"
+
+        if [ -d "godot_export_templates/templates" ]; then
+          cp -R godot_export_templates/templates/. "$TARGET_DIR/"
+        else
+          cp -R godot_export_templates/. "$TARGET_DIR/"
+        fi
+
+    - name: Verify Godot installation
+      id: setup
+      shell: bash
+      run: |
+        echo "Godot version:"
+        ./godot_executable --version
+        echo "Installed export templates:"
+        ls -lah "$HOME/.local/share/godot/export_templates"
+        echo "godot_path=$(pwd)/godot_executable" >> $GITHUB_OUTPUT

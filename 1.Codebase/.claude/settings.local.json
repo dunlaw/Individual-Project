@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python remove_comments.py:*)",
+      "Bash(python:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(curl:*)",
+      "WebSearch",
+      "WebFetch(domain:lmstudio.ai)",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "WebFetch(domain:platform.openai.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(grep:*)",
+      "Bash(for:*)",
+      "Bash(do if grep -q \"valid=false\" \"$f\")",
+      "Bash(then echo \"$f\")",
+      "Bash(fi:*)",
+      "Bash(done:*)",
+      "Bash(do rm -f:*)",
+      "Bash(echo:*)",
+      "WebFetch(domain:openrouter.ai)",
+      "WebFetch(domain:python.langchain.com)",
+      "WebFetch(domain:docs.langchain.com)",
+      "WebFetch(domain:docs.openai.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:openclaw.ai)",
+      "Bash(nc:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(pip list:*)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

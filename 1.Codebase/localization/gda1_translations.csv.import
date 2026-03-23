@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cllb34k7a0t62"
+
+[deps]
+
+files=["res://1.Codebase/localization/gda1_translations.en.translation", "res://1.Codebase/localization/gda1_translations.zh.translation", "res://1.Codebase/localization/gda1_translations.de.translation"]
+
+source_file="res://1.Codebase/localization/gda1_translations.csv"
+dest_files=["res://1.Codebase/localization/gda1_translations.en.translation", "res://1.Codebase/localization/gda1_translations.zh.translation", "res://1.Codebase/localization/gda1_translations.de.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -1,0 +1,406 @@
+name: "Build and Deploy Game"
+
+on:
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.6.1"
+  GODOT_VERSION_FULL: "4.6.1-stable"
+  EXPORT_NAME: "Individual Project"
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  godot-export:
+    name: Godot Export
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          lfs: true
+
+      - name: Cache Godot import data
+        id: cache-import
+        uses: actions/cache@v5
+        with:
+          path: .godot/imported
+          key: godot-import-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-v4-${{ hashFiles('1.Codebase/**/*.csv', '1.Codebase/**/*.tscn', '1.Codebase/**/*.tres', '1.Codebase/**/*.png', '1.Codebase/**/*.wav', '1.Codebase/**/*.ogg', '1.Codebase/**/*.mp3', '1.Codebase/**/*.otf', '1.Codebase/**/*.ttf', '1.Codebase/**/*.otf.import', '1.Codebase/**/*.ttf.import') }}
+          restore-keys: |
+            godot-import-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-v4-
+
+      - name: Setup Godot
+        uses: ./.github/actions/setup-godot
+        with:
+          godot-version: ${{ env.GODOT_VERSION }}
+          godot-version-full: ${{ env.GODOT_VERSION_FULL }}
+
+      - name: Import project assets
+        if: steps.cache-import.outputs.cache-hit != 'true'
+        run: |
+          ./godot_executable --headless --editor --quit --path . 2>&1 || true
+
+      - name: Prepare build output directory
+        run: mkdir -p "build-artifacts"
+
+      - name: Verify no embedded Gemini keys (Web export safety check)
+        run: |
+          python3 - <<'PY'
+          import pathlib, re
+          path = pathlib.Path("1.Codebase/src/scripts/core/ai/managers/build_secrets.gd")
+          text = path.read_text(encoding="utf-8")
+          for i in range(1, 4):
+            const_name = f"GEMINI_API_KEY_{i}"
+            m = re.search(rf'const\s+{const_name}\s*(?::=|=)\s*"([^"]*)"', text)
+            if not m:
+              raise SystemExit(f"build_secrets.gd missing {const_name} constant")
+            if m.group(1) != "":
+              raise SystemExit(f"Refusing to export Web build with embedded {const_name}")
+          print("OK: Web export will not embed any GEMINI_API_KEY_*")
+          PY
+
+      - name: Inject WEB_PROXY_URL for Web export
+        env:
+          GDA1_WEB_PROXY_URL: ${{ secrets.GDA1_WEB_PROXY_URL }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, re, json
+          proxy_url = (os.environ.get("GDA1_WEB_PROXY_URL") or "").strip()
+          path = pathlib.Path("1.Codebase/src/scripts/core/ai/managers/build_secrets.gd")
+          text = path.read_text(encoding="utf-8")
+          pattern = r'const\s+WEB_PROXY_URL\s*(?::=|=)\s*\"[^\"]*\"'
+          replacement = f'const WEB_PROXY_URL = {json.dumps(proxy_url)}'
+          new_text, n = re.subn(pattern, replacement, text, count=1)
+          if n != 1:
+            raise SystemExit("Failed to patch WEB_PROXY_URL in build_secrets.gd")
+          path.write_text(new_text, encoding="utf-8")
+          if proxy_url:
+            print(f"Injected WEB_PROXY_URL: {proxy_url}")
+          else:
+            print("No GDA1_WEB_PROXY_URL secret found; web build will default to MOCK_MODE when no player key is set.")
+          PY
+
+      - name: Export for Web (HTML5)
+        run: |
+          ./godot_executable --headless --verbose --export-release 'Web' 'build-artifacts/index.html' 2>&1
+
+      - name: Fix canvas scaling - inject fullscreen CSS for web build
+        run: |
+          python3 - <<'PY'
+          import pathlib, re
+          html_path = pathlib.Path("build-artifacts/index.html")
+          html = html_path.read_text(encoding="utf-8")
+          # Inject CSS that makes the Godot canvas always fill the browser viewport.
+          # Without this, DisplayServer.window_set_size() called by game code can set
+          # the canvas to a fixed 1920x1080 that doesn't scale to the browser window.
+          css = (
+              "<style>\n"
+              "html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#000;}\n"
+              "canvas{display:block !important;"
+              "width:100vw !important;height:100vh !important;"
+              "object-fit:contain;}\n"
+              "</style>\n"
+          )
+          if "width:100vw" not in html:
+              html = html.replace("</head>", css + "</head>", 1)
+              html_path.write_text(html, encoding="utf-8")
+              print("Injected fullscreen canvas CSS into index.html")
+          else:
+              print("Fullscreen canvas CSS already present in index.html")
+          PY
+
+      - name: Fix audio - ensure COI service worker for GitHub Pages
+        run: |
+          sudo chmod -R a+w build-artifacts/
+          python3 - <<'PY'
+          import pathlib, textwrap
+          coi_js = textwrap.dedent("""\
+              /* coi-serviceworker v0.1.7 - Guido Zuidhof, licensed under MIT */
+              if (typeof window === 'undefined') {
+                self.addEventListener("install", () => self.skipWaiting());
+                self.addEventListener("activate", (e) => e.waitUntil(self.clients.claim()));
+                self.addEventListener("fetch", function (event) {
+                  if (event.request.cache === "only-if-cached" && event.request.mode !== "same-origin") return;
+                  event.respondWith(fetch(event.request).then(function (response) {
+                    if (response.status === 0) return response;
+                    var h = new Headers(response.headers);
+                    h.set("Cross-Origin-Opener-Policy", "same-origin");
+                    h.set("Cross-Origin-Embedder-Policy", "require-corp");
+                    h.set("Cross-Origin-Resource-Policy", "same-site");
+                    return new Response(response.body, {status: response.status, statusText: response.statusText, headers: h});
+                  }));
+                });
+              } else {
+                let reloaded = false;
+                (async function () {
+                  if (window.crossOriginIsolated !== false) return;
+                  if (!("serviceWorker" in navigator)) return;
+                  const reg = await navigator.serviceWorker.register(window.document.currentScript.src);
+                  if (!navigator.serviceWorker.controller)
+                    await new Promise((r) => navigator.serviceWorker.addEventListener("controllerchange", r));
+                  if (window.crossOriginIsolated || reloaded) return;
+                  reloaded = true; location.reload();
+                })();
+              }
+              """)
+          pathlib.Path("build-artifacts/coi-serviceworker.js").write_text(coi_js)
+          print("Wrote coi-serviceworker.js")
+          html_path = pathlib.Path("build-artifacts/index.html")
+          html = html_path.read_text(encoding="utf-8")
+          if "coi-serviceworker" not in html:
+              html = html.replace("</head>", '<script src="coi-serviceworker.js"></script>\n</head>', 1)
+              html_path.write_text(html, encoding="utf-8")
+              print("Injected coi-serviceworker.js script tag into index.html")
+          else:
+              print("coi-serviceworker.js already referenced in index.html")
+          PY
+
+      - name: Inject GEMINI_API_KEY_1/2/3 for desktop exports
+        env:
+          GEMINI_API_KEY_1: ${{ secrets.GEMINI_API_KEY_1 }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
+        run: |
+          python3 - <<'PY'
+          import os, pathlib, re, json
+          path = pathlib.Path("1.Codebase/src/scripts/core/ai/managers/build_secrets.gd")
+          text = path.read_text(encoding="utf-8")
+          any_injected = False
+          for i in range(1, 4):
+            const_name = f"GEMINI_API_KEY_{i}"
+            key = (os.environ.get(const_name) or "").strip()
+            pattern = rf'const\s+{const_name}\s*(?::=|=)\s*\"[^\"]*\"'
+            replacement = f'const {const_name} = {json.dumps(key)}'
+            text, n = re.subn(pattern, replacement, text, count=1)
+            if n != 1:
+              raise SystemExit(f"Failed to patch {const_name} in build_secrets.gd")
+            if key:
+              print(f"Injected {const_name}.")
+              any_injected = True
+            else:
+              print(f"No secret found for {const_name}, left empty.")
+          if not any_injected:
+            print("WARNING: No GEMINI_API_KEY_* secrets were set. Desktop builds will have no embedded API key.")
+          path.write_text(text, encoding="utf-8")
+          PY
+
+      - name: Export for Windows
+        run: |
+          ./godot_executable --headless --verbose --export-release 'Windows Desktop' 'build-artifacts/GDA1.exe' 2>&1
+
+      - name: Export for Linux
+        run: |
+          ./godot_executable --headless --verbose --export-release 'Linux' 'build-artifacts/GDA1.x86_64' 2>&1
+
+      - name: Export for Linux ARM64
+        run: |
+          ./godot_executable --headless --verbose --export-release 'Linux ARM64' 'build-artifacts/GDA1.arm64' 2>&1
+
+      - name: List build outputs
+        run: |
+          echo "Build outputs:"
+          ls -lah "build-artifacts/" || echo "No outputs yet"
+          find "build-artifacts/" -type f -exec ls -lh {} \; 2>/dev/null || true
+          echo ""
+          echo "Checking for required files:"
+          [ -f "build-artifacts/index.html" ] && echo "✓ index.html found" || echo "✗ index.html MISSING"
+          [ -f "build-artifacts/index.js" ] && echo "✓ index.js found" || echo "✗ index.js MISSING"
+          [ -f "build-artifacts/index.wasm" ] && echo "✓ index.wasm found" || echo "✗ index.wasm MISSING"
+
+      - name: Upload Web Build
+        uses: actions/upload-artifact@v6
+        with:
+          name: web-build
+          path: |
+            build-artifacts/index.html
+            build-artifacts/index.js
+            build-artifacts/index.wasm
+            build-artifacts/index.pck
+            build-artifacts/index.audio.worklet.js
+            build-artifacts/index.audio.position.worklet.js
+            build-artifacts/index.icon.png
+            build-artifacts/index.apple-touch-icon.png
+            build-artifacts/index.png
+            build-artifacts/coi-serviceworker.js
+          if-no-files-found: error
+
+      - name: Verify Web audio worklet sidecars
+        run: |
+          [ -f "build-artifacts/index.audio.worklet.js" ] && echo "index.audio.worklet.js found" || (echo "index.audio.worklet.js missing" && exit 1)
+          [ -f "build-artifacts/index.audio.position.worklet.js" ] && echo "index.audio.position.worklet.js found" || (echo "index.audio.position.worklet.js missing" && exit 1)
+
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v6
+        with:
+          name: windows-build
+          path: |
+            build-artifacts/GDA1.exe
+          if-no-files-found: error
+
+      - name: Upload Linux x86_64 Build
+        uses: actions/upload-artifact@v6
+        with:
+          name: linux-x64-build
+          path: |
+            build-artifacts/GDA1.x86_64
+          if-no-files-found: error
+
+      - name: Upload Linux ARM64 Build
+        uses: actions/upload-artifact@v6
+        with:
+          name: linux-arm64-build
+          path: |
+            build-artifacts/GDA1.arm64
+          if-no-files-found: error
+
+  create-release:
+    name: Create Release
+    needs: godot-export
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Generate tag name from commit
+        id: generate_tag
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%s)
+          echo "Commit message: $COMMIT_MSG"
+
+          TAG_NAME=$(echo "$COMMIT_MSG" | sed 's/[^a-zA-Z0-9 ]//g' | sed 's/ /-/g' | tr '[:upper:]' '[:lower:]' | cut -c1-50)
+
+          if [ -z "$TAG_NAME" ] || [ ${#TAG_NAME} -lt 3 ]; then
+            TAG_NAME="build-$(date +%Y%m%d-%H%M%S)"
+          else
+            TAG_NAME="v-${TAG_NAME}-$(date +%Y%m%d-%H%M)"
+          fi
+
+          echo "Generated tag: $TAG_NAME"
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+
+      - name: Download Web Build
+        uses: actions/download-artifact@v7
+        with:
+          name: web-build
+          path: web-build/
+
+      - name: Download Windows Build
+        uses: actions/download-artifact@v7
+        with:
+          name: windows-build
+          path: windows-build/
+
+      - name: Download Linux x64 Build
+        uses: actions/download-artifact@v7
+        with:
+          name: linux-x64-build
+          path: linux-x64-build/
+
+      - name: Download Linux ARM64 Build
+        uses: actions/download-artifact@v7
+        with:
+          name: linux-arm64-build
+          path: linux-arm64-build/
+
+      - name: Create Platform Zips
+        run: |
+          cd web-build && zip -r ../web-game.zip * && cd ..
+          cd windows-build && zip -r ../windows-game.zip * && cd ..
+          cd linux-x64-build && zip -r ../linux-game.zip * && cd ..
+          cd linux-arm64-build && zip -r ../linux-arm64-game.zip * && cd ..
+
+          echo "Created release packages:"
+          ls -lh *.zip
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.generate_tag.outputs.tag_name }}" -m "Automated release from workflow run ${{ github.run_number }}"
+          git push origin "${{ steps.generate_tag.outputs.tag_name }}"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.generate_tag.outputs.tag_name }}
+          name: "Release ${{ steps.generate_tag.outputs.tag_name }}"
+          body: |
+            Automated release created from workflow run
+
+            **Commit:** ${{ github.sha }}
+            **Branch:** ${{ github.ref_name }}
+            **Triggered by:** ${{ github.actor }}
+
+            - **Web (HTML5)**: `web-game.zip` - Extract and host on a web server
+            - **Windows**: `windows-game.zip` - Extract and run `GDA1.exe`
+            - **Linux (x86_64)**: `linux-game.zip` - Extract and run `GDA1.x86_64`
+            - **Linux (ARM64)**: `linux-arm64-game.zip` - Extract and run `GDA1.arm64`
+          files: |
+            web-game.zip
+            windows-game.zip
+            linux-game.zip
+            linux-arm64-game.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+  deploy-github-pages:
+    name: Deploy to GitHub Pages
+    needs: godot-export
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download Web Build
+        uses: actions/download-artifact@v7
+        with:
+          name: web-build
+          path: web-build/
+
+      - name: Verify web build downloaded
+        run: |
+          echo "Downloaded web build:"
+          ls -lah web-build/
+          echo "Total files: $(find web-build/ -type f | wc -l)"
+          echo ""
+          if [ ! -f "web-build/index.html" ]; then
+            echo "ERROR: index.html not found in web build!"
+            exit 1
+          fi
+          echo "Web build files present"
+
+      - name: Prepare Pages payload
+        run: |
+          touch web-build/.nojekyll
+          echo "Final Pages payload:"
+          ls -lah web-build/
+          echo "Total size: $(du -sh web-build/ | cut -f1)"
+
+      - name: Package Pages artifact
+        run: |
+          tar -cvf "$RUNNER_TEMP/github-pages.tar" -C web-build .
+          ls -lh "$RUNNER_TEMP/github-pages.tar"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/github-pages.tar
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Deploy Pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

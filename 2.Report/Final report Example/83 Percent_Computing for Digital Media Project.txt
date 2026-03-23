@@ -1,0 +1,5458 @@
+User-Generated
+Augmented Reality
+
+Candidate Number: 164801
+Computing for Digital Media
+(with an Industrial Placement Year)
+School of Informatics
+Project Supervisor: Doctor Kate Howland
+Year of Submission: 2019/2020
+
+Statement of Originality
+This report is submitted as part requirement for the degree of Computing for Digital Media
+(with an Industrial Placement Year) at the University of Sussex. It is the product of my own
+labour except where indicated in the text. The report may be freely copied and distributed
+provided the source is acknowledged. I hereby give permission for a copy of this report to be
+loaned out to students in future years.
+Signed:
+
+Date: 21/05/2020
+
+Acknowledgements:
+I would like to thank my project supervisor, Doctor Kate Howland and Karina Rodriguez
+Echavarria for their support and guidance throughout this project.
+
+2
+
+User-Generated
+Augmented Reality
+This report is part of an undergraduate research project that investigates augmented reality
+(AR) technology and whether it is possible for users (without a knowledge of AR) to create AR
+content.
+This report describes the design, development and implementation of a responsive webbased application that allows users to create AR content without requiring knowledge of the
+technology.
+This project is an extension of a project titled, Place-Based Narratives, run by the University
+of Brighton and the University of Sussex, which also investigates user-generated augmented
+reality. This report begins by describing the projects’ topic area and the problems the PlaceBased Narratives project faced during a previous investigation into user-generated
+augmented reality. Using these problems, this report outlines the motivation and aims and
+objectives of this project, setting the standard for a later evaluation.
+This project has been completed in accordance with the British Computer Society (BCS) code
+of conduct, and this report continues by describing how the project has met their code of
+conduct. In this section, this report also discusses the ethical considerations that were
+required for this project.
+Following this discussion, this report explores the background research completed in this
+project – an in-depth look at existing tools and technologies that allow for user-generated
+augmented reality and web-based AR. Using this knowledge and the aims of this project, a
+table of requirements were created and is displayed within this report. Arranged into
+functional, non-functional and domain requirements, these describe the required behaviours
+and functionalities necessary for the application.
+This report then discusses the design, development and implementation that was required to
+meet the application’s requirements and the project’s aims as a whole. The chapter titled
+‘Design’ looks at the different design diagrams: use-case, data-driven model and state,
+created to support the application’s back-end development, as well as user-interface sketches
+that supported the front-end development. This report then discusses the development of
+the application, describing the back and front-end development, and the application’s AR
+development. This report then showcases the developed application with a walkthrough of
+the application, shown using a storyboard of screenshots.
+This report follows by describing the various forms of testing carried out on the application,
+delivering the results of each test and explaining any failures or components that could not
+be tested. This report continues by describing the future work required to improve the
+application, before evaluating the system against the project’s aims, and reflecting on the
+project and my experience of the project within the project’s conclusion.
+
+3
+
+Table of Contents
+1.
+
+2.
+
+3.
+
+Introduction ............................................................................................................... 6
+1.1.
+
+Project Description ........................................................................................................ 7
+
+1.2.
+
+Project Problem Area .................................................................................................... 7
+
+1.3.
+
+Project Aims .................................................................................................................. 8
+
+Professional Considerations ....................................................................................... 9
+2.1.
+
+Testing with Children ..................................................................................................... 9
+
+2.2.
+
+Testing with Adults ........................................................................................................ 9
+
+2.3.
+
+BCS Code of Conduct ................................................................................................... 10
+
+Requirements Analysis ............................................................................................. 12
+3.1.
+
+Background Research .................................................................................................. 12
+
+3.2.
+
+Requirements .............................................................................................................. 16
+
+3.1.1.
+3.1.2.
+3.1.3.
+3.1.4.
+
+4.
+
+System Design .......................................................................................................... 19
+4.1.
+
+Use-Case Diagram........................................................................................................ 19
+
+4.2.
+
+Data-Driven Model ...................................................................................................... 20
+
+4.3.
+
+State Diagrams ............................................................................................................ 20
+
+4.4.
+
+User Interface Design .................................................................................................. 22
+
+4.3.1.
+4.3.2.
+
+5.
+
+Existing Solutions .......................................................................................................................... 12
+Tools and Technologies ................................................................................................................ 14
+Web-Based AR Frameworks and Libraries .................................................................................... 15
+3D Models .................................................................................................................................... 15
+
+Original State Diagram.................................................................................................................. 20
+Revised State Diagram .................................................................................................................. 21
+
+Implementation ....................................................................................................... 23
+5.1.
+
+AR Development ......................................................................................................... 23
+
+5.2.
+
+Back-End Development................................................................................................ 34
+
+5.3.
+
+Front-End Development .............................................................................................. 44
+
+5.1.1.
+5.1.2.
+5.1.3.
+5.2.1.
+5.2.2.
+5.2.3.
+5.2.4.
+5.3.1.
+5.3.2.
+5.3.3.
+5.3.4.
+
+A-Frame Integration ..................................................................................................................... 23
+Model Construction ...................................................................................................................... 24
+Model Interaction ......................................................................................................................... 33
+Setup............................................................................................................................................. 34
+Content Capture ........................................................................................................................... 38
+View Model................................................................................................................................... 41
+Additional Functionalities ............................................................................................................. 42
+Design ........................................................................................................................................... 44
+Setup............................................................................................................................................. 45
+Content Capture ........................................................................................................................... 48
+View Model................................................................................................................................... 52
+
+6.
+
+Application Walkthrough ......................................................................................... 53
+
+7.
+
+Testing ..................................................................................................................... 56
+7.1.
+
+7.1.1.
+
+System Testing ............................................................................................................ 56
+
+Unit Testing .................................................................................................................................. 56
+
+4
+
+7.1.2.
+7.1.3.
+7.1.4.
+
+7.2.
+
+8.
+
+9.
+
+Configuration Testing ................................................................................................................... 56
+Navigation and Interaction Testing .............................................................................................. 60
+Requirements Testing ................................................................................................................... 60
+
+User Testing................................................................................................................. 63
+
+Future Work ............................................................................................................. 64
+8.1.
+
+Compatibility with PBN................................................................................................ 64
+
+8.2.
+
+Model Inequality ......................................................................................................... 64
+
+8.3.
+
+Aliasing........................................................................................................................ 64
+
+8.4.
+
+User Interactions ......................................................................................................... 64
+
+8.5.
+
+Update Model ............................................................................................................. 64
+
+Conclusion ................................................................................................................ 65
+9.1.
+
+Capturing User Content ............................................................................................... 65
+
+9.2.
+
+Creating Texture .......................................................................................................... 65
+
+9.3.
+
+Applying Texture ......................................................................................................... 66
+
+9.4.
+
+3D Model and an AR Environment ............................................................................... 66
+
+9.5.
+
+Reflection .................................................................................................................... 66
+
+Bibliography .................................................................................................................... 68
+Appendices ...................................................................................................................... 71
+
+5
+
+1. Introduction
+Augmented Reality (AR) is a technology that integrates virtual content within a user’s reality
+[1]. Achieved using a camera and an AR developed experience, once launched or prompted
+by scanning a ficidual marker, the experience launches the virtual content within the camera’s
+viewport; appearing as if in the user’s physical environment.
+AR is an emerging technology with increasing uses. A popular example is Pokémon Go (Figure
+1), a gamified AR experience that allows users to ‘catch’ fictional Pokémon characters [2].
+
+Figure 1 - Pokémon Go, a gamified AR experience [2]
+
+Further examples include IKEA Place, an application that allows users to arrange virtual
+furniture within their home [3], and social media platforms Snapchat and Instagram which
+allow users to alter their appearance with virtual content [4] [5].
+These examples show how the average user is increasingly using AR in everyday life. However,
+the content within these examples is ‘fixed’; it cannot be customised by the user. The reason
+being, AR development is a specialist field, requiring knowledge outside of an average
+person’s general knowledge. Therefore, this project is focused on user-generated AR content;
+allowing individuals to create AR content without knowing about AR.
+
+6
+
+1.1. Project Description
+This project, titled User-Generated Augmented Reality (UGAR) aims to investigate how users
+interact with AR and develop a system that allows a user to create AR content, without
+knowing how the technology works.
+UGAR is an extension of a wider project called Place-Based Narratives (PBN) [6] run by the
+University of Brighton and the University of Sussex. Primarily, working with primary schools,
+PBN investigates how local communities can connect with their cultural environment using
+web-based AR.
+In 2019, PBN ran workshops and asked primary school children to produce cardboard models
+of their homes. These models produced a map of Brighton and Hove from the viewpoint of
+these children. The models were digitised into 3D models and arranged onto a virtual AR map
+[6].
+Figure 2 shows a physical and virtual comparison of the children’s models.
+
+Figure 2 – A comparison of the cardboard and virtual models from the Place-Based Narratives project [6]
+
+1.2. Project Problem Area
+
+The problem area of PBN is, the tool developed cannot function independently of middlemen
+developers; required to digitise each cardboard model and arrange the 3D models on the AR
+map [6].
+Digitisation required the developers to produce each 3D model manually and involved [6]:
+1.
+2.
+3.
+4.
+5.
+
+Taking photos of each cardboard model’s content
+Compositing the captured images together to produce a texture for each virtual model
+Creating a 3D model of each cardboard model
+Applying each texture to its relative virtual model
+Incorporating and arranging each model in the AR environment
+
+The developers were necessary to produce the AR content but devalued the children’s’
+experience of PBN because they had limited input.
+
+7
+
+The motivation for UGAR is to automate PBN’s process. Automation would replace the
+developers with an automated tool that would support the user in completing the digitisation
+themselves.
+
+1.3. Project Aims
+UGAR should aim to produce a responsive web-based application - web-based being a
+requirement for compatibility with PBN. The application should be able to capture user
+content, convert captured content into a texture, create a 3D model, apply the texture to the
+3D model, and integrate the textured 3D model into an AR environment. The application
+should also allow for simple interaction between model and user.
+Possible extensions of this project could involve identifying a long-term storage solution for
+user-generated images, providing more complex interactivity between model and user, and
+support the creation of more complex 3D models.
+This report shall discuss and evaluate the research, design and development undertaken to
+implement a solution to UGAR; a responsive web-based application that allows for usergenerated AR.
+
+8
+
+2. Professional Considerations
+Considering the target users of this application are teachers and primary school children,
+UGAR aimed to test the application with adults and children.
+To test with children, an application for an ethical review of the project’s prospective testing
+was made to the Sciences & Technology Cross-Schools Research Ethics Committee (SCITEC)
+at the University of Sussex, in December 2019.
+The application described the prospective testing, stating the tasks the children would
+complete and how the testing would ensure the welfare of participating children.
+
+2.1. Testing with Children
+To test with children, a series of consent forms and documentation were created to gain
+permission from the relevant bodies. These bodies would have included the Head Teachers
+and parents/guardians of children from participating schools. Consent forms were created,
+describing the project, the testing, and how the data collected from the children would be
+stored and used - emphasising the ability for any child or parent/guardian to withdraw from
+the testing at any point. Consent forms and other documentation are in appendix A with the
+draft ethical review application.
+Changes were requested to the application due to a lack of detail in parts of the project that
+were unknown at the time of the application. Testing with children was later made impossible
+due to COVID-19. Therefore, testing was only completed with adults.
+
+2.2. Testing with Adults
+Testing with adults was completed in an informal testing session with members of the PBN
+project, who gave verbal consent to participate in internal testing. Testing with adults
+required an Ethical Compliance Form, completed before testing took place. Appendix B is a
+copy of the Ethical Compliance Form. Further details of this user testing are covered in the
+‘Testing’ section of this report.
+
+9
+
+2.3. BCS Code of Conduct
+UGAR abided by the BCS Code of Conduct, derived from the Chartered Institute for IT, which
+ensures the ethical development and testing of computing projects [7].
+Per points:
+1(a):
+UGAR had due regard for the health, privacy, security and wellbeing for those involved in
+UGAR. All participants in the user testing gave verbal consent and testing only took place after
+the ethical compliance form had been completed.
+If testing with children had occurred, the Head Teacher and parent/guardians of each
+participating child would have been required to sign the consent form to allow participation.
+Furthermore, the testing would have taken place in the children’s classrooms with their
+regular teacher leading the testing, ensuring a familiar setting.
+Any data created during the project was anonymised to ensure the privacy, security and
+wellbeing of the participants. The testing used pre-made cardboard models with no relation
+to the participants. If testing with children had occurred, anonymisation would have been
+ensured by the teacher. The teacher would have undergone training and checked that each
+photo captured by the tool contained no personal data. In both testing scenarios, at the end
+of the project, any content created during the project was destroyed.
+1(c):
+UGAR did not discriminate on any grounds. In the testing, all participants in the testing were
+able to participate, using a provided tablet.
+Should user testing with children had occurred, all children would have been able to
+participate too. The schools would have been provided with a tablet(s) for staff and/or
+students to use
+1(d)
+UGAR promotes the benefits of IT equally because the tool uses open-source technologies,
+making it free-to-access.
+If testing with children had occurred, the testing would have taken place during school hours,
+ruling out discrimination of economic background or access to technology.
+
+10
+
+2(a), 2(b), 2(c):
+I produced an application that met the requirements of UGAR, showing UGAR was within my
+professional competence.
+2(d):
+No legislations were broken during UGAR’s lifetime.
+2(e):
+Progress of UGAR was regularly shared with my technical supervisor and members of PBN.
+2(f):
+UGAR has finished with an application that can be integrated into PBN.
+2(g):
+I was not bribed or tempted by unethical inducement, nor did I encourage it.
+3(a), 3(b):
+Potential conflicts of interest were avoided by meeting the aims and objectives of the project
+and producing the required deliverables for the deadlines stated by the University.
+3(c):
+I accept full responsibility for the project and the project’s success since the project was
+selected based on my professional competence.
+3(d):
+No confidential information about UGAR or the results of its testing was disclosed.
+3(e):
+No information was withheld or misrepresented, nor did I take advantage of any members
+involved in the PBN project.
+4(a), 4(b), 4(c):
+I professionally undertook this project, ensuring the project abided by the BCS Code of
+Conduct.
+4(d):
+All members of the BCS were treated professionally with integrity and respect.
+
+11
+
+3. Requirements Analysis
+3.1. Background Research
+3.1.1. Existing Solutions
+3.1.1.1. Place-Based Narratives Project
+UGAR is part of a wider project called Place-Based Narratives (PBN) [6]. PBN is a heritage
+project, working with primary school children to encourage them to explore their cultural
+environment using web-based AR [6].
+The children were asked to produce 3D cardboard models of their homes, which were
+digitised into 3D models and arranged on an AR map, using web-based AR [6]. The problem
+with PBN was the project required middlemen developers to digitise the content, which
+limited the children’s involvement and experience of AR.
+The process of digitisation was completed offline. Each cardboard model required the
+developers to create a 3D model, take a photo of the content on each face, turn the captured
+content into a texture, and apply the texture to the 3D model using modelling software,
+Blender. The 3D models were saved in a glTF file format and arranged on the web-based AR
+map [6]. Once launched, the experience produced a virtual map of Brighton & Hove [6].
+A benefit of studying this project was the tools used to develop the experience. The project
+used HTML, CSS and JavaScript to host the experience in a web browser, incorporating AR
+using A-Frame and AR.js [8] [9]. Another benefit of studying PBN was it gave me the process
+that UGAR needed to automate, to be successful [6].
+The main issue with this project is it isn’t user-generated AR because the user did not
+complete the whole experience themselves. Therefore, UGAR needs to feature automation
+to be successful. Further issues discussed in this project include differing screen sizes and
+their effect on the experience, the computational power of smartphone CPU and GPU units,
+and a lack of functionality on iOS devices [6]. Also, results from the user testing revealed the
+users felt there was a lack of instruction on how to use the tool [6].
+
+12
+
+3.1.1.2. Blippar Augmented Reality Butterfly
+Blippar is an AR development company and their project, the AR Butterfly, uses usergenerated AR in an AR experience targeted at children [10].
+The experience uses a paper template of a butterfly as the ficidual marker of the experience,
+which once coloured in becomes user-generated AR. The user scans the coloured marker and
+a butterfly appears, dressed in the user’s coloured texture and is animated fluttering in the
+user’s reality [10]. Figure 3 shows Blippar’s AR Butterfly experience.
+Blippar's experience is user-generated AR because the user completes each stage of the
+experience independently.
+
+Figure 3 - Blippar's AR Butterfly Experience [10]
+
+A benefit of studying this project is the content generation, using a standardised approach by
+colouring in a template, which makes digitisation easier. I am going to have to consider how
+to make the content capture stage of the application follow a standardised approach,
+especially since it will depend on the technical competence of the user.
+The issue with studying this project is the lack of documentation, which would have benefited
+UGAR’s development.
+Blippar's butterfly is very relevant to UGAR because the experience is targeted at primary
+school children and shows user-generated AR is possible, using mobile devices too [10].
+
+13
+
+3.1.1.3. Augmented Reality Colouring Books
+Colouring is a technique used widely across AR experiences to create user-generated AR.
+Colouring books Crayola: Colour Alive and Disney: Colour and Play require the user to colour
+the pages of a colouring book, and once scanned, display a virtual model atop the paper
+appearing as if in reality, dressed in the user’s coloured texture [11] [12]. Figure 4 shows both
+of these colouring books.
+
+Figure 4 – Crayola’s Colour Alive and Disney's Colour and Play AR Colouring Books [11] [12]
+
+These books follow the same standardised approach as Blippar's butterfly; a coloured
+template [10] [11] [12]. Without this template, producing a model using children’s drawings
+would be extremely complex.
+Having studied the development of such a book, the main challenge is generating the model’s
+texture, since the coloured paper is 2D and the models are 3D. The issue is the ‘hidden’
+textures that cannot be captured by colouring and have to be generated another way [13].
+UGAR will have to consider this issue because the cardboard model doesn’t have content for
+every face of the model.
+3.1.2. Tools and Technologies
+3.1.2.1. Blippar BlippBuilder
+Blippar’s BlippBuilder allows users to generate AR content without needing knowledge of AR
+[14]. BlippBuilder (Figure 5) allows users to drag and drop assets onto a ficidual marker to
+make ‘Blipps’ that are individual experiences [14]. These assets can be animated and
+customised to perform different actions, based on a user’s interaction.
+
+Figure 5 - Blippar's BlippBuilder [14]
+
+14
+
+BlippBuilder can be considered to be user-generated AR because the AR content is produced
+without needing knowledge of how AR works. However, it doesn’t allow the users using the
+experience to create AR content; they can only interact with the content given in the
+experience. Therefore, UGAR needs to allow the user to create custom content during the
+experience to be considered completely user generated.
+3.1.2.2. Vuforia
+Vuforia is an open-source engine that supports the development of AR experiences [15].
+Integrated into software such as Unity, Vuforia has an API library that allows developers to
+produce their own AR experiences [15].
+There are many issues with using Vuforia for UGAR. Vuforia is a platform for users to create
+their own AR experiences to be deployed [15]. This doesn’t allow users using the AR
+experience to create content within the experience. Furthermore, despite being open source,
+the developer has to pay for their experience to be deployed, which isn’t appropriate for
+UGAR [15]. Finally, the user has to have a competent knowledge of programming which
+cannot be expected of a child.
+3.1.3. Web-Based AR Frameworks and Libraries
+With UGAR’s solution needing to be a web-based application, research was undertaken into
+web-based AR technologies. There are a variety of frameworks and libraries, including AFrame [8], AR.js [9], 8th Wall [16] and Awe.media [17], and although A-Frame and AR.js are
+both a requirement for PBN, they remained the preferred AR technologies for UGAR. The
+reason being, many of the other frameworks were closed-source - not appropriate for UGAR
+[16] [17]. A-Frame and AR.js were superior because they are designed for web-based AR and
+open-source.
+3.1.4. 3D Models
+Another consideration was the type of model type used in UGAR because it needed to be
+compatible with A-Frame and AR.js.
+glTF models were used in PBN, and originally chosen for UGAR because they are more
+complex and have the ability to appear more realistic [18]. However, applying dynamic
+textures to glTF models was not possible, so UGAR uses A-Frame’s shapes to create the house
+model. Otherwise known as primitives, the A-Frame framework has a collection of shapes,
+including cubes and cylinders that were used to create the virtual model. [19] [20].
+
+15
+
+3.2. Requirements
+During the 'Gathering Requirements' stage of UGAR, I met with the PBN members to discuss
+and identify any requirements that arose from PBN’s user testing, that should be incorporated
+into UGAR’s solution.
+These included:
+• The experience being free and accessible for all participants
+• A standardised approach for capturing content with a camera
+• A standardised approach for generating 3D models
+• Allowing for repetition
+• Allowing for content to be uploaded, having been captured on another device, e.g.
+flat-bed scanner
+Having considered the UGAR’s aims, a table of requirements (Table 1) was created. Split into
+functional, non-functional and domain requirements, these made up the necessary
+functionalities required by the application.
+
+16
+
+FUNCTIONAL REQUIREMENTS
+Statement
+Requirement
+Input
+Allow the user to take a photo using The application shall allow the user User
+their device’s camera.
+to use their device’s camera.
+User’s camera
+
+Behaviour
+A camera stream from the user’s camera
+should be visible and used in the
+application.
+Capturing content should follow a
+standardised approach.
+
+Have a standardised approach for The application should have a
+taking photos.
+standardised
+approach
+for
+capturing content.
+Capture 1 image.
+The application shall allow one
+image to be captured.
+Allow the user to upload a photo, The application shall allow an
+captured on another device.
+image to be uploaded, having been
+captured
+outside
+of
+the
+application.
+The user’s photo is stored.
+The application shall store the
+user’s content in the file space.
+Converts the user’s content into a The application shall convert the
+texture.
+user’s content into a texture.
+
+User
+User’s camera
+
+Have a standardised approach to The application should have a
+convert the user’s photo to a texture standardised
+approach
+for
+map.
+converting the user’s content into a
+texture.
+Applies the texture map to the The application shall apply the
+virtual house model, such as glTF.
+texture to the virtual house model.
+Content appears by scanning the The virtual house model shall
+ficidual marker with a camera.
+appear by scanning the ficidual
+marker with a camera.
+
+User’s content
+
+The user’s content should become a
+texture.
+
+User’s texture
+Virtual house model
+User
+User’s camera
+Ficidual marker
+
+The user’s texture shall be applied to the
+virtual house model.
+The user’s virtual model shall appear by
+scanning a ficidual marker with a camera.
+
+User
+User’s camera
+User
+User’s content
+
+User takes a photo.
+
+User’s content
+
+The user’s content shall be stored in the
+project’s file space on the web server.
+The user’s content should be converted
+into a texture.
+
+User’s content
+
+An image should be uploaded, having
+been captured outside of the application.
+
+17
+
+Display the virtual house model in The web-based AR environment User
+an AR environment.
+shall display the virtual house User’s camera
+model in an AR environment.
+
+The user’s virtual model shall appear in
+an AR environment.
+
+Provide basic interactivity between The web-based AR environment User
+the user and their virtual house shall allow the user to spin the
+model.
+model in the AR space.
+
+The user’s virtual model shall spin based
+on the user’s interaction with the model.
+
+NON-FUNCTIONAL REQUIREMENTS
+Statement
+Accessible via a web-browser.
+Guide the user through the experience.
+Accessible to all.
+Rely on a ficidual marker.
+Compatible on mobile and desktop devices.
+Require low computational power.
+Operate in real time.
+
+Requirement
+The experience shall be developed using HTML, CSS and JavaScript.
+The user interface shall guide the user through the whole experience.
+The experience shall use open-source technologies.
+The web-based AR environment shall use a ficidual marker.
+The experience shall be compatible on mobile and desktop devices.
+The application shall require low computational power.
+The application shall operate in real time.
+DOMAIN REQUIREMENTS
+
+Statement
+Designed to appeal to children aged 9 and 10.
+Easy to use.
+Have a standardised approach.
+Allow for repetition.
+
+Requirement
+The experience shall appeal to children aged 9 and 10.
+The experience shall be intuitive.
+The experience should have a standardised approach.
+The experience should allow for repetition.
+Table 1 - Table of functional, non-functional and domain requirements
+
+18
+
+4. System Design
+Using the background research and table of requirements, a system was designed to capture
+and automate the digitisation of the user’s content.
+
+4.1. Use-Case Diagram
+A use-case diagram (Figure 6) was created to show the required actions users would need to
+complete to use the application.
+
+Figure 6 - Use-Case Diagram
+
+As seen in Figure 6, the user needs to complete five actions:
+‘Register Model’ - the user needs to input data about their model: the model’s configuration,
+roof type and ID.
+‘Capture Photos’ - the user needs to take photos of their content.
+‘Upload Photos’ – the user needs to upload their photos to the project’s file-space on the web
+server.
+‘View Model’ – the user needs to see their model in an AR environment.
+
+19
+
+4.2. Data-Driven Model
+Using the actions identified in the use-case diagram, a data-driven model (Figure 7) was
+created to identify the pieces of data required from the user.
+
+Figure 7 - Data-Driven Model
+
+As shown in Figure 7, the application begins with a Setup state that collects the student’s
+school, model ID and configuration of their model. The data is collected at the beginning to
+determine the configuration of the virtual model and is used to create a dedicated folder and
+files for each model.
+The next data collected is the user’s content. As seen in Figure 7, this stage involves getting
+an image from the user for each face of their cardboard model. This could be captured in the
+application or uploaded, having been captured outside of the application. The data is stored
+in the dedicated model folder and used to generate the texture for the model file.
+Identifying the logistics of the application was necessary to identify the different stages of the
+application and their interactions with each other. For example, the user’s content needs to
+be stored in their dedicated model folder. This folder only exists because the data is collected
+in the Setup state of the project. If the folder hadn’t been created, it would be difficult to
+keep the model and its content together.
+
+4.3. State Diagrams
+4.3.1. Original State Diagram
+Using the data-driven model, a state diagram (Figure 8) was created to identify the
+application’s different states and the actions that occur within each state.
+
+Figure 8 - Original State Diagram
+
+20
+
+Similar to the data-driven model, the application begins with a Setup state and upon
+completion, the user is taken to the Content Capture stage of the application.
+The Content Capture stage has seven states and two pathways through the application. Two
+pathways were identified because the application needs to cater for models with and without
+a roof.
+Pathway 1: Front, Left, Right, Back, Top
+Pathway 2: Front, Left, Right, Back, Back-of-Roof, Front-of-Roof
+Post Content Capture, the user’s options involve viewing their model in the ‘View Model’ state
+or starting again. The ability to restart was included to meet the domain requirement of
+‘Allowing for repetition’.
+Identifying these necessary states provided the fundamental process to produce one of the
+configurations in the development stage of the project. This process was later adapted to
+cater for other configurations.
+4.3.2. Revised State Diagram
+During user testing, two functionalities were requested to allow users to traverse backwards
+between states and restart during the Content Capture stage.
+Figure 9 is a revised state diagram, created to show how the application could include the
+backwards traversal and restart functionality.
+
+Figure 9 - Revised State Diagram
+
+In this revised version, the user can traverse backwards between states: Left, Right, Back, Top,
+Back-of-Roof and Front-of-Roof. The Front state is not included in this functionality, because
+it follows Setup, which defines the user’s content capture workflow. Front is included (with
+all other states) in the restart functionality which allows the user to restart the process again.
+The diagram provided clarity in how the application would accommodate these additional
+functionalities, ahead of implementing them.
+
+21
+
+4.4. User Interface Design
+Using the original state diagram, user interface sketches (Figure 10) were created to visualise
+the application.
+Screen 1 - Welcome
+
+Screen 2 - Setup
+
+Screen 3 - Instruction
+
+Screen 4 - Capture
+
+Screen 5 - View
+
+Figure 10 - User Interface Sketches
+
+As seen in Figure 10, the application starts with a title screen (Screen 1), before taking the
+user to the setup screen (Screen 2), where the user enters data about their model. Screen 3
+is instructional, explaining the content capture process and how the user views their resultant
+model.
+Screen 4 visualises the Content Capture stage and consists of a camera viewport and buttons:
+‘Take Photo’, ‘Upload Photo’ and ‘Next’. The camera viewport is used to capture the content,
+and while this is a generalised sketch, each configuration would have separate pages with
+differently sized viewports, constrained to match the relevant sides of the cardboard model.
+A constrained camera viewport ensures a standardised approach; a key theme identified in
+the background research. By constraining the camera’s aspect ratio to the sizes of the sides
+of the cardboard model, the captured content is a 1:1 match. The only errors being the user
+choosing the wrong model configuration or the user’s technical competence.
+The buttons ‘Take Photo’ and ‘Upload Photo’, are necessary to trigger the capture and upload
+the content (regardless of capture source) to the project’s file-space. Incorporating these
+buttons met the functional requirements of allowing the user to capture and upload their
+content inside the application.
+Assuming the user has completed all states of the Content Capture stage and has content for
+all sides of the model, the user is taken to Screen 5, the view model screen. By scanning the
+project’s ficidual marker, the user sees their virtual model.
+Designing the system with these diagrams was crucial in understanding how the application
+could support the user in capturing their content.
+
+22
+
+5. Implementation
+5.1. AR Development
+To implement web-based AR, UGAR uses A-Frame; a web framework that embeds augmented
+reality within HTML [8].
+5.1.1. A-Frame Integration
+A-Frame was a technology not previously studied, so to incorporate A-Frame into HTML, I
+followed a tutorial and modified its result to best fit UGAR [21]. The resultant HTML file
+provided me with the AR experience to add the virtual 3D models.
+A-Frame uses three libraries: A-Frame, AR.js and three.js. A-Frame manages the AR content
+[8], while AR.js manages the AR experience with functionalities such as marker recognition
+[22]. Three.js is the parent library of A-Frame and is referenced to access abstracted methods
+and attributes [23].
+A-Frame embeds AR content into HTML using an A-Frame object called an <a-scene>, as
+shown in Figure 11.
+1. <a-scene scene=embedded arjs='sourceType: webcam; debugUIEnabled: false;' vr-modeui="enabled: false" renderer="antialias: true">
+2.
+<a-marker type='pattern' url='../../../assets/resources/marker.patt'>
+3.
+4.
+...
+5.
+6.
+</a-marker>
+7. </a-scene>
+Figure 11 – Code snippet of an <a-scene> definition in HTML
+
+The <a-scene> resembles the virtual environment and uses the user’s camera as the
+‘backdrop’ of the scene, defined in Figure 11 using ‘arjs='sourceType: webcam;’. The
+definitions ‘debugUIEnabled: false;' vr-mode-ui="enabled: false"’ modify the tutorial and
+remove the debugging interface and VR functionalities.
+A-Frame is an example of marker-based AR, so UGAR required a ficidual marker to trigger the
+AR content. The marker was created using A-Frame’s marker generator, which produced a
+.patt pattern file and an image [24]. By pointing the camera at the image, the marker is
+identified using the .patt file and AR.js launches the experience. In UGAR’s case, if there were
+content for each side of the model, the user’s virtual model would appear.
+
+23
+
+5.1.2. Model Construction
+Before creating the virtual models using A-Frame, nine configurations (Figure 12) were agreed
+with the PBN team.
+
+Figure 12 - Nine configurations of the cardboard and virtual models
+
+These configurations allow for every possible arrangement of the cardboard model. Using
+these configurations, a cuboid and triangular prism were identified as necessary to create the
+virtual models.
+
+24
+
+5.1.2.1. Cuboid Creation
+The cuboid is the most important shape in the user’s model because it holds the majority of
+the user’s content. Therefore, the technology used to create the cuboid was important
+because it impacted how UGAR would function. Two model types were considered when
+creating the cuboid: glTF and <a-box>.
+5.1.2.1.1. glTF with Blender
+Originally, UGAR was to use glTF models because glTF was used in PBN, and background
+research identified glTF to be more sophisticated [18]. I was unfamiliar with glTF, so I
+experimented creating and exporting a glTF cube for AR using 3D modelling software,
+Blender.
+Figure 13 shows a cube created in Blender, displayed using A-Frame.
+
+Figure 13 - A glTF cube created in Blender and exported for AR
+
+As seen in Figure 13, it was possible to use a glTF model with A-Frame. However, it was not
+possible to dynamically change the model’s texture.
+Three potential solutions were attempted:
+BlackThread.io
+BlackThread.io is an online tool that applies textures to glTF models [25]. The tool uses a
+method from three.js called GLTFExporter, which delivers and loads 3D content [26]. The tool
+was unsuccessful and lacked an API.
+Three.js + GLTFExporter
+The three.js library was used to try and access the three.js’s definition of the texture, using
+the same GLTFExporter function to swap the texture [26]. This solution was repeatedly
+unsuccessful.
+Blend4Web
+Blend4Web is a web-framework, which supports 3D models integrated into HTML but lacked
+support for glTF models [27].
+
+25
+
+Considerable time passed without a solution, so I met with the PBN team and it was decided
+the cuboid would be created using A-Frame’s primitive, <a-box> [19].
+5.1.2.1.2. A-Box
+A <a-box> was used to create the cuboid of the virtual model. The decision being it is
+compatible with A-Frame, and A-Frame defines model textures outside of the model's
+definition, making it possible to swap textures - allowing for automation.
+An attempt at texturing the cuboid was made using a typical cube map featuring all six faces
+of the cube in one texture. Figure 14 shows this application and was unsuccessful because AFrame applied the texture to all sides of the cube, instead of applying the content to the
+relevant face.
+
+Figure 14 - A cube map texture applied to an <a-box> [40]
+
+This application altered UGAR’s previous approach, whereby the user’s content would have
+been stitched together using PHP to create a laid-out texture (similar to the texture shown in
+Figure 14) containing all of the user’s content.
+To overcome this, research was conducted into A-Frame and how it applies textures.
+Currently, it is not possible with A-Frame alone to apply unique textures to individual faces of
+A-Frame primitives.
+
+26
+
+Multi-source A-Frame Component
+Research led to a component developed for A-Frame, which allows multiple unique images
+to be applied to different faces of an A-Frame primitive [28].
+Figure 15 is a diagram showing how the component arranges different images to each face of
+a cube [28].
+
+Figure 15 - Diagram of how the multi-source component applies unique textures to different faces of an A-Frame shape [28]
+
+The component arranges the images for each face of the cube in a particular order: right, left,
+top, bottom, front and back. The order ensuring the correct image is displayed on the correct
+face of the shape.
+UGAR’s application uses this component alongside images with dynamic filenames, which
+match the different sides of the cuboid. The dynamic filenames allow textures to be swapped
+dynamically and make the cuboid a generic template that can be used to create each user’s
+virtual model; the model made unique by swapping the referenced image files.
+Figure 16 shows a cuboid using the multi-source component with unique content on each of
+its faces.
+
+Front, Left, Top
+
+Back, Right, Top
+
+Figure 16 - Cuboid using the multi-source component with unique images on each face
+
+27
+
+UGAR and its digitisation benefitted from this component because it allowed the user’s
+content to be captured and directly applied to the relevant face of the cube, removing the
+previously thought need to stitch the images together.
+5.1.2.2. Prism Creation
+As seen in Figure 4, six out of nine configurations include a roof - a triangular prism. With the
+cuboid made of an <a-box>, the prism needed to be made using an A-Frame primitive too.
+5.1.2.2.1. <a-plane>
+The first structure considered was two planes (made with two <a-plane> shapes), arranged
+perpendicular to each other [29].
+Figure 17 shows how two <a-planes> created a roof.
+
+Figure 17 - Two <a-planes> arranged perpendicularly to create a roof
+
+The two planes produced the roof-like structure but became transparent on a side view.
+5.1.2.2.2. Rotated <a-box>
+The second attempt was a <a-box> rotated by 45 degrees. Once rotated, the cube provided
+the prism-like structure that could be used to apply the two roof textures.
+Figure 18 shows how a rotated <a-box> was used to create a roof.
+
+Figure 18 - Rotated <a-box> used to create a roof
+
+The rotated <a-box> was unsuccessful because the two objects aliased against each other.
+
+28
+
+5.1.2.2.3. <a-cylinder>
+The final and successful attempt was a <a-cylinder> because it was discovered a <a-cylinder>
+could be changed into a triangular prism by increasing the number of radial segments to
+three.
+Figure 19 shows how a <a-cylinder> is converted into a triangular-prism.
+
+Figure 19 - <a-cylinder> converted into a triangular prism
+
+To texturise the <a-cylinder>, the <a-cylinder> uses the same multi-source component used
+on the cuboid and was necessary because the sides of the roof could feature different content
+[28]. However, the application was harder because the prism was made from a cylinder with
+only one side.
+A solution was created to manipulate the content into a form that fitted the three sides by
+stitching the two roof images together with a hidden texture to create a singular texture map.
+
+29
+
+Creating the Roof’s Texture
+Located in config.php, a stitch function was created to composite the two images together.
+The function uses methods from the GD Graphic Library, used for manipulating images [30].
+Figure 20 is a code snippet of this stitch function.
+1. /*
+2. * Combines and stitches the roof images together.
+3. */
+4. function stitch($filepath, $front, $back)
+5. {
+6.
+7.
+# Create a blank image.
+8.
+$blank = imagecreatetruecolor(384, 256);
+9.
+imagepng($blank, $filepath . "roof.png", 9);
+10.
+11.
+# Create a filepath for the composite image.
+12.
+$composite = $filepath . 'roof.png';
+13.
+14.
+# Create the two roof images from the corresponding files.
+15.
+$front = imagecreatefrompng($filepath . 'roof1.png');
+16.
+$back = imagecreatefrompng($filepath . 'roof2.png');
+17.
+18.
+# Rotate the roof image by 90 degrees.
+19.
+$rotate = imagerotate($front, 90, 0);
+20.
+21.
+# Delete the original roof image from folder directory.
+22.
+unlink($filepath . 'roof1.png');
+23.
+24.
+# Save the new, rotated roof image into folder directory.
+25.
+imagepng($rotate, $filepath . 'roof1.png');
+26.
+27.
+# Rotate the second roof image by -90 degrees.
+28.
+$rotate = imagerotate($back, -90, 0);
+29.
+30.
+# Delete the second original roof image from folder directory.
+31.
+unlink($filepath . 'roof2.png');
+32.
+33.
+# Save the new, rotated roof image into folder directory.
+34.
+imagepng($rotate, $filepath . 'roof2.png');
+35.
+36.
+# Create a filepath for the roof images.
+37.
+$back = $filepath . 'roof1.png';
+38.
+$front = $filepath . 'roof2.png';
+39.
+40.
+# Get the size of the roof panels.
+41.
+list($width, $height) = getimagesize($front);
+42.
+43.
+# Get all of the images for composition.
+44.
+$composite = imagecreatefromstring(file_get_contents($composite));
+45.
+$front
+= imagecreatefromstring(file_get_contents($front));
+46.
+$back
+= imagecreatefromstring(file_get_contents($back));
+47.
+48.
+# Create the filler image for the roof.
+49.
+$filler = imagecreatetruecolor(256, 128);
+50.
+imagepng($blank, $filepath . "roof3.png", 9);
+51.
+$filler = $filepath . 'roof3.png';
+52.
+53.
+# Copy and merge the roof images onto the composite.
+54.
+imagecopymerge($composite, $back, 0, 0, 0, 0, $width, $height, 100);
+55.
+imagecopymerge($composite, $filler, 128, 0, 0, 0, $width, $height, 100);
+56.
+imagecopymerge($composite, $front, 256, 0, 0, 0, $width, $height, 100);
+57.
+
+30
+
+58.
+59.
+60.
+61.
+62.
+63.
+64.
+65.
+66. }
+
+# Save the composite to the folder directory.
+imagepng($composite, $filepath . 'roof.png');
+move_uploaded_file('roof.png', $filepath . "roof.png");
+# Delete the unneccessary images.
+unlink($filepath . 'roof1.png');
+unlink($filepath . 'roof2.png');
+unlink($filepath . 'roof3.png');
+
+Figure 20 – Code snippet of stitch function used to composite the roof content together
+
+The function takes the parameters of the user’s folder, and the images of the front and back
+of the roof (cardboard model). These parameters ensure the correct images are composited
+together and saved in the correct folder.
+The function begins using the imagecreatetruecolour method to create a composite image.
+The composite image is created with a width triple of the images’ width, and a height
+matching the height of the images’ size. The triple width caters for the three segments of
+the triangular prism - without it, the images appear incorrectly stretched across two
+segments.
+The function locates the two images and using the imagerotate method, rotates one by 90
+degrees and the other by -90 degrees, arranging them in the correct orientations for
+composition. The function creates a blank image to cater for the hidden segment.
+Using the imagecopymerge method, the function composites the images at 128-pixel
+intervals, with the back-of-roof content on the left, the filler image in the centre, and the
+front-of-roof content on the right.
+Figure 21 is a diagram of the composite image and its composited content.
+Filler Image
+0
+
+128
+1
+
+256
+
+384
+
+Back-of-Roof Image
+
+Front-of-Roof Image
+
+256
+Figure 21 - Diagram of the resultant composite image and its composited content
+
+31
+
+Figure 22 shows how the resultant composite image is applied to a triangular prism.
+
+Front-of-Roof View
+
+Side View
+
+Back-of-Roof View
+
+Figure 22 - Result of the stitch function applied to a triangular prism
+
+As seen in Figure 22, the stitch function is successful because the user’s content is properly
+constrained to the relevant segments of the prism object.
+5.1.2.3. Arranging Objects
+Before the two objects were arranged together, the two objects were resized to create
+Configuration 4; chosen to test how the cuboid and prism would be put together. Once
+arranged, this model was modified to produce the other configurations.
+Resizing began with the cuboid and involved increasing/decreasing the width, height and
+depth values, checking the results against a real cardboard model. Resizing the roof involved
+setting the width and length values to match the cuboid’s width and depth values before
+altering its height. Positioning the roof required increasing the roof’s position on the Y-axis.
+Figure 23 shows the complete house model, assembled with both cube and roof.
+
+Figure 23 - Completed virtual model arranged as configuration 4
+
+The house model was copied eight times to create further configurations, which followed the
+same process as above.
+
+32
+
+5.1.3. Model Interaction
+A functional requirement of UGAR was user interaction between the user and their model.
+The aim was to provide a user-initiated rotation of their model
+Two functionalities were explored: look-controls and <a-animation>
+5.1.3.1. Look-controls
+look-controls is an A-Frame functionality that allows the user to drag and rotate around their
+model [31]. The functionality provided the interaction necessary for UGAR. However, it was
+incompatible with tablet devices, only working with devices with a 16:9 screen aspect ratio.
+5.1.3.2. <a-animation>
+To overcome this issue, UGAR uses <a-animation> - A-Frame’s animation object [32]. When
+tapped on, the user’s virtual model rotates 360 degrees clockwise. The animation was
+implemented inside A-Frame’s definition of the virtual model, as shown in Figure 24.
+Figure 24 – User-initiated model rotation definition
+
+The model’s rotation is defined by the ‘from’ and ‘to’ coordinates, which see the model rotate
+360 degrees. The model’s rotation duration is defined as 10000 milliseconds (1 second) and
+is prompted by a click.
+The click is registered by an <a-cursor>, an A-Frame object which tracks user-events in the AR
+environment [33]. Figure 25 is a code snippet of the <a-cursor>'s definition:
+<a-entity camera><a-cursor color="ffba70" position ="0 0 -1"></a-cursor></a-entity>
+Figure 25 – <a-cursor> definition to capture user-events
+
+The cursor appears as a grey circle in the centre of the user’s screen, which when tapped
+upon, prompts the model’s rotation animation; achieving UGAR’s requirement of allowing for
+interaction.
+
+Figure 26 - <a-cursor> visible in the user's camera viewport
+
+33
+
+5.2. Back-End Development
+Digitisation is completed using PHP to manipulate, manage and store the images captured by
+the user. UGAR’s back-end development achieved the digitisation process by replicating the
+states and data identified in the original state diagram.
+5.2.1. Setup
+5.2.1.1. Setup.php
+Setup.php mirrors the state diagram, retrieving data about the user and their model: the
+user’s school, model ID and model type. This data is later used to influence their experience
+of the application. Setup.php uses PHP to push this data to the web server using a HTML
+form, the form shown in Figure 27.
+1. <form action="roof.php" method="post">
+2.
+<div id="school">
+3.
+<p>School</p>
+4.
+<select name="school">
+5.
+<option value="school1">School 1</option>
+6.
+<option value="school2">School 2</option>
+7.
+<option value="school3">School 3</option>
+8.
+<option value="school4">School 4</option>
+9.
+<option value="school5">School 5</option>
+10.
+<option value="other">Other</option>
+11.
+</select>
+12.
+</div>
+13.
+14.
+<div id="number">
+15.
+<label for="number">Number</label>
+16.
+<br>
+17.
+<input type="number" id="number" name="number" min="1" max="30" required>
+18.
+<br>
+19.
+</div>
+20.
+21.
+<div id="configuration">
+22.
+<p>House Type</p>
+23.
+</div>
+24.
+25.
+<div id="images">
+26.
+<label>
+27.
+<input type="radio" name="config" value="1">
+28.
+<img src="../assets/img/one.png">
+29.
+</label>
+30.
+31.
+<label>
+32.
+<input type="radio" name="config" value="2">
+33.
+<img src="../assets/img/two.png">
+34.
+</label>
+35.
+36.
+<label>
+37.
+<input type="radio" name="config" value="3">
+38.
+<img src="../assets/img/three.png">
+39.
+</label>
+40.
+</div>
+41.
+42.
+<div id="submit">
+43.
+<input type="submit" value="Next" />
+44.
+</div>
+45. </form>
+Figure 27 – HTML form used to collect data in setup.php
+
+34
+
+The form defines the data’s destination as roof.php; another form that collects further data
+to help determine the configuration of the user’s model.
+The user data is collected using three HTML inputs: dropdown select options, data inputs and
+radio buttons. The inputted data values are stored in PHP POST session variables, eventually
+converted into PHP session variables to maintain the data between webpages.
+5.2.1.2. Roof.php
+Roof.php is another HTML form that helps determine the configuration of the user’s model
+by determining whether the user’s cardboard model has a roof. This data is selected using
+radio buttons and sent with the existing data to processing.php; the final part of the setup
+state.
+5.2.1.3. Processing.php
+Processing.php is responsible for creating the user’s folder, determining the model’s
+configuration, and choosing the correct content capture workflow.
+Processing.php begins by defining the filepath of the user’s folder to the PHP session variable
+‘filepath’. The filepath is used to create the user’s dedicated folder via a function, makeFolder.
+Figure 28 shows a code snippet of the makeFolder function.
+1. function makeFolder($folder)
+2. {
+3.
+if (is_dir('../schools/' . $_SESSION['school'] . '/' . $folder)) {
+4.
+$files = glob('../schools/' . $_SESSION['school'] . '/' . $folder . '/' . '
+*');
+5.
+6.
+foreach ($files as $file) {
+7.
+if (is_file($file))
+8.
+unlink($file);
+9.
+}
+10.
+rmdir('../schools/' . $_SESSION['school'] . '/' . $folder);
+11.
+}
+12.
+# Create the folder directory and make it accessible for everyone.
+13.
+mkdir('../schools/' . $_SESSION['school'] . '/' . $folder, 0777);
+14.
+chmod('../schools/' . $_SESSION['school'] . '/' . $folder, 0777);
+15. }
+Figure 28 – makeFolder function, responsible for creating the user’s dedicated folder
+
+The makeFolder function takes the parameter of the model’s ID and uses this ID to test
+whether a folder with the same ID exists. If true, the folder and its contents are deleted to
+ensure no duplicate IDs. The function also deletes the folder’s content in case the user chose
+a different model type, requiring different content and model file. Next, the function creates
+a new folder with the model ID as the folder’s name.
+
+35
+
+Processing.php also determines the configuration of the virtual model, which is done by
+testing the user’s data.
+Figure 29 shows a code snippet, an example of how a configuration is determined.
+1. if ($_SESSION['config'] == '1') {
+2.
+3.
+if ($_POST['roof'] == 'no-roof')
+4.
+{
+5.
+makeFiles($_SESSION['config'], $_SESSION['filepath']);
+6.
+header("Location: ../configs/config1/sides/front.php");
+7.
+}
+8.
+else if ($_POST['roof'] == 'roof1')
+9.
+{
+10.
+$_SESSION['config'] = '4';
+11.
+makeFiles($_SESSION['config'], $_SESSION['filepath']);
+12.
+header("Location: ../configs/config4/sides/front.php");
+13.
+}
+14.
+else if ($_POST['roof'] == 'roof2')
+15.
+{
+16.
+$_SESSION['config'] = '7';
+17.
+makeFiles($_SESSION['config'], $_SESSION['filepath']);
+18.
+header("Location: ../configs/config7/sides/front.php");
+19.
+}
+20. }
+Figure 29 – Processing.php, how the application determines a model’s configuration
+
+The file begins testing the value stored in the session variable ‘config’, whose integer value is
+between 1 and 3 (relating to the three orientations of the cuboid in the cardboard model).
+Figure 29 shows how the application determines configurations 1, 4 and 7, given they all use
+the same cuboid orientation. The next test determines the type of roof. This data is stored in
+the PHP POST session variable ‘roof’, collected in roof.php and can have the value: no-roof,
+roof1 and roof2. Depending upon the value of this variable, the application redefines the
+value of the ‘config’ variable to match the correct configuration and runs the makeFiles
+function.
+The makeFiles function copies the model file and filler images required to create the virtual
+model. Figure 30 shows a code snippet of the makeFiles function:
+1. function makeFiles($config, $filepath)
+2. {
+3.
+# Copy and move the A-Frame config html file.
+4.
+$file
+= '../configs/config' . $config . '/config' . $config . '.html';
+5.
+$newfile = '../configs/config' . $config . '/model.html';
+6.
+copy($file, $newfile);
+7.
+rename('../configs/config' . $config . '/model.html', $filepath . '/' . 'model.
+html');
+8.
+chmod($filepath . '/' . 'model.html', 0777);
+9.
+10.
+# Copy and move the filler image.
+11.
+$file = '../assets/img/filler/white.png';
+12.
+$newfile = '../assets/img/filler/filler.png';
+13.
+copy($file, $newfile);
+14.
+rename('../assets/img/filler/filler.png', $filepath . '/' . 'filler.png');
+15. }
+Figure 30 – makeFiles function, responsible for copying files required for each model
+
+36
+
+The makeFiles function takes the parameters of the model’s newly calculated configuration
+and the user’s filepath. The function uses the configuration to locate the correct model file,
+from an index of model files, which is copied and moved to the user’s folder. This model file
+becomes the dedicated file, containing the user’s model. The function also copies and moves
+a white image to ‘fill’ faces without content.
+Referring back to Figure 29, following makeFiles, the file redirects the user to the content
+capture workflow for their configuration, beginning with capturing the front face of their
+model.
+Figure 31 is a flow diagram of the possible destinations and the combinations required to
+access each workflow.
+
+Figure 31 - Flow diagram showing how a model's configuration is determined
+
+37
+
+5.2.2. Content Capture
+The Content Capture stage of the application guides the user through capturing the content
+required for each model, again replicating the original state diagram.
+The content is captured using HTML and JavaScript but uses PHP to maintain the model and
+user data through the application.
+Each state in the Content Capture stage of the application has a PHP file for each
+configuration; numerous files required because each state uses differently constrained
+camera viewports.
+5.2.2.1. Content Capture States
+UGAR uses the same workflow as identified in the original state diagram: front, left, right,
+back and top/roof. Due to the application being automated, it is important the user follows
+this workflow for their model to be correct. The order is ensured by testing a PHP session
+variable ‘previous’, which tracks where the user has been.
+Figure 32 shows a code snippet from a ‘left.php’ file:
+1. if ($_SESSION["previous"] == "front" || $_SESSION["previous"] == "right") {
+2.
+if ($_SESSION["previous"] == "right") {
+3.
+unlink('../../' . $_SESSION['filepath'] . '/' . 'left.png');
+4.
+}
+5.
+6.
+$_SESSION["previous"] = "left";
+7. } else {
+8.
+# Redirects the user to the setup page.
+9.
+session_destroy();
+10.
+header("Location:../../../php/setup.php");
+11. }
+Figure 32 – left.php, how the content capture workflow is enforced
+
+If the user is accessing the left state, they will have previously accessed the front state; there
+is no other way to traverse forwards. The test also checks backwards traversal, checking if the
+user has accessed the right state (the next state). Backwards traversal is checked because it
+was implemented post user-testing and needs to maintain the workflow.
+If both return true, another test checks which result was true. If the user has accessed the
+right state, the application deletes the stored left image because the application requires the
+user to upload an image to traverse forward. If the user has accessed the front state, the
+application continues without deletion. If both return negative, the user is redirected to the
+setup state to start again.
+The main purpose of PHP in these content capture states is to transport the captured content
+to config.php, completed by a HTML form in the form of a file upload.
+
+38
+
+5.2.2.2. Config.php
+Config.php receives each piece of captured content and modifies and prepares it for
+application on the virtual model. Development of config.php involved a unique file for each
+configuration, which were merged to enforce reusability.
+Config.php begins by determining the image’s file format. The file format is important
+because UGAR uses PNG images to create the model’s textures as it is lossless; little data is
+lost when the image is edited. A lossless file format is crucial because the images are resized
+to fit the model’s faces.
+The application determines what content it is dealing with by testing the current state of the
+content capture workflow. The application is able to test the user’s state with the PHP session
+variable ‘face’, redefined upon completion of each state.
+Config.php has a generic implementation but works dynamically by testing the PHP session
+variables to determine what to do with the user’s content.
+Config.php’s first test checks whether content for that particular face already exists in the
+user’s folder. If true, the application looks through the user’s folder, testing until the condition
+returns negative. When the condition returns negative, the moveImage function is called responsible for relocating the captured content into the user’s folder.
+Figure 33 shows a code snippet of the moveImage function.
+1. function moveImage($format, $image, $filepath, $face)
+2. {
+3.
+if($format[1] == "jpg" || $format[1] == "JPG")
+4.
+{
+5.
+$jpg = imagecreatefromjpeg($image);
+6.
+imagepng($jpg, $filepath . $face . ".png");
+7.
+}
+8.
+else
+9.
+{
+10.
+move_uploaded_file($image, $filepath . $face . ".png");
+11.
+}
+12. }
+Figure 33 – moveImage function, responsible for transferring and storing the captured content in the user’s folder
+
+moveImage takes the parameters of the content’s file format, the content, user’s filepath of
+and the face captured. The function tests whether the image needs to be converted from JPG
+to PNG. If a conversion is necessary, the content is loaded and saved as a PNG. Regardless of
+file format, the content is saved in the user’s folder using the value of the PHP session variable
+‘face’ as the filename.
+
+39
+
+The application continues, outside of moveImage, with a resize function that prepares the
+content for application to the virtual model.
+Figure 34 is a code snippet of the resize function:
+1. function resize($filename, $new_width, $new_height)
+2. {
+3.
+list($width, $height) = getimagesize($filename);
+4.
+5.
+$new
+= imagecreatetruecolor($new_width, $new_height);
+6.
+$image = imagecreatefrompng($filename);
+7.
+imagecopyresampled($new, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $
+height);
+8.
+9.
+unlink($filename);
+10.
+11.
+imagepng($new, $filename);
+12. }
+Figure 34 – resize function, responsible for resizing the images to be compatible with A-Frame
+
+The resize function was developed because A-Frame uses textures that are an image size of a
+power of two. The resize function ensures the content is correctly sized before being applied
+to the user’s model.
+The resize function takes the parameters of the image’s filename and the required width and
+height values. The function uses the filename to locate the image and its original width and
+height values. The function uses the new width and height values to create a composite
+image; 128 x 256 pixels required by A-Frame. The function uses the imagecopyresampled
+method to copy and resample the original image onto the composite image. The original
+image is then deleted and replaced with the new image.
+Continuing outside of the resize function, the application redirects the user to the next state
+in the content capture workflow. When the user reaches the end of the content capture
+workflow, the application redirects the user to ‘options.php’.
+
+40
+
+5.2.3. View Model
+The final state is View Model and is controlled by options.php. Although being of type PHP,
+the file is a HTML menu which uses PHP to manage the user’s access to the list of options
+available because the user should only be able to view these options post content capture.
+5.2.3.1. Options.php
+options.php tests whether the user has a model by checking the values of the PHP session
+variables ‘model ID’ and ‘school’.
+Figure 35 shows a code snippet of options.php.
+1. session_start();
+2.
+$_SESSION['number'];
+3.
+$_SESSION['school'];
+4.
+$_SESSION['filepath'];
+5.
+6.
+# If user hasn't been making a model, take user back to setup.php.
+7.
+if ($_SESSION['number'] == '' || $_SESSION['school'] == '') {
+8.
+9.
+#Redirects user to setup.php.
+10.
+header('Location:setup.php');
+11.
+}
+12. ?>
+13.
+14. <!DOCTYPE html>
+15. <html lang='en-US'>
+16. <head>
+17. <title>Exploring the Familiar</title>
+18. <meta charset='utf-8'>
+19. <meta name='viewport' content='width=device-width, initial-scale=1'>
+20. <link rel='stylesheet' href='../css/style.css'>
+21. <link rel='stylesheet' href='../css/menu.css'>
+22. </head>
+23.
+24. <body>
+25.
+<div id='main'>
+26.
+<div id='menu'>
+27.
+<h1>Exploring the Familiar</h1>
+28.
+<a href='locate.php'><button>View Model</button></a>
+29.
+<a href='setup.php'><button>New Model</button></a>
+30.
+<a href='home.php'><button>Home</button></a>
+31.
+</div>
+32.
+</div>
+33.
+34. </body>
+35. </html>
+Figure 35 – options.php
+
+If empty, the user is redirected to setup.php to start again. Otherwise, the user has three
+options: View Model, New Model or Home.
+
+41
+
+5.2.3.2. Locate.php
+Clicking ‘View Model’ directs the user to locate.php, which uses the PHP session variables
+‘school’ and ‘number’ to redirect the user to their dedicated model file.
+Figure 36 shows a code snippet of locate.php:
+1. //Tests whether the user has created the model or is viewing a model.
+2. if($_SESSION['previous'] == 'view')
+3. {
+4.
+//Sets the variables to locate the folder.
+5.
+$number = $_POST['number'];
+6.
+$school = $_POST['school'];
+7. }
+8. else {
+9.
+//Sets the variables to locate the folder.
+10.
+$number = $_SESSION['number'];
+11.
+$school = $_SESSION['school'];
+12. }
+13.
+14. //Sets the directory to locate the model.
+15. $directory = '../schools/' . $school . '/' . $number . '/' . 'model.html';
+16.
+17. //Tests whether the model file exists.
+18. if(file_exists($directory))
+19. {
+20.
+//If exists, redirect the user to the model file.
+21.
+header('Location:' . $directory);
+22. }
+Figure 36 – locate.php, directing the user to their model file
+
+Referring back to Figure 35, the use has two other options: New Model and Home. New Model
+directs the user to setup.php and allows the user to repeat the process. Home directs the user
+to the homepage, allowing the user to decide what to do next.
+5.2.4. Additional Functionalities
+In addition to the workflow above, two further functionalities were implemented using backend technologies: model lookup and reset.
+5.2.4.1. Model Lookup
+UGAR’s purpose is to digitise content that will be translated onto an AR map. However, I
+believed the application should include functionality that allows the user to view their model,
+outside of creation.
+The application achieves this with a search functionality, which uses a form with two inputs:
+a dropdown selection and a data input. These inputs are collected in view.php and pushed to
+locate.php, which tests whether the filepath is valid.
+If valid, the user is directed to their chosen model. Otherwise, the user is redirected back to
+the search page to try again.
+
+42
+
+5.2.4.2. Restart
+In addition to backwards traversal, another functionality requested after user-testing was a
+functionality that would allow the user to restart their model.
+Within all states of the content capture stage of the application, the user is presented with
+an undo button that directs the user to reset.php and deletes their folder and its contents.
+Reset.php deletes the user’s folder and its contents because if the user changed model type,
+they would need a new model file and differently sized content to match. Upon deletion, the
+application redirects the user to setup.php, which allows them to create a new model.
+
+43
+
+5.3. Front-End Development
+UGAR’s user interface was created using front-end technologies: HTML, CSS and JavaScript.
+Front-end development was carried out similar to the back-end development, mirroring the
+original state diagram and providing the functionalities required for the back-end
+technologies.
+5.3.1. Design
+The target users of UGAR are teachers and primary school children, so the user interface
+needed to be simple and easy to use. To meet this domain requirement, much of the
+interface uses text and a singular button, or a list of buttons where options are greater than
+one. Figure 37 shows two examples of this in practice.
+
+Figure 37 – UGAR’s simple and easy to use user interface
+
+This stylistic decision was made to ensure the user was able to understand the application,
+free from distractions.
+Another design factor was colour because colour can influence how a user perceives and
+interacts with an interface. UGAR’s application uses blue; considered to be a neutral colour
+[34]. A further design factor was the use of a web-safe colour (#3366FF) because the
+application could be displayed on various screen sizes, resolutions and browsers. Web-safe
+colours are important because some browsers cannot reproduce all colours [35]. Figure 38 is
+the colour chosen for UGAR’s user interface.
+
+Figure 38 - #3366FF, used throughout UGAR's user interface
+
+A final factor in UGAR’s colour choice was accessibility because #3366FF has a stark contrast
+against white (the colour used for on-screen text), which ensures UGAR caters for the visually
+impaired.
+
+44
+
+5.3.2. Setup
+5.3.2.1. Setup.php
+The interface's purpose in setup is to collect data and pass it to the back-end technologies.
+Mirroring the original state diagram and system design sketches, the setup screen uses three
+types of inputs.
+Figure 39 shows UGAR’s setup screen.
+
+Figure 39 - UGAR's setup screen
+
+Collecting the user’s school was implemented with a dropdown menu. These explicit choices
+restrict the user’s interaction, reducing the potential for error in the application.
+Collecting the model ID is implemented with constrained data input. The input is of type
+‘number’ and only allows a number, preventing the user from entering any other character.
+The input also uses minimum and maximum values to prevent the user from choosing an
+integer too big or small.
+
+45
+
+The final input is the configuration of the cuboid in the user’s cardboard model, implemented
+using radio buttons. Producing these graphic radio buttons required overwriting the typical
+radio button’s definition provided by HTML and CSS. Figure 40 shows the radio buttons’
+definition in HTML.
+1. <div id="images">
+2.
+<label>
+3.
+<input type="radio" name="config" value="1" required>
+4.
+<img src="../assets/img/configs/one.png">
+5.
+</label>
+6.
+<label>
+7.
+<input type="radio" name="config" value="2" required>
+8.
+<img src="../assets/img/configs/two.png">
+9.
+</label>
+10.
+<label>
+11.
+<input type="radio" name="config" value="3" required>
+12.
+<img src="../assets/img/configs/three.png">
+13.
+</label>
+14. </div>
+Figure 40 – Custom radio button definitions in HTML
+
+The HTML definition of the radio button defines each radio button and its image within the
+definition of an HTML label element. The label visually represents the option using an image
+or piece of text. As seen in Figure 36, each radio button has an image of the different
+orientations of the cuboid.
+Without custom CSS, the result would be a radio button located next to the image. However,
+this wasn’t considered user-friendly. Instead, the CSS was overridden, hiding the radio button
+and using the image as the label to appear as the radio button.
+Figure 41 shows a code snippet of this custom CSS.
+1. [type=radio] {
+2.
+position: absolute;
+3.
+opacity: 0;
+4.
+width: 0;
+5.
+height: 0;
+6. }
+7.
+8. [type=radio]:checked + img {
+9.
+border: solid;
+10. border-width:5px;
+11. border-radius:100px;
+12. border-color: #b3d0f4;
+13. }
+Figure 41 – Custom CSS used to override the original radio button definition
+
+The radio button is hidden by changing its opacity to zero, along with the element’s width and
+height values. Once hidden, a coloured border was added to surround the chosen option to
+provide clarity. The CSS achieves this by combining the radio button’s checked attribute
+(checks if the button is pressed) and image (defined in the HTML label element).
+
+46
+
+Upon selecting a school, entering a model ID and selecting the configuration of their cuboid,
+the user traverses forward. To ensure all three pieces of data are collected, all inputs use the
+‘required’ attribute which refuses forward traversal until the user enters all their required
+data. The attribute was enabled because the user’s experience is influenced by these pieces
+of data.
+This layout is also shared by the model lookup functionality, using a dropdown select and a
+constrained number input to search for models.
+5.3.2.2. Roof.php
+Post successful data-collection, the user is taken to roof.php to collect further data about
+their model. This screen uses the same radio buttons, but different graphics that represent
+the different roof types: no-roof, a small roof and a large roof. Figure 42 shows this screen.
+
+Figure 42 - UGAR's roof selection screen
+
+47
+
+5.3.3. Content Capture
+Capturing the user’s content was made possible using JavaScript. Following a tutorial, a
+method was developed to access and stream the user’s camera through their web browser
+[36].
+Figure 43 shows a code snippet of the JavaScript used to access the user’s camera.
+1. <script>
+2.
+window.addEventListener("load", function() {
+3.
+//Initialise the camera.
+4.
+var constraints = {
+5.
+video: {
+6.
+width: 300,
+7.
+height: 224,
+8.
+facingMode: "environment"
+9.
+},
+10.
+audio: false
+11.
+};
+12.
+var camera = document.getElementById("camera");
+13.
+14.
+//Initialise the capture button.
+15.
+var capture = document.getElementById("capture");
+16.
+17.
+//Initialise the canvas.
+18.
+var canvas = document.getElementById("canvas");
+19.
+20.
+//Initialise the download button.
+21.
+var download = '<i class="fas fa-file-download"></i>';
+22.
+23.
+//Begin streaming the user"s camera.
+24.
+navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+25.
+camera.srcObject = stream;
+26.
+camera.play();
+27.
+28.
+//If the user clicks the capture button, create a new image.
+29.
+capture.addEventListener("click", function() {
+30.
+var image = document.createElement("canvas");
+31.
+image.width = camera.videoWidth;
+32.
+image.height = camera.videoHeight;
+33.
+var context2D = image.getContext("2d");
+34.
+context2D.drawImage(camera, 0, 0, image.width, image.height);
+35.
+36.
+//Reveal the download button and generate a link to download the im
+age.
+37.
+var link = document.createElement("a");
+38.
+link.href = image.toDataURL("image/png");
+39.
+link.download = "left.png";
+40.
+link.innerHTML = download;
+41.
+canvas.innerHTML = "";
+42.
+canvas.appendChild(link);
+43.
+44.
+//Popup to tell user that their photo has been captured successfully.
+45.
+document.getElementById("capturedpopup").style.visibility = "visibl
+e";
+46.
+document.getElementById("capture").disabled = true;
+47.
+hidePopUp();
+48.
+49.
+function hidePopUp() {
+50.
+setTimeout(function() {
+51.
+document.getElementById("capturedpopup").style.visibility =
+"hidden";
+52.
+document.getElementById("capture").disabled = false;
+
+48
+
+53.
+54.
+55.
+56.
+57.
+
+}, 1000);
+}
+});
+//If no camera is detected, catch error and ask the user to attach a ca
+mera.
+
+58.
+59.
+
+}).catch(function(err) {
+document.getElementById("camera").innerHTML = "Please enable access and
+attach a camera";
+60.
+});
+61.
+});
+62. </script>
+Figure 43 – JavaScript used to access the user’s camera through their web browser
+
+The script begins by defining the camera’s constraints, the first two being the width and
+height of the camera, defined as pixels. To accurately capture the user’s content, the camera
+viewports are constrained to the sizes of each face of the cardboard model, which change per
+face.
+Since the cardboard model is a physical object, the measurements (cm) were converted into
+a pixel format using an online conversion calculator; the conversion rate being
+1cm:37.7952755906 pixels [37]. Using this converter, all faces of the cardboard model could
+be represented in pixel form.
+Using the pixel definitions, the camera’s height and width were defined to provide a 1:1 match
+to the faces of the cardboard models. However, an issue arose, particularly affecting faces
+with an area greater than the area of the application window. To overcome this, the aspect
+ratios of the newly calculated pixels were resized (using another online conversion calculator)
+to an aspect ratio that fits within the constraints of the application window [38]. However,
+this produces a further issue in model quality, because the image sizes (ahead of
+manipulation) vary in size and resolution. This issue affects models 3, 6 and 9 and requires
+future investigation to be resolved.
+Since most devices have front and rear-facing cameras, the final constraint is the type of
+camera. By defining the camera’s facingMode attribute as ‘environment’, the application uses
+the rear-facing camera. However, if unavailable, the application uses the front-facing camera.
+With the camera prepared, the script accesses the capture button, previously defined in
+HTML. The capture button triggers the camera to capture a screenshot of the camera’s
+stream, saved in the HTML element: canvas (also previously defined and accessed by the
+script). The final part of the script’s setup is the definition of a download button, which
+appears post-capture and is used to download the captured image.
+
+49
+
+Before streaming, the script tests whether the user has a compatible camera using the
+navigator.mediaDevices.getUserMedia method. If true, the camera streams the user’s
+camera. If false, the application asks the user to enable or attach a camera for them to be
+able to continue.
+Figure 44 shows the application streaming the user’s camera through the web-browser.
+
+Figure 44 – UGAR streaming the user’s camera through their web browser
+
+Once streaming, the script awaits an interaction with the capture button, detected using an
+event listener object. Once pressed, the script runs a function that recreates the content
+(captured at the time of interaction) in an image, ‘drawing’ the image into the previously
+defined ‘canvas’ element, using the width and height values of the camera to set the image’s
+size.
+Following a successful snapshot, a link to the image is generated using the previously defined
+download button.
+
+50
+
+Figure 45 shows UGAR, post-successful snapshot with the download button.
+
+Figure 45 - UGAR post a successful snapshot featuring the download button
+
+When pressed, the image is downloaded onto their device. This concludes the pre-user
+testing script.
+Post-user testing, a pop-up message was added to notify the user that their image had been
+captured. The pop-up was a request by the PBN team to give visual feedback after the user’s
+interaction. Figure 46 shows how the pop-up works.
+1. document.getElementById("capturedpopup").style.visibility = "visible";
+2. document.getElementById("capture").disabled = true;
+3. hidePopUp();
+4.
+5. function hidePopUp() {
+6.
+setTimeout(function() {
+7.
+document.getElementById("capturedpopup").style.visibility = "hidden";
+8.
+document.getElementById("capture").disabled = false;
+9.
+}, 1000);
+10. }
+Figure 46 – JavaScript that produces UGAR’s ‘successful capture’ message
+
+The script achieves this pop-up by accessing the pop-up’s definition in HTML and momentarily
+changing its CSS visibility attribute to visible. The script also disables the capture button to
+allow time for the pop-up to disappear, before taking another photo.
+
+51
+
+To cater for the various sizes of camera viewports, each configuration has three CSS files for
+the three pairs of equal-sized faces on the cardboard model: front and back, left and right,
+and front-of-roof and back-of-roof or top. The CSS definitions of the camera in these files
+mirror the JavaScript by making the camera’s container the same width and height values.
+5.3.4. View Model
+Upon capturing all their content and selecting ‘View Model’ in options.php, the user is taken
+to their HTML model file to view their virtual model. Since there are no back-end technologies
+used in the model files, the user interface only supports the user.
+Figure 47 shows how the user views their model using UGAR.
+
+Figure 47 – UGAR’s ‘view model’ screen
+
+This screen gives the user three options: to download a marker, a link to the homepage, and
+a link to download the instruction manual. The functionalities are arranged at the bottom of
+the screen to give as much of the screen as possible to the AR experience.
+
+52
+
+6. Application Walkthrough
+As a result of UGAR’s development, UGAR has produced a responsive web-based application
+that allows users to create AR content without needing knowledge of AR.
+Figure 48 is a storyboard, showing an example of how a user would use the application.
+
+The user is greeted by the application’s
+welcome screen. The user presses ‘Get
+Started’.
+
+The user is presented with three options:
+‘Create Model’, ‘View a Model’ and ‘Help’.
+The user presses ‘Create Model’.
+
+The user visits the setup page. The user
+has to enter three pieces of data: their
+school, model number (ID), and the
+orientation of the cuboid of their
+cardboard model.
+
+The user visits the roof page. The user has
+to choose the roof that best fits the roof of
+their model: no roof, a small roof or a large
+roof.
+
+53
+
+The user begins capturing their content,
+beginning with the Front side of their
+cardboard model. The user can take a
+photo within the application or upload a
+photo from their device’s local storage.
+
+If the user captures content within the
+application, a message appears, notifying
+the capture was successful. The user then
+presses the download button to download
+their image, before choosing and
+uploading the image to continue.
+
+The user repeats the process, capturing
+the content on the Left face of their
+cardboard model.
+
+The user repeats the process, capturing
+the content on the Right face of their
+cardboard model.
+
+The user repeats the process, capturing
+the content on the Back face of their
+cardboard model.
+
+The user repeats the process, capturing
+the content on the back of the roof of their
+cardboard model.
+
+54
+
+The user repeats the process, capturing
+the content on the front of the roof of
+their cardboard model.
+
+The user is presented with three options:
+‘View Model’, ‘New Model’ and ‘Home’.
+The user presses ‘View Model’.
+
+The application launches ‘View Model’
+and looks for the ficidual marker to
+produce the user’s virtual model.
+
+Upon recognising the ficidual marker, the
+user’s model is loaded. The user can also
+go back to the homepage, print a marker
+and view the instruction manual. The user
+presses the ‘Home’ icon.
+
+The user visits the Homepage again. This
+time, the user presses ‘View a Model’.
+
+The user visits the model lookup page. The
+user has to enter the school and model
+number (ID) of the model they wish to
+view. If the model exists, the application
+locates the model file and produces the
+model.
+
+Figure 48 – Walkthrough of UGAR’s application
+
+55
+
+7. Testing
+7.1. System Testing
+Before user-testing, UGAR's system was tested with several rounds of testing.
+7.1.1. Unit Testing
+The application has fourteen functionalities it must complete. A testing method, similar to
+unit testing, was used to test whether these functionalities perform as expected. Each
+functionality was tested with a series of scenarios to test the application's behaviour.
+Appendix C is a results table with a 100% success rate.
+7.1.2. Configuration Testing
+The application should produce nine different virtual models. The application was tested to
+verify that nine models could be produced.
+Figure 49 shows a comparison between the cardboard model and virtual models produced
+by UGAR.
+
+Virtual Model
+
+Cardboard Model
+
+Virtual Model
+
+Cardboard Model
+
+Figure 49 - Comparison of a cardboard model and a virtual model made using
+UGAR
+
+56
+
+Figure 50 shows all nine models.
+Configuration One:
+
+Configuration Two:
+
+Configuration Three
+
+57
+
+Configuration Four:
+
+Configuration Five:
+
+Configuration Six:
+
+58
+
+Configuration Seven:
+
+Configuration Eight:
+
+Configuration Nine:
+
+Figure 50 – Nine virtual models created by UGAR
+
+59
+
+7.1.3. Navigation and Interaction Testing
+Given the size of the application, the risk of the user getting lost within the application could
+be considered great. To mitigate this risk, the application's navigation system and
+interactions were tested. These tests included forwards and backwards traversal in the
+content capture stage and any attempt to access the application outside of the application's
+workflow. Appendix D is a results table with a 100% success rate.
+7.1.4. Requirements Testing
+Upon completing the final version of the application, the application was tested to
+determine whether it meets the requirements of the project.
+Appendix E is a results table with a 94% success rate. UGAR met 15/16 of the functional and
+non-functional requirements.
+In addition to the functional and non-functional requirements, the application was tested
+against the domain requirements of UGAR. The application is easy to use because the user
+interface is simplistic, using clear text and buttons. The application’s design boasts a
+standardised approach, using constrained camera viewports and visible guides to support the
+user in capturing their content. Lastly, the application allows for repetition because when the
+user has finished creating a model, they have the opportunity to start creating a new model.
+The only domain requirement not tested was whether the application appeals to children
+aged 9 and 10 because testing with children was not possible.
+Otherwise, the failed functional requirement was:
+"The experience shall be compatible on mobile and desktop devices."
+UGAR failed because the application is only compatible with tablets and desktop devices.
+The incompatibility with smartphones is because the constrained camera viewports are
+greater than the screen size of most smartphones.
+Attempts to cater for smartphones were made but smartphone cameras operate in a
+portrait orientation, while tablets and desktop devices use landscape orientation, which
+would have required an alternative workflow. Experimentation into catering for mobile
+devices took time and focus away from producing the virtual models.
+It was agreed with the PBN team, development would focus on catering for desktop and
+tablet devices only because these were the types of devices more likely to be available in a
+school environment.
+5.1.4.1. Catering for Smartphones – Rotated Viewports
+Attempt one involved rotating the camera viewports clockwise by 90 degrees and reversely
+rotating the captured image anti-clockwise by 90 degrees. The application achieved this using
+CSS media queries (Figure 51) to test the screen size of the user’s device, swapping the height
+and width values of the camera viewports in the CSS, if the user’s device was a smartphone.
+
+60
+
+1. @media screen and (min-width: 375px) and (max-width: 767px) {
+2.
+3.
+...
+4.
+5.
+#controls {
+6.
+width: 283px;
+7.
+height: 586px;
+8.
+margin-top:2%;
+9.
+margin-left:7%;
+10.
+}
+Figure 51 – CSS Media Queries to dimensions of the camera viewport
+
+CSS media queries allow for alternative content to be displayed on differently sized devices.
+In UGAR, if the user’s screen size was between 375px and 767px (a smartphone), the
+application would show the rotated viewport, as seen in Figure 52.
+
+Figure 52 - UGAR's rotated viewport, using an iPhone X
+
+61
+
+Once rotated, the camera viewport would be the correct orientation to capture the content.
+After their capture, the images would have been modified in config.php, using a
+custom rotation function (Figure 53) to rotate the images anti-clockwise by 90 degrees.
+1. function rotation($image)
+2. {
+3.
+$source = imagecreatefrompng($image);
+4.
+5.
+list($width, $height) = getimagesize($image);
+6.
+7.
+if($height > $width)
+8.
+{
+9.
+$rotate = imagerotate($source, 90, 0);
+10.
+imagepng($rotate, $image);
+11.
+}
+12. }
+Figure 53 – Rotation function, rotates content captured on mobile devices
+
+The function would have tested the image’s size to determine whether the image was in a
+portrait or landscape orientation. If the image was arranged portrait, the image would have
+been rotated. The images could then have been used in the original workflow.
+5.1.4.2. Catering for Smartphones – Resizing Viewports
+Another attempt involved resizing the camera viewports to be a size compatible with a
+smartphone screen. While being possible, the captured images would have caused a
+considerable decrease in pixel quality, resulting in lower quality textures and models.
+
+62
+
+7.2. User Testing
+As mentioned previously, COVID-19 affected testing with children. However, it also affected
+testing with adults because it was not possible to meet with the PBN team for a formal testing
+session of the final version of the application. Fortunately, an informal testing session was
+carried out mid-development with members of PBN, ahead of the COVID-19 outbreak. At the
+time of this testing, the application was incomplete with only two out of nine configurations
+fit for testing. However, since the content capture process is the same for all models, the
+testing remained relevant to improve the application.
+The testing began with the participants giving their verbal consent. The testing then involved
+the participants completing a series of tasks, set within a task scenario:
+1. Launch the application
+2. Set up a model
+3. Capture content for a model
+4. View a model
+While the participants completed the tasks, observations of their actions and remarks were
+noted down.
+The participants were pleased and impressed with the application, stating it ‘gave the
+functionality we are looking for’. The participants completed all tasks described in the task
+scenario, although two participants hesitated during task 3. The participants asked how they
+would know if the image had been captured and downloaded, and why they needed to
+download and upload the same image.
+The participants gave these comments as feedback:
+1. Change the title of the application from ‘User-Generated Augmented Reality’ to ‘Exploring
+the Familiar’.
+2. Add graphics of the roof orientations to setup.php.
+3. Add graphics of the roof configurations to roof.php
+4. Add visual feedback for when the user has captured, downloaded and uploaded their
+content.
+5. Add the ability to go back when capturing content.
+6. Add the ability to restart a model when capturing content.
+7. Ignore developing for mobile.
+8. Restrict development for landscape only.
+9. Replace the (to be added in Help) in-app guidance with a link to a PDF download of the
+app’s instruction manual.
+Most of the feedback was implemented in the final version of the application. Feedback not
+implemented included the visual feedback for downloading and uploading the user’s content;
+not implemented because the download and upload are both actions that provide visual
+feedback already. The download button downloads the user’s content to their local storage,
+and the upload redirects the user to the next stage in the application.
+
+63
+
+8. Future Work
+Despite producing a functioning application, further work is required to improve UGAR’s
+application.
+
+8.1. Compatibility with PBN
+The application needs to ensure it is compatible with the PBN project and the AR map [6].
+Ensuring compatibility has been a consideration throughout the design and development of
+UGAR. However, more functionalities may be required to translate the models onto the AR
+map. UGAR’s application and the whole experience should then undergo testing with children
+because this was not possible during this project. The experience should also include the
+application’s instruction manual, not currently implemented.
+
+8.2. Model Inequality
+The image quality in the images used to generate the models’ textures is inconsistent. Bigger
+models’ viewports are resized to fit within the user’s screen. However, the scaling results in
+lower texture quality because the images used to create the textures are smaller.
+Investigation could begin by rotating the viewport, so the model’s content fits within the
+constraints of the user’s device. However, this would also require rotating the resultant image
+reversely. A similar investigation was completed in UGAR’s development, to cater for mobile
+devices and shows this implementation is possible.
+
+8.3. Aliasing
+The models suffer from aliasing along the join between the prism and the cuboid objects. An
+investigation should look into ways to improve the aliasing. The application already uses an
+anti-aliasing renderer, but future development could research other rendering options
+available in A-Frame [39].
+
+8.4. User Interactions
+The current user interaction between model and user is very simple, the user can initiate an
+animation of their model rotating clockwise. A-Frame does have a functionality called lookcontrols that allows the user to drag and rotate their model 360 degrees on both the X and Y
+axes [31]. However, look-controls is only compatible with devices that have a 16:9 aspect
+ratio. Future development should investigate look-controls and determine whether it is
+possible to create a version that works with all devices.
+
+8.5. Update Model
+Future development should create a function that allows the user to update a single face of
+their model. Currently, if the user wishes to update their model, the user has to traverse
+backwards between faces or restart their model. This functionality would allow the user to
+update their model outside of the content creation stage, reducing the steps required to
+update the model. Development of this functionality should use the current lookup
+functionality provided in the application and present a menu with each face arranged in a list
+of buttons. The user should choose the face to update and be able to capture new content.
+UGAR aimed to include this, but time constraints made this not possible.
+
+64
+
+9. Conclusion
+UGAR aimed to develop an application that allows users to create AR content, without
+needing knowledge of AR.
+The application meets this aim because the user does not come into contact with augmented
+reality until they view their model. The user’s purpose is to capture their content, supplying
+it to the application, who is responsible for digitising the content, applying the texture to the
+model, and ultimately producing the user’s virtual model.
+The identified digitisation process involves capturing the user's content, creating a texture,
+applying the texture to a 3D model, and incorporating the 3D model in an AR environment.
+To evaluate UGAR, the application should be tested in its ability to perform those five tasks
+[6].
+This evaluation should also consider how UGAR compares to the tasks completed by the
+middlemen developers in the PBN project [6]. Only then will it be possible to determine
+whether the application is successful.
+
+9.1. Capturing User Content
+The application is successful in capturing the user's content because it is possible for the user
+to capture their content within the application. The application is successful by accessing the
+user's camera and saves time for the user, removing the need to switch applications to
+capture the content. Another factor in UGAR's success is accuracy. Accuracy is guaranteed
+through the use of variously sized constrained camera viewports, which are a 1:1 map
+between the application and cardboard model content.
+The use of constrained camera viewports boasts accuracy because they are an example of
+how UGAR uses a standardised approach. Errors are reduced because the only possible errors
+are user errors, based on the technical competency of the user. The application compensates
+for these errors by providing functionalities, such as backwards traversal and restart to
+support the user in creating an accurate representation of their cardboard model content.
+The ability for the user to capture their content further shows success because the PBN
+project required middlemen developers to digitise the user's content [6]. UGAR is successful
+because it doesn't need experts. Instead, UGAR guides the user in how to capture their
+content, allowing the user to complete the action themselves.
+
+9.2. Creating Texture
+The application further shows success in creating a texture for the user's model because it is
+automated with the only inputs being the user's content. The textures are captured per face:
+front, left, right, back, top/roof elements and are an example of how the application uses a
+standardised approach. The user must capture the content in this particular order, and the
+application guides the user through this process by telling the user what content they are
+capturing.
+
+65
+
+The workflow is successful because it ensures the correct content is captured, resulting in an
+accurate virtual representation of the cardboard model. The digitisation is automated,
+completing all the modifications required to prepare the textures for application - another
+example of UGAR' success because PBN required the textures to be made manually by the
+experts. UGAR is successful because it produces the same result, making the experts obsolete
+[6].
+
+9.3. Applying Texture
+The application successfully applies the textures to the virtual model because this also
+happens automatically. If the user has captured content for all sides of their model, the user's
+model will appear fully textured. The application achieves this by storing the content
+alongside the relevant model, naming each piece of content with a dynamic filename that
+matches the relevant face on the cardboard model. This approach ensures the correct content
+is applied to the correct model, and again is superior to PBN being automated and producing
+the same result [6].
+
+9.4. 3D Model and an AR Environment
+The final criteria to assess UGAR is the ability to produce a 3D model within an AR
+environment.
+UGAR achieves this aim because UGAR can produce nine unique models within an AR
+environment. UGAR uses A-Frame to host and create the models, using a ficidual marker to
+launch the experience. The application has nine different model files that share the same
+texture definitions, which make them a generic template that is copied and stored in the
+user's dedicated folder. The model is made unique by referencing the user's content. The use
+of nine templated models is another example of a standardised approach because the user
+chooses the virtual model that best fits their cardboard model. Therefore, UGAR improves on
+the PBN project because the application could not be automated without these templated
+models as each model would need to be made individually [6].
+
+9.5. Reflection
+In addition to UGAR's performance, UGAR has also been successful in improving my technical
+and soft skills.
+UGAR has allowed me to apply and extend my knowledge of HTML, CSS and JavaScript.
+Accessing the user's camera is an example of how my understanding of JavaScript has
+developed because I had previously used JavaScript for more simple functionalities. UGAR has
+developed my understanding of JavaScript, so it is a more functional technology in my
+repertoire. Using HTML and CSS has allowed me to develop a greater understanding of how
+they work and supplement each other.
+UGAR has also introduced me to AR; a field of computer science not previously studied.
+UGAR's A-Frame development was particularly challenging because AR remains a relatively
+new technology, and A-Frame bears evidence of this with limited documentation and
+support. However, this improved my problem-solving skills because I had to create a solution
+66
+
+for UGAR. UGAR has also developed my project and time management skills, having to
+manage this project alongside other modules and ensure development met my internal and
+the external deadlines of the project. A final skill developed through UGAR is team working
+skills because although UGAR is an individual project, UGAR is a part of the PBN project and
+has required me to work with stakeholders from both projects.
+Working on UGAR has been an enriching experience. UGAR's application is a successful
+solution that can turn the PBN project into an example of user-generated augmented reality.
+I am particularly interested in how future development and future technologies will transform
+PBN's experience because I believe AR will continue to emerge and become a standard
+technology; one that will ultimately transform everyday life.
+
+67
+
+Bibliography
+[1] R. T. Azuma, “A Survey of Augmented Reality,” Hughes Research Laboratories, Malibu,
+1995.
+[2] The Pokémon Company, “Updates,” 2019. [Online]. Available:
+https://pokemongolive.com/en/. [Accessed 5 October 2019].
+[3] IKEA, “IKEA Mobile Apps,” 2019. [Online]. Available:
+https://www.ikea.com/gb/en/customer-service/mobile-apps/. [Accessed 12
+November 2019].
+[4] Instagram, “Instagram,” 2019. [Online]. Available: https://about.instagram.com/.
+[Accessed 12 November 2019].
+[5] Snapchat, “Snapchat,” 2019. [Online]. Available: https://www.snapchat.com/.
+[Accessed 10 November 2019].
+[6] L. D. e. a. Karina Rodriguez Echavarria, “Augmented Reality (AR) Maps for Experiencing
+Creative Narratives of Cultural Heritage,” The Eurographics Association, Brighton,
+2019.
+[7] BCS The Chartered Institute for IT, “BCS Code of Conduct,” 5 June 2019. [Online].
+Available: https://www.bcs.org/membership/become-a-member/bcs-code-ofconduct/. [Accessed 30 October 2019].
+[8] A-Frame, “A-Frame - Introduction,” 2019. [Online]. Available:
+https://aframe.io/docs/0.9.0/introduction/. [Accessed 1 October 2019].
+[9] J. Etienne, “AR.js - Augmented Reality for the Web,” 25 March 2020. [Online].
+Available: https://github.com/AR-js-org/AR.js. [Accessed 25 April 2020].
+[10] BlippAR, “Augmented Reality in Education,” 2019. [Online]. Available:
+https://www.blippar.com/build-ar/augmented-reality-education. [Accessed 21
+October 2019].
+[11] Crayola, “Colour Alive,” 2018. [Online]. Available:
+http://www.crayola.co.uk/splash/product/colour-alive.aspx. [Accessed 10 October
+2019].
+[12] Disney, “Disney Colour and Play Books by Bendon,” 2019. [Online]. Available:
+https://www.colorandplaybooks.com/. [Accessed 10 November 2019].
+[13] D. T. N. e. a. Stéphane Magnenat, “Live Texturing of Augmented Reality Characters
+from Colored Drawings,” IEEE TRANSACTIONS ON VISUALIZATION AND COMPUTER
+GRAPHICS, vol. 21, no. 11, 2015.
+[14] BlippAR, “BlippAR BlippBuilder,” BlippAR, 2019. [Online]. Available:
+https://www.blippar.com/build-ar. [Accessed 21 October 2019].
+[15] Vuforia, “Vuforia Developer Portal,” 1 October 2019. [Online]. Available:
+https://developer.vuforia.com/. [Accessed 10 November 2019].
+[16] 8th Wall Inc., “Products,” 2019. [Online]. Available:
+https://www.8thwall.com/products. [Accessed 3 October 2019].
+[17] Awe Media, “Awe Media,” 2017. [Online]. Available: https://awe.media/. [Accessed 7
+October 2019].
+
+68
+
+[18] Khronos Group, “glTF Overview,” 2019. [Online]. Available:
+https://www.khronos.org/gltf/. [Accessed 1 October 2019].
+[19] A-Frame, “<A-Box>,” 2019. [Online]. Available:
+https://aframe.io/docs/0.9.0/primitives/a-box.html. [Accessed 21 October 2019].
+[20] A-Frame, “<a-cylinder>,” A-Frame, 2020. [Online]. Available:
+https://aframe.io/docs/1.0.0/primitives/a-cylinder.html. [Accessed 25 April 2020].
+[21] A. Etienne, “Augmented Reality in 10 Lines of HTML,” Medium, 3 April 2017. [Online].
+Available: https://medium.com/arjs/augmented-reality-in-10-lines-of-html4e193ea9fdbf. [Accessed 25 April 2020].
+[22] J. Etienne, “AR.js - Augmented Reality for the Web,” 2019. [Online]. Available:
+https://jeromeetienne.github.io/AR.js/. [Accessed 1 October 2019].
+[23] three.js, “three.js,” three.js, 2020. [Online]. Available: https://threejs.org/. [Accessed
+25 April 2020].
+[24] J. Etienne, “AR.js Marker Training,” A-Frame, 2020. [Online]. Available:
+https://jeromeetienne.github.io/AR.js/three.js/examples/markertraining/examples/generator.html. [Accessed 25 April 2020].
+[25] L. Blue, “Convert 3D Models to GLTF,” 2018. [Online]. Available:
+https://blackthread.io/gltf-converter/. [Accessed 10 November 2019].
+[26] three.js, “GLTFExporter,” 2019. [Online]. Available:
+https://threejs.org/docs/#examples/en/exporters/GLTFExporter. [Accessed 10
+November 2019].
+[27] Blend4Web, “Blend4Web,” 2019. [Online]. Available:
+https://www.blend4web.com/en/. [Accessed 25 April 2020].
+[28] elbobo, “A-frame multisrc component,” 2018. [Online]. Available:
+https://github.com/elbobo/aframe-multisrc-component. [Accessed 25 April 2020].
+[29] A-Frame, “<A-Plane>,” 2020. [Online]. Available:
+https://aframe.io/docs/1.0.0/primitives/a-plane.html. [Accessed 19 May 2020].
+[30] The PHP Group, “Image Processing and GD,” The PHP Group, 2020. [Online]. Available:
+https://www.php.net/manual/en/book.image.php. [Accessed 19 May 2020].
+[31] A-Frame, “look-controls,” A-Frame, 2020. [Online]. Available:
+https://aframe.io/docs/1.0.0/components/look-controls.html. [Accessed 19 May
+2020].
+[32] A-Frame, “<a-animation>,” A-Frame, 2020. [Online]. Available:
+https://aframe.io/docs/1.0.0/components/animation.html. [Accessed 19 May 2020].
+[33] A-Frame, “<a-cursor>,” A-Frame, 2020. [Online]. Available:
+https://aframe.io/docs/1.0.0/primitives/a-cursor.html. [Accessed 19 May 2020].
+[34] J. K. Izzo, “Colour: User Experience And Psychology,” Usability Geek, 2020. [Online].
+Available: https://usabilitygeek.com/colour-user-experience-psychology/. [Accessed
+20 May 2020].
+[35] RapidTables, “Web Safe Colors Chart,” RapidTables, 2020. [Online]. Available:
+https://www.rapidtables.com/web/color/Web_Safe.html. [Accessed 20 May 2020].
+
+69
+
+[36] D. Walsh, “Camera and Video Control with HTML5,” David Walsh, 7 November 2012.
+[Online]. Available: https://davidwalsh.name/browser-camera. [Accessed 20 May
+2020].
+[37] Unitconverters.net, “Convert Pixel (X) to Centimeter,” Unitconverters.net, 2020.
+[Online]. Available: https://www.unitconverters.net/typography/pixel-x-tocentimeter.htm. [Accessed 24 May 2020].
+[38] R. Route, “Image aspect ratio and resizing calculator,” Red Route, 2020. [Online].
+Available: https://red-route.org/code/image-resizing-calculator. [Accessed 24 May
+2020].
+[39] A-Frame, “Renderer,” A-Frame, 2020. [Online]. Available:
+https://aframe.io/docs/1.0.0/components/renderer.html. [Accessed 23 May 2020].
+[40] pngkit.com, “Memory Addressing[edit] - Cube Map,” 2020. [Online]. Available:
+https://www.pngkit.com/png/full/52-520211_memory-addressingedit-cube-map.png.
+[Accessed 18 May 2020].
+[41] Google, “Augmented Reality,” 2019. [Online]. Available: https://arvr.google.com/ar/.
+[Accessed 10 November 2019].
+[42] Magic Leap, “Magic Leap,” 2019. [Online]. Available: https://www.magicleap.com/.
+[Accessed 10 November 2019].
+[43] E. F. Alexander Ilic, “Augmented Reality and the Internet of Things,” Auto-ID Labs,
+Zurich, 2016.
+[44] A. O. e. a. Ann Morrison, “Like Bees Around the Hive: A Comparative Study of a Mobile
+Augmented Reality Map,” Helsinki Institute for Information Technology HIIT, Boston,
+2009.
+[45] J.-P. v. Arnham, “BlippAR for Education,” 2016.
+[46] F. Leighton, “The PortARble Museum: Developing Augmented Reality For The Web
+Using AR.Js,” 2018. [Online]. Available: https://mw18.mwconf.org/paper/theportarble-museum-developing-augmented-reality-for-the-web-using-ar-js/. [Accessed
+1 October 2019].
+[47] K. Lesiński, “ImageOptim,” 2019. [Online]. Available: https://imageoptim.com/api.
+[Accessed 7 October 2019].
+[48] P. Mendigochea, “WebAR : Creating Augmented Reality Experiences on Smart Glasses
+and Mobile Device Browsers,” HoloLeo Studios, Los Angeles, 2017.
+[49] I. A. C. G. e. a. Pietro Cipresso, “The Past, Present, and Future of Virtual and
+Augmented Reality Research: A Network and Cluster Analysis of the Literature,”
+Frontiers in Psychology, vol. 9, no. 2086, p. 2, 2018.
+[50] J. Medley, “Welcome to the Immersive Web,” 2018. [Online]. Available:
+https://developers.google.com/web/updates/2018/05/welcome-to-immersive.
+[Accessed 1 October 2019].
+[51] P. R. e. a. Xiuquan Qiao, “A New Era for Web AR with Mobile Edge Computing,” Beijing
+University of Posts and Telecommunications, Beijing, 2018.
+
+70
+
+Appendices
+Appendix A – SCITEC Application and Documentation
+
+SCITEC APPLICATION
+Project Description:
+This undergraduate project involves evaluating a tool that allows pupils and teachers to
+photograph artwork to create a 3D model which can then be displayed in Augmented Reality.
+The tool is being developed to support an existing schools project run by the local government
+initiative Our Future Cities. The head teacher of one of the schools who is already taking part
+in this project will be approached and asked whether we can seek feedback on the tool from
+pupils at their school. Pupils will be asked to use the tool and give their feedback in a short
+interview, which will be audio recorded.
+SECTION A - Risk Assessment Checklist
+A1. Will your study involve participants who are currently or potentially vulnerable or
+unable to give informed consent or in a dependent position (e.g. people under 18, people
+with learning difficulties, over-researched groups or people in care facilities)?
+The study will have two rounds of user testing.
+The first round of user testing will involve participants over the age of 18. Before the
+participant participates in the study, they shall be required to sign a consent form.
+The second round of user testing will involve participants under the age of 18, who are
+dependent on a parent, carer or guardian and will be unable to give informed consent. Before
+the participant participates in the study, the participant’s parent, carer or guardian shall be
+required to sign a consent form.
+A2. Will participants be required to take part in the study without their consent or
+knowledge at the time (e.g. covert observation of people in non-public places), and / or will
+deception of any sort be used?
+Please refer to the British Psychological Society Code of Ethics and Conduct (or similar
+guidelines) for further information.
+No, all participants shall be required to give informed consent before taking part in the study.
+
+71
+
+A3. Unless specifically and clearly consented (e.g. a media release form), will it be possible,
+through a research output, to identify participants in any way? (This does not include taking
+email details for participant prize draws or identifying participants from signed consent
+forms or holding identity encryption spreadsheets that are stored securely separate from
+the research data).
+No, any means that could allow one to identify a participant will be anonymised. Any data
+collected from the study will be destroyed at the end of the project.
+Each participant will be creating a physical 3D model of a building, and a photograph of each
+participant’s model will be captured using a smartphone. After the photograph has been
+successfully taken, each participant will write their name on the model to identify their model.
+The participant will be able to take the model away with them.
+In the case where there are personal details in the photographs, the physical model will be
+modified by the teacher, teaching assistant or project leader to ensure the personal details
+are not carried further into the project. The photograph with the personal details will be
+deleted.
+A4. Might the study induce psychological stress or anxiety, or produce humiliation or
+cause harm or negative consequences beyond the risks likely to be encountered in the
+everyday life of the participants?
+No, the study shall not induce any psychological stress, anxiety, humiliation or cause any
+harm or negative consequences to the participants.
+A5. Is there a risk that the research topic might lead to disclosures from the participant
+concerning their beliefs, involvement in illegal actions or any other activities that may
+represent a threat to themselves or others?
+No, the research topic shall not lead to any disclosures from the participant concerning their
+beliefs, involvement in illegal actions or any activities that may represent a threat to
+themselves or others.
+A6. Will the study involve collecting any personal special category information* in a form
+that could allow the participant/ participants to be identified?
+[* identifiers relating to race, ethnic origin, politics, religion, trade union membership,
+philosophical beliefs, genetics, biometrics, health, sex life or sexual orientation]
+No, the study shall not collect any personal special category information that will allow the
+participant to be identified.
+A7. Will any drugs, placebos or other substances (such as food substances or vitamins) be
+administered as part of this study and will any invasive or potentially harmful procedures
+of any kind will be used?
+No drugs, placebos or other substances will be administered as part of the study.
+
+72
+
+A8. Will your project involve working with any substances and / or equipment which may
+be considered hazardous?
+No, the project will not involve working with any substances or equipment that may be
+considered hazardous.
+The participant shall use consumer-grade smart devices to participate in the study. The
+participant shall use a smart device’s camera to take a photograph and scan a QR-inspired
+marker to participate in the study. The participant is not expected to be technically
+competent and will be supported by a trained teacher, teaching assistant and the project
+leader.
+A9. Will your study involve the taking and/or storage of human tissue that falls under the
+Human Tissue Act (HTA)?
+No, the project will not take or store human tissue.
+SECTION C - High Risk Form
+Participants
+C1. Is DBS (Disclosure and Barring Service) clearance necessary for this project?
+If yes, please ensure you complete Section C23a below
+Yes, DBS clearance will be necessary for this project since it involves participants under the
+age of 18.
+C2. Are alcoholic drinks, drugs, placebos or other substances
+(such as food substances or vitamins) to be administered to the study participants?
+No alcoholic drinks, drugs, placebos or other substances will be administered to the study
+participants.
+C3. Can you think of anything else that might be potentially physically harmful to
+participants in this research? Please give
+details.
+No.
+C4. Does the project involve working with any substances and/or equipment which may
+be considered hazardous?
+No, this project does not involve working with any substances and/or equipment which may
+be considered hazardous.
+
+73
+
+C5. Could the nature or subject of the research potentially have an emotionally disturbing
+impact on the researcher(s)?
+No, the nature and subject of this research will not have an emotionally disturbing impact
+on the researchers.
+C6. Could the nature or subject of the research potentially
+expose the researcher(s) to threats of physical violence and / or verbal abuse?
+No, the nature or subject of this research will not potentially expose the researchers to
+threats of physical violence and verbal abuse.
+C7. Does the research involve any fieldwork - Overseas or in the UK?
+No, this project doesn’t require any fieldwork.
+C8. Will any researchers be in a lone working situation?
+No, the researchers will not be in a lone working situation.
+C9. Can you think of anything else that might be potentially harmful to the researcher(s) in
+this research?
+No
+Data Collection and Analysis
+C10. PARTICIPANTS: How many people do you envisage will participate, who are they, and
+how will they be selected?
+The project will study classes of roughly 30 primary school children (aged 9 to 10) from five
+schools, depending on their availability.
+C11. RECRUITMENT: How will participants be approached and recruited?
+The schools have been approached to determine whether they would be interested taking
+part in the research study. The parents/carers or guardians of the children will receive a
+consent form that shall ask for permission for their child to partake in the research study.
+C12. METHOD: What research method(s) do you plan to use;
+e.g. interview, questionnaire/self-completion questionnaire, field observation,
+audio/audio-visual recording etc.?
+The research study will use three research methods: interview, observation and think
+alouds.
+
+74
+
+The majority of the research will be conducted by observing the participants, specifically
+how they interact with the tool and the experience as whole. Based on a participant’s
+experience or competency in the study, I may ask a participant the following questions - I
+will ensure that I do not deviate from these questions.
+CHILD SCRIPT
+USER TESTING, RESEARCHER OBSERVES
+Briefing Script:
+Hello, my name is Will and I have created the experience you have just used. It’s focused on
+a form of technology called augmented reality. Would it be okay if I ask you a few questions
+about how you found the experience?
+If the child’s reaction to the question is positive, continue with the questions. If the child’s
+reaction to the question is negative or unsure, end the questions.
+Questions:
+1) How did you find the experience?
+2) Did you complete the experience with or without any help?
+a) If they received help, what part of the experience did you need help with?
+b) If they received no help, end the question.
+3) Did you have any issues with the experience?
+a) If they had issues, what issues did you have with the experience?
+b) If none, end the question.
+4) Is there anything else you would like to be able to do with your model?
+Debrief:
+Thank you for answering the questions, your answers been really helpful for me to
+understand how you’ve found the experience.
+ADULT SCRIPT:
+Briefing Script:
+Hello, my name is Will and I am researching with user-generated augmented reality. I have a
+developed a tool that allows users to develop their own augmented reality without needing
+to have any knowledge of augmented reality. You have been invited today to test the tool
+and I should like to ask you some questions about how you found the tool and experience,
+after you have finished testing the tool. Would that be okay?
+USER TESTING, RESEARCHER OBSERVES
+Questions:
+1) How did you find the experience?
+2) Did you complete the experience with or without any help?
+a) If they received help, what part of the experience did you need help with?
+b) If they received no help, end the question.
+
+75
+
+3) Did you have any issues with the experience?
+a) If they had issues, what issues did you have with the experience?
+b) If none, end the question.
+4) Is there anything else you would like to be able to do with your model?
+Debrief:
+Thank you for testing the tool and answering my questions. Your answers are helpful in
+gauging the performance of the tool and pointing out any software improvements that need
+to be made.
+Are there any other comments you would like to make about the tool or the experience?
+Once again, thank you for your time and I hope you have enjoyed using the tool.
+In addition to the methods above, I may ask a participant (adult or child) to take part in a
+‘think aloud’ while they interact with the tool. If I were to initiate a ‘think aloud’, I would
+ask: Would you mind talking through what you’re doing?
+
+76
+
+ACCOMPANYING DOCUMENTATION
+
+HEAD TEACHER’S CONSENT SHEET
+Researchers are required to abide by ethical guidelines when working in schools. These
+cover topics such as gaining appropriate consent, permitting children to withdraw from the
+study, and keeping data confidential. We would be grateful if you could check and sign the
+following sheet to show that you approve of the research procedures for this study.
+
+PROJECT NAME
+User-Generated Augmented Reality 3D Maps
+APPROVED BY
+
+University of Sussex Sciences & Technology Cross-Schools Research Ethics Committee
+(crecscitec@sussex.ac.uk)
+
+NAME OF RESEARCHER VISITING THE SCHOOL
+
+William Cash (wc236@sussex.ac.uk)
+
+NAME OF PROJECT SUPERVISOR
+
+Dr. Kate Howland (k.l.howland@sussex.ac.uk)
+
+PERIOD OF VISITS
+
+Spring Term 2020
+
+CLASSES/YEAR GROUPS VISITED
+Year 6
+
+PROJECT DESCRIPTION
+
+We wish to carry out a research study to test a new tool that has been developed to support
+the Our Future Cities programme your school is involved with, and to further our
+understanding of the use of Augmented Reality as part of creative activities in schools.
+Augmented Reality is a technology medium that integrates 3D content within a user’s reality,
+in real time, using a device, such as a smartphone and its camera and screen.
+
+PROCEDURE
+
+We would like to invite pupils taking part in the Our Future Cities project to test a tool that
+allows them to create an Augmented Reality version of a piece of their 3D artwork. Pupils
+would be asked to use a smart device (provided by the research team) to photograph a 3D
+physical model created during the artist-led sessions. The pupils would interact with a tool
+via a web-browser and use the device’s camera to take a photo of their 3D model. Pupils
+will then be able to see their 3D model in the browser and interact with the model.
+
+77
+
+We would like to measuring how the tool performs and gather data on how pupils interacts
+with the tool by observing and noting any problems they face when using the tool. We may
+also ask pupils to take part in a ‘think aloud’ while they interact with the tool. A ‘think aloud’
+is an observational technique where the participant talks through what they are doing. After
+they have used the tool, we will carry out a short interview to ask them to tell us about the
+experience and any issues they faced. We will audio record the testing session and
+interview.
+
+CONSENT
+
+Parents/carers would be sent an information letter with details of the study and a permission
+form to be signed and returned in order for their child(ren) to participate in the study.
+Parents/carers should be given at least one week to read and respond to this letter. Children
+will be asked to give verbal assent to participation in the study, after receiving an initial
+briefing on the nature of the study and the procedures involved. Children will also be given
+the option to withdraw from the study at any point.
+Please sign below to confirm that you:
+•
+
+understand the requirements of children who take part in the research
+
+•
+
+have received detailed descriptions of the methods and materials to be used
+
+•
+
+give approval for the research to take place at your school.
+
+Name of school:
+Name of [Head Teacher]:
+Signature:
+Date:
+For further information about this research please contact William Cash or Dr Kate Howland
+(K.L.Howland@sussex.ac.uk). This research has been approved ([reference number]) by the Sciences &
+Technology Cross-Schools Research Ethics Committee (C-REC). If you have any ethical concerns, please
+contact Dr Kate Howland (K.L.Howland@sussex.ac.uk). University of Sussex has insurance in place to cover
+its legal liabilities in respect of this study.
+
+78
+
+PARENT & GUARDIAN INFORMATION & CONSENT SHEET
+INVITATION TO TAKE PART
+Your child has been invited to take part in a research study to further our understanding of
+the use of
+Augmented Reality as part of creative activities in schools, and to test a new tool that we
+have developed. Augmented Reality is a technology medium that integrates 3D content
+within a user’s reality, in real time, using a device, such as a smartphone and its camera and
+screen.
+Thank you for carefully reading this information sheet, a copy of which you can keep for
+your records. This study is being conducted by student researcher William Cash from the
+School of Engineering and Informatics, University of Sussex, who is happy to be contacted
+(wc236@sussex.ac.uk) if you have any questions.
+WHY HAS YOUR CHILD BEEN INVITED FOR TESTING AND WHAT WILL THEY DO?
+We are inviting children aged 9 and 10 to test a tool that allows them to create an
+Augmented Reality version of a piece of their artwork. The testing session will take place
+during school hours. During the test your child will be asked to use a smart device to
+photograph a 3D physical model created during sessions run by an artists as part of the Our
+Future Cities project. Your child will interact with a tool via a webbrowser. The tool will
+require your child to use a smartphone or smart device’s camera to take a photo of their 3D
+model. Your child will then be able to see their 3D model in the browser and interact with
+the model.
+We will be measuring how the tool performs and gathering data on how your child interacts
+with the tool by observing your child and noting any problems they encounter when using
+the tool. We may also ask your child to take part in a ‘think aloud’ while they interact with
+the tool. A ‘think aloud’ is an observational technique where the participant talks through
+what they are doing. After they have used the tool, we will carry out a short interview to ask
+them to tell us about the experience and any issues they faced. We will audio record the
+testing session and interview.
+WHAT WILL HAPPEN TO THE RESULTS AND MY CHILD’S PERSONAL INFORMATION?
+The results of this research will be written into a scientific report for a Computing for Digital
+Media dissertation. We anticipate being able to provide a summary of our findings on
+request from 11/05/2020 (wc236@sussex.ac.uk). Your child’s anonymity will be ensured in
+the way described in the consent information below. Please read this information carefully
+and then, if you wish your child to take part, please sign to show you have fully understood
+this sheet, and that you consent to your child taking part in the study as it is described here.
+•
+
+I understand that by signing below I am agreeing to allow my child to take part in the
+University of Sussex research described here, and that I have read and understood
+this information sheet.
+
+79
+
+•
+
+I understand that my child’s participation is entirely voluntary, that I or my child can
+choose to not participate in part or all of the study, and that I or my child can
+withdraw my child’s participation at any stage of testing without having to give a
+reason and without being penalised in any way.
+
+•
+
+I understand I can request without penalty that my child’s data is withdrawn and
+deleted even after testing is complete, any time up until the results are analysed
+(11/05/2020).
+
+•
+
+I consent to the processing of my child’s personal information for the purposes of
+this research study. I understand that such information will be treated as strictly
+confidential (subject to legal limitations) and handled in accordance with the General
+Data Protection Regulation.
+
+•
+
+I understand that my child’s data including my child’s personal information (e.g.,
+name) will be stored safely. Electronic data will be stored on a password-protected
+computer, and hard-copies will be stored behind a locked door.
+
+•
+
+I understand that my child’s identity will remain confidential in any written reports
+of this research, and that no information I disclose will lead to the identification in
+those reports of any individual either by the researchers or by any other party,
+without first obtaining my written permission.
+
+•
+
+I understand that my child’s name and data will not be shared with any third party
+outside the research group, unless I later provide written permission.
+
+•
+
+Please initial this box if you consent for us to share with other researchers or
+interested professional parties images from the video of your participation. [___]
+
+________________________ _____________________
+Name of Participant
+Participant’s Signature
+
+______________
+Date
+
+80
+
+INTERVIEW GUIDE
+1. How did you find the experience?
+2. Did you complete the experience with or without any help?
+a. [If they received help] What part of the experience did you need help with?
+b. [If they received no help, end the question.]
+3. Did you have any issues with the experience?
+a. [If they had issues] What issues did you have with the experience?
+b. [If none, end the question.]
+4. Is there anything else you would like to be able to do with your model?
+
+81
+
+Appendix B – Ethical Compliance Form
+
+Ethical Compliance Form for UG and PGT Projects*
+School of Engineering and Informatics
+University of Sussex
+1. All participants explicitly stated that they agreed to take part, and that their data
+could be used in the project.
+Participants cannot take part in the study without their knowledge or consent (i.e. no
+covert observation). Covert observation, deception or withholding information are
+deemed to be high risk and require ethical approval through the relevant C-REC.
+If the results of the evaluation are likely to be used beyond the term of the project
+(for example, the software is to be deployed, the data is to be published or there are
+future secondary uses of the data), then it will be necessary to obtain signed consent
+from each participant. Otherwise, verbal consent is sufficient, and should be explicitly
+requested in the introductory script (see Appendix 1).
+2. No incentives were offered to the participants.
+The payment of participants must not be used to induce them to risk harm beyond
+that which they risk without payment in their normal lifestyle. People volunteering to
+participate in research may be compensated financially e.g. for reasonable travel
+expenses. Payments made to individuals must not be so large as to induce
+individuals to risk harm beyond that which they would usually undertake.
+3. No information about the evaluation or materials was intentionally withheld from
+the participants.
+Withholding information from participants or misleading them is unacceptable
+without justifiable reasons for doing so. Any projects requiring deception (for
+example, only telling participants of the true purpose of the study afterwards so as
+not to influence their behaviour) are deemed high risk and require approval from the
+relevant C-REC.
+4. No participant was under the age of 18.
+Any studies involving children or young people are deemed to be high risk and require
+ethical approval through the relevant C-REC.
+5. No participant had a disability or impairment that may have limited their
+understanding or communication or capacity to consent.
+Projects involving participants with disabilities are deemed to be high risk and require
+ethical approval from the relevant C-REC.
+
+*
+
+This checklist was originally developed by Professor Steven Brewster at the University of Glasgow, and
+modified by Dr Judith Good for use at the University of Sussex with his permission.
+
+82
+
+6. Neither I nor my supervisor are in a position of authority or influence over any of
+the participants.
+A position of authority or influence over any participant must not be allowed to
+pressurise participants to take part in, or remain in, any study.
+7. No participant had a disability or impairment that may have limited their
+understanding or communication or capacity to consent.
+Projects involving participants with disabilities are deemed to be high risk and require
+ethical approval from the relevant C-REC.
+8. Neither I nor my supervisor are in a position of authority or influence over any of
+the participants.
+A position of authority or influence over any participant must not be allowed to
+pressurise participants to take part in, or remain in, any study.
+9. All participants were informed that they could withdraw at any time.
+All participants have the right to withdraw at any time during the investigation. They
+should be told this in the introductory script (see Appendix 1).
+10. All participants have been informed of my contact details, and the contact details of
+my supervisor.
+All participants must be able to contact the investigator and/or the supervisor after
+the investigation. They should be given contact details for both student and
+supervisor as part of the debriefing.
+11. The evaluation was described in detail with all of the participants at the beginning of
+the session, and participants were fully debriefed at the end of the session. All
+participants were given the opportunity to ask questions at both the beginning and
+end of the session.
+Participants must be provided with sufficient information prior to starting the
+session, and in the debriefing, to enable them to understand the nature of the
+investigation.
+12. All the data collected from the participants is stored securely, and in an anonymous
+form.
+All participant data (hard-copy and soft-copy) should be stored securely (i.e. locked
+filing cabinets for hard copy, password protected computer for electronic data), and
+in an anonymised form.
+Project title: User-Generated Augmented Reality
+Student’s Name: William Cash
+Student’s Registration Number: 21602047
+Student’s Signature:
+Date: 14/11/2019
+
+83
+
+Supervisor’s Name: Doctor Kate Howland
+Supervisor’s Signature:
+Date: 14/11/2019
+
+84
+
+APPENDIX C – UNIT TESTING TABLE
+
+Functionality
+
+Inputs
+No inputs
+School only
+Model ID only
+Model Type only
+
+Creating a
+folder
+
+Model ID as a non-integer
+character
+
+All inputs
+
+All model inputs + no roof
+input
+All model inputs + roof
+input
+
+Scenario
+Expected Output
+
+Actual Output
+
+Pass/Fail
+
+The application should
+prompt the user to
+enter data into all
+parts of the form.
+
+The application prompts the
+user to enter data into all parts
+of the form.
+
+Pass
+
+The application should
+prompt the user to
+enter data into all
+parts of the form.
+
+The application prompts the
+user to enter data into all parts
+of the form.
+
+The application should
+reject the data and ask
+the user to enter or
+choose an integer.
+
+The application rejects the data
+and asks the user to enter or
+choose an integer.
+
+Pass
+
+The application redirects the
+user to roof.php, the next stage
+of the application.
+
+Pass
+
+The application refuses
+forwards traversal.
+
+Pass
+
+The application redirects the
+user to capture the content on
+the front face of their model.
+
+Pass
+
+The application should
+redirect the user to
+roof.php, the next
+stage of the
+application.
+The application should
+refuse forwards
+traversal.
+The application should
+redirect the user to
+capture the content on
+
+Functionality
+Output
+Pass/Fail
+
+Pass
+Pass
+
+No folder
+created
+
+Pass
+
+Folder
+created
+
+Pass
+
+85
+
+No user’s camera
+Accessing
+camera
+stream
+User’s camera
+
+No user interaction with
+the capture button
+Capturing an
+image
+
+User interaction with the
+capture button
+No user interaction with
+the download button.
+
+Downloading
+captured
+image
+User interaction with the
+download button.
+No user interaction with
+Uploading an
+the upload button or file
+image
+selector.
+
+the front face of their
+model.
+The application should
+present an error and
+inform the user to
+attach and enable a
+camera.
+The application should
+access the user’s
+camera and display the
+camera stream in the
+application.
+The application should
+only display the
+camera stream.
+The application should
+capture an image of
+the user’s camera
+stream.
+The application should
+only display the
+camera stream.
+The application should
+download the image to
+the user’s local
+storage.
+The application should
+only display the
+camera stream.
+
+The application presents an
+error and informs the user to
+attach and enable a camera.
+
+Pass
+
+No camera
+stream
+accessed
+
+Pass
+
+The application accesses the
+user’s camera and displays the
+camera stream in the
+application.
+
+Pass
+
+Camera
+stream
+accessed
+
+Pass
+
+The application only displays
+the camera stream.
+
+Pass
+
+No image
+captured
+
+Pass
+
+The application captures an
+image of the user’s camera
+stream.
+
+Pass
+
+Image
+captured
+
+Pass
+
+The application only displays
+the camera stream.
+
+Pass
+
+No image
+downloaded
+
+Pass
+
+The application downloads the
+image to the user’s local
+storage.
+
+Pass
+
+Image
+downloaded
+
+Pass
+
+The application only displays
+the camera stream.
+
+Pass
+
+No image
+uploaded
+
+Pass
+
+86
+
+Resizing an
+image
+
+Stitching
+images
+
+Storing an
+image
+Locating
+model
+
+The application should
+User interaction with the
+notify the user to
+upload button only.
+choose an image to
+upload.
+The application should
+User interaction with the
+only display the
+file selector button only.
+camera stream.
+User interaction with the
+The application should
+file selector button and the upload the image to
+upload button.
+the user’s folder.
+The application should
+No image
+not resize the image.
+The application should
+resize the image to an
+Image
+image size of 128 x 256
+pixels.
+The application should
+No images
+not composite any
+images together.
+The application should
+Image 1
+composite the images
+Image 2
+together.
+School input
+The application should
+Model ID input
+locate the user’s folder
+Image
+and store the image
+Face captured input
+inside the folder.
+School input
+Model ID input
+
+The application should
+locate the user’s folder
+and redirect the user
+
+The application notifies the user
+to choose an image to upload.
+
+Pass
+
+No image
+uploaded
+
+Pass
+
+The application only displays
+the camera stream.
+
+Pass
+
+No image
+uploaded
+
+Pass
+
+The application uploads the
+image to the user’s folder.
+
+Pass
+
+Image
+uploaded
+
+Pass
+
+The application does not resize
+the image.
+
+Pass
+
+Image not
+resized
+
+Pass
+
+The application resizes the
+image to an image size of 128 x
+256 pixels.
+
+Pass
+
+Image
+resized
+
+Pass
+
+The application does not
+composite any images together.
+
+Pass
+
+The application composites the
+images together.
+
+Pass
+
+The application locates the
+user’s folder and stores the
+image inside the folder.
+
+Pass
+
+The application locates the
+user’s folder and redirect the
+user to their virtual model
+HTML file.
+
+Pass
+
+No images
+composited
+together
+Images are
+composited
+together.
+Image
+stored in
+the user’s
+folder
+The user is
+redirected
+to their
+virtual
+
+Pass
+Pass
+
+Pass
+
+Pass
+
+87
+
+No camera
+Viewing
+model
+
+Camera
+Camera
+Ficidual marker
+
+No input
+Collecting
+Data
+
+School input only
+Model input only
+
+to their virtual model
+HTML file.
+The application should
+present an error and
+The application should present
+inform the user to
+an error and inform the user to
+attach and enable a
+attach and enable a camera.
+camera.
+The application should
+The application displays the
+display the user’s
+user’s camera stream.
+camera stream.
+The application should
+The application produces and
+produce and show the
+shows the user’s virtual model.
+user’s virtual model.
+View Model Workflow
+The application should
+The application prompts the
+prompt the user to
+user to enter data into the
+enter data into the
+form.
+form.
+The application should
+The application rejects forwards
+reject forwards
+traversal.
+traversal.
+The application should
+The application prompts the
+prompt the user to
+user to select an option.
+select an option.
+
+model
+HTML file
+Pass
+
+No model
+
+Pass
+
+Pass
+
+No model
+
+Pass
+
+Pass
+
+Viewable
+model
+
+Pass
+
+Pass
+
+No data
+collected
+
+Pass
+
+Pass
+
+No data
+collected
+
+Pass
+
+Pass
+
+No data
+collected
+
+Pass
+
+88
+
+School input
+Model ID input
+
+Locating
+model
+
+School input
+Model input
+
+No camera
+Viewing
+model
+
+Camera
+Camera
+Ficidual marker
+
+The application should
+redirect the user to the
+virtual model HTML file
+of the chosen model
+ID, via locating the
+model.
+The application should
+locate the user’s
+chosen model and
+redirect the user to the
+virtual model HTML file
+of the chosen model
+ID.
+The application should
+present an error and
+inform the user to
+attach and enable a
+camera.
+The application should
+display the user’s
+camera stream.
+The application should
+produce and show the
+user’s virtual model.
+
+The application redirects the
+user to the virtual model HTML
+file of the chosen model ID, via
+locating the model.
+
+Pass
+
+Data
+collected
+
+Pass
+
+The application locates the
+user’s chosen model and
+redirect the user to the virtual
+model HTML file of the chosen
+model ID.
+
+Pass
+
+Model
+located
+
+Pass
+
+The application should present
+an error and inform the user to
+attach and enable a camera.
+
+Pass
+
+No model
+
+Pass
+
+The application displays the
+user’s camera stream.
+
+Pass
+
+No model
+
+Pass
+
+The application produces and
+shows the user’s virtual model.
+
+Pass
+
+Viewable
+model
+
+Pass
+
+89
+
+APPENDIX D – NAVIGATION AND INTERACTION TESTING TABLE
+
+Test
+Ref.
+
+Source
+
+1
+
+index.html
+
+2
+
+home.html
+
+3
+
+home.html
+
+4
+
+home.html
+
+5
+
+User Action
+User clicks button ‘Get
+Started’
+
+Expected Destination /
+Action
+
+Actual Destination /
+Action
+
+Pass/Fail
+
+home.html
+
+home.html
+
+Pass
+
+setup.php
+
+setup.php
+
+Pass
+
+view.php
+
+view.php
+
+Pass
+
+User clicks button ‘Help’
+
+PDF instructions should be
+downloaded.
+
+PDF instructions are
+downloaded
+
+Pass
+
+setup.php
+
+User clicks icon ‘Home’
+
+home.html
+
+home.html
+
+Pass
+
+6
+
+setup.php
+
+User clicks icon ‘View’
+
+setup.php
+
+User clicks icon ‘Help’
+
+view.php
+PDF instructions are
+downloaded
+
+Pass
+
+7
+
+view.php
+PDF instructions should be
+downloaded
+
+8
+
+setup.php
+
+User enters data into the
+form
+
+roof.php
+
+roof.php
+
+Pass
+
+9
+
+roof.php
+
+10
+
+roof.php
+
+11
+
+roof.php
+
+12
+
+roof.php
+
+User clicks button ‘Create
+Model’
+User clicks button ‘View
+Model’
+
+User’s summed choices
+choose Configuration 1
+User’s summed choices
+choose Configuration 2
+User’s summed choices
+choose Configuration 3
+User’s summed choices
+choose Configuration 4
+
+Configuration 1 –
+front.php
+Configuration 2 –
+Configuration 2 – front.php
+front.php
+Configuration 3 –
+Configuration 3 – front.php
+front.php
+Configuration 4 –
+Configuration 4 – front.php
+front.php
+Configuration 1 – front.php
+
+Pass
+
+Pass
+Pass
+Pass
+Pass
+
+90
+
+13
+
+roof.php
+
+14
+
+roof.php
+
+15
+
+roof.php
+
+15
+
+roof.php
+
+16
+
+roof.php
+
+User’s summed choices
+choose Configuration 5
+User’s summed choices
+choose Configuration 6
+User’s summed choices
+choose Configuration 7
+User’s summed choices
+choose Configuration 8
+User’s summed choices
+choose Configuration 9
+
+Configuration 5 – front.php
+Configuration 6 – front.php
+Configuration 7 – front.php
+Configuration 8 – front.php
+Configuration 9 – front.php
+
+Configuration 5 –
+front.php
+Configuration 6 –
+front.php
+Configuration 7 –
+front.php
+Configuration 8 –
+front.php
+Configuration 9 –
+front.php
+
+Pass
+Pass
+Pass
+Pass
+Pass
+
+Configurations
+setup.php
+home.html
+PDF instructions should be
+downloaded
+left.php
+
+setup.php
+home.html
+PDF instructions are
+downloaded
+left.php
+
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+
+front.php
+setup.php
+home.html
+PDF instructions should be
+downloaded
+right.php
+
+front.php
+setup.php
+home.html
+PDF instructions are
+downloaded
+right.php
+
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+
+left.php
+setup.php
+home.html
+PDF instructions are
+downloaded.
+back.php
+
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+
+right.php
+
+1 2 3 4 5 6 7 8 9
+
+17
+18
+
+front.php
+front.php
+
+User clicks icon ‘Reset’
+User clicks icon ‘Home’
+
+19
+
+front.php
+
+User clicks icon ‘Help’
+
+20
+
+front.php
+
+User uploads an image
+
+21
+22
+23
+
+left.php
+left.php
+left.php
+
+User clicks icon ‘Back’
+User clicks icon ‘Reset’
+User clicks icon ‘Home’
+
+24
+
+left.php
+
+User clicks icon ‘Help’
+
+25
+
+left.php
+
+User uploads an image
+
+26
+27
+28
+
+right.php
+right.php
+right.php
+
+User clicks icon ‘Back’
+User clicks icon ‘Reset’
+User clicks icon ‘Home’
+
+29
+
+right.php
+
+User clicks icon ‘Help’
+
+30
+
+right.php
+
+User uploads an image
+
+left.php
+setup.php
+home.html
+PDF instructions should be
+downloaded.
+back.php
+
+31
+
+back.php
+
+User clicks icon ‘Back’
+
+right.php
+
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+
+91
+
+32
+
+back.php
+
+User clicks icon ‘Reset’
+
+setup.php
+
+setup.php
+
+1 2 3 4 5 6 7 8 9
+
+33
+
+back.php
+
+User clicks icon ‘Home’
+
+home.html
+
+home.html
+
+1 2 3 4 5 6 7 8 9
+
+34
+
+back.php
+
+User clicks icon ‘Help’
+
+36
+
+back.php
+
+User uploads an image
+
+PDF instructions should be
+downloaded.
+top.php
+roof1.php
+
+PDF instructions are
+downloaded.
+top.php
+roof1.php
+
+37
+38
+39
+
+top.php
+top.php
+top.php
+
+User clicks icon ‘Back’
+User clicks icon ‘Reset’
+User clicks icon ‘Home’
+
+40
+
+top.php
+
+User clicks icon ‘Help’
+
+41
+
+top.php
+
+User uploads an image
+
+back.php
+setup.php
+home.html
+PDF instructions are
+downloaded.
+options.php
+
+back.php
+setup.php
+home.html
+PDF instructions are
+downloaded.
+options.php
+
+42
+43
+44
+
+roof1.php
+roof1.php
+roof1.php
+
+User clicks icon ‘Back’
+User clicks icon ‘Reset’
+User clicks icon ‘Home’
+
+5
+5
+5
+
+6
+6
+6
+
+7
+7
+7
+
+8
+8
+8
+
+9
+9
+9
+
+roof1.php
+
+User clicks icon ‘Help’
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+46
+
+roof1.php
+
+User uploads an image
+
+back.php
+setup.php
+home.html
+PDF instructions are
+downloaded
+roof2.php
+
+4
+4
+4
+
+45
+
+back.php
+setup.php
+home.html
+PDF instructions should be
+downloaded
+roof2.php
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+47
+48
+49
+
+roof2.php
+roof2.php
+roof2.php
+
+User clicks icon ‘Back’
+User clicks icon ‘Reset’
+User clicks icon ‘Home’
+
+5
+5
+5
+
+6
+6
+6
+
+7
+7
+7
+
+8
+8
+8
+
+9
+9
+9
+
+roof2.php
+
+User clicks icon ‘Help’
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+51
+
+roof2.php
+
+User uploads an image
+
+roof1.php
+setup.php
+home.html
+PDF instructions are
+downloaded.
+options.php
+
+4
+4
+4
+
+50
+
+roof1.php
+setup.php
+home.html
+PDF instructions should be
+downloaded.
+options.php
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+52
+
+options.php
+
+User’s model HTML file
+
+User’s model HTML file
+
+1 2 3 4 5 6 7 8 9
+
+53
+
+options.php
+
+setup.php
+
+setup.php
+
+User clicks button ‘View
+Model’
+User clicks button ‘New
+Model’
+
+1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+1
+1
+1
+
+2
+2
+2
+
+3
+3
+3
+
+1
+
+2
+
+3
+
+1
+
+2
+
+3
+
+Pass
+
+92
+
+54
+55
+56
+57
+
+options.php
+User’s model
+HTMl file
+User’s model
+HTMl file
+User’s model
+HTML file
+
+User clicks button ‘Home’
+
+home.html
+
+home.html
+
+Pass
+
+User clicks icon ‘Home’
+
+Home.html
+
+home.html
+
+Pass
+
+Marker is downloaded
+
+Pass
+
+PDF instructions are
+downloaded
+
+Pass
+
+User’s chosen model HTML User’s chosen model
+file
+HTML file
+
+Pass
+
+view.php
+
+view.php
+
+Pass
+
+home.html
+PDF instructions should be
+downloaded
+setup.php
+
+Home.html
+PDF instructions are
+downloaded
+setup.php
+
+Pass
+
+index.html
+
+Index.html
+
+Pass
+
+home.html
+
+home.html
+
+Pass
+
+setup.php
+
+setup.php
+
+Pass
+
+setup.php
+
+setup.php
+
+Pass
+
+setup.php
+
+setup.php
+
+1 2 3 4 5 6 7 8 9
+
+setup.php
+
+setup.php
+
+1 2 3 4 5 6 7 8 9
+
+User clicks icon ‘Marker’
+User clicks icon ‘Help’
+
+58
+
+view.php
+
+59
+
+view.php
+
+60
+
+view.php
+
+User selects a school and
+a valid model
+User selects a school and
+non-valid model
+User selects icon ‘Home’
+
+61
+
+view.php
+
+User selects icon ‘Help’
+
+63
+
+view.php
+Outside
+Application
+Outside
+Application
+Outside
+Application
+Outside
+Application
+
+User selects icon ‘Create’
+User enters URL for
+index.html
+User enters URL for
+home.html
+User enters URL for
+setup.php
+User enters URL for
+roof.php
+User enters URL for
+front.php of a
+configuration
+User enters URL for
+left.php of a
+configuration
+
+62
+63
+64
+65
+66
+
+Outside
+Application
+
+67
+
+Outside
+Application
+
+Marker should be
+downloaded
+PDF instructions should be
+downloaded
+
+Pass
+Pass
+
+93
+
+68
+
+Outside
+Application
+
+69
+
+Outside
+Application
+
+70
+
+Outside
+Application
+
+71
+
+Outside
+Application
+
+72
+
+Outside
+Application
+
+73
+
+Outside
+Application
+
+User enters URL for
+right.php of a
+configuration
+User enters URL for
+back.php of a
+configuration
+User enters URL for
+top.php of a
+configuration
+User enters URL for
+roof1.php of a
+configuration
+User enters URL for
+roof2.php of a
+configuration
+User enters URL for
+options.php
+
+setup.php
+
+setup.php
+
+1 2 3 4 5 6 7 8 9
+
+setup.php
+
+setup.php
+
+1 2 3 4 5 6 7 8 9
+
+setup.php
+
+setup.php
+
+setup.php
+
+setup.php
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+setup.php
+
+setup.php
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+setup.php
+
+setup.php
+
+1
+
+2
+
+3
+
+Pass
+
+94
+
+APPENDIX E – REQUIREMENTS TESTING TABLE
+
+Test Ref.
+
+Requirement
+
+1
+
+The application shall allow the
+user to use their device’s
+camera.
+
+Inputs
+Expected Output
+Functional Requirements
+A camera stream from the
+user’s camera should be
+User
+User’s camera
+visible and used in the
+application.
+
+2
+
+The application should have a
+standardised approach for
+capturing content.
+
+User
+User’s camera
+
+Capturing content should
+follow a standardised
+approach.
+
+3
+
+The application shall allow one
+image to be captured.
+
+User
+User’s camera
+
+An image should be captured
+within the application,
+displaying the user’s content.
+
+Actual Output
+
+Pass/Fail
+
+A camera stream from the
+user’s camera is visible and
+used in the application.
+
+Pass
+
+The application uses
+camera viewports
+(constrained to the sizes of
+each face of the cardboard
+model) to capture the
+user’s content. The camera
+viewports encourage a 1:1
+match, depending on the
+user’s technical
+competence.
+The application captures
+the content in a set
+workflow: front, left, right,
+back, top/roof elements to
+ensure the model’s content
+is captured correctly.
+The ability to capture up to
+six images within the
+application, all of which
+display the user’s content.
+
+Pass
+
+Pass
+
+95
+
+4
+
+The application should allow the
+user to upload content, captured
+on another device.
+
+User
+User’s content
+
+An image should be able to
+be able to be uploaded,
+having been captured
+outside of the application.
+
+5
+
+The application shall store the
+user’s content in the file space.
+
+User’s content
+
+The user’s content should be
+stored in the project’s file
+space on the web server.
+
+6
+
+The application shall convert the
+user’s photos into a texture.
+
+User’s content
+
+The user’s content should be
+converted into a texture.
+
+7
+
+The application should have a
+standardised approach for
+converting the user’s content
+into a texture.
+
+User’s content
+
+The user’s content should
+become a texture.
+
+8
+
+The application shall apply the
+texture to the virtual house
+model.
+
+User’s texture
+Virtual house model
+
+The user’s texture should be
+applied to the virtual house
+model.
+
+9
+
+The virtual house model shall
+appear by scanning the ficidual
+marker with a camera.
+
+User
+User’s camera
+Ficidual marker
+
+The user’s virtual model
+should appear by scanning a
+
+The application allows the
+user to upload an image
+that has been captured
+outside of the application.
+The user’s content is stored
+in a folder, within the
+project’s file space on the
+web server. The folder
+being dedicated to that
+particular user.
+The user’s content is
+converted into 5 or 6
+textures (depending on
+model type) that are
+applied to each relevant
+face.
+Post-upload, the user’s
+content is modified and
+resized to be compatible
+with A-Frame and the
+virtual house model.
+Using the multi-source
+component and dynamic
+filenames, the application
+applies the user’s textures
+to each face of the virtual
+model.
+The user’s virtual model
+appears when the user
+scans the project’s ficidual
+
+Pass
+
+Pass
+
+Pass
+
+Pass
+
+Pass
+
+Pass
+
+96
+
+ficidual marker with a
+camera.
+10
+
+The web-based AR environment
+shall display the virtual house
+model in an AR environment.
+
+11
+
+The web-based AR environment
+shall allow the user to spin the
+model in the AR space.
+
+12
+13
+
+14
+15
+
+16
+
+User
+User’s camera
+
+User
+
+The experience shall be
+developed using HTML, CSS and
+JavaScript.
+The experience shall use opensource technologies.
+
+--
+
+The experience shall be
+compatible on mobile and
+desktop devices.
+The application shall require low
+computational power.
+
+--
+
+The application shall operate in
+real time.
+
+--
+
+--
+
+--
+
+The user’s virtual model
+should appear in an AR
+environment.
+The user’s virtual model
+should spin based on the
+user’s interaction with the
+model.
+Non-functional Requirements
+The user should be able to
+access
+the
+application
+through a web browser.
+The application should be
+free to access.
+
+marker, using their model’s
+HTML file and their
+device’s camera.
+The user’s virtual model
+appears in an AR
+environment.
+The user’s virtual model is
+animated and spins when
+the user interacts with the
+model.
+The user can access the
+application through a web
+browser.
+The application is free to
+access. All technologies
+used in the application are
+open source.
+The application only
+operates on tablet and
+desktop.
+The application runs on
+consumer-grade tablets
+and desktop devices.
+
+The application should be
+able to be run on mobile and
+desktop devices.
+The application should be
+able to run on consumergrade tablets and desktop
+devices.
+The application’s actions The application’s actions
+should all run in real time.
+run in real time; capturing
+the user’s content,
+modifying the user’s
+content, and applying the
+
+Pass
+
+Pass
+
+Pass
+
+Pass
+
+Fail
+
+Pass
+
+Pass
+
+97
+
+texture to the virtual model
+all happens in real time.
+The user can view their
+virtual model in real time.
+
+98
+
+APPENDIX F – MEETING LOG
+
+Date
+
+04/10/2019
+
+18/10/2019
+
+22/10/2019
+
+Subject
+
+Introduction
+
+Project Proposal
+
+Place-Based
+Narratives
+
+Attendees
+
+Meeting Notes
+
+Myself, Doctor Kate Howland
+
+Discussed the project and its requirements.
+Discussed the wider project, Place-Based
+Narratives – it’s successes, failures and
+issues that would need to be addressed in
+my project.
+
+Myself, Doctor Kate Howland
+
+Myself, Doctor Kate
+Howland, Karina Rodriguez
+Echavarria, Laurie Dibble,
+Myrsini Samaroudi
+
+Discussed the project proposal and the
+sections required in the deliverable.
+Discussed the timescale of the project,
+including the project’s deadlines.
+Gained clarification about the target users
+of the application – primary school
+children.
+Discussed the interim report.
+Discussed the Blippar case study.
+Discussed the Place-Based Narratives
+project.
+Demoed the Place-Based Narratives
+project.
+Discussed my project and how it would fit
+into the Place-Based Narratives project
+
+Next Steps
+Research augmented
+reality.
+Research current solutions
+to user-generated
+augmented reality.
+Look into the A-Frame
+Framework.
+Continue researching
+augmented reality.
+Continue researching usergenerated augmented
+reality.
+Research the Blippar case
+study.
+
+Work on the Interim report.
+
+99
+
+05/11/2019
+
+19/11/2019
+
+03/12/2019
+
+13/12/2019
+
+Interim Report
+
+Tool
+Development
+
+Myself, Doctor Kate Howland
+
+Myself, Doctor Kate Howland
+
+Tool
+Development
+
+Myself, Doctor Kate Howland
+
+Textures
+
+Myself, Doctor Kate Howland
+
+Discussed the progress of my interim
+report.
+Discussed the ethics of the project due to
+future testing with children.
+Kate explained the ethical review process.
+Gained clarification about where to host
+the experience and how to store the user’s
+content – on my space on the university’s
+webserver.
+Showed Kate the glTF plane, made and
+exported from Blender into A-Frame.
+Discussed next steps for the experiment –
+different shapes to produce and how to
+dynamically change the textures.
+Discussed design diagrams – use-case, state
+diagrams and user interface sketches.
+Discussed questions to include in the
+ethical review documentation.
+Discussed standardisation techniques.
+Discussed the struggle of dynamically
+changing the texture of a glTF cube.
+Discussed three.js and potential solutions.
+Kate suggested meeting with the PlaceBased Narratives team to discuss potential
+solutions with them.
+Discussed the struggle of dynamically
+changing the texture of a glTF cube.
+Agreed that an <a-box> is the best solution.
+
+Begin working on
+documentation for the
+ethical review.
+Continue working on the
+Interim report.
+Create a glTF cube in
+Blender and incorporate it
+into A-Frame.
+Create a textured glTF cube
+in Blender and incorporate
+it into A-Frame.
+Continue working on
+documentation for the
+ethical review.
+Try other methods to
+dynamically change the
+texture of the glTF cube.
+Meet with the wider
+project team members.
+Investigate using a <a-box>
+in A-Frame.
+
+100
+
+Discussed how my project would be
+merged with the Place-Based Narratives
+project.
+
+31/01/2020
+
+Tool
+Development GUI
+
+20/02/2020
+
+Place-Based
+Narratives Catch
+Up
+
+28/02/2020
+
+10/03/2020
+
+Supervisor Catch
+Up
+
+Testing Session
+
+Myself, Kate Howland
+
+Showed the progress of development.
+Showed the user interface sketches.
+Discussed how the user interface would
+function and could be improved.
+Discussed the possible configurations of the
+cardboard model.
+
+Myself, Karina Rodriguez
+Echavarria, Laurie Dibble
+
+Showed the progress of development.
+Discussed how my project would be
+merged with the Place-Based Narratives
+project.
+
+Myself, Doctor Kate Howland
+
+Showed the progress of development.
+Discussed the project poster and final
+report.
+Discussed a date to test the application.
+Agreed date of a draft as 20th April.
+
+Myself, Karina Rodriguez
+Echavarria, Laurie Dibble
+
+Testing session with the Place-Based
+Narratives team.
+
+Investigate applying a
+texture to a <a-box>.
+Investigate dynamically
+changing the texture of a
+<a-box>.
+Continue development of
+the tool.
+Begin working on a draft of
+the final report.
+Set up a GitHub repository
+and share with Laurie.
+Continue development of
+the tool.
+Continue development of
+the tool.
+Work on the poster.
+Work on the draft of the
+final report.
+Arrange a testing session
+with the Place-Based
+Narratives team.
+Make changes to the
+application.
+
+101
+
+Discussed the application’s successes and
+improvements.
+
+Continue work on the
+poster.
+Continue work on the draft
+of the final report.
+
+Discussed the progress of the final report.
+20/03/2020
+
+03/04/2020
+
+Supervisor Catch
+Up
+
+Supervisor Catch
+Up
+
+Myself, Doctor Kate Howland
+
+Myself, Doctor Kate Howland
+
+17/04/2020
+
+Supervisor Catch
+Up
+
+Myself, Doctor Kate Howland
+
+01/05/2020
+
+Supervisor Catch
+Up
+
+Myself, Doctor Kate Howland
+
+Agreed that user testing would consist of
+the testing session completed with the
+Place-Based Narratives team.
+Discussed the progress of the final report.
+Discussed including a walkthrough of the
+application in the report.
+Discussed the testing section of the report
+– unit testing, configuration testing, user
+testing with Karina.
+Discussed the evaluation and conclusive
+sections of the report.
+Discussed the progress of the draft of the
+final report.
+Discussed how to address the ethics
+application in the report.
+Discussed the conclusion section of the
+report.
+Discussed the draft of final report I sent to
+Kate.
+Discussed layout and formatting of the
+report.
+
+Continue work on the draft
+of the final report.
+Continue work on the draft
+of the final report.
+Take screenshots for a
+walkthrough of the
+application.
+
+Continue work on the draft
+of the final report.
+Send draft of the final
+report to Kate.
+Continue work on the draft
+of the final report.
+
+102
+
+15/05/2020
+
+Supervisor Catch
+Up
+
+Myself, Doctor Kate Howland
+
+Discussed how to reference the BCS code of
+conduct.
+Discussed merging the system evaluation
+with the conclusion.
+Discussed the progress of the draft of the
+final report.
+Discussed the summary section of the
+report.
+Discussed the presentation and sections to
+include.
+Discussed the readMe file for the code
+submission.
+
+Continue work on the draft
+of the final report.
+Begin work on the
+presentation.
+
+103
+
+APPENDIX G – PROJECT LOG
+
+Date
+01/10/2019
+07/10/2019
+14/10/2019
+17/10/2019
+14/11/2019
+15/11/2019
+17/11/2019
+18/11/2019
+22/11/2019
+25/11/2019
+26/11/2019
+02/12/2019
+04/12/2019
+08/12/2019
+10/12/2019
+13/12/2019
+16/12/2019
+19/12/2019
+20/12/2019
+27/01/2019
+29/01/2019
+03/02/2020
+
+Notes
+Created a cube using a <a-box> in A-Frame.
+Created a cube and a sphere using a <a-box> and a <sphere> in A-Frame.
+Investigated Blippar’s Butterfly case study.
+Project Proposal SUBMITTED
+Interim Report SUBMITTED
+Use-Case diagram created.
+Data-driven model created.
+Original state diagram created.
+User-Interface sketches created.
+Created a glTF cube using Blender and exported it for A-Frame.
+Attempted applying a texture dynamically to a glTF cube using A-Frame.
+Attempted using BlackThread.io to dynamically apply a texture to a glTF cube.
+Draft ethics application sent to Doctor Kate Howland.
+Attempted to use three.js to dynamically apply a texture to a glTF cube.
+Attempted to use Blend4Web to dynamically apply a texture to a glTF cube.
+Ethics application amended.
+Application to Sciences & Technology Cross-Schools Research Ethics Committee (SCITEC) SUBMITTED
+Created a cube using a <a-box> in A-Frame.
+Attempted to apply a cube map texture to the <a-box>
+Discovered multi-source A-Frame component that allows unique images to be placed on different faces of a shape.
+A method to access and use the user’s camera via JavaScript discovered and implemented.
+An image is captured using my laptop’s camera and is applied to the previously made <a-box> in A-Frame.
+A system is created to capture six pictures and apply each picture to a different face.
+Application to SCITEC is rejected.
+Attempted using two <a-planes> to create the roof structure.
+
+104
+
+05/02/2020
+07/02/2020
+10/02/2020
+13/02/2020
+18/02/2020
+25/02/2020
+03/03/2020
+10/03/2020
+11/03/2020
+12/03/2020
+13/03/2020
+15/03/2020
+18/03/2020
+23/03/2020
+24/03/2020
+25/03/2020
+26/03/2020
+14/03/2020
+09/04/2020
+15/04/2020
+17/04/2020
+18/04/2020
+19/04/2020
+24/04/2020
+25/04/2020
+30/04/2020
+01/05/2020
+02/05/2020
+22/05/2020
+
+Attempted using a rotated <a-box> to create the roof structure.
+<a-cylinder> is discovered and turned into a triangular prism.
+The multi-source component is applied to the prism but fails.
+The stitch function to composite the roof images together is completed.
+A prototype of the process to create Configuration 4 is created.
+Configuration 4 is completed.
+Configuration 5 completed.
+Testing session with Place-Based Narratives team.
+Revised state diagram created.
+Project Poster SUBMITTED
+Configuration 6 completed. Configurations 4 and 5 altered.
+Configurations 1, 2 and 3 completed.
+Configurations 7, 8 and 9 completed.
+Welcome and Homepage pages completed.
+Model files CSS styling completed.
+System design section completed.
+Implementation section completed.
+System evaluation section completed.
+Testing section completed.
+Conclusion section completed.
+Introduction section edited.
+Background research section edited.
+BCS section edited.
+Report sections put together into a report draft.
+Draft of final report sent to Doctor Kate Howland.
+Model lookup functionality completed.
+Graphics for the setup and roof pages created in Adobe Illustrator and added.
+All code commented.
+Application walkthrough section added to the report.
+
+105
+
+23/05/2020
+26/05/2020
+
+Report redraft completed.
+Final Report SUBMITTED
+Code SUBMITTED
+
+106
+
+

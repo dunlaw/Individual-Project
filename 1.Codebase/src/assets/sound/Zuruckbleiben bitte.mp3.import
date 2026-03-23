@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dt0826c1krbtk"
+path="res://.godot/imported/Zuruckbleiben bitte.mp3-b8adc58b37b125ac1f7ef441f0ad8c98.mp3str"
+
+[deps]
+
+source_file="res://1.Codebase/src/assets/sound/Zuruckbleiben bitte.mp3"
+dest_files=["res://.godot/imported/Zuruckbleiben bitte.mp3-b8adc58b37b125ac1f7ef441f0ad8c98.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

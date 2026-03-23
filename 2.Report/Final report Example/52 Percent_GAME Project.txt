@@ -1,0 +1,1325 @@
+Encore
+An immersive History Game
+
+J
+Supervisor: Judith Good
+j.good@sussex.ac.uk
+BSc (Hons) Games and Multimedia Environments
+Department of Informatics
+University of Sussex
+2020
+
+Statement of Originality
+This report is submitted as part requirement for the degree of Games and Multimedia
+Environments (BSc) at the University of Sussex. It is the product of my own labour except
+where indicated in the text. The report may be freely copied and distributed provided the
+source is acknowledged.
+
+1|Page
+
+Acknowledgements
+
+2|Page
+
+Summary
+“Encore” was created with a singular purpose; to promote a bridge between the distinctly
+separate worlds of games that are enjoyable and those that are educational. Past works by
+Habgood, J., Ainsworth, S. and Benford, S. (2005) and Olivotos (2019) have demonstrated
+the potential for games that teach simple and advanced mathematics; the latter showcasing
+a massively multiplayer online environment in which to learn. This prototype is a singleplayer adventure game focused on recreating and gamifying historical events with a high
+degree of accuracy. Through interactions with non-player characters (NPCs), players are
+given an insight into the lives and relationships of both colonial and native people in North
+East America during the early 17th century.
+
+3|Page
+
+Contents
+Statement of Originality .......................................................................................................................... 1
+Acknowledgements................................................................................................................................. 2
+Summary ................................................................................................................................................. 3
+Contents .................................................................................................................................................. 4
+Introduction ............................................................................................................................................ 6
+Motivation........................................................................................................................................... 6
+Aims and Objectives ............................................................................................................................ 6
+Target Audience .................................................................................................................................. 6
+Project Relevance to the Degree ........................................................................................................ 7
+Project Plan ......................................................................................................................................... 7
+Professional Considerations.................................................................................................................... 8
+Ethical Issues ....................................................................................................................................... 8
+Professional Issues .............................................................................................................................. 8
+Design.................................................................................................................................................... 10
+Background Research........................................................................................................................ 10
+Concept Design ................................................................................................................................. 13
+Requirements Analysis ...................................................................................................................... 16
+Domain Requirements ................................................................................................................. 16
+Implementation .................................................................................................................................... 17
+Development Environment ............................................................................................................... 17
+The Unity Engine .......................................................................................................................... 17
+Structure of Solution ......................................................................................................................... 19
+Mechanics ......................................................................................................................................... 19
+Player ............................................................................................................................................ 19
+Dialogue System ........................................................................................................................... 19
+Questing System ........................................................................................................................... 20
+Assets ................................................................................................................................................ 21
+Player ............................................................................................... Error! Bookmark not defined.
+Dialogue System .............................................................................. Error! Bookmark not defined.
+Questing System .............................................................................. Error! Bookmark not defined.
+Encountered Issues .............................................................................. Error! Bookmark not defined.
+Evaluation ............................................................................................................................................. 22
+4|Page
+
+Aim .................................................................................................................................................... 22
+Methodology ..................................................................................................................................... 22
+Results ............................................................................................................................................... 22
+Requirements Review ....................................................................................................................... 23
+Domain Requirements ................................................................................................................. 24
+Conclusion ............................................................................................................................................. 25
+Objectives Review ............................................................................................................................. 25
+Learning Outcomes ........................................................................................................................... 25
+Future Work ...................................................................................................................................... 25
+References ............................................................................................................................................ 27
+Appendices ............................................................................................................................................ 28
+Appendix A ........................................................................................................................................ 28
+Appendix B ........................................................................................................................................ 31
+Appendix C ........................................................................................................................................ 33
+Appendix D ........................................................................................................................................ 40
+
+5|Page
+
+Introduction
+Motivation
+Playing games is my oldest hobby and one of which I never get tired. I am also a keen
+learner and while the combination of these two things should seemingly suit my perfectly, I
+cannot help but associate the phrase “educational games” with a sour taste in the back of
+my mouth. However, I truly believe that video games have the potential to be an incredibly
+powerful learning tool. Regardless, game studios operate with the aim of making money and
+without proving that such a product would be commercially viable, they will neglect to
+commit any amount of resources to this pursuit.
+This is why I developed a high fidelity prototype to demonstrate that games can include
+strong educational presences without sacrificing any enjoyability of the gameplay. My hope
+is for numerous game development studios to undertake the challenge of creating games
+that teach various topics while maintaining the highly enjoyable nature of their previous
+titles.
+
+Aims and Objectives
+My primary objective was to prove that educational games could offer the same
+entertainment potential as non-educational games (specifically in teaching history, as past
+studies have attempted to show this with mathematics (e.g. Habgood, J. (2005) and
+Olivotos, I. (2019)). I hoped to make an experience comparable to similar games in the same
+genres with regards to entertainment.
+A secondary objective was to test and expand my knowledge and experience of
+programming and all stages of the game development process. As I hope to find a job inside
+the game industry upon graduation, I aimed to produce a solution that demonstrates
+valuable, marketable skills.
+Additionally, it was a personal aim to provide a more accurate representation of native
+Americans, colonials and the relationship between them, as I often hear misconceptions and
+misinformation on the subject.
+
+Target Audience
+The target market may be considered to be all those who identify as “gamers”, as the idea is
+to develop a solution that is equally appealing as similar alternative games. However, as a
+learning tool, the game proposes maximum value to gamers interested in expanding their
+history knowledge and history teachers looking for ways to make lesson content more
+engaging for their students.
+The target audience should be inclusive of all who have interest, regardless of age, gender,
+religion or race; the only factors by which individuals should be excluded are that they lack
+the mental capacity to understand what happens in the game or that they do not enjoy
+games as an entertainment medium. For example, the game is not suitable for young
+6|Page
+
+children and those who cannot read, as it requires an ability to understand written text. I am
+working with a provisional 10+ age rating.
+
+Project Relevance to the Degree
+I chose to study Games and Multimedia Environments because I have a specific interest in
+game development and it is this interest that caused me to focus on this element of my
+course as the format for my course. It ties together programming knowledge taught through
+various modules throughout multiple years, game design and development learned in
+second year and technology enhanced learning environments, which I studied in my final
+year alongside this project.
+
+Project Plan
+My initial design plan followed advice from my supervisor and was based on a preliminary
+design stage followed by iteratively developing the game through multiple user testing
+sessions:
+Design
+
+Development (Before
+first stage of user testing)
+
+Development (After first
+stage of user testing)
+
+Second user
+testing stage
+
+Due to unforeseen circumstances, development was delayed and issues around arranging
+evaluation sessions prevented me from getting more than one set of user test feedback. The
+revised project plan involved a heavy design stage followed by a comprehensive
+development stage to implement as many design requirements as possible, then gathering
+only one set of user test data to formulate ideas for future work adaptations.
+Design
+
+Development
+
+User Feedback
+
+Create detailed designs for
+production, with special
+focus on creating a robust
+solution to avoid the need
+for a redesign later.
+
+Implement those ideas
+outlined in the design stage,
+prioritising production of a
+playable product before
+polishing any areas
+extensively.
+
+Perform user tests of the
+solution as is at the end of
+the development stage and
+record feedback as
+suggestions for future work.
+
+7|Page
+
+Professional Considerations
+Ethical Issues
+There are two categories of ethical issues that must be considered in this project; one is the
+research ethics, which concerns ethical issues that may arise during the execution of this
+project; the other involves the use of potentially sensitive content in the game which would
+be seen by users in a scenario where the game became published.
+The main risks in regards to research ethics are those posed to volunteer testers. To combat
+this issue, the university provided a list of twelve declarations which must be adhered to so
+as to ensure participant safety and wellbeing. I have included a signed copy of my ethical
+compliance form in Appendix A; it has also been signed by my supervisor, who has
+independently confirmed its validity.
+In regards to ethics surrounding games as a platform, I referred to the ESRB rating guide
+(2020) used for classifying the age ratings of published games and providing an overview of
+the sensitive content they contain. As the majority of those learning history are children, I
+refrained from including any potentially harmful content (e.g. gore, profanity, drug use,
+nudity and gambling). This is in line with the “Everyone 10+” rating. Though I did not include
+violence in this game, it has occurred frequently in history and my chosen rating permits
+“fantasy or mild violence”, which could occur in extensions to this work while maintaining
+the same age classification.
+
+Professional Issues
+As a British informatics student, I feel obliged to follow the rules laid out by the British
+Computer Society (BCS) in their code of conduct. After review of the principles laid out in
+the code currently available on their site (BCS, 2020), I am confident I have upheld all
+requirements.
+The following are the issues relevant to my game, with comments of where I adhered to
+them.
+1.c. Conduct your professional activities without discrimination on the grounds of sex, sexual
+orientation, marital status, nationality, colour, race, ethnic origin, religion, age or disability,
+or of any other condition or requirement.
+Participants for user testing were chosen solely based on availability and willingness
+to take part.
+1.d. Promote equal access to the benefits of IT and seek to promote the inclusion of all
+sectors in society wherever opportunities arise.
+My project promotes the use of technology in education.
+2.a. Only undertake to do work or provide a service that is within your professional
+competence.
+8|Page
+
+I proved my professional competency by successfully achieving the goals I
+committed to work towards.
+2.e. Respect and value alternative viewpoints and, seek, accept and offer honest criticisms of
+work.
+During testing, I encouraged participants to offer honest, unbiased feedback of my
+game and considered all criticism seriously in making adjustments to the design and
+implementation of the final solution.
+2.g. Reject and will not make any offer of bribery or unethical inducement.
+No incentives were offered for participation in the study; participation was entirely
+voluntary and no bribery took place.
+3.a. Carry out your professional responsibilities with due care and diligence in accordance
+with the Relevant Authority’s requirements whilst exercising your professional judgement at
+all times.
+This project was undertaken as part of an undergraduate course at the University of
+Sussex and as such, I have also adhered to the university’s ethical standards.
+3.d. NOT disclose or authorise to be disclosed, or use for personal gain or to benefit a third
+party, confidential information except with the permission of your Relevant Authority, or as
+required by Legislation.
+No personal information was collected as part of the user testing process and as
+such, participants cannot be identified from the data recorded.
+4.d. Act with integrity and respect in your professional relationships with all members of BCS
+and with members of other professions with whom you work in a professional capacity.
+During production, I used shared resources and hardware available at my university.
+In order to be respectful of other staff and students at the university, care was given to
+respect everyone’s equal right to access these resources.
+All ethical considerations have been reviewed and approved by my supervisor.
+
+9|Page
+
+Design
+Background Research
+While I was able to find some work regarding educational history games (Squire, K., 2003),
+the majority of work on the subject of educational games seems to have focused on
+teaching mathematical concepts, as this is one of the most common subjects to be
+complained about by students; however, I still believe it offers insight into educational
+games as a whole.
+One such game is Zombie Division by Habgood (2005), which led to the research paper
+“Endogenous fantasy and learning in digital games” (Habgood, J., Ainsworth, S. and Benford,
+S., 2005). This paper explores the relationship between education and fantasy games by
+integrating education directly into the gameplay; in Zombie Division, enemies display a
+number above their head and you can only defeat them by hitting them with a weapon for
+which the assigned number is a factor of the number above the enemy’s head. The result
+was that while endogenous fantasy may not critically improve the effectiveness of learning
+in games, “flow, representations, and game mechanics” that are common in games may be
+core contributing factors to effective game-based learning.
+
+Zombie Division (Habgood, 2005)
+Ilias Olivotos (2019) also explored educational games with his project The Red Circle, an
+educational MMORPG (Massively Multiplayer Online Role-Playing Game) that requires
+players to complete maths questions in order to progress in the narrative and restore
+“mana” (which is relied upon for in-game combat). User testing found that not only did
+participants find the game to be somewhat educational in learning mathematical topics,
+they found the game to be highly enjoyable; suggesting that education and entertainment in
+games are not mutually exclusive.
+10 | P a g e
+
+The Red Circle (Olivotos, 2019)
+One paper that explored a non-mathematical basis is “From competition to metacognition:
+designing diverse, sustainable educational games” by Foster, S., Esper, S. and Griswold, W.
+(2013). This study explored “seamless integration” – the idea that educational games should
+integrate learning and play more effectively and in a natural way. They investigated the
+potential educational benefits of 1-on-1 competitive games; in this instance, a real-time
+strategy game which provides an IDE to allow users to write original spells using the Java API
+which can be used in game. Tests performed using second-year university computing
+students found that in writing new spells to expand the gameplay, participants exercised
+knowledge in areas such as coding constructs, software engineering and HCI, suggesting
+games can be used to teach more advanced topics than are typical of educational games.
+There are also some commercial, non-educational games which have influenced the design
+of my system. One such example is Telltale Games’ “The Walking Dead”. In this game, the
+player is frequently engaged in NPC interactions in which they are given up to 4 choices of
+responses; the player’s choice will determine the NPC’s next response and perhaps some of
+their future dialogues. When the player makes certain dialogue choices, a notification is
+displayed to inform them that the NPC “will remember that”. In this way, player
+engagement is maximised, as player’s believe they the autonomy to affect the outcome of
+the game and the interpersonal relationships of the fictional characters portrayed.
+
+11 | P a g e
+
+The Walking Dead by Telltale Games
+A similar example of a commercial product that emphasises player choice is Bioware’s
+“Mass Effect”. Similarly, this game features a branching dialogue system; however, the
+player can also make choices as part of normal gameplay that affect the narrative of the rest
+of the game and even that of the sequel. These choices include (but are not limited to)
+choosing to spare or kill certain NPCs.
+
+Mass Effect by Bioware
+Inspired by Mass Effect and The Walking Dead, I implemented branching dialogues as I
+believe a sense of agency is vital for a truly engaging gameplay experience and that the
+12 | P a g e
+
+more players feel they have control over events transpiring in the game, the more
+seamlessly education can be integrated. In my initial design stage, I had hoped to implement
+branching narratives to show players not only what historical actions lead to what
+outcomes, but also how the outcomes might have been changed by making different
+decisions. This proved to be too much of a challenge to implement in the given timeframe.
+My project will differ from this existing work as it shall focus on teaching the discipline of
+history and will aim to be subtle in its educational aspects, such that players undergo
+learning without the awareness that they are playing a game designed to be educational.
+
+Concept Design
+At this stage, I drew up some initial sketches to give a rough idea of how I wanted various
+elements to look, ensuring that the appearance appropriately implied their functionality.
+
+Quests
+The menu was intended to be a simple overlay to display textual information regarding each
+quest.
+
+Initial Quest Screen Concept
+A list of quests would be displayed on the left hand side of the screen and when you hover
+over one with the mouse, a textbox showing additional information would be shown on the
+right.
+
+Dialogue
+As is common in RPG games such as the Final Fantasy series, I aimed to create a dialogue
+system that would display lines of dialogue in a textbox on the bottom half of the screen.
+The name of the character currently speaking would be displayed at the top and to make it
+
+13 | P a g e
+
+more animated, letters would appear in sequence (i.e. the display would update to add one
+letter at a time).
+
+Final Fantasy Dialogue Screen
+
+Initial Dialogue Screen Concept
+As giving the player a sense of autonomy is an essential part of the giving players an
+engaging experience, I also designed screens in which players can choose different dialogue
+options and receive different responses from NPCs (non-player characters).
+
+14 | P a g e
+
+Dialogue Choice Screen Concept
+The continue button would disappear when the user is required to make a choice and
+instead, they would need to click on one of three shown options to “say” to the NPC.
+
+Context Choices
+In certain situations, the player should be able to make contextual choices that have an
+impact on the characters in the game and the story as a whole.
+
+Context Choice Screen Concept
+
+15 | P a g e
+
+For simplicity, this followed the same visual pattern as the dialogue screen. The choices you
+can make would be displayed, but there would be no indication of the consequences of
+each choice; as such, you’d need to play the game and try giving different answers for the
+various choices in order to explore the different outcomes.
+Upon reaching the development stage, I determined that this feature would be too timeconsuming to implement and as such, it is not a part of my final submission.
+
+Requirements Analysis
+Having settled on some initial design ideas, I created the following list of design
+requirements, for use during production to ensure development stayed focused.
+
+Functional Requirements
+
+Requirement
+The software shall be playable by a single player on a single computer
+The software shall allow player movement in all three axes
+The software shall prompt users with NPC dialogue in text format
+The software shall store the results of user input when responding to NPC dialogue
+prompts
+The software will offer personalized dialogue experiences to the player dependent
+on their previous dialogue choices
+The software shall prompt users with context decisions in text format
+The software shall store the results of user input when responding to context
+decision prompts
+The software shall offer personalized narrative experiences to the player
+dependent on their context decision choices
+
+Non-Functional Requirements
+
+Requirement
+The software shall run on PC and Mac
+The software shall be playable using a keyboard and mouse
+The software shall be programmed in the C# programming language using the
+Unity game engine (version 2019.1.14f1)
+The software shall present all spoken and written word in the game in the English
+language
+The software should be playable using an Xbox 360 controller
+
+Met
+
+Met
+
+Domain Requirements
+Requirement
+The software shall be entertaining to use
+The software shall be educational
+The software shall have an aesthetically pleasing and intuitive user interface
+The software shall be suitable for audiences aged 15 to 25
+The software should ensure history knowledge learned during its use is retained
+
+Met
+
+16 | P a g e
+
+Implementation
+Development Environment
+For development I elected to use the Unity game engine as it is both powerful and versatile.
+Additionally, I have experience with both the engine and with C# scripting thanks to the
+Game Design and Development module I undertook in my second year, several courses on
+the learning platform Udemy, tutorial videos on YouTube and personal projects. Thanks to
+this experience, I was confident I could use the Unity engine to fulfil the objectives of this
+project.
+
+The Unity Engine
+Like most game engines, Unity simplifies the process and workflow of game development by
+providing several components:
+•
+•
+•
+•
+
+•
+
+•
+
+Graphics – All rendering (including shading, shaders, and cameras) is handled by the
+Unity engine.
+Audio – Complex audio processing and playback features are managed by the engine
+and can be interacted with using Unity’s API.
+Networking – There are various features for creating online multiplayer experiences
+using networks, though this is not used in my game.
+Physics – A realistic simulation of basic physics interactions is handled by the engine;
+gravity applies to all elements to which you add the “RigidBody” component and
+“Physic Materials” can be used in simplifying the process of defining new physics
+interactions (e.g. using a physic material with the friction set low, you can emulate
+ice for all objects moving over it, provided they have some recorded momentum).
+However, as the inbuilt gravity requires a RigidBody component to be on an object, it
+causes some limitations; in my solution, I instead used Unity’s “Character Controller”
+component and calculated gravity manually.
+GUI – Unity provides an intuitive interface that allows you to visualise the finished
+3D environments, properties of various objects and even the rendered, playable
+environment.
+Scripting – Though a lot of work is simplified through using the editor, programming
+must still be used to create complex custom behaviours. The Unity engine allows you
+to create C# scripts; you can trigger the construction of instances of these scripts or
+call methods within them using Unity’s order of execution.
+
+Unity’s order of execution is the set of built-in methods that are called when a scene is first
+loaded. For example, if an object implements the Start() method, that method will be called
+when the scene first loads; if an object implements the Update() method, that method will
+be called every frame; if an object implements the OnApplicationQuit() method, that
+method will be called when the program is exited. A detailed diagram of all methods in
+Unity’s order of execution can be seen on the following page.
+17 | P a g e
+
+Unity’s Order Of Execution
+18 | P a g e
+
+Structure of Solution
+Following traditional object-oriented programming concepts, the solution is based on
+creating objects and giving them unique methods and variables. When the player interacts
+with each, methods in different scripts will be triggered to lead to certain events.
+
+Mechanics
+Player
+The player operates through a number of scripts.
+The player movement handles keyboard input for moving around, jumping and gravity and
+is based on Unity’s in-built character controller system. This system provides definitions of
+various factors such as how steep a slope the player can walk up and how high a step they
+can climb.
+
+Unity’s Character Controller System
+Mouse movement is handled by the “MouseLook” script on the camera component of the
+player. This takes mouse input and converts it to a usable variable for changing the rotation
+of the camera. Using the Mathf.Clamp function prevents the player from looking more than
+approximately 90 degrees up or down (i.e. it provides the same restrictions experienced
+when trying to look up and down in the real world).
+The player script handles all other keyboard input – specifically, the keys for opening the
+quest and pause menus. As the cursor is hidden during most gameplay, these functions also
+make it visible to allow you to interact with these menus.
+
+Dialogue System
+As described in the concept stage, the dialogue works using a textbox that appears on
+screen and writes the text one letter at a time. You may progress through different dialogue
+systems using the continue button and one screens that require you to choose a response,
+you give input using the 1, 2 and 3 buttons on the keyboard.
+Dialogue managed through a number of scripts – the dialogue manager handles the
+transitions and DialogueState holds information for each screen of dialogue. Dialogue state
+has the “CreateAssetMenu” attribute, meaning these can be created directly within the
+Unity editor. All dialogue was written using this method, so no dialogue has been coded in.
+19 | P a g e
+
+Because of this, it is quick and easy to write new dialogue, meaning this system is easily
+expandable.
+
+In-Game Dialogue
+
+Questing System
+The questing system keeps track of current quests and displays them in a quest menu.
+When you receive a quest, you get a notification that disappears after a few seconds.
+
+20 | P a g e
+
+New Quest Notification
+Quests can be viewed from the quest menu. Here, I implemented tooltips where the name
+of the quest is displayed and its description can be viewed by hovering over it. When you
+click on a quest, a secondary screen shows a list of goals that must be completed as part of
+that quest. If a goal is completed, it has a line through it. Goals also have tooltips to display
+their descriptions.
+
+Quest Screen
+
+Item System
+I implemented an expandable item pickup system, where when you look at an item, text
+telling you to press E to pick it up shows. While you hold the E button, an on-screen
+progress circle fills up and when it is full, you pick up the item.
+
+21 | P a g e
+
+Evaluation
+Aim
+The aim of the study was to gather feedback from users that fit into my target demographic
+and use this feedback to determine whether I had met my aims and objectives and to
+iteratively improve the final product. The key areas I focused on during testing were:
+•
+•
+•
+•
+
+How enjoyable/entertaining the game is
+The effectiveness of employed teaching methods
+The extent to which education is integrated in a fluid and natural way
+The intuitiveness of the UI and gameplay as a whole
+
+Methodology
+Due to the lockdown caused by the Covid-19 pandemic, I had to adopt non-traditional
+methods of user testing, where I would ideally have liked to perform in-person testing
+sessions and interviews. However, I used social platforms Zoom and Discord to perform
+voice calls and use screenshare to get a similar testing experience.
+The testing comprised of 4 stages: introduction, gameplay, interview and debrief.
+The introduction stage merely consisted of friendly greetings before I gave a rundown of the
+game and its purpose (i.e. participants were told what the game is about and why I am
+working on it). They were then asked for formal consent to participate and were informed
+that they could leave at any time.
+The gameplay stage was used to make observations on how players play the game (i.e. what
+they do). Each participant was sent an executable copy of the game and asked to
+screenshare themselves playing it. They were asked to give any thoughts they had as they
+out loud and as they occurred. During this time, I watched their screenshare and made
+notes where relevant.
+The third stage was a basic semi-structured interview. This was performed over voice chat
+and involved me posing questions from a prepared list and asking spontaneous follow-up
+questions when appropriate. Answers were received through spoken word and recorded via
+simultaneous notetaking.
+In the final stage, I thanked participants for their time, assured them that all data received
+would be anonymous and then proceeded to tell them how I would use the answers they
+gave to improve the game.
+
+Results
+The data gathered was entirely quantitative, as open questions were asked in order to
+receive the richest, most meaningful responses. I then gave used qualitative analysis each
+participant a score out of ten for each of the focus areas I highlighted in my aims. This was
+22 | P a g e
+
+calculated using a combination of their performance and engagement during the gameplay,
+the answers they gave during the interview stage and how their level of enthusiasm varied
+throughout the test. Results for the key objectives can be seen in the following table:
+
+AVERAGE SCORE
+
+Feedback in Key Areas
+9
+8
+7
+6
+5
+4
+3
+2
+1
+0
+
+Entertainment
+Value
+
+Educational
+Effectivenesss
+
+Integration of
+Educational
+Elements
+
+Effectiveness of UI
+
+While the generally positive scores indicate that the solution largely met its goals, each
+participants individual critique highlighted key areas for improvement. As I was unable to
+implement these changes during the given timeframe, they were added to the list of ideas
+for future work.
+
+Requirements Review
+At this stage, I can assess the extent to which I met the requirements as laid out in the
+requirements in the introduction of this report. The following tables show which
+requirements I successfully met.
+
+Key:
+
+The requirement was successfully met
+The requirement was partially met
+The requirement was not met
+
+Functional Requirements
+
+Requirement
+The software shall be playable by a single player on a single computer
+The software shall allow player movement in all three axes
+The software shall prompt users with NPC dialogue in text format
+The software shall store the results of user input when responding to NPC dialogue
+prompts
+
+Met
+
+23 | P a g e
+
+The software will offer personalized dialogue experiences to the player dependent
+on their previous dialogue choices
+The software shall prompt users with context decisions in text format
+The software shall store the results of user input when responding to context
+decision prompts
+The software shall offer personalized narrative experiences to the player
+dependent on their context decision choices
+
+Non-Functional Requirements
+
+Requirement
+The software shall run on PC and Mac
+The software shall be playable using a keyboard and mouse
+The software shall be programmed in the C# programming language using the
+Unity game engine (version 2019.1.14f1) NOTE: Unity ver 2018.4 used instead
+The software shall present all spoken and written word in the game in the English
+language
+The software should be playable using an Xbox 360 controller
+
+Met
+
+Domain Requirements
+Requirement
+The software shall be entertaining to use
+The software shall be educational
+The software shall have an aesthetically pleasing and intuitive user interface
+NOTE: Some UI elements are aesthetically pleasing but some are too simplistic
+The software shall be suitable for audiences aged 15 to 25
+The software should ensure history knowledge learned during its use is retained
+NOTE: More testing required to clarify whether this is the case
+
+Met
+
+Time Limitations
+Due to time restrictions, certain features were dropped. This was the case with “context”
+decisions, which would have been used to create branching narratives. Ultimately, the time
+it would take to create the system and implement all the narrative paths would have been
+immense and retrospectively, it would never have been feasible for a project of this scale
+with the given time limitations.
+
+Does it meet the user needs?
+The primary user need was a game that is both educational and entertaining to use; as these
+domain requirements are met, I can conclude that this project has successfully fulfilled its
+purpose.
+
+24 | P a g e
+
+Conclusion
+Objectives Review
+Prove educational games can offer the same entertainment value as noneducational games
+Given the positive feedback received during evaluation, I am confident I have proved that
+educational games can be entertaining. However, as this project lacked the same resources,
+funding and amount of time that the majority of games by major development studios have,
+it does not in itself provide an equally entertaining experience. That being said, I believe it
+provides a strong argument that a more heavily funded educational game could be as
+entertaining as non-educational games.
+
+Expand my knowledge of programming and game development
+Throughout development, I was frequently searching for tutorials on YouTube, referring to
+courses on Udemy and reviewing the C# and Unity documentation. I have learned many
+new skills and cemented my previous understanding.
+
+Depict a more accurate representation of native American history
+While the narrative depicts a real historical event to a high degree of accuracy, I fear the
+game falls short of an accurate representation in many areas. For example, the models used
+to show native Americans and colonials do not necessarily reflect the appearance of natives
+and colonials in Northeast America during the early 17th century. Additionally, as these were
+the only free 3D models I was able to find during my research, duplicate models have been
+used to represent different characters and thus cannot showcase variety in fashion and
+appearance at the time. As such, I believe this was a success for the narrative aspect of the
+game but a failure for the visual aspect.
+
+Learning Outcomes
+As previously stated, I have expanded my technical understanding of Unity, C# and the game
+development process. I have also gained an appreciation for the level of work required to
+produce large-scale projects and of the challenge faced in trying to balance education and
+entertainment in games.
+As a side note, I have learned more about the historical period represented in this game and
+have expanded learned how to gather more accurate historical data.
+
+Future Work
+As aforementioned, this project was massively limited by a lack of budget, resources, staff
+and time. As such, future work that has greater access to these factors should consider
+improving upon the areas in which I made sacrifices.
+25 | P a g e
+
+For example, characters should be created from scratch (i.e. modelled and textured) in a
+style most representative of the time. This would involve reference to artistic depictions of
+natives and colonists from the early 17th century – ideally, Dutch colonists and Lenape
+natives. On top of this, characters would be more convincing and engaging if they had
+voiceovers (for which each character has a unique voice) and custom animations.
+Similarly, the environment is vague and while some effort was made to give the native
+American camp the impression of a real native living space, it does not reflect reality. The
+land should be modelled to be true to Manhattan (where the transaction of the sale of
+Manhattan took place) and the native and colonist living spaces should be appropriately
+decorated to appear as they may have at the time (again, with reference to artistic
+depictions).
+A limitation of this game is that education cannot be expanded upon what is learned during
+the gameplay. To amend this, a publicly accessible wiki could allow more in-depth
+information to be given while staying true to the context of the game. In the same vein, the
+game could be expanded to represent various different historical events (e.g. life in feudal
+Japan, lives of soldiers in the trenches in WWII or the life of Julius Caesar).
+Due to shortcomings of my own development, future work could consider implementing the
+context decisions and branching narratives that I did not. Through this, students could
+explore how different decisions in history might have led to different consequences and
+caused the world today to be different.
+Finally, I believe this game provides a good precedent to show that educational games can
+teach various topics. As there are a huge number of topics one can teach and an immense
+amount of information for each, it is unfeasible for game developers to produce solutions
+that teach all of these. I propose that inspiration be taken from this game to work towards a
+code-free game engine, in which students and teachers can create their own learning
+games. This would allow teachers to customise the content for their own specification while
+ensuring a high level of engagement from students. Additionally, such a solution could be
+used by students to submit assignments to their teachers to showcase their understanding
+of different topics
+
+26 | P a g e
+
+References
+Habgood, J., Ainsworth, S. and Benford, S. (2005) Endogenous fantasy and learning in digital
+games. Available at: https://shura.shu.ac.uk/3866/1/S%26GDraft.pdf (Accessed: 01 June
+2020).
+Olivotos, I. (2019). The Red Circle - An Educational MMORPG (BSc). University of Sussex.
+BCS-The Chartered Institute for IT (2020) BCS Code of Conduct. UK: Swindon. Available at:
+https://www.bcs.org/membership/become-a-member/bcs-code-of-conduct/ (Accessed: 01
+June 2020).
+Unity technologies (2020) Unity game engine Version 2018.4. Available at:
+http://www.unity3d.com (Accessed: 01 June 2020).
+ESRB (2020) Ratings Guide - ESRB Ratings. Available at: https://www.esrb.org/ratings-guide/
+(Accessed: 01 June 2020).
+Habgood, J. (2005) Zombie Division : a methodological case study for the evaluation of
+game-based learning. Available at:
+http://shura.shu.ac.uk/10652/3/Habgood_ZombieDivision_ECGBL2015.pdf (Accessed: 01
+June 2020).
+Foster, S., Esper, S. and Griswold, W. (2013). From competition to metacognition: designing
+diverse, sustainable educational games. Available at:
+https://dl.acm.org/citation.cfm?id=2470654.2470669 (Accessed: 01 June 2020).
+Squire, K. (2003) Replaying History: Learning World History through playing Civilization III.
+Available at:
+https://www.researchgate.net/publication/259532960_Replaying_History_Learning_World
+_History_through_playing_Civilization_III (Accessed: 01 June 2020).
+
+27 | P a g e
+
+Appendices
+Appendix A
+Ethical Compliance Form for UG and PGT Projects *
+School of Engineering and Informatics
+University of Sussex
+
+This form should be used in conjunction with the document entitled “Research Ethics Guidance
+for UG and PGT Projects”.
+Prior to conducting your project, you and your supervisor will have discussed the ethical
+implications of your research. If it was determined that your proposed project would comply
+with all of the points in this form, then both you and your supervisor should complete and sign
+the form on page 3, and submit the signed copy with your final project report/dissertation.
+If this is not the case, you should refer back to the “Research Ethics Guidance for UG and PGT
+Projects” document for further guidance.
+________________________________________________________________________
+
+1. Participants were not exposed to any risks greater than those encountered in their normal
+working life.
+Investigators have a responsibility to protect participants from physical, mental and
+emotional harm during the investigation. The risk of harm must be no greater than in
+ordinary life. Areas of potential risk that require ethical approval include, but are not limited
+to, investigations that require participant mobility (e.g. walking, running, use of public
+transport), unusual or repetitive activity or movement, physical hazards or discomfort,
+emotional distress, use of sensory deprivation (e.g. ear plugs or blindfolds), sensitive topics
+(e.g. sexual activity, drug use, political behaviour, ethnicity) or those which might induce
+discomfort, stress or anxiety (e.g. violent video games), bright or flashing lights, loud or
+disorienting noises, smell, taste, vibration, or force feedback.
+
+2. The study materials were paper-based, or comprised software running on standard
+hardware.
+*
+
+This checklist was originally developed by Professor Steven Brewster at the University of Glasgow, and
+modified by Dr Judith Good for use at the University of Sussex with his permission.
+
+28 | P a g e
+
+Participants should not be exposed to any risks associated with the use of non-standard
+equipment: anything other than pen-and-paper, standard PCs, mobile phones, and tablet
+computers is considered non-standard.
+
+3. All participants explicitly stated that they agreed to take part, and that their data could be
+used in the project.
+Participants cannot take part in the study without their knowledge or consent (i.e. no covert
+observation). Covert observation, deception or withholding information are deemed to be
+high risk and require ethical approval through the relevant C-REC.
+
+If the results of the evaluation are likely to be used beyond the term of the project (for
+example, the software is to be deployed, the data is to be published or there are future
+secondary uses of the data), then it will be necessary to obtain signed consent from each
+participant. Otherwise, verbal consent is sufficient, and should be explicitly requested in the
+introductory script (see Appendix 1).
+
+4. No incentives were offered to the participants.
+The payment of participants must not be used to induce them to risk harm beyond that
+which they risk without payment in their normal lifestyle. People volunteering to participate
+in research may be compensated financially e.g. for reasonable travel expenses. Payments
+made to individuals must not be so large as to induce individuals to risk harm beyond that
+which they would usually undertake.
+
+5. No information about the evaluation or materials was intentionally withheld from the
+participants.
+Withholding information from participants or misleading them is unacceptable without
+justifiable reasons for doing so. Any projects requiring deception (for example, only telling
+participants of the true purpose of the study afterwards so as not to influence their
+behaviour) are deemed high risk and require approval from the relevant C-REC.
+
+6. No participant was under the age of 18.
+Any studies involving children or young people are deemed to be high risk and require ethical
+approval through the relevant C-REC.
+
+7. No participant had a disability or impairment that may have limited their understanding or
+communication or capacity to consent.
+Projects involving participants with disabilities are deemed to be high risk and require ethical
+approval from the relevant C-REC.
+
+8. Neither I nor my supervisor are in a position of authority or influence over any of the
+participants.
+
+29 | P a g e
+
+A position of authority or influence over any participant must not be allowed to pressurise
+participants to take part in, or remain in, any study.
+9. All participants were informed that they could withdraw at any time.
+All participants have the right to withdraw at any time during the investigation. They should
+be told this in the introductory script (see Appendix 1).
+
+10. All participants have been informed of my contact details, and the contact details of my
+supervisor.
+All participants must be able to contact the investigator and/or the supervisor after the
+investigation. They should be given contact details for both student and supervisor as part of
+the debriefing.
+
+11. The evaluation was described in detail with all of the participants at the beginning of the
+session, and participants were fully debriefed at the end of the session. All participants
+were given the opportunity to ask questions at both the beginning and end of the session.
+Participants must be provided with sufficient information prior to starting the session, and in
+the debriefing, to enable them to understand the nature of the investigation.
+
+12. All the data collected from the participants is stored securely, and in an anonymous form.
+All participant data (hard-copy and soft-copy) should be stored securely (i.e. locked filing
+cabinets for hard copy, password protected computer for electronic data), and in an
+anonymised form.
+
+Project title: Encore
+Student’s Name:
+Student’s Registration Number: 21701966
+Student’s Signature:
+
+Date: June 1st, 2020
+Supervisor’s Name: Judith Good
+
+Supervisor’s Signature:
+Date: June 1st, 2020
+30 | P a g e
+
+Appendix B
+
+Story
+Part 1
+Chapter 1 – Introduction
+The screen fades in from black to a classroom. You are seated at the back of the class and
+can see that students occupy the other seats in the room. The teacher stands at the front of
+the class. He greets the students and tells them to bring out their History books so that they
+can continue their study of the colonisation of America.
+As the teacher begins to talk about the topic of the sale of Manhattan, the screen starts to
+fade out to black.
+
+Part 2
+Chapter 2 – Where!? WHEN!?
+The screen fades back in, this time to a different setting. A strange land, with water and
+grass. It appears quiet and rural. You move forward and see a man dressed in strange old
+clothes – those worn by Dutch colonists in the early 17th century.
+When you talk to this man, you learn he is Peter Minuit, the famous Dutch colonist that first
+settled in the area we now know as Manhattan. When you speak to him, he is wary of you
+and questions how you got here. To him, your clothes, name and general manner are all
+very strange. He concludes that you must have been a stowaway aboard his ship. Not
+wanting his men to think he negligently set sail with a stowaway on his ship, he sends you to
+integrate with the native people, so as to appear as a native to the other Dutch sailors.
+Chapter 3 – A Civil Dispute
+You move in the direction Minuit indicates until you come across a group of Native
+Americans. Not recognising you, some of them grab spears and move close to you, holding
+the spears up to you defensively. From behind them, you see an older native raise his hand
+and speak to those with the spears, after which they lower their weapons and retreat
+backwards. The older man moves towards you and introduces himself as Seyseys, chief of
+the Canarsee people. From him, you learn that he is in the process of making a deal with
+Minuit and is expecting the Dutch to deliver some goods to him. He tells you to retrieve
+these goods from Minuit and bring them to him, that they may consider Minuit’s offer.
+Chapter 4 – Lost in Translation
+You return to Minuit and relay this information. Though disgruntled that you failed to
+integrate yourself with the natives, he is impressed that you managed to communicate with
+them so easily. He assigns you the position of translator and commands you to take a bag of
+goods to Seyseys.
+
+31 | P a g e
+
+Chapter 5 – Peaceful Union?
+You take the aforementioned goods to Seyseys; he doesn’t understand the purpose of some
+of the goods, so you explain them to him. He expresses appreciation of the gifts and that
+they are useful to him, but tells you that it is not enough to convince him to leave this place.
+He informs you that a much bigger gift would be required for the Canarsees to consider
+vacating their home.
+Once again, you return to speak to Minuit and relay the information you learned from
+Seyseys. He is joyous to hear the news and implores you to remember this as a great day.
+The screen starts to fade out to black once more.
+
+Part 3
+Chapter 6 – Rewriting History
+The screen fades back into the classroom as it was in part 1, except all the students have
+now left and the teacher is standing over you. It seems you fell asleep and woke up at the
+end of the lesson.
+The teacher lectures you on the importance of paying attention in lessons and tells you that
+due to failures in your previous History exams, you are at risk of not graduating to the next
+year unless you achieve at least a B grade on your next and final report; a report on the
+purchase of Manhattan by the Dutch. The screen once again fades to black and the words
+“The End” appear. You then return to the main menu.
+
+32 | P a g e
+
+Appendix C
+
+Dialogue
+Main Story
+[Scene 1 – Classroom Intro]
+Teacher:
+•
+•
+•
+•
+•
+
+Ok, everyone, I hope you remembered your history books. There are a few spares at
+the back but not enough for everybody.
+Last time, we had a brief look at the lives of native Americans before colonisation
+and saw that they had a very different life style.
+Today, we’ll be looking at what happened when the natives and the colonists met
+and started to trade.
+Here’s a fun fact for you; did you know the Lenape people, who resided in what we
+now know as Manhattan, sold their land for only $24?
+It was purchased by the Dutch, who controlled the land for nearly 40 years until the
+British took the settlement by force and triggered the second Anglo-Dutch war.
+
+33 | P a g e
+
+[Scene 2 – Main Game]
+1. Peter Minuit
+•
+•
+•
+•
+•
+•
+•
+•
+•
+•
+
+Halt! Who goes there?
+You: Um… Alex.
+What a ridiculous name; your parents must have disliked you greatly.
+State your business, “Alex”.
+You: I’m just looking around. I’m not really sure how I got here. I fell asleep and
+woke up here.
+A stowaway, eh? Normally I’d have my men arrest you for coming aboard my ship
+unauthorised, but frankly, that’s more work than it’s worth.
+If I make it known that a scrawny kid managed to slip by me, I’ll look inept.
+So you don’t tell any of my men you were on my ship and you’ll get to keep your
+freedom. Deal?
+You: Fair enough. Deal.
+Good. Now go and integrate yourself with the locals so it seems like you’ve been
+here a while. Look for chief Seyseys; he leads the “Canarsees”, as they are known.
+
+[Once you’ve spoken with Minuit]
+•
+
+Get out of here.
+
+2. Chief Seyseys
+•
+•
+•
+•
+•
+•
+•
+•
+•
+
+Greetings, young one. I am Seyseys, chief of these people. Did the Dutch man send
+you here?
+You: You mean that Minuit guy? He said I should come and learn about your people,
+or something.
+I am glad to make your acquaintance. My people shall try to teach your people of
+our ways. We do not wish to fight, but we will not tolerate disrespect.
+You: …
+Have you brought the supplies promised to us by chief Minuit?
+You: What supplies?
+We were promised many valuable items in return for my people leaving this land so
+the Dutch may reside here.
+He claims his offering is much needed by our people and that it’s worth far more
+than our land.
+But we have yet to see it. We will not vacate our home based solely on the promises
+of strangers. We’re not going anywhere until we see the goods.
+
+[Once you’ve spoken with Seyseys]
+•
+
+I have nothing more to discuss with you.
+
+3. Peter Minuit
+•
+
+What are you doing back here?
+34 | P a g e
+
+•
+•
+•
+•
+•
+
+•
+•
+•
+•
+
+•
+•
+•
+
+You: Seyseys sent me back. He said something about bringing supplies you owe him?
+You what? So you told them you came with us after all? That’s exactly what I told
+you not to do.
+You: Oh… sorry.
+But anyway, how did you get back so quickly? It takes our best and brightest hours to
+communicate even a simple message to these savages.
+You:
+1. They’re not savages, they’re people just like you.
+2. What are you talking about? He was pretty upfront
+so it wasn’t exactly hard to figure out what he was saying.
+[If 1] Don’t be ridiculous. Have you seen the clothes they wear? Or the way they
+dance around their fire? They’re uncivilised. [Return to questions page]
+[If 2] You must have dealt with their kind before, to be such a fluent speaker! You’ve
+caused me a lot of trouble, but if you act as our translator, I’ll forget your crimes.
+You: What do you want me to do?
+We’re hoping to settle on this land. The river provides a good location for docking
+ships near here, so we can bring supplies from the Netherlands and trade with the
+locals.
+We only brought some supplies, but I’ve put together a selection of items to show
+the natives.
+If they like what they see, we can bring more goods from home to give them so they
+will move.
+Take the bag on the cart there and bring it to chief Seyseys. Tell him of my proposal
+and let me know what he says.
+
+[Once you’ve taken the goods]
+•
+
+Talk to me again when you’ve shown our wares to chief Seyseys.
+
+4. Chief Seyseys
+•
+•
+
+•
+•
+•
+•
+•
+•
+
+You have returned. Do you bring chief Minuit’s offering?
+You:
+1. Yes, here you go. [Give bag of supplies]
+2. Not yet.
+[If 1] Excellent. Let me see…
+Many of these items are strange. I am unfamiliar with their purpose.
+You: [Explain what the various tools are for]
+I see. These items may prove useful to our tribe, we shall keep them as your offering.
+However, this land is worth more to us, so we ask that your friends offer a greater
+gift if they wish for us to vacate this area.
+[If 2] Then we have nothing to discuss.
+
+35 | P a g e
+
+[Once you’ve given the goods]
+•
+
+My people appreciate your kind gesture and hope it marks the start of a peaceful
+understanding between our tribes. However, a greater offering is required if you
+wish for us to leave these lands.
+
+5. Peter Minuit
+•
+
+What news do you bring?
+
+• You: Seyseys accepted the items but said he’s not leaving unless you give him a lot
+•
+•
+•
+
+more.
+Excellent! The way our communications were going, it was hard to tell if we were
+heading towards peace or war.
+Soon you shall bear witness to a momentous occasion: the settlement of New
+Amsterdam!
+You:
+1. Wouldn’t Manhattan be a better name?
+2. …
+
+• [If 1] What kind of a name is that?
+•
+
+[If 2 and after response 1] Today – May 24th, 1626 – the great Peter Minuit settled
+on American soil for a mere 60 guilders!
+
+36 | P a g e
+
+[Scene 3 – Classroom Ending]
+Teacher:
+•
+•
+•
+•
+•
+•
+•
+•
+
+•
+•
+
+•
+
+Alex…
+ALEX!
+Wake up! I hope you had a good nap while the rest of us actually studied.
+You received an F in your last 3 essays. Unless you get a B in your next report, you’ll
+have failed History as a whole. You know what that means?
+You: Yes sir. I won’t be able to move up into the next year.
+That’s right. Believe me, I’m really trying to help you here, but I can’t do anything if
+you don’t help yourself.
+Do yourself a favour and study. I mean really study, like you’ve never studied before.
+This next report is on a specialist subject; the sale of Manhattan from the native
+Americans to the Dutch colonists. This isn’t going to be easy, you’re going to need to
+give it everything you’ve got if you want to pass.
+You: …
+Ok, let me give you a hint. Nobody was really there; nobody knows what actually
+happened. Look at the source materials; written documents from the time and the
+such.
+Use your head and read between the lines. You don’t need to tell me what really
+happened, only what might have happened. But make it convincing. Make it real.
+
+37 | P a g e
+
+NPC Encounters
+Native Americans
+•
+•
+•
+
+•
+•
+
+These white men are strange, but they have many tools and supplies that would be
+useful to our tribe.
+The Dutch people have powerful weapons and fancy clothes, but they don’t
+appreciate the value of the land and of the soul.
+Welcome to our tribe! Respect our customs and our way of life and we’ll get along
+just fine.
+o You: Do the other tribes share your customs?
+o Those friends you came with think so. We share some customs and differ on
+others. No two tribes are the same.
+o Battles have been fought and lives have been lost because of our differences.
+We have learned to coexist as separate tribes by inhabiting different places.
+We get on ok with the Dutch, but I don’t trust them. They care more for lifeless
+possessions than for the invaluable gifts of nature.
+The Dutch try to pay us to leave this land. We are happy to take their goods, though
+most of this area is controlled by a neighbouring tribe, the Wecquaesgeek.
+
+38 | P a g e
+
+Colonists
+•
+
+•
+
+•
+•
+
+The indigenous people are incredibly odd. They don’t seem to realise the value of
+their land. We’re certainly not keen to tell them; those fools are basically giving it
+away.
+The natives live out of portable homes and spend their days travelling. If they had
+any sense whatsoever, they’d build homes and farms so they don’t have to move all
+the time.
+I miss the Netherlands. I don’t see what’s so great about this place. Not worth
+settling if you ask me.
+What strange clothes! You don’t seem like a native though. Tell me, where are you
+from?
+o You:
+1. England
+2. America
+3. The Netherlands
+o [If 1] Ha! I always knew you English were a little odd, but this is just bazaar.
+Where are the rest of your people?
+o You: Back in England, I suppose.
+o They stranded you here? How unfortunate.
+o [If 2] Oh, so you are a native? Are you with these… “Canarsee” people?
+o You: No, I’m from a different… uh… tribe.
+o Are they much different from the people here?
+o You: Actually, I think my people are a lot more like yours.
+o I highly doubt that…
+o [If 3] Ahaha, nice try! I think I’d notice if someone dressed like that went
+walking around my homeland.
+o Eh, but fashion moves so quickly and I don’t have much need for it as a sailor,
+so who knows.
+
+39 | P a g e
+
+Appendix D
+
+Quests
+Main Story
+[Given when you first arrive on the island]
+Where Am I? – Figure out where you are
+•
+
+Talk to Peter Minuit – You have learned that a man known as “Peter Minuit” can be
+found nearby. Make his acquaintance.
+
+[Given once you have spoken to Peter Minuit]
+New Friends – Find the chief of the local Canarsee tribe
+•
+
+Talk to Chief Seyseys – Minuit has instructed you to integrate yourself with the local
+tribe.
+
+[Given once you have spoken to Chief Seyseys]
+Ah, the Errand Boy – Return to Peter Minuit
+•
+
+Talk to Peter Minuit – Seyseys wants to see the goods promised to him by Peter
+Minuit. You should let him know.
+
+[Given once you have spoken to Chief Seyseys]
+Lost in Translation – Try to negotiate with chief Seyseys
+•
+•
+
+Find Minuit’s Goods – Minuit informed you that there is a bag of goods ready to be
+taken to chief Seyseys on a cart nearby. Find them and pick them up.
+Take the goods to chief Seyseys – Looks like your communication skills impressed
+the Dutch leader. He wants you to give some items to the chief of the Canarsees.
+
+[Given once you have given Minuit’s items to chief Seyseys]
+Alex in the Middle – Head back to talk to Minuit once again
+•
+
+Relay Seyseys’ answer to Minuit – Looks like the Canarsee chief liked the goods, but
+doesn’t think they’re worth his land. You should tell Minuit he should send more.
+
+40 | P a g e
+
+Side Quests
+[Given when you first arrive on the island]
+The Great Canarsee Tribe – Get to know the locals
+•
+
+Speak to the Native Inhabitants – Talk to at least 4 Canarsee tribespeople.
+
+[Given when you first arrive on the island]
+Dutch Tourists – Learn about the Dutch visitors
+•
+
+Speak to the Colonists – Talk to at least 4 Dutch sailors.
+
+41 | P a g e
+
+

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://ui_inspector_runner_001"]
+
+[ext_resource type="Script" path="res://1.Codebase/src/scenes/tests/ui_inspector_runner.gd" id="1"]
+
+[node name="UIInspectorRunner" type="Node"]
+script = ExtResource("1")
+scene_to_inspect = "res://1.Codebase/src/scenes/ui/start_menu.tscn"
+headless_report = false

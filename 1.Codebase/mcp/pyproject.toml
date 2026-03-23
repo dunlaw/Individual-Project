@@ -1,0 +1,17 @@
+[project]
+name = "gda1-mcp-server"
+version = "1.0.0"
+description = "MCP Server for Glorious Deliverance Agency 1 - Control the game via Claude Desktop"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "websocket-client>=1.6.0",
+]
+
+[project.scripts]
+gda1-mcp-server = "server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

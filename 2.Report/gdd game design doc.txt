@@ -1,0 +1,1017 @@
+Appendix A: Ethics Compliance
+
+Software Testing With Users Compliance Form – UG & PGT Projects*
+School of Engineering and Informatics, University of Sussex
+
+This form should be used in conjunction with the document entitled “Ethical Review
+Guidance for Student Projects”.
+Prior to conducting your project, you and your supervisor must discuss the ethical
+implications of your project. If your proposed project complies with all of the points in this
+form, then may use this form.
+If you use this form, you must also prepare either (a) an information sheet and a
+consent for your participant to sign, or (b) prepare an Introduction and Debriding Script to
+read to your participant before the test (see appendix below). These must be approved by
+you supervisor.
+Include the signed copy of this form with your final project report/dissertation.
+If your proposed project does not comply with all the points, you should refer back to the
+“Research Ethics Guidance for UG and PGT Projects” document for further guidance.
+________________________________________________________________________
+1. Participants were not exposed to any risks greater than those encountered in their
+normal working life.
+You have a responsibility to protect participants from physical, mental and emotional
+harm during the testing. The risk of harm must be no greater than in ordinary life. Areas
+of potential risk that require ethical approval include, but are not limited to,
+investigations that require participant mobility (e.g. walking, running, use of public
+transport), unusual or repetitive activity or movement, physical hazards or discomfort,
+emotional distress, use of sensory deprivation (e.g. ear plugs or blindfolds), sensitive
+topics (e.g. sexual activity, drug use, political behaviour, ethnicity) or those which might
+induce discomfort, stress or anxiety (e.g. violent video games), bright or flashing lights,
+loud or disorienting noises, smell, taste, vibration, or force feedback.
+2. The study materials are paper-based or comprises software running on standard
+hardware.
+Participants should not be exposed to any risks associated with the use of non-standard
+equipment: anything other than pen-and-paper, standard PCs, mobile phones, and tablet
+computers is considered non-standard.
+3. All participants must explicitly state that they agreed to take part, and that their data
+can be used in the project.
+*
+
+This form was originally developed by Professor Steven Brewster at the University of Glasgow, and modified by
+Dr Judith Good for use at the University of Sussex with his permission.
+
+Version 6.0
+
+-1-
+
+19/09/25
+
+Participants cannot take part in the test without their knowledge or consent (i.e. no
+covert observation). Covert observation, deception or withholding information are
+deemed to be high risk and require ethical approval through the relevant F-REC.
+If the results of the evaluation are likely to be used beyond the term of the project (for
+example, the software is to be deployed, the data is to be published or there are future
+secondary uses of the data), then it will be necessary to obtain signed consent from each
+participant. Otherwise, verbal consent is sufficient, and should be explicitly requested in
+the introductory script (see Appendix 1).
+4. No incentives will be offered to the participants.
+The payment of participants must not be used to induce them to risk harm beyond that
+which they risk without payment in their normal lifestyle. People volunteering to
+participate may be compensated financially e.g. for reasonable travel expenses.
+Payments made to individuals must not be so large as to induce individuals to risk harm
+beyond that which they would usually undertake.
+5. No information about the evaluation or materials is intentionally withheld from the
+participants.
+Withholding information from participants or misleading them is unacceptable without
+justifiable reasons for doing so. Any projects requiring deception (for example, only
+telling participants of the true purpose of the study afterwards so as not to influence their
+behaviour) are deemed high risk and require approval from the relevant F-REC.
+6. No participant is under the age of 18.
+Any studies involving children or young people are deemed to be high risk and require
+ethical approval through the relevant F-REC.
+7. No participant has a disability or impairment that may have limited their understanding
+or communication or capacity to consent.
+Projects involving participants with disabilities are deemed to be high risk and require
+ethical approval from the relevant F-REC.
+8. Neither I nor my supervisor are in a position of authority or influence over any of the
+participants.
+A position of authority or influence over any participant must not be allowed to
+pressurise participants to take part in, or remain in, any study.
+9. All participants will be informed that they can withdraw at any time.
+All participants have the right to withdraw at any time during the investigation. They
+should be told this in the introductory script (see Appendix 1).
+10. All participants will be informed of my contact details, and the contact details of my
+supervisor.
+All participants must be able to contact the investigator and/or the supervisor after the
+investigation. They should be given contact details for both student and supervisor as
+part of the debriefing.
+Version 6.0
+
+-2-
+
+19/09/25
+
+11. The evaluation will be described in detail with all of the participants at the beginning of
+the session, and participants will be fully debriefed at the end of the session. All
+participants will be given the opportunity to ask questions at both the beginning and
+end of the session.
+Participants must be provided with sufficient information prior to starting the session,
+and in the debriefing, to enable them to understand the nature of the investigation.
+12. All the data collected from the participants will be stored securely, and in an
+anonymous form.
+All participant data (hard-copy and soft-copy) should be stored securely (i.e. locked
+filing cabinets for hard copy, password protected computer for electronic data), and in
+an anonymised form.
+Project title: AI-Powered Dynamic Narrative System for RPGs
+Student’s Name: Duncan Law
+Student’s Registration Number: 281967
+Student’s Signature:
+
+Date: 09/11/2025
+Supervisor’s Name: ____Dr Daniel Creed________________________________________
+I have read and authorised either (a) the participant information sheet and consent form or
+(b) the Introduction and Debrief scripts.
+Supervisor’s Initials: ____DC_______
+
+Supervisor’s Signature: _____
+______________________________________________
+Date:
+_______09/11/2025___________________________________________________________
+
+Software Testing With Users Compliance Form
+Appendix 1: Introduction and Debriefing Scripts
+
+Version 6.0
+
+-3-
+
+19/09/25
+
+If you intend to obtain verbal consent from your participants, you need to create an
+introduction script, to read out at the start of the study, and a debriefing script, to read out
+at the end of the study. You should get your supervisor’s approval for your introduction
+and debriefing scripts before commencing your study. NB: When submitting the signed
+Software Testing With Users Compliance form include your Introduction and
+Debriefing script.
+
+Introduction Script
+The introduction script must:
+• state the general aim of the study
+• explain why you need the involvement of other people
+• describe what will happen in the study
+• describe what data will be collected
+• reassure the participant that any data collected will be stored securely, and in an
+anonymous format
+• explain what interaction the participant may have with you during the study
+• reassure the participant that this is not a test of ability
+• state that the participant may withdraw at any time
+• seek explicit consent
+• allow the participant to ask questions
+An example introductory script (italics indicate required information, some of which will
+be specific to your project):
+Web Interface Investigation
+Final Year Project, 2020-21
+Jane Student
+The aim of this study is to investigate the [state the general aim of the experiment – e.g.,
+suitability of a new website]. We cannot tell how good this [. . . . ] is unless we ask those people
+who are likely to be using it, which is why we need to run studies like these [explain why you
+need the involvement of other people]. I will give you some time to [describe the tasks in
+involved in general terms], before asking you to answer some questions [describe kinds of
+questions].
+I will be observing you while you perform the tasks [describe what data will be collected]. If you
+have any questions, please ask me, and please let me know when you are finished [explain
+what interaction the participant may have with you during the study].
+I will ask you some questions at the end of the study [describe what will happen in the study].
+Please remember that it is the system, not you, that is being evaluated [reassure the participant
+that this is not a test of ability].
+You are welcome to withdraw from the study at any time [state that the participant may withdraw
+at any time]. Please be assured that any data collected will be stored securely and in an
+anonymous form [describe how the data will be anonymised and stored].
+
+Version 6.0
+
+-4-
+
+19/09/25
+
+Do you agree to take part in this evaluation? [seek explicit consent]. Do you have any questions
+before we start? [allow the participant to ask questions].
+
+Debriefing Script
+The debriefing script that is used at the end of the study must:
+• restate the main aim of the experiment
+• if applicable, explain any other, related aims of the experiment, and any particular
+data collected
+• allow the participant to make comments or ask questions
+• give contact details for the student and supervisor
+• thank the participant
+An example debriefing script (italics indicate required information, some of which will be
+specific to your project):
+Web Interface Investigation
+Final Year Project, 2020-21
+Jane Student
+The main aim of the experiment was to investigate the suitability of this website [restate the
+main aim of the experiment]. In particular, I was looking to see whether you made use of the site
+map, and whether any of the links on the website seemed to be confusing. I wanted to know
+how easy the pages were to navigate [if applicable, explain any other, related aims of the
+experiment, and any particular data collected].
+Do you have any comments or questions about the experiment? [allow the
+participant to make comments or ask questions]. Here are my contact details, and those of my
+supervisor, and please let us know if you have any further questions about this study [give
+contact details of student and supervisor to participant]. Thank you for your help [thank the
+participant].
+
+Version 6.0
+
+-5-
+
+19/09/25
+
+Appendix B: Project Proposal
+G5038: Final Year Project - Week 3 Project Proposal
+Title: Al-Powered Dynamic Narrative System for Role-Playing Games (RPGs)
+Candidate Number: 281967
+
+Supervisor: Dan Creed
+
+Date: 09 October 2025
+
+University of Sussex
+Engineering & Informatics
+
+1. Aims and Objectives
+*1.1 Aims Overarching
+Aim: To investigate how far a bespoke, Al-driven 2D RPG narrative system can effectively generate a
+coherent, long-horizon thematic allegory, and to critically evaluate its architectural trade-offs against largescale, theoretical “world model” approaches. This aim is built on three pillars:
+e Pillar 1: Technical Development. To develop an Al-driven 2D RPG narrative system. This involves
+designing and implementing a playable 2D RPG featuring dynamically generated storylines and NPC
+dialogue, where “dynamically” refers to the real-time generation of narrative content based on game
+state and player choice, rather than selecting from pre-written scripts. The focus is on enabling
+emergent, non-linear narratives while addressing long-horizon coherence.
+e Pillar 2: Thematic Execution. To craft a thematic allegory of university experiences. This involves
+creating a game world that allegorically explores a conflict between “positive energy” ideology and
+entropic decay, using core concepts like “The Void Entropy” and the “Positive Energy Curse” to guide
+Al narrative generation. This aim seeks to translate lived experiences into a compelling, darkly
+satirical game narrative.
+e Pillar 3: Critical Analysis. To produce a comprehensive comparative analysis report. This involves
+authoring a critical report comparing this project’s bespoke AI narrative methodology with the
+described approaches of large-scale “world models” (e.g., Google Genie), emphasising architectural
+trade-offs, controllability, and practical contributions.
+
+*1.2 Objectives
+
+1. To build a Foundational 2D RPG framework in Godot 4.6.1
+2. To implement an LLM integration & runtime pipeline
+Implement a request/response pipeline that translates game state > structured prompt > LLM reply
+— in-game events/NPC lines. The initial provider will be Google Gemini, with a Settings page allowing
+users to supply their own API key and optionally select OpenRouter as an alternative provider. This
+pipeline will prioritise efficient token usage and responsive narrative generation.
+3. To design and implement a multi-layer context management system for narrative coherence.
+e Static Context (“world bible” of immutable lore and themes)
+e Short-Term Context (most recent scene/dialogue)
+e Long-Term Memory (periodic Al summaries of key plot points/decisions stored for future
+prompts). A “notes/to-do list” mechanism will record emergent facts to ensure consistency
+across generations, with a focus on minimising narrative drift.
+
+4. To Author the seed narrative and world setting
+Provide initial backstories and the philosophical conflict for Glorious Deliverance Agency 1 (GDA1),
+including Void Entropy and the Positive Energy Curse as the canonical seeds that guide generation,
+ensuring a strong thematic foundation for the AI.
+5. To conduct a deep comparative analysis and system evaluation.
+a) System Performance Evaluation: Collect development artefacts and generation samples
+throughout the project to inform a critical analysis of this bespoke pipeline. Planned
+measurements include: ¢ Narrative consistency: Sample Al-generated passages and annotating
+contradictions vs. world rules (lower is better).
+e Player experience: Feedback on immersion, control, consistency, and pacing.
+e Latency & cost: Average response time per turn and API spend.
+e Ablations: Compare with/without the notes/summarisation mechanism; contrast cloud
+vs. local model performance.
+b) Conceptual Architectural Comparison: Contrast this project’s narrative-first architecture
+with the publicly described concepts of “world-model” systems like Google Genie. This analysis
+will focus on theoretical differences in scope, controllability, and practical feasibility for a
+narrative-focused project, rather than direct performance benchmarking.
+*Extensions (time-permitting)
+e Architectural documentation website (static site) to visualise data flow, modules, and context logic
+for assessors.
+e Researching fast Al models (e.g., 8 billion parameters) with large context windows for efficient and
+responsive narrative generation, balancing performance with narrative complexity.
+2. Background and Rationale
+The project formalises a long-standing personal reflection into an allegorical, Al-native game. This means
+the Large Language Model (LLM) is not merely a tool for content generation but is central to the game’s core
+experience, driving emergent narratives and dynamic NPC interactions. Structurally, play proceeds through
+looping missions where outward “success” paradoxically accelerates decline, producing a deliberately
+endless, bleakly comic arc consistent with the world’s rules. This establishes a fertile testbed for LLM-driven
+story generation to express irony, reversals, and psychological pressure.
+A planned dimension of the written report is to contrast this system with world-model approaches such as
+Google Genie, which aim to generate entire interactive environments consistent with physics, an aspiration
+beyond the scope of this 2D narrative-first project. This comparison frames the practical trade-offs between
+bespoke pipelines and end-to-end world models, forming a significant part ofthe critical analysis.
+3. Relevance to Degree Course
+This project serves as the capstone for the BSc Digital Media and Games Computing degree, synthesising the
+technical and critical skills developed throughout the course. The technical core 2D game in Godot with a
+bespoke AI narrative system builds on programming fundamentals and the practical experience gained from
+my successful Year 2 Software Engineering project. The integration of a Large Language Model (LLM) is a
+direct continuation of my proactive work with Al, evidenced by winning the “Most Creative Award” in the
+Year 1 Machine Challenge and implementing the Google Gemini API during a summer internship.
+Furthermore, the project’s robust management and documentation structure applies key principles of
+architecture and version control learned from leading my Year 2 team to success. This project is the logical
+next step, applying these proven skills ina more complex and creative context.
+
+2
+
+4. Project Plan and Timeline
+The project is structured into four main phases, spanning the Autumn and Spring terms:
+Phase 1: Foundation and Prototyping (Autumn Term: Weeks 1-5) Focuses on establishing the project’s
+technical groundwork, including research, planning, and developing the core 2D RPG framework.
+Phase 2: Core AI Implementation and Reporting (Autumn Term: Weeks 6-9)
+This phase tackles the central technical challenge of integrating the LLM and developing the multilayered context management system. It culminates with the submission of the Interim Report.
+Phase 3: Narrative Integration and System Refinement (Autumn Term: Weeks 10-12 &S
+Involves authoring the seed narrative, integrating it with the AI system, and conducting extensive
+testing and iteration to ensure narrative coherence and player engagement. The game build is
+expected to be largely complete by the end of January, allowing for focused report writing.
+Phase 4: Extensions, Finalisation, and Dissertation (Spring Term) Dedicated to implementing selected
+extension objectives, finalising the project deliverables, and writing the comprehensive final report
+and critical analysis, which constitutes 80% of the overall project mark.
+5. Expected Deliverables ¢ Playable Godot 4.6.1 prototype demonstrating end-to-end AI-driven dialogue and
+story progression with multi-layer context.
+e Source code repository with documentation and architecture diagrams (plus optional static
+documentation website).
+e Final dissertation including the critical comparison with world-model approaches like Genie.
+e Recorded gameplay video showcasing key Al-driven narrative moments for presentation and
+demonstration.
+
+Appendix C: Game Design Document
+G5038: Final Year Project - Game Design Document
+Game Title: Glorious Deliverance Agency 1
+
+University of Sussex
+
+Date: 26 October 2025
+
+Engineering & Informatics
+Creative Statement:
+
+All characters, events, and religious metaphors in this game are purely fictional and intended for satirical
+purposes. There is no intention to allude to any real-life individuals, groups, or beliefs.
+1. Game Overview
+
+1.1. Pitch An AJ native 2D role-playing game where you are a reluctant hero in a dysfunctional team, whose
+attempts to save the world with “positive energy” only accelerate its destruction in a dark, toxic positivity.
+1.2. Format and Platforms The game is designed for PC
+platforms using the Godot 4.6.1 Engine, targeting players who
+have access to desktop computing environments. The
+technical foundation will support integration with various Al
+language models to enable dynamic narrative generation,
+which defines the core gameplay experience.
+1.3. Genre and Theme The game blends RPG mechanics with
+narrative-driven gameplay, wrapped in layers of dark comedy
+and satire. At its thematic heart lies a critique of toxic positivity and modern hustle culture, exploring how
+good intentions can spiral into catastrophic consequences. The narrative weaves together concepts of
+entropy, determinism, and the psychological damage caused by forced optimism, all delivered through black
+humour that encourages players to question the systems they participate in.
+1.4. Graphical Perspective The visual presentation adopts a scene-based approach reminiscent of visual
+novels and stage plays. The game screen features a prominent central view, with character sprites, dynamic
+backgrounds, and interactive objects that create a theatrical experience. An AI director orchestrates both
+the narrative delivery through dialogue boxes and the visual composition of each scene, creating a synthesis
+where story and visuals respond dynamically to player choices.
+1.5. Target Audience Primary: University students and young adults who can relate to the themes of
+academic pressure, project frustrations, and the often absurd clash between idealism and reality.
+Secondary: Players interested in experimental and Al-driven narratives, fans of dark humour and satirical
+storytelling, and those intrigued by the technical implementation of LLMs in games.
+1.6. Game Influences Technological: Google’s “Genie” AI world model, which inspired the core concept of
+an Al-generated game world. The project also aims to be a critical reflection on such technology.
+Literary: The story draws on satirical and absurdist traditions, with a narrative that subverts classic “hero’s
+journey” tropes.
+1.7. Player Objectives: Victory in the traditional sense does not exist in this game. Instead, players navigate
+an endless, looping tragedy orchestrated by the Glorious Deliverance Agency. The experience focuses on:
+e Influencing the Al-generated narrative as it unfolds
+
+e Managing the tension between Reality and Positive Energy statistics while witnessing their impact
+on the world’s stability
+e Surviving the social and psychological challenges posed by dysfunctional teammates
+e Ultimately uncovering the dark, ironic truth behind what the game calls the Positive Energy Curse
+
+1.8. Distinctive Features The game’s most distinctive element is its Al-native narrative engine, where
+core story beats, NPC dialogue, and player choices emerge dynamically through real-time generation by
+language models such as Google Gemini, OpenRouter, or local Ollama instances. This creates genuinely
+unique playthroughs where no two experiences follow identical paths.
+Supporting this narrative foundation is an Al-driven visual scene system featuring a comprehensive
+library of two-dimensional assets:
+¢ Twenty environmental backgrounds establish locations
+e Forty-eight character expression sprites provide emotional nuance across six main characters
+¢ Twenty-nine symbolic gameplay objects add interactive elements
+e Eight generic NPC archetypes allow the AI to populate scenes with supporting characters
+The AI selects and combines these visual elements through structured directives to construct contextually
+
+appropriate scenes for every narrative moment.
+The Reality versus Positive Energy mechanic forms the game’s philosophical core, creating a unique
+statistical system where traditionally positive actions directly accelerate the world’s decay, making players
+complicit in the disaster they witness. The Prayer System functions as an ironic prompt engineering tool
+where players input hopeful prayers that the AI transforms into disastrous outcomes.
+Beyond its mechanical innovations, the game aspires to thematic
+depth by functioning as a playable allegory. Every system and
+narrative beat works together to offer a satirical critique of realworld social phenomena around toxic positivity, workplace
+dysfunction, and the dangers of refusing to acknowledge difficult
+truths.
+2. Characters
+
+2.1. Player Character: The Protagonist The protagonist embodies pragmatic realism,
+reflecting anyone worn down by repeated disappointments and betrayals. At the story’s
+beginning, they harbour deep mistrust toward divine intervention and blind faith,
+preferring rational thinking over magical solutions. This worldview crumbles when Saint
+Gloria deploys masterful psychological manipulation, convincing the protagonist that
+their negativity causes all personal and interpersonal failures. Pushed to the edge of
+mental breakdown, the protagonist desperately accepts Gloria’s salvation and adopts her
+simplistic positive energy creed as a last resort to avoid harming others. This forced
+conversion sets the stage for their tragic journey as reluctant believers who know better
+but feel they have no choice.
+
+2.2. Non-Player Characters: The Team The player’s teammates function not as traditional allies but as the
+primary antagonists and obstacles. Each embodies a distinct, flawed ideology that systematically
+undermines every mission.
+
+Saint Gloria serves as the Guardian of the Greenhouse, a weaponised innocent
+
+who has constructed a sterile bubble of love and tolerance around herself. She
+perceives any dose of reality that might shatter this bubble as negative energy
+requiring purification. While she believes her life has been blessed and
+smooth, she has actually survived numerous personal tragedies by choosing
+not to process them, instead embracing belief in the Positive Energy Law and
+the Flying Spaghetti Monster as a cure-all defence mechanism. Her god is not
+real but rather a personification of her denial. Gloria never attacks directly,
+instead deploying moral blackmail through phrases like “your actions have
+hurt me” to induce guilt and control. When confronted with concrete
+problems, she pivots to criticising others’ negative emotional reactions,
+derailing the original issue. She tolerates the weak who don’t challenge her
+worldview, but cannot abide those who use logic to question it. She represents
+refined selfishness that prioritises personal peace over confronting complex realities.
+Sir Donkey is the Self-Proclaimed Hero, a bankrupt concept who lives as a
+cosplayer trapped in an archaic epic. He believes striking heroic poses
+automatically entitles him to glory and princesses, despite lacking any skills
+required for genuine heroism. His entire worldview derives from clich’ed,
+gender-stereotyped fantasy novels and web fiction, making him profoundly
+positive in the most toxic way. He performs chivalry through flattery and
+boasting, but remains utterly passive and responsibility-avoidant in practice.
+His creative solutions invariably revolve around hero-saves-damsel tropes that
+objectify women, and when challenged, Gloria insists others tolerate his views.
+When his plans fail, he immediately shifts blame and frames himself as a
+misunderstood hero held back by incompetent allies. He symbolises infantile
+mentality steeped in outdated fantasies and incapable of facing real challenges.
+ARK is the Diligent Destroyer, an Architect of the Black Box who zealously pursues order and planning.
+However, his order merely wraps chaos in complex rules, leading to more
+.
+spectacular and thorough collapse. Coming from a chaotic background, he
+developed pathological cravings for control and certainty, never questioning
+his own plans but always questioning those who refused to obey them. He
+issues commands online and holds meetings solely for others to rubberstamp his pre-made decisions in a sham democracy. He operates in isolation,
+never syncing progress or explaining methods, thereby destroying team trust.
+He pours immense energy into minor execution details while remaining
+careless with crucial strategic planning and communication, demonstrating
+tactical diligence paired with strategic laziness. He represents bureaucratic
+thinking that worships procedure and authority while losing the capacity for communication and adaptation.
+One is the Silent Witness, the Unwitting Accomplice who stands as the
+only truly competent and principled person on the team. His kindness and
+conflict-avoidant nature lead him to remain silent in toxic environments,
+
+making him a witness to injustice and a source of moral torment for the
+protagonist. As an old friend who built trust with the protagonist through
+early trials, he proves loyal and reliable, yet suffers subtle ostracism from
+other teammates due to his background or language. He practices passive
+goodness, never actively harming anyone, but also never intervening when
+others are harmed, fearing he will disrupt harmony. Gloria’s love and
+tolerance never extend to him. He maintains public peace with claims of
+being okay while privately expressing true pain and frustration to the
+protagonist. He represents how silence from good people can become a
+form of complicity within toxic systems.
+
+Teacher Chan is the Soul-Soothing Singer, the Harbinger of Doom who serves as
+high priestess of the God of Blinding Light. As a national-level idol singer, her
+image radiates pure, white-robed compassion. Her gentle songs filled with lyrics
+about letting go, forgiveness, and growth are not balms but curses. She genuinely
+believes in her message, which makes her terrifying. Her concerts function as
+massive rituals that dramatically amplify the Void Entropy, accelerating the
+world’s end. She is not a spiritual guide but a world destroyer wearing the guise
+
+of one.
+3. Narrative and Story
+3.1. Backstory and Premise The universe operates according to a fundamental law called Void Entropy,
+where all things naturally and slowly decay toward chaos and eventual oblivion. This represents a peaceful,
+albeit melancholic, fate. However, when scientists discovered this truth, humanity refused to accept it. A
+
+global spiritual movement called the Flying Spaghetti Monster Gospel emerged, preaching a lie that the
+universe’s decay could be reversed by broadcasting pure positive energy through the Law of Attraction.
+The terrible truth is that this forced, manufactured positivity born from suppressing all negative emotion
+serves as the ultimate catalyst for Void Entropy. Every prayer for miracles, every act of blind faith, every
+
+instance of tolerating injustice for love’s sake accelerates the world’s natural demise by a factor of ten
+thousand. The world is not dying naturally but being actively poisoned by hope itself.
+3.2. In-Game Narrative and Game Loop The game operates on a cyclical, endlessly darkening loop with no
+victory condition. The Glorious Deliverance Agency receives a hopeful, world-saving quest generated by the
+Al. Players are forced to use the Prayer System, inputting positive words that act as prompts for the AI to
+engineer disastrous scenarios. During mission attempts, teammates with their unique brands of
+incompetence systematically sabotage every step through Al-generated actions and dialogue.
+Missions fail in spirit but succeed on surface levels, with net results being massive increases in world Entropy.
+These successful outcomes trigger mandatory events where Teacher Chan appears in holographic concerts,
+singing soothing songs that brainwash the team into believing they accomplished good things. Players
+receive Cognitive Dissonance debuffs. Brief Al-triggered honeymoon phases follow, where teammates act
+unusually cooperative and kind, giving false hope before new missions begin, and the cycle repeats, plunging
+the world into deeper despair.
+The story has no end. The protagonist and team grow stronger in statistics, but their fate only darkens. They
+meet new people only to lose them to the team’s folly, forever trapped with the GDA as they personally escort
+the world to its doom.
+4. Gameplay and Mechanics
+4.1. Core AI Narrative and Gameplay Framework The game’s foundation rests on a flexible framework
+where AI generates not just text but also populates mission scenes with unique parameters, objectives, and
+constraints. The AI establishes scenarios with specific challenges, then generates choices based on player
+skills, including Logic, Perception, Composure, and Empathy. The system includes deliberate sabotage
+mechanics where successful skill checks by players often trigger catastrophic interruptions from teammates,
+generated by AI based on character personas. For example, successfully calming a guard through Logic might
+be immediately undone when Donkey loudly proclaims the party has come to rescue princesses from evil
+dragons, resulting in arrests.
+4.2. Resource Management: Reality versus Positive Energy This system replaces traditional health and
+mana mechanics, forming the central mechanic that influences AI behaviour. Reality Score increases through
+rational, logical, or pessimistic choices and successful Logic or Perception checks. High Reality scores unlock
+dialogue options that see through team delusions and help resist Gloria’s mental attacks, but also cause
+teammates to brand players as negative and target them more frequently.
+
+Positive Energy Score increases through agreeing with teammates’ foolish plans, using positive words in the
+Prayer System, and choosing love and tolerance options. This increases teammate friendliness, though their
+help remains useless, and makes Empathy checks easier. However, every point of Positive Energy directly
+increases the world’s Entropy Value, accelerating its destruction. Player positivity becomes a weapon
+against the world itself.
+4.3. The Prayer System This system functions as a direct interface for players to prompt them to engineer
+their own doom. Before missions, a user interface appears where players must type prayers to the Flying
+Spaghetti Monster. The more positive and hopeful the text about cooperation and mission success, the more
+heavily the AI is instructed to generate ironic, disastrous outcomes that subvert those prayers. Players
+actively write scripts for their own failures.
+4.4. Teacher Chan’s Apocalypse Concert Mandatory cutscene events trigger after mission successes. Prerendered video of Teacher Chan plays with Al-generated lyrics appearing as subtitles. The lyrics consist of
+generic, feel-good platitudes that reframe preceding disasters as triumphs of spirit. After concerts, players
+are afflicted with Cognitive Dissonance debuffs that temporarily lower Logic and critical thinking skills, and
+may force positive keywords into next prayers, ensuring downward spirals continue.
+4.5, Gloria’s Intervention Event Special triggered events occur when player complaints or negative choices
+reach certain thresholds. The game transitions to dedicated screens featuring Gloria’s portrait, where she
+delivers monologues starting with lines about how player negativity has dragged her into the first emotional
+low of her life. The AI generates the rest of the text, personally attacking recent player choices. These events
+inflict massive emotional and statistical damage. To exit, players must click Continue, after which their only
+available action is Pray, forcing them back into toxic positivity cycles.
+4.6. The Diary System This system provides players’ only true outlet and serves as a key feature for
+mitigating frustration. After each mission, players can open journals where the AI provides several options
+for recording events. Entries might be factual, emotional, or sarcastic in tone. The diary does not affect main
+
+plot outcomes but functions as a spiritual guide for players. Entries influence the protagonist’s internal
+monologue and can unlock special, fantasy-only resistance scenes, such as dream sequences where players
+beat up teammates, providing crucial emotional catharsis.
+4.7. Al-Driven Visual Scene and Asset System This system bridges AIgenerated narratives with finite art asset sets through intelligent asset
+selection and contextual arrangement. The AI will receive detailed asset
+manifests as part of its system prompt, enabling the selection of appropriate
+visual elements that match the narrative context. The AI will generate
+structured scene directives specifying:
+e Scene configuration: background type, atmospheric mood, and
+lighting conditions
+e Character composition: determining which characters appear with
+which expressions
+¢ Symbolic object placement: with contextualised names and descriptions
+e¢ NPC casting: where generic archetypes appear as specific named characters
+The asset libraries include:
+¢ Twenty unds of environmental scenes organised by theme
+¢ Forty-eight character sprites representing six main characters with eight expressions each
+
+¢ Twenty-nine symbolic assets of gameplay objects organised into curated cycles
+e Eight NPC archetypes as generic character types the AI can cast into specific roles « Over twenty-five
+audio assets, including sound effects and background music
+The system will support asset querying by tags and themes, allowing the AI to request dangerous outdoor
+locations or mystical indoor spaces without specifying exact file names.
+4.8. Core Mechanics and Formulas The game implements relationships between player actions and core
+metrics through the PlayerStats class, which is delegated from GameState.
+Reality Score represents the player’s grasp on bleak, objective reality, with an initial value of 50 and a range
+from 0 to 100. High scores (2 80) indicate strong alignment with objective truth and trigger increased Gloria
+intervention frequency, while low scores (s 20) suggest descent into delusion, can trigger the Cognitive
+Dissonance debuff (—3 to Logic skill checks), and may force game over at 0.
+Positive Energy represents attempts to impose cheerful, optimistic outlooks on the world with ironic
+consequences, starting at 50 with a range from 0 to 100. High scores (= 75) trigger Gloria’s protective
+interference and increased teammate “friendliness.” Critically, every increase in Positive Energy directly
+contributes to world instability.
+Void Entropy is a calculated floating-point value (0.0 to 1.0) representing decay of narrative coherence and
+world stability, ironically accelerated by misplaced optimism. The implemented formula in PlayerStats is:
+
+void_entropy =
+
+positive_energy
+
+100.0
+
+x 0.6
+
+r
+
+1.0—-
+
+reality_score
+
+200.0
+
+x 0.4
+
+This formula ensures Positive Energy is the primary driver (60% weight) while reality loss contributes 40%.
+The result is clamped to [0.0, 1.0] and directly influences AI prompt construction.
+Entropy thresholds:
+e Low entropy (< 0.3) produces normal but bleak events
+¢ Medium entropy (0.3-0.7) introduces strange and unexpected elements
+¢ High entropy (2 0.7) generates surreal, darkly humorous, ironic events that directly subvert recent
+positive actions
+The skill system implements four core skills (Logic, Perception, Composure, and Empathy), each with a base
+value of 5 and a range of 0-20. Skill checks use a 1d10 roll plus skill value versus a difficulty threshold. The
+Cognitive Dissonance debuff applies -3 penalty specifically to Logic checks, simulating impaired critical
+thinking after Teacher Chan’s concerts or excessive Positive Energy exposure.
+4.9. The Butterfly Effect Tracking System The ButterflyEffectTracker component has been implemented
+to transform the game from isolated decisions into a living, interconnected narrative where every choice
+creates ripples that cascade forward through time. Unlike traditional branching narratives, this creates
+emergent consequences that surface scenes later, reminding players that their past decisions have lasting
+weight.
+The system records different types of choices (minor, major, critical) with comprehensive metadata. Each
+recorded choice captures:
+
+e Scene context (current scene number via advance scene())
+e Entropy level
+¢ Complete stat distributions at decision time
+¢ Choice metadata, including exact text and categorical tags for filtering
+Consequence seeds are stored as arrays of potential outcomes, each with a scheduled scene number (3-20
+scenes ahead), description, triggered status flag, and severity rating. The system implements weighted
+selection algorithms to determine when consequences trigger, with higher-severity consequences having
+priority. The get context for ai() function formats relevant past choices and pending consequences for
+inclusion in AI prompts, enabling the AI to reference earlier decisions and create narrative callbacks.
+4.10. The Trolley Problem Dilemma System The TrolleyProblemGenerator component has been
+implemented to generate dynamic moral dilemmas where every choice leads to harm, forcing players to
+confront the game’s central thesis that in broken systems saturated with toxic positivity, you cannot escape
+complicity. The dilemmas expose the hypocrisy of positive energy framing and institutional dysfunction.
+The system implements five core template types stored as constants:
+© classic - direct trolley choices
+e sacrifice - choose who suffers
+® complicity - action vs inaction
+
+e lesser evil - all options catastrophically bad
+® positive energy _trap - toxic positivity framing vs honest approaches
+For each template, the system maintains fallback presets in both English and Chinese to ensure gameplay
+continues if AI generation fails.
+Trigger conditions are calculated dynamically: base 30% chance per mission after mission 3, with bonuses
+(+10% for high entropy = 0.7, +15% for saturated Positive Energy = 80, +10% for low Reality < 30), capped
+at maximum 85% in crisis phases.
+The generate dilemma() function constructs context-aware prompts that include current stats and recent
+mission summaries, then requests the AIManager to generate:
+e Scenario setup
+e Distinct choices with framing labels (positive/honest/neutral)
+¢ Immediate stat changes
+e Long-term consequence descriptions
+¢ Thematic commentary
+Generated dilemmas are parsed from JSON responses with robust error handling and fallback to presets.
+Presentation is handled through dedicated UI overlays with dramatic visual effects:
+e Screen darkening and fade-in transitions
+e Full-screen scenario text with typewriter effects
+
+10
+
+¢ Colour-coded choice buttons (pink/warm for positive framing, blue/cool for honest, grey for neutral)
+© Post-choice resolution screens
+
+All dilemma outcomes are automatically logged to the journal system with timestamps and butterfly effect
+trackers for future narrative callbacks.
+4.11. The Achievement and Progress System. The Achievement System component has been
+implemented with 15+ defined achievements serving three purposes:
+1. Tracking player milestones and providing feedback on progression
+2. Using ironic titles and descriptions to comment on player complicity
+3. Encouraging replayability through hidden achievements
+Implemented achievement categories include:
+¢ Milestone achievements: first mission complete, first journal entry, first _dilemma _re
+
+¢ Stat-based achievements: high reality threshold for reaching Reality = 80, low positive energy for
+maintaining Positive Energy < 20 for 5 consecutive missions
+¢ Skill-based achievements: logic master for passing 10 consecutive Logic checks, empathy failure for
+failing 5 Empathy checks
+¢ Narrative achievements with dark humour: Gloria _victim for triggering
+Gloria’s intervention 3 times, prayer addict for using the Prayer System 10 times ¢ Hidden
+achievements: tutorial complete, secret ending unlocked
+
+The system connects to GameState signals (stat changed, mission completed) to automatically evaluate unlock
+conditions. Achievement data persists through the save/load system with unlock timestamps for display
+sorting.
+4.12. The Relationship and Social Graph System. A RelationshipGraphViewer component has been
+partially implemented to visualise how player choices ripple through the narrative system. The
+implementation will provide a node-graph UI accessible from menus that renders butterfly effect data as a
+visual network. Choice nodes (displayed on the left side in blue) connect to consequence nodes (displayed
+on the right side in orange) via connection lines. The viewer implements hover effects for displaying node
+details (full choice text, stats at decision time, consequence status).
+The system integrates with the ButterflyEffectTracker to display recorded choices and their scheduled
+consequences, providing players with a visual timeline of their decision history. While the foundational UI
+and rendering logic are implemented, the planned expansion to include teammate trust levels, blame
+networks, and Gloria’s favouritism metric as additional data layers remains a future development goal. The
+implementation focuses on visualising the butterfly effect choice-consequence graph as the primary
+relationship tracking mechanism.
+4.13. Al-Driven Narrative Generation and Output Structure. All dialogue and narrative content will be
+generated dynamically through integration with large language models. The system will construct contextrich prompts incorporating dynamic context, including:
+¢ Current game state, such as Reality Score, Positive Energy, and Entropy Level
+e¢ Recent player choices and their consequences
+
+11
+
+e Character relationships and trust values
+¢ Mission parameters and visible symbolic assets
+¢ Long-term memory from player journal entries
+The Al interface will support multiple LLM backends, including:
+¢ Ollama for local inference for offline play and privacy
+¢* Google Gemini API for cloud-based generation with fast response times
+¢ OpenRouter for multi-model routing for flexibility
+¢ Mock Generator for deterministic responses for testing
+Prompt engineering will include character persona prompts to ensure consistent teammate voices, such as
+Gloria’s toxic positivity, Donkey’s heroic delusions, and ARK’s bureaucratic rigidity, safety filtering to prevent
+inappropriate content, token usage tracking for cost control, streaming support for real-time user interface
+updates, and automatic retry logic for API failures.
+Output requirements will have the AI generate structured responses containing:
+e Narrative text, including story beats, descriptions, and consequences
+¢ Character-attributed dialogue
+e Scene directives for visual composition
+e Player choice options with metadata, including skill requirements and stat impacts
+e Butterfly effect seeds for future consequences
+This will enable emergent, replayable narratives that adapt to player decisions while maintaining thematic
+consistency.
+5. Testing Strategy and Evidence Plan
+An extensive testing infrastructure has been implemented, comprising 20+ automated test files located in
+/5.Codebase/Unit Test/, providing comprehensive coverage across all major system components. The testing
+strategy employs Godot’s built-in testing framework (GUT - Godot Unit Test) with assertion-based validation.
+5.1. Unit and Component Testing. Individual components have been tested in isolation to verify correct
+functionality before integration. Implemented test suites include:
+Core Systems Tests:
+e test game state.gd (state management, game phase transitions)
+¢ test player -stats.gd (stat calculation formulas, including void entropy formula verification, skill checks
+with 1d10 mechanics, boundary conditions for 0-100 ranges)
+¢ test gamestate integration.gd (save/load persistence, JSON serialisation integrity)
+e test event bus.gd (event system, signal propagation across decoupled components)
+AI System Tests:
+
+12
+
+¢ test Al prompt —builder.gd (context construction, note filtering by importance and tags, prompt
+layering verification)
+¢ test ai system.gd (provider switching between Gemini/Ollama/Mock, fallback behaviour, timeout
+handling)
+Testing methodology employs assertion-based validation for expected vs actual outcomes.
+(assert eq, assert true, assert almost eq for floating-point comparisons), edge case coverage for boundary
+conditions (reality score at 0/100, entropy at 0.0/1.0), empty inputs, and error states, and mock data
+injection for deterministic testing without network dependencies.
+5.2. System and Integration Testing Integration testing has been implemented to verify that components
+work together correctly, ensuring smooth data flow between UI, logic, AI generation, and state management.
+Critical integration points tested include:
+UI and Logic Flow: Complete player interaction loops tested using test story scene modules.gd for choice selection, stat
+updates via GameState delegation to PlayerStats, and UI refresh after state changes. Special event flows (Prayer System,
+Gloria Intervention, Moral Dilemmas) were tested with both MockAIGenerator for deterministic outcomes and live API
+
+calls for robustness.
+AI Context and Memory Integration: test Al prompt builder.GD verifies that AIManager receives accurate
+game state context (reality score, positive energy, entropy) and includes filtered notes (importance 2 3) and
+butterfly effect data. Thematic appropriateness is tested by validating that prompt construction modifies
+tone based on entropy thresholds (low/medium/high).
+Save/Load Resilience: test save load system.gd and test gamestate integration.gd verify complete state
+persistence, including mid-mission saves (preserving current mission id and scene context), butterfly effect
+choice history with metadata arrays, achievement unlock timestamps, and corrupt file handling with fallback to
+default state.
+Performance Monitoring: Tests log AI latency and token consumption during test runs. Observed metrics
+align with expectations: local Ollama responses 2-10 seconds depending on model size, cloud API (Gemini)
+responses 1-5 seconds, and token consumption 500-1500 tokens per narrative generation request.
+Validation criteria verified by test suites include: no UI blocking during AI generation (async/await pattern
+tested), stats updating correctly after choices (signal emission verified), no memory leaks during extended
+test runs (50+ simulated missions), and complete data integrity through save/load cycles (deterministic
+state comparison).
+
+13
+
+Appendices D: Record of a meeting
+Individual Project Record of a meeting 1
+Meeting format
+
+Physical
+
+Date and time
+
+3rd October 2025, 10:00 AM
+
+1) Issues discussed at this meeting
+
+- We discussed my final year project idea, which is to create a 2D game that integrates Al.
+- We talked about the potential for the project's scope to become too large and the importance of focusing on a
+specific, achievable goal.
+- The supervisor stressed that the project requires "depth" over "breadth," meaning it's better to implement one Al
+
+feature well rather than many superficially.
+- We went over the project timeline, including the interim report in Week 7, the final report (which is 80% of the
+mark), and the final presentation.
+
+- We also briefly emphasised the need for version control and regular backups.
+2) Decisions agreed at this meeting
+
+- My main task is to refine the aims and objectives for my project to make them more focused.
+- | need to prepare one main aim and four measurable objectives to discuss at our next meeting.
+
+- Based on the refined objectives, | will draft the Project Proposal, due by the end of Week 3. This will include the
+working title, aims, relevance to my degree, required resources, and a bibliography.
+END
+
+Individual Project Record of a meeting 2
+Meeting format
+
+Physical
+
+Date and time
+
+16th October 2025, 3:30 PM
+
+1)
+
+Matters to note from last meeting
+
+My main task from the last meeting was to refine the aims and objectives for my project to make them more
+focused. | have done this, and we discussed it in this meeting.
+
+2)
+
+Issues discussed at this meeting
+
+1. Project Timeline Clarified
+*
+
+Coding Deadline: Hard stop in mid-February. No coding after this.
+
+*
+
+Testing Phase: Must happen in January/early February to allow 2-3 weeks for feedback collection and analysis
+
+before the coding deadline.
+Final Report: A solid 3 weeks at the end of Semester 2 must be dedicated solely to writing.
+2. Interim Report (Week 7) - Strategy Shift
+
+¢
+
+This report is NOT about implementation progress.
+Focus on the "thinking":
+o
+
+Context & Problem: What is the issue?
+
+o
+
+Literature Review: What have others done? (Crucial to expand this) o Project Specification: What is
+my proposed solution?
+
+¢
+
+Coding progress is a minor note, not the core content.
+
+3. The "Authentic Journey"
+¢
+
+The final report should document the real process, including problems and changes.
+
+¢
+
+It's a narrative of learning. Don't present a "perfect" journey.
+
+¢
+
+Be truthful about existing skills and what needs to be learned. This demonstrates self-awareness and risk
+management.
+
+4. Research & Literature Review
+¢
+
+Immediate Priority: Soend the next week focused on literature review.
+
+¢
+
+Topics: Game Design, Al in Games, Al Content Generation.
+
+*
+
+Sources: Use academic, reputable sources, not just code repositories. The literature should steer the project's
+direction.
+
+5. On Gathering Opinions
+
+*
+
+Postpone interviews with lecturers.
+
+¢
+
+Asking for opinions now risks derailing the project's focus.
+
+¢
+
+A better approach: Get their feedback on the finished game to evaluate the solution. 3) Decisions agreed at
+
+this meeting
+Before Next Meeting (Oct 23rd):
+1. Literature Review: Dedicate the week to finding and reading academic articles.
+2. Draft Interim Report: Start a new document focusing on the sections discussed (Lit Review, Methods,
+
+etc.).
+3. Pause Heavy Coding: Slow down implementation to focus on research and planning. END
+
+Individual Project Record of a meeting 3
+Meeting format
+
+Physical
+
+Date and time
+
+24th October 2025, 3:30 PM
+
+1) Matters to note from last meeting
+
+Discussed the project problem area and how it integrates into the report.
+
+Clarified that the report is not limited to 20 pages, only the appendices are.
+Issues discussed at this meeting
+Week 7 report not ready for review; still drafting and compiling references (around 40). Planning for each part
+is done, but no content has been added yet.
+Uncertainty about including a "project problem area" section in the report, especially for a game
+
+development project.
+Confirmed that the "problem" for the individual project is investigating the possibilities of LLMs to generate
+dynamic, non-linear, perpetually evolving storylines for games.
+Clarified that the problem area can be integrated into existing sections like "requirements analysis" and
+
+"background," not necessarily a separate section.
+Discussed how to grade the success of the LLM implementation in the game.
+Discussed the inclusion of a Game Design Document (GDD) in the individual project report; it can be included
+
+in the appendices if useful, but is not a required report itself.
+Offered to share the GitHub URL with the supervisor for document storage.
+
+2) Decisions agreed at this meeting
+The "project problem area" will be integrated into the requirements analysis and background sections of the
+
+report.
+Game Design Document (GDD) can be included in the appendices of the individual project report, but it is not
+considered part of the main report's word count or page limit (except for the 20-page appendix limit).
+First draft of the individual project report to be sent early next week. END
+
+Individual Project Record of a meeting 4
+Meeting format
+
+Physical
+
+Date and time
+
+29th October 2025 2:00 PM
+
+1) Matters to note from last meeting
+Draft interim report delivered for review, continuing to integrate the project problem area within
+requirements/background sections as previously agreed.
+
+Game Design Document being prepared as an appendix rather than a standalone submission, per prior
+guidance.
+
+2) Issues discussed at this meeting
+The scope of the risk and ethics section, particularly regarding API data handling, prompt storage, and
+project-specific risks.
+The structure of requirements engineering content to avoid duplication with other sections.
+The placement of planning documents (GDD, meeting notes) in either the report appendices or the GitHub
+repository.
+The word/page limits for the interim report and strategies for trimming content.
+
+The ethical considerations of voice-input, leading to a decision for controlled UI selections.
+
+3) Decisions agreed at this meeting
+*
+
+Revise the ethics/risk discussion to emphasise controlled UI prompts, clarify data retention/mitigation steps,
+and note why voice capture is excluded.
+Detailed component lists and UI descriptions will be shifted into the Game Design Document, with concise
+
+references in the main report to manage length.
+¢
+
+Interim report will retain required proposal elements but remove duplicated material, keeping within page
+limits while ensuring appendices reference supporting documents as needed.
+
+¢
+
+Email a Word version of the interim report draft to Dr Creed for detailed review and tracked comments.
+
+END
+
+Individual Project Record of a meeting 5
+Date and time
+
+6th November 2025, 3:00 PM
+
+Meeting format
+
+Physical
+
+1) Matters to note from last meeting
+e Interim report draft submitted for detailed review with tracked changes in Word format.
+° Code refactoring in progress to improve the structure for report documentation.
+e
+
+Focus on keeping report content static and well-organised.
+
+2) Issues discussed at this meeting
+¢ Document review process: Reviewed how to view tracked changes in Word (Review > Show Comments and Track
+
+Changes). Discussed accepting/rejecting insertions and managing document revisions.
+e Extensive discussion on ethics compliance for the project
+¢ Emphasis on functional testing as the methodology rather than user testing with external participants.
+e Need to complete software testing with the user's compliance form.
+e Ethical consideration: Cannot use external users yet due to uncertainty about inappropriate content generation from
+Al.
+
+¢ Mitigation strategy: Stop testing if Al generates inappropriate content, add safeguards, and iterate.
+
+e Regular, thorough functional testing is required to ensure safety before any future user testing.
+¢ Content reduction and refinement: Report currently 3,000 words over limit.
+
+e Evaluation and success criteria: Discussed how to measure project success through functional testing
+Future meetings: After the interim submission, move to bi-weekly meetings with one planned before Christmas
+break.
+
+END
+
+

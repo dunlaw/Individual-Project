@@ -1,0 +1,40 @@
+# LaTeX auxiliary files
+*.aux
+*.lof
+*.log
+*.lot
+*.fls
+*.out
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+
+# LaTeX intermediate files
+*.dvi
+*.xdv
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.pdfsync
+*.blg
+*.bbl
+
+# LaTeX build files
+*.run.xml
+*-blx.bib
+
+# Temporary files
+nul
+*.tmp
+*.temp
+
+# Editor backup files
+*~
+*.bak
+*.swp
+
+# Keep the PDF output (comment out if you don't want to track PDFs)
+# *.pdf

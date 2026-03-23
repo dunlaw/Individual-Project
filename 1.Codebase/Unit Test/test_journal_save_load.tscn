@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3p4c5k6l7m8n9o0"]
+
+[ext_resource type="Script" path="res://1.Codebase/Unit Test/test_journal_save_load.gd" id="1_test_journal"]
+
+[node name="TestJournalSaveLoad" type="Node"]
+script = ExtResource("1_test_journal")

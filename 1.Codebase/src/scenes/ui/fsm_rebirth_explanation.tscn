@@ -1,0 +1,624 @@
+[gd_scene load_steps=8 format=3 uid="uid://fsm_rebirth_explanation"]
+
+[ext_resource type="Script" path="res://1.Codebase/src/scripts/ui/fsm_rebirth_explanation.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/gloria_protagonis_happy.png" id="2_gloria_happy"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/gloria_protagonis_sad.png" id="3_gloria_sad"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/ui/guide_fsm.png" id="4_fsm_guide"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/teacher_chan_happy.png" id="5_teacher_chan"]
+
+[sub_resource type="Gradient" id="grad_bg"]
+interpolation_mode = 2
+offsets = PackedFloat32Array(0, 0.3, 0.7, 1)
+colors = PackedColorArray(0.06, 0.03, 0.12, 0.96, 0.1, 0.06, 0.22, 0.94, 0.08, 0.12, 0.28, 0.94, 0.04, 0.04, 0.1, 0.96)
+
+[sub_resource type="GradientTexture2D" id="grad_tex"]
+gradient = SubResource("grad_bg")
+fill_to = Vector2(0.85, 1)
+width = 2048
+height = 2048
+
+[node name="FSMRebirthExplanation" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.88)
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BackgroundGradient" type="TextureRect" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("grad_tex")
+expand_mode = 1
+stretch_mode = 6
+modulate = Color(1, 1, 1, 0.7)
+
+[node name="AmbientParticles" type="CPUParticles2D" parent="Root"]
+z_index = 1
+position = Vector2(960, 540)
+amount = 60
+lifetime = 8.0
+preprocess = 4.0
+speed_scale = 0.3
+randomness = 0.7
+emission_shape = 3
+emission_rect_extents = Vector2(960, 540)
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 8.0
+initial_velocity_max = 25.0
+angular_velocity_min = -10.0
+angular_velocity_max = 10.0
+scale_amount_min = 1.5
+scale_amount_max = 4.0
+color = Color(1, 0.85, 0.4, 0.15)
+
+[node name="RisingParticles" type="CPUParticles2D" parent="Root"]
+z_index = 1
+position = Vector2(960, 1080)
+amount = 40
+lifetime = 6.0
+preprocess = 3.0
+speed_scale = 0.5
+randomness = 0.6
+emission_shape = 3
+emission_rect_extents = Vector2(960, 20)
+direction = Vector2(0, -1)
+spread = 15.0
+gravity = Vector2(0, -8)
+initial_velocity_min = 30.0
+initial_velocity_max = 70.0
+angular_velocity_min = -15.0
+angular_velocity_max = 15.0
+scale_amount_min = 2.0
+scale_amount_max = 5.0
+color = Color(0.6, 0.4, 1, 0.2)
+
+[node name="ContentPanel" type="PanelContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Root/ContentPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="Root/ContentPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="Root/ContentPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="HeaderIcon" type="TextureRect" parent="Root/ContentPanel/Margin/VBox/Header"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("4_fsm_guide")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Root/ContentPanel/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 36
+theme_override_colors/font_color = Color(1, 0.9, 0.4, 1)
+text = ""
+
+[node name="CloseButton" type="Button" parent="Root/ContentPanel/Margin/VBox/Header"]
+custom_minimum_size = Vector2(100, 44)
+layout_mode = 2
+text = ""
+
+[node name="SubtitleLabel" type="Label" parent="Root/ContentPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.7, 0.75, 0.9, 0.8)
+horizontal_alignment = 1
+text = ""
+
+[node name="HSeparator" type="HSeparator" parent="Root/ContentPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_styles/separator = null
+
+[node name="TabBar" type="HBoxContainer" parent="Root/ContentPanel/Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="TabMechanism" type="Button" parent="Root/ContentPanel/Margin/VBox/TabBar"]
+custom_minimum_size = Vector2(200, 44)
+layout_mode = 2
+text = "遊戲機制"
+
+[node name="TabComparison" type="Button" parent="Root/ContentPanel/Margin/VBox/TabBar"]
+custom_minimum_size = Vector2(200, 44)
+layout_mode = 2
+text = "效果對比"
+
+[node name="TabPhilosophy" type="Button" parent="Root/ContentPanel/Margin/VBox/TabBar"]
+custom_minimum_size = Vector2(200, 44)
+layout_mode = 2
+text = "重生哲學"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Root/ContentPanel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ContentVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="MechanismSection" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="MechanismCard1" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection"]
+layout_mode = 2
+
+[node name="CardMargin1" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard1"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="CardVBox1" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard1/CardMargin1"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CardTitle1" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard1/CardMargin1/CardVBox1"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.65, 0.84, 0.65, 1)
+text = ""
+
+[node name="CardBody1" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard1/CardMargin1/CardVBox1"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="MechanismCard2" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection"]
+layout_mode = 2
+
+[node name="CardMargin2" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard2"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="CardVBox2" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard2/CardMargin2"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CardTitle2" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard2/CardMargin2/CardVBox2"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.31, 0.76, 0.97, 1)
+text = ""
+
+[node name="CardBody2" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard2/CardMargin2/CardVBox2"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="MechanismCard3" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection"]
+layout_mode = 2
+
+[node name="CardMargin3" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard3"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="CardVBox3" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard3/CardMargin3"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CardTitle3" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard3/CardMargin3/CardVBox3"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.54, 0.40, 1)
+text = ""
+
+[node name="CardBody3" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard3/CardMargin3/CardVBox3"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="MechanismCard4" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection"]
+layout_mode = 2
+
+[node name="CardMargin4" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard4"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="CardVBox4" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard4/CardMargin4"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="CardTitle4" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard4/CardMargin4/CardVBox4"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.81, 0.58, 0.84, 1)
+text = ""
+
+[node name="CardBody4" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/MechanismSection/MechanismCard4/CardMargin4/CardVBox4"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="ComparisonSection" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="CompIntro" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection"]
+layout_mode = 2
+
+[node name="IntroMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompIntro"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="IntroLabel" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompIntro/IntroMargin"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="CompColumns" type="HBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="JournalCard" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="JournalMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/JournalCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="JournalVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/JournalCard/JournalMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="JournalIcon" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/JournalCard/JournalMargin/JournalVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+text = "📖"
+
+[node name="JournalTitle" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/JournalCard/JournalMargin/JournalVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.65, 0.84, 0.65, 1)
+horizontal_alignment = 1
+text = ""
+
+[node name="JournalBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/JournalCard/JournalMargin/JournalVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="JournalWarning" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/JournalCard/JournalMargin/JournalVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="FSMCard" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FSMMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/FSMCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 18
+
+[node name="FSMVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/FSMCard/FSMMargin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FSMIcon" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/FSMCard/FSMMargin/FSMVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+text = "🍝"
+
+[node name="FSMTitle" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/FSMCard/FSMMargin/FSMVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.42, 0.42, 1)
+horizontal_alignment = 1
+text = ""
+
+[node name="FSMBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/CompColumns/FSMCard/FSMMargin/FSMVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="EffectsCard" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection"]
+layout_mode = 2
+
+[node name="EffectsMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="EffectsVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="EffectsTitle" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(1, 0.84, 0.0, 1)
+horizontal_alignment = 1
+text = ""
+
+[node name="EffectsColumns" type="HBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="EffectsJournalCol" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox/EffectsColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="EJLabel" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox/EffectsColumns/EffectsJournalCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.31, 0.76, 0.97, 1)
+text = ""
+
+[node name="EJBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox/EffectsColumns/EffectsJournalCol"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="EffectsFSMCol" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox/EffectsColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="EFLabel" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox/EffectsColumns/EffectsFSMCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.81, 0.58, 0.84, 1)
+text = ""
+
+[node name="EFBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/EffectsCard/EffectsMargin/EffectsVBox/EffectsColumns/EffectsFSMCol"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="GloriaCard" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection"]
+layout_mode = 2
+
+[node name="GloriaMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/GloriaCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="GloriaHBox" type="HBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/GloriaCard/GloriaMargin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="GloriaImage" type="TextureRect" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/GloriaCard/GloriaMargin/GloriaHBox"]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+texture = ExtResource("3_gloria_sad")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="GloriaVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/GloriaCard/GloriaMargin/GloriaHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="GloriaTitle" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/GloriaCard/GloriaMargin/GloriaHBox/GloriaVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.81, 0.58, 0.84, 1)
+text = "Gloria 的行為轉變"
+
+[node name="GloriaBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/GloriaCard/GloriaMargin/GloriaHBox/GloriaVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 15
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="ConsequencesCard" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection"]
+layout_mode = 2
+
+[node name="ConseqMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/ConsequencesCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="ConseqVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/ConsequencesCard/ConseqMargin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ConseqTitle" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/ConsequencesCard/ConseqMargin/ConseqVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(1, 0.54, 0.40, 1)
+text = ""
+
+[node name="ConseqBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/ComparisonSection/ConsequencesCard/ConseqMargin/ConseqVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="PhilosophySection" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="PhiloIntro" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection"]
+layout_mode = 2
+
+[node name="PhiloIntroMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/PhiloIntro"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="PhiloIntroVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/PhiloIntro/PhiloIntroMargin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PhiloTitle" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/PhiloIntro/PhiloIntroMargin/PhiloIntroVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+horizontal_alignment = 1
+text = ""
+
+[node name="PhiloIntroBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/PhiloIntro/PhiloIntroMargin/PhiloIntroVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="DayCardsContainer" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="ConclusionCard" type="PanelContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection"]
+layout_mode = 2
+
+[node name="ConcMargin" type="MarginContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 24
+
+[node name="ConcVBox" type="VBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ConcHBox" type="HBoxContainer" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="ConcGloria" type="TextureRect" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox/ConcHBox"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("2_gloria_happy")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="ConcFSM" type="TextureRect" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox/ConcHBox"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("4_fsm_guide")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="ConcTeacher" type="TextureRect" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox/ConcHBox"]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+texture = ExtResource("5_teacher_chan")
+expand_mode = 2
+stretch_mode = 5
+
+[node name="ConcTitle" type="Label" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.84, 0, 1)
+horizontal_alignment = 1
+text = ""
+
+[node name="ConcBody" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 17
+bbcode_enabled = true
+text = ""
+fit_content = true
+
+[node name="ContentLabel" type="RichTextLabel" parent="Root/ContentPanel/Margin/VBox/ScrollContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 16
+bbcode_enabled = true
+text = ""
+fit_content = true
