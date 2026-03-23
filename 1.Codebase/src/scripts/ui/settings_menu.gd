@@ -10,6 +10,8 @@ const GameSave = preload("res://1.Codebase/src/scripts/core/game_save.gd")
 const SettingsMenuAudioSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_audio_section.gd")
 const SettingsMenuDisplaySectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_display_section.gd")
 const SettingsMenuVoiceSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_voice_section.gd")
+const SettingsMenuDeveloperSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_developer_section.gd")
+const SettingsMenuAIAnalyticsScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_ai_analytics.gd")
 const SettingsMenuAgentServerSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_agent_server_section.gd")
 const SettingsMenuTutorialSectionScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_tutorial_section.gd")
 const ICON_CHECK = preload("res://1.Codebase/src/assets/ui/icon_check.svg")
@@ -968,19 +970,11 @@ func _on_ai_export_csv_pressed() -> void:
 		if notifier:
 			notifier.show_warning(_tr_ai("SETTINGS_AI_LOG_EXPORT_CSV_FAILED", "CSV export failed: could not write file."))
 func _append_metric_series(lines: PackedStringArray, metric: String, labels: Array, values: Array) -> void:
-	var count := mini(labels.size(), values.size())
-	for idx in range(count):
-		lines.append(_csv_row(["chart_metric", metric, str(labels[idx]), str(values[idx])]))
+	SettingsMenuAIAnalyticsScript.append_metric_series(lines, metric, labels, values)
 func _csv_row(cells: Array) -> String:
-	var escaped: PackedStringArray = []
-	for cell in cells:
-		escaped.append(_csv_escape(str(cell)))
-	return ",".join(escaped)
+	return SettingsMenuAIAnalyticsScript.csv_row(cells)
 func _csv_escape(value: String) -> String:
-	var v := value.replace("\"", "\"\"")
-	if v.contains(",") or v.contains("\n") or v.contains("\r") or v.contains("\""):
-		return "\"" + v + "\""
-	return v
+	return SettingsMenuAIAnalyticsScript.csv_escape(value)
 func _on_ai_chart_size_changed(_value: float) -> void:
 	if is_instance_valid(_ai_chart_width_spin):
 		_ai_chart_width = maxf(260.0, float(_ai_chart_width_spin.value))
@@ -1107,135 +1101,9 @@ func _refresh_analytics_view() -> void:
 			[Color(1.0, 0.82, 0.35)],
 		)
 func _compute_ai_analytics(log_entries: Array) -> Dictionary:
-	var total := log_entries.size()
-	var total_success := 0
-	var total_tokens := 0
-	var total_time := 0.0
-	var by_provider: Dictionary = {}
-	var by_mode: Dictionary = {}
-	var by_model: Dictionary = {}
-	var hourly: Dictionary = {}
-	var now_unix := Time.get_unix_time_from_system()
-	var cumulative_running := 0
-	var cumulative_labels: Array = []
-	var cumulative_tokens: Array = []
-	for idx in range(log_entries.size()):
-		var entry: Dictionary = log_entries[idx]
-		var success := bool(entry.get("success", false))
-		var in_tok := int(entry.get("input_tokens", 0))
-		var out_tok := int(entry.get("output_tokens", 0))
-		var tokens := in_tok + out_tok
-		var rtime := float(entry.get("response_time_sec", 0.0))
-		var provider := str(entry.get("provider", "UNKNOWN"))
-		var model := str(entry.get("model", "UNKNOWN"))
-		var mode := str(entry.get("mode", "unknown"))
-		var ts_str := str(entry.get("timestamp", "")).replace("T", " ")
-		if success:
-			total_success += 1
-		total_tokens += tokens
-		total_time += rtime
-		if not by_provider.has(provider):
-			by_provider[provider] = {
-				"calls": 0, "success": 0, "tokens": 0,
-				"input_tokens": 0, "output_tokens": 0,
-				"response_time": 0.0, "output_tokens_for_tps": 0, "tps_time": 0.0,
-			}
-		by_provider[provider]["calls"] = int(by_provider[provider]["calls"]) + 1
-		if success:
-			by_provider[provider]["success"] = int(by_provider[provider]["success"]) + 1
-		by_provider[provider]["tokens"] = int(by_provider[provider]["tokens"]) + tokens
-		by_provider[provider]["input_tokens"] = int(by_provider[provider]["input_tokens"]) + in_tok
-		by_provider[provider]["output_tokens"] = int(by_provider[provider]["output_tokens"]) + out_tok
-		by_provider[provider]["response_time"] = float(by_provider[provider]["response_time"]) + rtime
-		if rtime > 0.0 and out_tok > 0:
-			by_provider[provider]["output_tokens_for_tps"] = int(by_provider[provider]["output_tokens_for_tps"]) + out_tok
-			by_provider[provider]["tps_time"] = float(by_provider[provider]["tps_time"]) + rtime
-		by_mode[mode] = int(by_mode.get(mode, 0)) + 1
-		by_model[model] = int(by_model.get(model, 0)) + 1
-		if ts_str.length() >= 10:
-			var entry_unix := Time.get_unix_time_from_datetime_string(ts_str)
-			if entry_unix > 0:
-				var hours_ago := (now_unix - entry_unix) / 3600.0
-				if hours_ago >= 0.0 and hours_ago < 24.0:
-					var bucket := int(hours_ago)
-					if not hourly.has(bucket):
-						hourly[bucket] = {"calls": 0, "tokens": 0, "successes": 0}
-					hourly[bucket]["calls"] = int(hourly[bucket]["calls"]) + 1
-					hourly[bucket]["tokens"] = int(hourly[bucket]["tokens"]) + tokens
-					if success:
-						hourly[bucket]["successes"] = int(hourly[bucket]["successes"]) + 1
-		cumulative_running += tokens
-		cumulative_labels.append(str(idx + 1))
-		cumulative_tokens.append(float(cumulative_running))
-	var provider_labels: Array = []
-	var provider_success_rates: Array = []
-	var provider_tokens: Array = []
-	var provider_input_tokens: Array = []
-	var provider_output_tokens: Array = []
-	var provider_response_times: Array = []
-	var provider_tps: Array = []
-	for prov in by_provider.keys():
-		var p: Dictionary = by_provider[prov]
-		var calls := int(p.get("calls", 0))
-		provider_labels.append(prov)
-		provider_success_rates.append(float(p.get("success", 0)) / float(max(1, calls)) * 100.0)
-		provider_tokens.append(float(p.get("tokens", 0)))
-		provider_input_tokens.append(float(p.get("input_tokens", 0)))
-		provider_output_tokens.append(float(p.get("output_tokens", 0)))
-		provider_response_times.append(float(p.get("response_time", 0.0)) / float(max(1, calls)))
-		var tps_out := int(p.get("output_tokens_for_tps", 0))
-		var tps_t := float(p.get("tps_time", 0.0))
-		provider_tps.append(float(tps_out) / max(0.001, tps_t))
-	var hourly_labels: Array = []
-	var hourly_calls: Array = []
-	var hourly_tokens: Array = []
-	var hourly_successes: Array = []
-	for h in range(23, -1, -1):
-		var d: Dictionary = hourly.get(h, {"calls": 0, "tokens": 0, "successes": 0})
-		hourly_labels.insert(0, "%dh" % h if h > 0 else "now")
-		hourly_calls.insert(0, float(d.get("calls", 0)))
-		hourly_tokens.insert(0, float(d.get("tokens", 0)))
-		hourly_successes.insert(0, float(d.get("successes", 0)))
-	var mode_labels: Array = []
-	var mode_counts: Array = []
-	for m in by_mode.keys():
-		mode_labels.append(m)
-		mode_counts.append(float(by_mode[m]))
-	var model_labels: Array = []
-	var model_counts: Array = []
-	for mdl in by_model.keys():
-		model_labels.append(mdl)
-		model_counts.append(float(by_model[mdl]))
-	return {
-		"total": total,
-		"total_success": total_success,
-		"success_rate": float(total_success) / float(max(1, total)) * 100.0,
-		"total_tokens": total_tokens,
-		"avg_response_time": total_time / float(max(1, total)),
-		"provider_labels": provider_labels,
-		"provider_success_rates": provider_success_rates,
-		"provider_tokens": provider_tokens,
-		"provider_input_tokens": provider_input_tokens,
-		"provider_output_tokens": provider_output_tokens,
-		"provider_response_times": provider_response_times,
-		"provider_tps": provider_tps,
-		"hourly_labels": hourly_labels,
-		"hourly_calls": hourly_calls,
-		"hourly_tokens": hourly_tokens,
-		"hourly_successes": hourly_successes,
-		"mode_labels": mode_labels,
-		"mode_counts": mode_counts,
-		"model_labels": model_labels,
-		"model_counts": model_counts,
-		"cumulative_labels": cumulative_labels,
-		"cumulative_tokens": cumulative_tokens,
-	}
+	return SettingsMenuAIAnalyticsScript.compute_analytics(log_entries)
 func _format_token_count(n: int) -> String:
-	if n >= 1_000_000:
-		return "%.1fM" % (float(n) / 1_000_000.0)
-	if n >= 1_000:
-		return "%.1fK" % (float(n) / 1_000.0)
-	return str(n)
+	return SettingsMenuAIAnalyticsScript.format_token_count(n)
 func _refresh_ai_log_table() -> void:
 	if not _ai_log_rows_container:
 		return
@@ -1343,277 +1211,73 @@ func _add_separator(parent: Control):
 	parent.add_child(sep)
 func _initialize_new_controls():
 	var game_state := _get_game_state()
-	text_speed_option.add_item("Instant", 0)
-	text_speed_option.add_item("Fast", 1)
-	text_speed_option.add_item("Normal", 2)
-	text_speed_option.add_item("Slow", 3)
-	text_speed_option.item_selected.connect(_on_text_speed_selected)
-	if text_speed == 0.0: text_speed_option.select(0)
-	elif text_speed == 2.0: text_speed_option.select(1)
-	elif text_speed == 1.0: text_speed_option.select(2)
-	elif text_speed == 0.5: text_speed_option.select(3)
-	else: text_speed_option.select(2)
-	screen_shake_check.toggled.connect(_on_screen_shake_toggled)
-	screen_shake_check.button_pressed = screen_shake_enabled
-	max_rounds_spinbox.min_value = 0
-	max_rounds_spinbox.max_value = 30
-	max_rounds_spinbox.step = 1
-	if game_state and game_state.settings.has("max_rounds_per_mission"):
-		max_rounds_per_mission = int(game_state.settings["max_rounds_per_mission"])
-	max_rounds_spinbox.value = max_rounds_per_mission
-	max_rounds_spinbox.value_changed.connect(_on_max_rounds_changed)
-	force_mission_complete_check = CheckBox.new()
-	tab_developer.add_child(force_mission_complete_check)
-	force_mission_complete_check.toggled.connect(_on_force_mission_complete_toggled)
-	if game_state:
-		force_mission_complete_check.button_pressed = game_state.debug_force_mission_complete
-	var gloria_hbox = HBoxContainer.new()
-	gloria_hbox.add_theme_constant_override("separation", 10)
-	force_gloria_button = Button.new()
-	force_gloria_button.text = "Queue Gloria (Next Turn)"
-	force_gloria_button.custom_minimum_size = Vector2(250, 40)
-	force_gloria_button.focus_mode = Control.FOCUS_NONE
-	force_gloria_button.pressed.connect(_on_force_gloria_pressed)
-	gloria_hbox.add_child(force_gloria_button)
-	force_gloria_status_label = Label.new()
-	force_gloria_status_label.text = ""
-	force_gloria_status_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
-	gloria_hbox.add_child(force_gloria_status_label)
-	tab_developer.add_child(gloria_hbox)
-	var trolley_hbox = HBoxContainer.new()
-	trolley_hbox.add_theme_constant_override("separation", 10)
-	force_trolley_button = Button.new()
-	force_trolley_button.text = "Force Trolley Problem Now"
-	force_trolley_button.custom_minimum_size = Vector2(250, 40)
-	force_trolley_button.focus_mode = Control.FOCUS_NONE
-	force_trolley_button.pressed.connect(_on_force_trolley_pressed)
-	trolley_hbox.add_child(force_trolley_button)
-	force_trolley_status_label = Label.new()
-	force_trolley_status_label.text = ""
-	force_trolley_status_label.add_theme_color_override("font_color", Color(0.4, 1.0, 0.4))
-	trolley_hbox.add_child(force_trolley_status_label)
-	tab_developer.add_child(trolley_hbox)
-	force_honeymoon_check = CheckBox.new()
-	force_honeymoon_check.text = "Force Honeymoon Phase"
-	tab_developer.add_child(force_honeymoon_check)
-	force_honeymoon_check.toggled.connect(_on_force_honeymoon_toggled)
-	if game_state:
-		force_honeymoon_check.button_pressed = game_state.is_honeymoon_phase
-	_add_separator(tab_developer)
-	var reality_hbox = HBoxContainer.new()
-	reality_hbox.add_theme_constant_override("separation", 10)
-	reality_score_label = Label.new()
-	reality_score_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	reality_hbox.add_child(reality_score_label)
-	reality_score_spinbox = SpinBox.new()
-	reality_score_spinbox.custom_minimum_size = Vector2(100, 0)
-	reality_score_spinbox.min_value = 0
-	reality_score_spinbox.max_value = 100
-	reality_score_spinbox.step = 1
-	if game_state:
-		reality_score_spinbox.value = game_state.reality_score
-	reality_hbox.add_child(reality_score_spinbox)
-	tab_developer.add_child(reality_hbox)
-	var positive_hbox = HBoxContainer.new()
-	positive_hbox.add_theme_constant_override("separation", 10)
-	positive_energy_label = Label.new()
-	positive_energy_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	positive_hbox.add_child(positive_energy_label)
-	positive_energy_spinbox = SpinBox.new()
-	positive_energy_spinbox.custom_minimum_size = Vector2(100, 0)
-	positive_energy_spinbox.min_value = 0
-	positive_energy_spinbox.max_value = 100
-	positive_energy_spinbox.step = 1
-	if game_state:
-		positive_energy_spinbox.value = game_state.positive_energy
-	positive_hbox.add_child(positive_energy_spinbox)
-	tab_developer.add_child(positive_hbox)
-	var entropy_hbox = HBoxContainer.new()
-	entropy_hbox.add_theme_constant_override("separation", 10)
-	entropy_level_label = Label.new()
-	entropy_level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	entropy_hbox.add_child(entropy_level_label)
-	entropy_level_spinbox = SpinBox.new()
-	entropy_level_spinbox.custom_minimum_size = Vector2(100, 0)
-	entropy_level_spinbox.min_value = 0
-	entropy_level_spinbox.max_value = 100
-	entropy_level_spinbox.step = 1
-	if game_state:
-		entropy_level_spinbox.value = game_state.entropy_level
-	entropy_hbox.add_child(entropy_level_spinbox)
-	tab_developer.add_child(entropy_hbox)
-	var honeymoon_hbox = HBoxContainer.new()
-	honeymoon_hbox.add_theme_constant_override("separation", 10)
-	honeymoon_charges_label = Label.new()
-	honeymoon_charges_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	honeymoon_hbox.add_child(honeymoon_charges_label)
-	honeymoon_charges_spinbox = SpinBox.new()
-	honeymoon_charges_spinbox.custom_minimum_size = Vector2(100, 0)
-	honeymoon_charges_spinbox.min_value = 0
-	honeymoon_charges_spinbox.max_value = 10
-	honeymoon_charges_spinbox.step = 1
-	if game_state:
-		honeymoon_charges_spinbox.value = game_state.honeymoon_charges
-	honeymoon_hbox.add_child(honeymoon_charges_spinbox)
-	tab_developer.add_child(honeymoon_hbox)
-	var mission_turn_hbox = HBoxContainer.new()
-	mission_turn_hbox.add_theme_constant_override("separation", 10)
-	mission_turn_label = Label.new()
-	mission_turn_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	mission_turn_hbox.add_child(mission_turn_label)
-	mission_turn_spinbox = SpinBox.new()
-	mission_turn_spinbox.custom_minimum_size = Vector2(100, 0)
-	mission_turn_spinbox.min_value = 0
-	mission_turn_spinbox.max_value = 100
-	mission_turn_spinbox.step = 1
-	if game_state:
-		mission_turn_spinbox.value = game_state.mission_turn_count
-	mission_turn_hbox.add_child(mission_turn_spinbox)
-	tab_developer.add_child(mission_turn_hbox)
-	reality_score_spinbox.value_changed.connect(_on_reality_score_changed)
-	positive_energy_spinbox.value_changed.connect(_on_positive_energy_changed)
-	entropy_level_spinbox.value_changed.connect(_on_entropy_level_changed)
-	honeymoon_charges_spinbox.value_changed.connect(_on_honeymoon_charges_changed)
-	mission_turn_spinbox.value_changed.connect(_on_mission_turn_changed)
-	_add_separator(tab_developer)
-	var quick_actions_label = Label.new()
-	quick_actions_label.name = "QuickActionsLabel"
-	quick_actions_label.add_theme_font_size_override("font_size", 20)
-	quick_actions_label.add_theme_color_override("font_color", Color(1, 0.8, 0.4))
-	tab_developer.add_child(quick_actions_label)
-	var quick_actions_grid = GridContainer.new()
-	quick_actions_grid.columns = 2
-	quick_actions_grid.add_theme_constant_override("h_separation", 10)
-	quick_actions_grid.add_theme_constant_override("v_separation", 10)
-	tab_developer.add_child(quick_actions_grid)
-	max_stats_button = Button.new()
-	max_stats_button.custom_minimum_size = Vector2(200, 40)
-	max_stats_button.pressed.connect(_on_max_stats_pressed)
-	quick_actions_grid.add_child(max_stats_button)
-	reset_stats_button = Button.new()
-	reset_stats_button.custom_minimum_size = Vector2(200, 40)
-	reset_stats_button.pressed.connect(_on_reset_stats_pressed)
-	quick_actions_grid.add_child(reset_stats_button)
-	clear_debuffs_button = Button.new()
-	clear_debuffs_button.custom_minimum_size = Vector2(200, 40)
-	clear_debuffs_button.pressed.connect(_on_clear_debuffs_pressed)
-	quick_actions_grid.add_child(clear_debuffs_button)
-	add_honeymoon_button = Button.new()
-	add_honeymoon_button.custom_minimum_size = Vector2(200, 40)
-	add_honeymoon_button.pressed.connect(_on_add_honeymoon_pressed)
-	quick_actions_grid.add_child(add_honeymoon_button)
-	_add_separator(tab_developer)
-	var toggles_label = Label.new()
-	toggles_label.name = "TogglesLabel"
-	toggles_label.add_theme_font_size_override("font_size", 20)
-	toggles_label.add_theme_color_override("font_color", Color(1, 0.8, 0.4))
-	tab_developer.add_child(toggles_label)
-	autosave_toggle = CheckBox.new()
-	if game_state:
-		autosave_toggle.set_pressed_no_signal(game_state.autosave_enabled)
-	autosave_toggle.toggled.connect(_on_autosave_toggled)
-	tab_developer.add_child(autosave_toggle)
-	infinite_resources_toggle = CheckBox.new()
-	if game_state:
-		infinite_resources_toggle.set_pressed_no_signal(game_state.get_metadata("debug_infinite_resources", false))
-	infinite_resources_toggle.toggled.connect(_on_infinite_resources_toggled)
-	tab_developer.add_child(infinite_resources_toggle)
-	skip_dialogue_toggle = CheckBox.new()
-	if game_state:
-		skip_dialogue_toggle.set_pressed_no_signal(game_state.settings.get("auto_advance_enabled", false))
-	skip_dialogue_toggle.toggled.connect(_on_skip_dialogue_toggled)
-	tab_developer.add_child(skip_dialogue_toggle)
-	god_mode_toggle = CheckBox.new()
-	if game_state:
-		god_mode_toggle.set_pressed_no_signal(game_state.get_metadata("debug_god_mode", false))
-	god_mode_toggle.toggled.connect(_on_god_mode_toggled)
-	tab_developer.add_child(god_mode_toggle)
-	_add_separator(tab_developer)
-	var fsm_challenge_label = Label.new()
-	fsm_challenge_label.text = "FSM Challenge Debug"
-	fsm_challenge_label.add_theme_font_size_override("font_size", 18)
-	tab_developer.add_child(fsm_challenge_label)
-	var fsm_status_label = Label.new()
-	fsm_status_label.name = "FSMStatusLabel"
-	_update_fsm_status_label(fsm_status_label)
-	tab_developer.add_child(fsm_status_label)
-	var fsm_img_row = HBoxContainer.new()
-	fsm_img_row.name = "FSMImageRow"
-	fsm_img_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	fsm_img_row.add_theme_constant_override("separation", 18)
-	fsm_img_row.custom_minimum_size = Vector2(0, 140)
-	var _fsm_img_data := [
-		{"tex": FSM_IMG_GUIDE,   "caption": _tr("FSM_IMG_CAPTION_GUIDE"),          "tint": Color(0.85, 0.95, 1.0, 1.0)},
-		{"tex": FSM_IMG_TEACHER, "caption": "Teacher Chan",                         "tint": Color(1.0, 0.95, 0.75, 1.0)},
-		{"tex": FSM_IMG_GLORIA,  "caption": _tr("FSM_IMG_CAPTION_GLORIA_NEUTRAL"), "tint": Color(0.85, 1.0, 0.88, 1.0)},
-	]
-	for img_entry in _fsm_img_data:
-		var col = VBoxContainer.new()
-		col.alignment = BoxContainer.ALIGNMENT_CENTER
-		col.add_theme_constant_override("separation", 4)
-		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var img_panel = PanelContainer.new()
-		var img_panel_style = StyleBoxFlat.new()
-		img_panel_style.bg_color = Color(0.08, 0.10, 0.18, 0.85)
-		img_panel_style.set_corner_radius_all(10)
-		img_panel_style.border_width_bottom = 2
-		img_panel_style.border_color = Color(0.35, 0.55, 0.90, 0.55)
-		img_panel_style.content_margin_left = 6
-		img_panel_style.content_margin_right = 6
-		img_panel_style.content_margin_top = 6
-		img_panel_style.content_margin_bottom = 6
-		img_panel.add_theme_stylebox_override("panel", img_panel_style)
-		var tex_rect = TextureRect.new()
-		tex_rect.texture = img_entry["tex"]
-		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tex_rect.custom_minimum_size = Vector2(100, 100)
-		tex_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tex_rect.modulate = img_entry["tint"]
-		img_panel.add_child(tex_rect)
-		col.add_child(img_panel)
-		var cap_lbl = Label.new()
-		cap_lbl.text = img_entry["caption"]
-		cap_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		cap_lbl.add_theme_font_size_override("font_size", 11)
-		cap_lbl.add_theme_color_override("font_color", Color(0.65, 0.75, 0.95, 0.85))
-		col.add_child(cap_lbl)
-		fsm_img_row.add_child(col)
-	tab_developer.add_child(fsm_img_row)
-	var fsm_jump_hbox = HBoxContainer.new()
-	fsm_jump_hbox.add_theme_constant_override("separation", 8)
-	var fsm_jump_label = Label.new()
-	fsm_jump_label.text = "Jump to Day:"
-	fsm_jump_label.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	var fsm_jump_option = OptionButton.new()
-	fsm_jump_option.name = "FSMJumpOption"
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_0"), 0)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_1"), 1)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_2"), 2)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_3"), 3)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_4"), 4)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_5"), 5)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_6"), 6)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_7"), 7)
-	fsm_jump_option.add_item("⚠️ " + _tr_bilingual("FSM_JUMP_DAY_8_INPROGRESS"), 78)
-	fsm_jump_option.add_item(_tr_bilingual("FSM_JUMP_DAY_8_CRASHED"), 8)
-	fsm_jump_option.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var fsm_jump_button = Button.new()
-	fsm_jump_button.text = "Apply"
-	fsm_jump_button.pressed.connect(func():
-		_on_fsm_jump_to_day_pressed(fsm_jump_option.get_selected_id(), fsm_status_label)
+	var dev_result := SettingsMenuDeveloperSectionScript.build_section(
+		tab_developer,
+		{
+			"text_speed_option": text_speed_option,
+			"screen_shake_check": screen_shake_check,
+			"max_rounds_spinbox": max_rounds_spinbox,
+		},
+		{
+			"text_speed": text_speed,
+			"screen_shake_enabled": screen_shake_enabled,
+			"max_rounds_per_mission": max_rounds_per_mission,
+		},
+		game_state,
+		{
+			"on_text_speed_selected": _on_text_speed_selected,
+			"on_screen_shake_toggled": _on_screen_shake_toggled,
+			"on_max_rounds_changed": _on_max_rounds_changed,
+			"on_force_mission_complete_toggled": _on_force_mission_complete_toggled,
+			"on_force_gloria_pressed": _on_force_gloria_pressed,
+			"on_force_trolley_pressed": _on_force_trolley_pressed,
+			"on_force_honeymoon_toggled": _on_force_honeymoon_toggled,
+			"on_reality_score_changed": _on_reality_score_changed,
+			"on_positive_energy_changed": _on_positive_energy_changed,
+			"on_entropy_level_changed": _on_entropy_level_changed,
+			"on_honeymoon_charges_changed": _on_honeymoon_charges_changed,
+			"on_mission_turn_changed": _on_mission_turn_changed,
+			"on_max_stats_pressed": _on_max_stats_pressed,
+			"on_reset_stats_pressed": _on_reset_stats_pressed,
+			"on_clear_debuffs_pressed": _on_clear_debuffs_pressed,
+			"on_add_honeymoon_pressed": _on_add_honeymoon_pressed,
+			"on_autosave_toggled": _on_autosave_toggled,
+			"on_infinite_resources_toggled": _on_infinite_resources_toggled,
+			"on_skip_dialogue_toggled": _on_skip_dialogue_toggled,
+			"on_god_mode_toggled": _on_god_mode_toggled,
+			"on_fsm_jump_to_day_pressed": _on_fsm_jump_to_day_pressed,
+			"on_fsm_reset_pressed": _on_fsm_reset_pressed,
+		},
+		{
+			"fsm_guide": FSM_IMG_GUIDE,
+			"fsm_teacher": FSM_IMG_TEACHER,
+			"fsm_gloria": FSM_IMG_GLORIA,
+		},
 	)
-	fsm_jump_hbox.add_child(fsm_jump_label)
-	fsm_jump_hbox.add_child(fsm_jump_option)
-	fsm_jump_hbox.add_child(fsm_jump_button)
-	tab_developer.add_child(fsm_jump_hbox)
-	var fsm_reset_button = Button.new()
-	fsm_reset_button.text = "Reset FSM Challenge"
-	fsm_reset_button.pressed.connect(func():
-		_on_fsm_reset_pressed(fsm_status_label)
-	)
-	tab_developer.add_child(fsm_reset_button)
-	_add_separator(tab_developer)
+	force_mission_complete_check = dev_result.get("force_mission_complete_check")
+	force_gloria_button = dev_result.get("force_gloria_button")
+	force_gloria_status_label = dev_result.get("force_gloria_status_label")
+	force_trolley_button = dev_result.get("force_trolley_button")
+	force_trolley_status_label = dev_result.get("force_trolley_status_label")
+	force_honeymoon_check = dev_result.get("force_honeymoon_check")
+	reality_score_label = dev_result.get("reality_score_label")
+	reality_score_spinbox = dev_result.get("reality_score_spinbox")
+	positive_energy_label = dev_result.get("positive_energy_label")
+	positive_energy_spinbox = dev_result.get("positive_energy_spinbox")
+	entropy_level_label = dev_result.get("entropy_level_label")
+	entropy_level_spinbox = dev_result.get("entropy_level_spinbox")
+	honeymoon_charges_label = dev_result.get("honeymoon_charges_label")
+	honeymoon_charges_spinbox = dev_result.get("honeymoon_charges_spinbox")
+	mission_turn_label = dev_result.get("mission_turn_label")
+	mission_turn_spinbox = dev_result.get("mission_turn_spinbox")
+	max_stats_button = dev_result.get("max_stats_button")
+	reset_stats_button = dev_result.get("reset_stats_button")
+	clear_debuffs_button = dev_result.get("clear_debuffs_button")
+	add_honeymoon_button = dev_result.get("add_honeymoon_button")
+	autosave_toggle = dev_result.get("autosave_toggle")
+	infinite_resources_toggle = dev_result.get("infinite_resources_toggle")
+	skip_dialogue_toggle = dev_result.get("skip_dialogue_toggle")
+	god_mode_toggle = dev_result.get("god_mode_toggle")
 	_initialize_agent_server_controls()
 	_initialize_tutorial_controls()
 func _initialize_agent_server_controls():
@@ -1818,24 +1482,7 @@ func _on_god_mode_toggled(toggled: bool):
 		var msg = "God mode enabled" if toggled else "God mode disabled"
 		_show_notification(msg, true)
 func _update_fsm_status_label(label: Label):
-	var game_state := _get_game_state()
-	if not game_state:
-		label.text = "Status: GameState not available"
-		return
-	var fsm_module = game_state.get_fsm_challenge_module()
-	if not fsm_module:
-		label.text = "Status: FSM Module not available"
-		return
-	if fsm_module.challenge_crashed:
-		label.text = "Status: Challenge Crashed (Day 8 completed)"
-	elif fsm_module.is_challenge_active:
-		label.text = "Status: Active | Day: %d | Start: %s | Days Completed: %s" % [
-			fsm_module.current_day,
-			fsm_module.challenge_start_date,
-			str(fsm_module.days_completed)
-		]
-	else:
-		label.text = "Status: Not started"
+	SettingsMenuDeveloperSectionScript.update_fsm_status_label(label, _get_game_state())
 func _on_fsm_jump_to_day_pressed(target_day_id: int, status_label: Label):
 	_play_sfx("menu_click")
 	var game_state := _get_game_state()
