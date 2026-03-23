@@ -39,7 +39,8 @@
       "Bash(sed -i '2,$s/$/,/' 1.Codebase/localization/gda1_translations.csv)",
       "Bash(sed -i '1s/$/ ,chapter_title_de,title_de,text_de/' 1.Codebase/localization/intro_story_pages.csv)",
       "Bash(sed -i '2,$s/$/,,,/' 1.Codebase/localization/intro_story_pages.csv)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(pip list:*)"
     ]
   }
 }

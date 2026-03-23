@@ -286,6 +286,8 @@ func _ready():
 	selected_language = game_state.current_language if game_state else "en"
 	if selected_language == "en":
 		language_option.selected = 1
+	elif selected_language == "de":
+		language_option.selected = 2
 	else:
 		language_option.selected = 0
 	if FontManager:
@@ -2724,7 +2726,12 @@ func _on_resolution_changed(index: int):
 func _on_fullscreen_changed(index: int):
 	selected_mode = index
 func _on_language_changed(index: int):
-	selected_language = "zh" if index == 0 else "en"
+	if index == 0:
+		selected_language = "zh"
+	elif index == 2:
+		selected_language = "de"
+	else:
+		selected_language = "en"
 	_report_info("Language changed to: %s" % selected_language)
 	if LocalizationManager:
 		LocalizationManager.set_language(selected_language)
