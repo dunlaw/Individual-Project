@@ -24,6 +24,7 @@ const SettingsMenuAILogRendererScript = preload("res://1.Codebase/src/scripts/ui
 const SettingsMenuAILogExportScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_ai_log_export.gd")
 const SettingsMenuUITextScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_ui_text.gd")
 const SettingsMenuLogActionsScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_log_actions.gd")
+const SettingsMenuVoiceHandlersScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_voice_handlers.gd")
 const ICON_CHECK = preload("res://1.Codebase/src/assets/ui/icon_check.svg")
 const ICON_BACK = preload("res://1.Codebase/src/assets/ui/icon_back.svg")
 const ICON_DELETE = preload("res://1.Codebase/src/assets/ui/icon_delete.svg")
@@ -57,29 +58,8 @@ var screen_shake_enabled: bool = true
 var max_rounds_per_mission: int = 0
 var auto_advance_enabled: bool = false
 var high_contrast_mode: bool = false
-var voice_enabled: bool = false
-var voice_output_enabled: bool = false
-var voice_input_enabled: bool = false
-var voice_volume: float = 80.0
-var voice_voice_name: String = "Aoede"
-var voice_input_mode: int = 0
-var voice_proactive_enabled: bool = false
-var voice_supported: bool = false
-var voice_capture_active: bool = false
 var _embedded_window_mode: bool = false
 var _exit_mode: int = EXIT_MODE_MAIN_MENU
-const VOICE_VOICE_NAMES = [
-	"Aoede",
-	"Callisto",
-	"Elektra",
-	"Orion",
-	"Sol",
-]
-const VOICE_INPUT_MODE_LABELS := {
-	0: "Push to talk",
-	1: "Continuous",
-}
-const VOICE_CAPTURE_SECONDS := 4.0
 var resolutions = {
 	0: Vector2i(1024, 600),
 	1: Vector2i(1280, 720),
@@ -187,6 +167,9 @@ var _tutorial_section: SettingsMenuTutorialSection = null
 var _ai_log_ctrl: SettingsMenuAILogController = null
 var _dev_ctrl: SettingsMenuDeveloperHandlers = null
 var _tutorial_ctrl: SettingsMenuTutorialHandlers = null
+var _voice_ctrl: SettingsMenuVoiceHandlers = null
+## Holds voice settings loaded from disk before _voice_ctrl is created.
+var _pending_voice_settings: Dictionary = {}
 func _tr(key: String) -> String:
 	if LocalizationManager:
 		return LocalizationManager.get_translation(key)
@@ -778,7 +761,7 @@ func update_ui_text():
 		"back_button": back_button,
 		"delete_logs_dialog": delete_logs_dialog,
 		"fullscreen_option": fullscreen_option,
-	}, Callable(self, "_tr"), voice_capture_active)
+	}, Callable(self, "_tr"), _voice_ctrl.voice_capture_active if _voice_ctrl else false)
 	if _tutorial_ctrl:
 		_tutorial_ctrl.update_progress_display()
 	_refresh_display_mode_availability()
@@ -809,22 +792,11 @@ func _cleanup_ai_resources(force_clear_callback: bool = false) -> void:
 	_disconnect_ai_signals()
 	_clear_pending_ai_callback(force_clear_callback)
 func _cancel_active_voice_capture() -> void:
-	if not AIManager: return
-	if voice_capture_active:
-		AIManager.cancel_voice_capture()
-		voice_capture_active = false
+	if _voice_ctrl:
+		_voice_ctrl.cancel_capture(AIManager)
 func _disconnect_ai_signals() -> void:
-	if not AIManager: return
-	if AIManager.voice_capability_changed.is_connected(_on_voice_capability_changed):
-		AIManager.voice_capability_changed.disconnect(_on_voice_capability_changed)
-	if AIManager.voice_audio_received.is_connected(_on_voice_audio_received):
-		AIManager.voice_audio_received.disconnect(_on_voice_audio_received)
-	if AIManager.voice_input_buffer_ready.is_connected(_on_voice_input_buffer_ready):
-		AIManager.voice_input_buffer_ready.disconnect(_on_voice_input_buffer_ready)
-	if AIManager.voice_transcription_ready.is_connected(_on_voice_transcription_ready):
-		AIManager.voice_transcription_ready.disconnect(_on_voice_transcription_ready)
-	if AIManager.voice_transcription_failed.is_connected(_on_voice_transcription_failed):
-		AIManager.voice_transcription_failed.disconnect(_on_voice_transcription_failed)
+	if _voice_ctrl:
+		_voice_ctrl.disconnect_ai_signals(AIManager)
 func _clear_pending_ai_callback(force_clear: bool) -> void:
 	if not AIManager: return
 	var pending := AIManager.pending_callback
@@ -861,6 +833,8 @@ func _apply_modern_styles():
 		"mic": ICON_MIC,
 	})
 	_connect_button_sounds()
+func _get_ai_manager() -> Node:
+	return AIManager
 func _get_audio_manager() -> Node:
 	if is_instance_valid(_audio_manager):
 		return _audio_manager
@@ -910,251 +884,71 @@ func _style_delete_logs_dialog() -> void:
 		UIStyleManager.add_press_feedback(cancel_button)
 		cancel_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 func _initialize_voice_controls():
-	if voice_voice_option:
-		voice_voice_option.clear()
-		for voice_name in VOICE_VOICE_NAMES:
-			voice_voice_option.add_item(voice_name)
-	if voice_input_mode_option:
-		voice_input_mode_option.clear()
-		for mode in VOICE_INPUT_MODE_LABELS.keys():
-			voice_input_mode_option.add_item(VOICE_INPUT_MODE_LABELS[mode], mode)
 	if AudioManager:
 		var audio_snapshot: Dictionary = AudioManager.get_volume_settings()
-		voice_volume = float(audio_snapshot.get("voice_volume", voice_volume))
 		gloria_voice_enabled = bool(audio_snapshot.get("gloria_voice_enabled", gloria_voice_enabled))
 		if gloria_voice_check:
 			_set_button_pressed_safely(gloria_voice_check, gloria_voice_enabled)
-	var ai_voice_settings := { }
-	if AIManager:
-		ai_voice_settings = AIManager.get_voice_settings()
-		voice_supported = bool(ai_voice_settings.get("native_voice_supported", voice_supported))
-		voice_enabled = bool(ai_voice_settings.get("prefer_native_audio", voice_enabled))
-		voice_output_enabled = bool(ai_voice_settings.get("voice_output_enabled", voice_output_enabled))
-		voice_input_enabled = bool(ai_voice_settings.get("voice_input_enabled", voice_input_enabled))
-		voice_voice_name = String(ai_voice_settings.get("preferred_voice_name", voice_voice_name))
-		voice_input_mode = int(ai_voice_settings.get("voice_input_mode", voice_input_mode))
-		voice_proactive_enabled = bool(ai_voice_settings.get("proactive_audio_enabled", voice_proactive_enabled))
-		if not AIManager.voice_capability_changed.is_connected(_on_voice_capability_changed):
-			AIManager.voice_capability_changed.connect(_on_voice_capability_changed)
-		if not AIManager.voice_audio_received.is_connected(_on_voice_audio_received):
-			AIManager.voice_audio_received.connect(_on_voice_audio_received)
-		if not AIManager.voice_input_buffer_ready.is_connected(_on_voice_input_buffer_ready):
-			AIManager.voice_input_buffer_ready.connect(_on_voice_input_buffer_ready)
-		if not AIManager.voice_transcription_ready.is_connected(_on_voice_transcription_ready):
-			AIManager.voice_transcription_ready.connect(_on_voice_transcription_ready)
-		if not AIManager.voice_transcription_failed.is_connected(_on_voice_transcription_failed):
-			AIManager.voice_transcription_failed.connect(_on_voice_transcription_failed)
-	if not voice_supported:
-		voice_enabled = false
-		voice_output_enabled = false
-		voice_input_enabled = false
-	if voice_volume_slider:
-		voice_volume_slider.value = voice_volume
-	_update_voice_volume_display()
-	if voice_voice_option:
-		var voice_index := 0
-		for i in range(voice_voice_option.item_count):
-			if voice_voice_option.get_item_text(i) == voice_voice_name:
-				voice_index = i
-				break
-		voice_voice_option.select(voice_index)
-	if voice_input_mode_option:
-		var selected_index := 0
-		for i in range(voice_input_mode_option.item_count):
-			if voice_input_mode_option.get_item_id(i) == voice_input_mode:
-				selected_index = i
-				break
-		voice_input_mode_option.select(selected_index)
-	_set_button_pressed_safely(voice_proactive_check, voice_proactive_enabled)
-	_update_voice_availability_label()
-	_sync_voice_ui_state()
-	if not voice_status_label.text:
-		_update_voice_status("Voice idle.")
+	_voice_ctrl = SettingsMenuVoiceHandlersScript.new()
+	_voice_ctrl.setup(
+		Callable(self, "_get_ai_manager"),
+		Callable(self, "_get_audio_manager"),
+		Callable(self, "_apply_audio_settings"),
+		Callable(self, "_play_sfx"),
+		Callable(self, "_tr"),
+		Callable(self, "_set_button_pressed_safely"),
+	)
+	_voice_ctrl.set_node_refs({
+		"availability_label": voice_availability_label,
+		"enabled_check":      voice_enabled_check,
+		"options_box":        voice_options_box,
+		"output_check":       voice_output_check,
+		"input_check":        voice_input_check,
+		"voice_option":       voice_voice_option,
+		"volume_slider":      voice_volume_slider,
+		"volume_value":       voice_volume_value,
+		"input_mode_option":  voice_input_mode_option,
+		"proactive_check":    voice_proactive_check,
+		"preview_button":     voice_preview_button,
+		"capture_button":     voice_capture_button,
+		"status_label":       voice_status_label,
+	})
+	_voice_ctrl.initialize(_pending_voice_settings)
+# ── Voice UI sync (delegated to _voice_ctrl) ──────────────────────────────────
 func _sync_voice_ui_state():
-	var supported := voice_supported
-	if voice_enabled and not supported:
-		voice_enabled = false
-		voice_output_enabled = false
-		voice_input_enabled = false
-	if not (voice_enabled and supported):
-		voice_capture_active = false
-	_set_button_pressed_safely(voice_enabled_check, voice_enabled and supported)
-	voice_enabled_check.disabled = AIManager == null
-	voice_options_box.visible = voice_enabled and supported
-	_set_button_pressed_safely(voice_output_check, voice_output_enabled)
-	voice_output_check.disabled = not (voice_enabled and supported)
-	_set_button_pressed_safely(voice_input_check, voice_input_enabled)
-	voice_input_check.disabled = not (voice_enabled and supported)
-	voice_volume_slider.editable = voice_enabled and supported
-	voice_volume_slider.focus_mode = Control.FOCUS_ALL if voice_enabled and supported else Control.FOCUS_NONE
-	voice_volume_slider.value = voice_volume
-	_update_voice_volume_display()
-	var continuous_available := voice_enabled and supported and voice_input_enabled
-	voice_input_mode_option.disabled = not continuous_available
-	_set_button_pressed_safely(voice_proactive_check, voice_proactive_enabled)
-	voice_proactive_check.disabled = not (voice_enabled and supported and voice_output_enabled)
-	voice_preview_button.disabled = not (voice_enabled and supported and voice_output_enabled)
-	voice_capture_button.disabled = not (voice_enabled and supported and voice_input_enabled)
-	voice_capture_button.text = _tr("SETTINGS_CANCEL_CAPTURE") if voice_capture_active else _tr("SETTINGS_CAPTURE_MIC_TEST")
-	voice_description.visible = true
-	voice_status_label.visible = voice_enabled and supported
-	_update_voice_availability_label()
+	if _voice_ctrl:
+		_voice_ctrl.sync_ui_state()
 func _update_voice_availability_label():
-	if not voice_availability_label: return
-	voice_availability_label.text = SettingsMenuVoiceSectionScript.build_availability_text(
-		AIManager, voice_supported
-	)
-func _try_enable_gemini_native_audio_support() -> bool:
-	voice_supported = SettingsMenuVoiceSectionScript.try_enable_gemini_native_audio(AIManager)
-	_update_voice_availability_label()
-	return voice_supported
-func _update_voice_volume_display():
-	if voice_volume_value:
-		voice_volume_value.text = "%d%%" % int(round(voice_volume))
-func _update_voice_status(message: String, is_error: bool = false):
-	if not voice_status_label: return
-	voice_status_label.text = message
-	if is_error:
-		voice_status_label.add_theme_color_override("font_color", Color(1.0, 0.45, 0.45))
-	else:
-		voice_status_label.add_theme_color_override("font_color", Color(0.75, 0.9, 1.0))
-func _apply_voice_preferences():
-	if not AIManager: return
-	var prefs := SettingsMenuVoiceSectionScript.gather_preferences(
-		voice_enabled, voice_output_enabled, voice_input_enabled,
-		voice_voice_name, voice_input_mode, voice_proactive_enabled
-	)
-	AIManager.apply_voice_settings(prefs)
-	AIManager.refresh_voice_capabilities()
-	AIManager.save_ai_settings()
-	voice_supported = AIManager.is_native_voice_supported()
-	_sync_voice_ui_state()
-func _on_voice_capability_changed(supported: bool):
-	voice_supported = supported
-	if not supported:
-		voice_enabled = false
-		voice_output_enabled = false
-		voice_input_enabled = false
-	_update_voice_availability_label()
-	_sync_voice_ui_state()
-	var state_text := "enabled" if supported else "disabled"
-	_update_voice_status("Native audio %s for current model." % state_text)
-func _on_voice_audio_received(payload: Dictionary):
-	if not (voice_enabled and voice_output_enabled): return
-	var mime: String = str(payload.get("mime_type", "audio/pcm"))
-	var sample_rate := int(payload.get("sample_rate", 24000))
-	_update_voice_status("Received AI audio (%s @ %d Hz)." % [mime, sample_rate])
-func _on_voice_input_buffer_ready(pcm: PackedByteArray, sample_rate: int, metadata: Dictionary):
-	voice_capture_active = false
-	var length_sec := float(metadata.get("length_seconds", float(pcm.size()) / max(sample_rate * 2, 1)))
-	_update_voice_status("Captured microphone sample (%.2f s @ %d Hz)." % [length_sec, sample_rate])
-	_sync_voice_ui_state()
-func _on_voice_transcription_ready(transcript: String, metadata: Dictionary):
-	voice_capture_active = false
-	var direction: String = str(metadata.get("direction", "output"))
-	var label := "AI transcription" if direction == "output" else "Input transcription"
-	_update_voice_status("%s: %s" % [label, transcript])
-	_sync_voice_ui_state()
-func _on_voice_transcription_failed(reason: String):
-	voice_capture_active = false
-	_update_voice_status("Voice transcription failed: %s" % reason, true)
-	_sync_voice_ui_state()
+	if _voice_ctrl:
+		_voice_ctrl.update_availability_label()
+# ── Voice event handlers (scene-connected; thin wrappers to _voice_ctrl) ───────
 func _on_voice_enabled_toggled(button_pressed: bool):
-	if button_pressed and not voice_supported:
-		if _try_enable_gemini_native_audio_support():
-			_update_voice_status("Native audio enabled.")
-		else:
-			_set_button_pressed_safely(voice_enabled_check, false)
-			_update_voice_status("Current model does not support native audio.", true)
-			return
-	voice_enabled = button_pressed and voice_supported
-	if not voice_enabled:
-		voice_output_enabled = false
-		voice_input_enabled = false
-	voice_capture_active = false
-	_apply_voice_preferences()
-	_sync_voice_ui_state()
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_enabled_toggled(button_pressed)
 func _on_voice_output_toggled(button_pressed: bool):
-	if not (voice_enabled and voice_supported):
-		_set_button_pressed_safely(voice_output_check, false)
-		_update_voice_status("Enable native voice first.", true)
-		return
-	voice_output_enabled = button_pressed
-	_apply_voice_preferences()
-	_sync_voice_ui_state()
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_output_toggled(button_pressed)
 func _on_voice_input_toggled(button_pressed: bool):
-	if not (voice_enabled and voice_supported):
-		_set_button_pressed_safely(voice_input_check, false)
-		_update_voice_status("Enable native voice first.", true)
-		return
-	voice_input_enabled = button_pressed
-	if not voice_input_enabled:
-		voice_capture_active = false
-		if AIManager:
-			AIManager.cancel_voice_capture()
-	_apply_voice_preferences()
-	_sync_voice_ui_state()
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_input_toggled(button_pressed)
 func _on_voice_voice_option_selected(index: int):
-	if voice_voice_option:
-		voice_voice_name = voice_voice_option.get_item_text(index)
-	_apply_voice_preferences()
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_voice_option_selected(index)
 func _on_voice_volume_changed(value: float):
-	voice_volume = value
-	_update_voice_volume_display()
-	_apply_audio_settings()
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_volume_changed(value)
 func _on_voice_input_mode_selected(index: int):
-	if not voice_input_mode_option: return
-	var selected_id: int = voice_input_mode_option.get_item_id(index)
-	if selected_id == -1:
-		selected_id = voice_input_mode_option.selected
-	voice_input_mode = selected_id
-	_apply_voice_preferences()
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_input_mode_selected(index)
 func _on_voice_proactive_toggled(button_pressed: bool):
-	voice_proactive_enabled = button_pressed
-	_apply_voice_preferences()
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_proactive_toggled(button_pressed)
 func _on_voice_preview_button_pressed():
-	if not (voice_enabled and voice_supported and voice_output_enabled):
-		_update_voice_status("Enable native voice output to preview audio.", true)
-		return
-	if not AudioManager:
-		_update_voice_status("AudioManager unavailable for preview.", true)
-		return
-	if not AIManager:
-		_update_voice_status("AI Manager unavailable for preview.", true)
-		return
-	var snapshot: Dictionary = AIManager.get_state_snapshot()
-	if not snapshot.is_empty() and not AIManager:
-		_update_voice_status("No voice playback data available yet.", true)
-		return
-	if snapshot.has("stream") and snapshot["stream"]:
-		AudioManager.play_voice_stream(snapshot["stream"])
-		_update_voice_status("Replaying most recent AI voice output.")
-		return
-	var pcm: PackedByteArray = snapshot.get("pcm", PackedByteArray())
-	if pcm.is_empty():
-		_update_voice_status("No AI voice output captured yet.", true)
-		return
-	var sample_rate := int(snapshot.get("sample_rate", AudioManager.DEFAULT_VOICE_SAMPLE_RATE))
-	AudioManager.play_voice_from_pcm(pcm, sample_rate)
-	_update_voice_status("Replaying buffered AI voice sample.")
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_preview_button_pressed()
 func _on_voice_capture_button_pressed():
-	if voice_capture_active:
-		if AIManager:
-			AIManager.cancel_voice_capture()
-		voice_capture_active = false
-		_update_voice_status("Capture cancelled.")
-		_sync_voice_ui_state()
-		return
-	if not (voice_enabled and voice_supported and voice_input_enabled):
-		_update_voice_status("Enable native voice input to capture audio.", true)
-		return
-	if not AIManager:
-		_update_voice_status("AI Manager unavailable for capture.", true)
-		return
-	voice_capture_active = true
-	_update_voice_status("Listening for %.1f seconds..." % VOICE_CAPTURE_SECONDS)
-	_sync_voice_ui_state()
-	AIManager.request_voice_capture(VOICE_CAPTURE_SECONDS)
+	if _voice_ctrl:
+		_voice_ctrl.on_voice_capture_button_pressed()
 func _on_touch_controls_toggled(button_pressed: bool) -> void:
 	touch_controls_enabled = button_pressed
 	var touch_controls = get_tree().get_root().find_child("TouchControls", true, false)
@@ -1165,7 +959,7 @@ func _get_audio_settings_data() -> Dictionary:
 		"master_volume": master_volume,
 		"music_volume": music_volume,
 		"sfx_volume": sfx_volume,
-		"voice_volume": voice_volume,
+		"voice_volume": _voice_ctrl.voice_volume if _voice_ctrl else 80.0,
 		"gloria_voice_enabled": gloria_voice_enabled,
 		"muted": is_muted,
 	}
@@ -1413,13 +1207,13 @@ func save_settings():
 		"sfx_volume": sfx_volume,
 		"gloria_voice_enabled": gloria_voice_enabled,
 		"muted": is_muted,
-		"voice_enabled": voice_enabled,
-		"voice_output_enabled": voice_output_enabled,
-		"voice_input_enabled": voice_input_enabled,
-		"voice_volume": voice_volume,
-		"voice_voice_name": voice_voice_name,
-		"voice_input_mode": voice_input_mode,
-		"voice_proactive_enabled": voice_proactive_enabled,
+		"voice_enabled": _voice_ctrl.voice_enabled if _voice_ctrl else false,
+		"voice_output_enabled": _voice_ctrl.voice_output_enabled if _voice_ctrl else false,
+		"voice_input_enabled": _voice_ctrl.voice_input_enabled if _voice_ctrl else false,
+		"voice_volume": _voice_ctrl.voice_volume if _voice_ctrl else 80.0,
+		"voice_voice_name": _voice_ctrl.voice_voice_name if _voice_ctrl else "Aoede",
+		"voice_input_mode": _voice_ctrl.voice_input_mode if _voice_ctrl else 0,
+		"voice_proactive_enabled": _voice_ctrl.voice_proactive_enabled if _voice_ctrl else false,
 		"touch_controls_enabled": touch_controls_enabled,
 	}, _get_game_state())
 func load_settings():
@@ -1428,13 +1222,13 @@ func load_settings():
 		"resolution": fallback_window_size,
 		"font_en": _get_default_font("en"),
 		"font_zh": _get_default_font("zh"),
-		"voice_enabled": voice_enabled,
-		"voice_output_enabled": voice_output_enabled,
-		"voice_input_enabled": voice_input_enabled,
-		"voice_volume": voice_volume,
-		"voice_voice_name": voice_voice_name,
-		"voice_input_mode": voice_input_mode,
-		"voice_proactive_enabled": voice_proactive_enabled,
+		"voice_enabled": false,
+		"voice_output_enabled": false,
+		"voice_input_enabled": false,
+		"voice_volume": 80.0,
+		"voice_voice_name": "Aoede",
+		"voice_input_mode": 0,
+		"voice_proactive_enabled": false,
 	}
 	var data := SettingsMenuSaveLoadScript.load(
 		defaults,
@@ -1458,13 +1252,15 @@ func load_settings():
 		sfx_volume = data["sfx_volume"]
 		gloria_voice_enabled = data["gloria_voice_enabled"]
 		is_muted = data["muted"]
-		voice_enabled = data["voice_enabled"]
-		voice_output_enabled = data["voice_output_enabled"]
-		voice_input_enabled = data["voice_input_enabled"]
-		voice_volume = data["voice_volume"]
-		voice_voice_name = data["voice_voice_name"]
-		voice_input_mode = data["voice_input_mode"]
-		voice_proactive_enabled = data["voice_proactive_enabled"]
+		_pending_voice_settings = {
+			"voice_enabled": data["voice_enabled"],
+			"voice_output_enabled": data["voice_output_enabled"],
+			"voice_input_enabled": data["voice_input_enabled"],
+			"voice_volume": data["voice_volume"],
+			"voice_voice_name": data["voice_voice_name"],
+			"voice_input_mode": data["voice_input_mode"],
+			"voice_proactive_enabled": data["voice_proactive_enabled"],
+		}
 		touch_controls_enabled = data["touch_controls_enabled"]
 	else:
 		_normalize_selected_resolution(fallback_window_size)
