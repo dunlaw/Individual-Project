@@ -84,7 +84,7 @@ const FALLBACK_TRANSLATIONS := {
 		"MENU_SLOT_FMT": "Slot %d",
 		"MENU_LAST_SAVE_FMT": "Letzter Stand: Realität %d | Missionen %d | %s | %s",
 		"MENU_CREATIVE_STATEMENT": "Glorious Deliverance Agency 1",
-		"START_FSM_JOIN": "Der Agentur beitreten",
+		"START_FSM_JOIN": "FSM 30-Tage-Plan beitreten",
 		"INTRO_CHAPTERS": "Kapitel",
 		"INTRO_CHAPTER_1": "Akt I",
 		"INTRO_CHAPTER_2": "Akt II",
