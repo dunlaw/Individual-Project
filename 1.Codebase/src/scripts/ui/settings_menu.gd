@@ -370,10 +370,10 @@ func _rebuild_layout_into_tabs() -> void:
 	max_rounds_label  = result["max_rounds_label"]
 	max_rounds_spinbox = result["max_rounds_spinbox"]
 	gloria_voice_check = result["gloria_voice_check"]
-func _create_ai_log_tab_page() -> VBoxContainer:
+func _create_ai_log_tab_page(passed_tab_container: TabContainer) -> VBoxContainer:
 	_ai_log_ctrl = SettingsMenuAILogControllerScript.new()
 	var result: Dictionary = SettingsMenuAILogSectionScript.build_log_page(
-		tab_container,
+		passed_tab_container,
 		{
 			"history": ICON_HISTORY, "options": ICON_OPTIONS, "refresh": ICON_REFRESH,
 			"save": ICON_SAVE, "delete": ICON_DELETE, "info": ICON_INFO,
@@ -394,7 +394,7 @@ func _create_ai_log_tab_page() -> VBoxContainer:
 			"tab_changed":           Callable(_ai_log_ctrl, "_on_ai_log_tab_changed"),
 		},
 	)
-	_ai_log_ctrl.initialize(result, _ai_chart_width, _ai_chart_height, tab_container, Callable(self, "_tr_ai"))
+	_ai_log_ctrl.initialize(result, _ai_chart_width, _ai_chart_height, passed_tab_container, Callable(self, "_tr_ai"))
 	_normalize_ai_log_language_texts(result["outer_vbox"] as VBoxContainer)
 	return result["outer_vbox"] as VBoxContainer
 func _initialize_new_controls():

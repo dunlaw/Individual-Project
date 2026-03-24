@@ -54,7 +54,7 @@ func _test_signal_definitions() -> void:
 func _test_prepare_microphone_pipeline() -> void:
 	print("\n[Test] Prepare microphone pipeline...")
 	test_controller._prepare_microphone_pipeline()
-	var has_audio_input = not AudioServer.get_input_device_list().is_empty()
+	var has_audio_input = not AudioServer.get_input_device_list().is_empty() and ProjectSettings.get_setting("audio/driver/enable_input", false)
 	if has_audio_input:
 		_assert(test_controller.is_prepared or not has_audio_input,
 			"Should prepare pipeline if audio input available")
