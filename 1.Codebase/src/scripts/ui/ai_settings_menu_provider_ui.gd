@@ -119,7 +119,7 @@ func get_provider_display_name(provider: int) -> String:
 	return _menu._tr("AI_SETTINGS_PROVIDER_UNKNOWN")
 func update_provider_ui() -> void:
 	configure_provider_widgets()
-	var selected := _menu.provider_option.selected
+	var selected: int = _menu.provider_option.selected
 	set_provider_section_state(_menu._gemini_inputs, _menu._gemini_visuals, _menu.gemini_disabled_label, true)
 	set_provider_section_state(_menu._openrouter_inputs, _menu._openrouter_visuals, _menu.openrouter_disabled_label, true)
 	set_provider_section_state(_menu._ollama_inputs, _menu._ollama_visuals, _menu.ollama_disabled_label, true)
@@ -142,7 +142,7 @@ func update_provider_ui() -> void:
 		_menu.lmstudio_disabled_label.visible = false
 	if _menu.ai_router_disabled_label:
 		_menu.ai_router_disabled_label.visible = false
-	var provider_name := get_provider_display_name(selected)
+	var provider_name: String = get_provider_display_name(selected)
 	if selected == AIManager.AIProvider.OLLAMA:
 		provider_name = _decorate_ollama_provider_label(provider_name)
 	_menu.provider_status_label.text = _menu._tr("AI_SETTINGS_STATUS_CURRENT_PROVIDER") % [provider_name]
@@ -150,18 +150,18 @@ func update_provider_ui() -> void:
 func update_mock_mode_status() -> void:
 	if not _menu._mock_mode_status_label:
 		return
-	var selected := _menu.provider_option.selected if _menu.provider_option else -1
+	var selected: int = _menu.provider_option.selected if _menu.provider_option else -1
 	if selected == AIManager.AIProvider.MOCK_MODE:
 		_menu._mock_mode_status_label.text = _menu._tr("AI_SETTINGS_MOCK_STATUS_ACTIVE")
 		_menu._mock_mode_status_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))
 	else:
-		var provider_name := get_provider_display_name(selected)
+		var provider_name: String = get_provider_display_name(selected)
 		_menu._mock_mode_status_label.text = _menu._tr("AI_SETTINGS_MOCK_STATUS_INACTIVE") % [provider_name]
 		_menu._mock_mode_status_label.add_theme_color_override("font_color", Color(0.9, 0.9, 0.9))
 func _decorate_ollama_provider_label(base_label: String) -> String:
-	var model_text := _menu.ollama_model_input.text.strip_edges()
-	var fallback_port := _menu._clamp_port(int(_menu.ollama_port_spin.value))
-	var parsed := _menu._parse_ollama_url(_menu.ollama_host_input.text, fallback_port)
+	var model_text: String = _menu.ollama_model_input.text.strip_edges()
+	var fallback_port: int = _menu._clamp_port(int(_menu.ollama_port_spin.value))
+	var parsed: Dictionary = _menu._parse_ollama_url(_menu.ollama_host_input.text, fallback_port)
 	if not parsed.get("ok", false):
 		_menu.ollama_disabled_label.visible = true
 		_menu.ollama_disabled_label.text = parsed.get(

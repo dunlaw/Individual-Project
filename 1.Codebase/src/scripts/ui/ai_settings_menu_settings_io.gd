@@ -31,7 +31,7 @@ func load_current_settings() -> void:
 	sync_openrouter_model_selection(ai_manager.openrouter_model)
 	if _menu.openrouter_auto_router_check:
 		_menu.openrouter_auto_router_check.button_pressed = ai_manager.openrouter_use_auto_router
-	var parsed_url := _menu._parse_ollama_url(ai_manager.ollama_host, ai_manager.ollama_port)
+	var parsed_url: Dictionary = _menu._parse_ollama_url(ai_manager.ollama_host, ai_manager.ollama_port)
 	if parsed_url.get("ok", false):
 		_menu.ollama_host_input.text = String(parsed_url.get("url", _menu.DEFAULT_OLLAMA_URL))
 		_menu.ollama_port_spin.value = int(parsed_url.get("port", ai_manager.ollama_port))
@@ -91,7 +91,7 @@ func save_ui_to_manager() -> bool:
 			ai_manager.set_max_tokens(int(_menu.max_tokens_spin.value))
 		else:
 			ai_manager.max_tokens = int(_menu.max_tokens_spin.value)
-	var gemini_key_value := _menu.gemini_key_input.text.strip_edges()
+	var gemini_key_value: String = _menu.gemini_key_input.text.strip_edges()
 	if not gemini_key_value.is_empty():
 		if gemini_key_value.begins_with("http://") or gemini_key_value.begins_with("https://"):
 			_menu.update_status(
@@ -111,7 +111,7 @@ func save_ui_to_manager() -> bool:
 	if gemini_selected >= 0 and gemini_selected < gemini_values.size():
 		ai_manager.gemini_model = gemini_values[gemini_selected]
 	elif _menu.gemini_model_input:
-		var custom_gemini_model := _menu.gemini_model_input.text.strip_edges()
+		var custom_gemini_model: String = _menu.gemini_model_input.text.strip_edges()
 		if not custom_gemini_model.is_empty():
 			ai_manager.gemini_model = custom_gemini_model
 	if _menu.safety_level_option:
@@ -122,34 +122,34 @@ func save_ui_to_manager() -> bool:
 			3: ai_manager.gemini_safety_settings = "BLOCK_LOW_AND_ABOVE"
 			_: ai_manager.gemini_safety_settings = "BLOCK_NONE"
 	ai_manager.openrouter_api_key = _menu.openrouter_key_input.text
-	var openrouter_selected := _menu.openrouter_model_option.selected if _menu.openrouter_model_option else -1
+	var openrouter_selected: int = _menu.openrouter_model_option.selected if _menu.openrouter_model_option else -1
 	if openrouter_selected >= 0 and openrouter_selected < _menu.OPENROUTER_MODEL_OPTIONS.size():
 		ai_manager.openrouter_model = _menu.OPENROUTER_MODEL_OPTIONS[openrouter_selected]
 	else:
 		ai_manager.openrouter_model = _menu.openrouter_model_input.text.strip_edges()
 	if _menu.openrouter_auto_router_check:
 		ai_manager.openrouter_use_auto_router = _menu.openrouter_auto_router_check.button_pressed
-	var fallback_port := _menu._clamp_port(int(_menu.ollama_port_spin.value))
-	var parsed_url := _menu._parse_ollama_url(_menu.ollama_host_input.text, fallback_port)
+	var fallback_port: int = _menu._clamp_port(int(_menu.ollama_port_spin.value))
+	var parsed_url: Dictionary = _menu._parse_ollama_url(_menu.ollama_host_input.text, fallback_port)
 	if not parsed_url.get("ok", false):
 		_menu.update_status(str(parsed_url.get("error", _menu._tr("AI_SETTINGS_VALIDATION_OLLAMA_URL_INVALID"))), true, true)
 		return false
-	var host_text := String(parsed_url.get("host", "127.0.0.1"))
-	var scheme := String(parsed_url.get("scheme", "http"))
-	var use_port := fallback_port
+	var host_text: String = String(parsed_url.get("host", "127.0.0.1"))
+	var scheme: String = String(parsed_url.get("scheme", "http"))
+	var use_port: int = fallback_port
 	if parsed_url.get("explicit_port", false):
 		use_port = int(parsed_url.get("port", fallback_port))
-	var normalized_url := _menu._build_ollama_url(host_text, use_port, scheme)
+	var normalized_url: String = _menu._build_ollama_url(host_text, use_port, scheme)
 	_menu.ollama_host_input.text = normalized_url
 	_menu.ollama_port_spin.value = use_port
 	ai_manager.ollama_host = host_text
 	ai_manager.ollama_port = use_port
-	var model_text := _menu.ollama_model_input.text.strip_edges()
+	var model_text: String = _menu.ollama_model_input.text.strip_edges()
 	if model_text.is_empty():
 		model_text = ai_manager.ollama_model
 		_menu.ollama_model_input.text = model_text
 	ai_manager.ollama_model = model_text
-	var options_text := _menu.ollama_options_input.text.strip_edges()
+	var options_text: String = _menu.ollama_options_input.text.strip_edges()
 	if not options_text.is_empty():
 		var json := JSON.new()
 		var parse_err := json.parse(options_text)

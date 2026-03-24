@@ -169,7 +169,7 @@ func on_ai_test_success(response: Variant) -> void:
 		_menu.test_button.text = _menu._tr("AI_SETTINGS_BUTTON_TEST_CONNECTION")
 	var display_text = ""
 	var ai_manager = _menu.ai_manager
-	var provider_name := _menu._get_provider_display_name(ai_manager.current_provider) if ai_manager else _menu._tr("AI_SETTINGS_PROVIDER_UNKNOWN")
+	var provider_name: String = _menu._get_provider_display_name(ai_manager.current_provider) if ai_manager else _menu._tr("AI_SETTINGS_PROVIDER_UNKNOWN")
 	if typeof(response) == TYPE_DICTIONARY:
 		if response.has("content"):
 			display_text = str(response["content"])
@@ -191,7 +191,7 @@ func on_ai_test_error(error_message: String) -> void:
 		_menu.test_button.disabled = false
 		_menu.test_button.text = _menu._tr("AI_SETTINGS_BUTTON_TEST_CONNECTION")
 	var ai_manager = _menu.ai_manager
-	var provider_name := _menu._get_provider_display_name(ai_manager.current_provider) if ai_manager else _menu._tr("AI_SETTINGS_PROVIDER_UNKNOWN")
+	var provider_name: String = _menu._get_provider_display_name(ai_manager.current_provider) if ai_manager else _menu._tr("AI_SETTINGS_PROVIDER_UNKNOWN")
 	var helpful_message := error_message
 	var error_lower := error_message.to_lower()
 	if "401" in error_message or "unauthorized" in error_lower or "invalid api key" in error_lower:
@@ -220,7 +220,7 @@ func on_ai_request_progress(update: Dictionary) -> void:
 	if not ai_manager:
 		return
 	var provider: int = int(update.get("provider", ai_manager.current_provider))
-	var provider_name := _menu._get_provider_display_name(provider)
+	var provider_name: String = _menu._get_provider_display_name(provider)
 	var status: String = str(update.get("status", ""))
 	var elapsed: float = float(update.get("elapsed_sec", 0.0))
 	var tokens: int = 0
