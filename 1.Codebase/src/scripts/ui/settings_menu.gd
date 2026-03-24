@@ -25,6 +25,7 @@ const SettingsMenuAILogExportScript = preload("res://1.Codebase/src/scripts/ui/s
 const SettingsMenuUITextScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_ui_text.gd")
 const SettingsMenuLogActionsScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_log_actions.gd")
 const SettingsMenuVoiceHandlersScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_voice_handlers.gd")
+const SettingsMenuLayoutBuilderScript = preload("res://1.Codebase/src/scripts/ui/settings_menu_layout_builder.gd")
 const ICON_CHECK = preload("res://1.Codebase/src/assets/ui/icon_check.svg")
 const ICON_BACK = preload("res://1.Codebase/src/assets/ui/icon_back.svg")
 const ICON_DELETE = preload("res://1.Codebase/src/assets/ui/icon_delete.svg")
@@ -207,45 +208,13 @@ func _tr_ai(key: String, fallback: String = "") -> String:
 			return translated
 	return fallback if not fallback.is_empty() else key
 func _normalize_ai_log_language_texts(root: Node) -> void:
-	if root == null:
-		return
-	var title := root.find_child("AILogTitle", true, false) as Label
-	if title:
-		title.text = _tr_ai("SETTINGS_AI_LOG_TITLE", "AI Call Log")
-	var toggle_log := root.find_child("AILogToggleLog", true, false) as Button
-	if toggle_log:
-		toggle_log.text = _tr_ai("SETTINGS_AI_LOG_TOGGLE_LOG", "Log")
-	var toggle_charts := root.find_child("AILogToggleCharts", true, false) as Button
-	if toggle_charts:
-		toggle_charts.text = _tr_ai("SETTINGS_AI_LOG_TOGGLE_CHARTS", "Charts")
-	var refresh_btn := root.find_child("AILogRefreshButton", true, false) as Button
-	if refresh_btn:
-		refresh_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_REFRESH_TOOLTIP", "Refresh")
-	var export_btn := root.find_child("AILogExportButton", true, false) as Button
-	if export_btn:
-		export_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_EXPORT_JSON_TOOLTIP", "Export log to JSON")
-	var export_csv_btn := root.find_child("AILogExportCsvButton", true, false) as Button
-	if export_csv_btn:
-		export_csv_btn.text = _tr_ai("SETTINGS_AI_LOG_EXPORT_CSV_SHORT", "CSV")
-		export_csv_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_EXPORT_CSV_TOOLTIP", "Export log and chart data to CSV")
-	var clear_btn := root.find_child("AILogClearButton", true, false) as Button
-	if clear_btn:
-		clear_btn.tooltip_text = _tr_ai("SETTINGS_AI_LOG_CLEAR_TOOLTIP", "Clear log")
-	var empty_lbl := root.find_child("AILogEmptyLabel", true, false) as Label
-	if empty_lbl:
-		empty_lbl.text = _tr_ai("SETTINGS_AI_LOG_EMPTY", "No AI calls recorded yet.")
-	if _ai_log_ctrl and is_instance_valid(_ai_log_ctrl._ai_chart_toggle_button):
-		_ai_log_ctrl._ai_chart_toggle_button.text = (
-			_tr_ai("SETTINGS_AI_LOG_HIDE_GRAPHS", "Hide Graphs")
-			if _ai_log_ctrl._ai_charts_open else
-			_tr_ai("SETTINGS_AI_LOG_SHOW_GRAPHS", "Show Graphs")
-		)
+	SettingsMenuAILogSectionScript.normalize_language_texts(root, Callable(self, "_tr_ai"), _ai_log_ctrl)
 func _ready():
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_background_aliases()
 	_enforce_fullscreen_layout()
-	_add_settings_banner()
+	SettingsMenuLayoutBuilderScript.add_settings_banner(main_vbox, SETTINGS_BANNER)
 	_rebuild_layout_into_tabs()
 	load_settings()
 	_initialize_font_options()
@@ -367,104 +336,41 @@ func _exit_tree() -> void:
 				func(): if is_instance_valid(audio): audio.play_music("background_music", true),
 				CONNECT_ONE_SHOT
 			)
-func _add_settings_banner():
-	var banner = TextureRect.new()
-	banner.name = "SettingsBanner"
-	banner.texture = SETTINGS_BANNER
-	banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	banner.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	banner.custom_minimum_size = Vector2(64, 64)
-	banner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	main_vbox.add_child(banner)
-	main_vbox.move_child(banner, 1)
-func _rebuild_layout_into_tabs():
-	original_scroll.visible = false
-	tab_container = TabContainer.new()
-	tab_container.name = "SettingsTabs"
-	tab_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	tab_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var insert_idx = 1
-	main_vbox.add_child(tab_container)
-	main_vbox.move_child(tab_container, insert_idx)
-	tab_gameplay = _create_tab_page("Gameplay")
-	tab_display = _create_tab_page("Display")
-	tab_audio = _create_tab_page("Audio")
-	tab_voice = _create_tab_page("Voice")
-	tab_tutorial = _create_tab_page("Tutorial")
-	tab_developer = _create_tab_page("Developer")
-	tab_ai_log = _create_ai_log_tab_page()
-	_move_control(language_label, tab_gameplay)
-	_move_control(language_option, tab_gameplay)
-	_add_separator(tab_gameplay)
-	var gameplay_settings_box = VBoxContainer.new()
-	gameplay_settings_box.name = "GameplayExtras"
-	gameplay_settings_box.add_theme_constant_override("separation", 10)
-	tab_gameplay.add_child(gameplay_settings_box)
-	text_speed_label = Label.new()
-	text_speed_option = OptionButton.new()
-	screen_shake_check = CheckBox.new()
-	max_rounds_label = Label.new()
-	max_rounds_spinbox = SpinBox.new()
-	gameplay_settings_box.add_child(text_speed_label)
-	gameplay_settings_box.add_child(text_speed_option)
-	gameplay_settings_box.add_child(screen_shake_check)
-	gameplay_settings_box.add_child(max_rounds_label)
-	gameplay_settings_box.add_child(max_rounds_spinbox)
-	_add_separator(tab_gameplay)
-	_move_control(touch_controls_checkbox, tab_gameplay)
-	_add_separator(tab_gameplay)
-	_move_control(ai_settings_button, tab_gameplay)
-	_move_control(delete_logs_button, tab_gameplay)
-	_move_control(fullscreen_label, tab_display)
-	_move_control(fullscreen_option, tab_display)
-	_add_separator(tab_display)
-	_move_control(resolution_label, tab_display)
-	_move_control(resolution_option, tab_display)
-	_add_separator(tab_display)
-	_move_control(font_size_label, tab_display)
-	_move_control(font_size_option, tab_display)
-	_add_separator(tab_display)
-	_move_control(english_font_label, tab_display)
-	_move_control(english_font_option, tab_display)
-	_move_control(chinese_font_label, tab_display)
-	_move_control(chinese_font_option, tab_display)
-	_move_control(mute_check_box, tab_audio)
-	_add_separator(tab_audio)
-	_ensure_audio_label(master_volume_hbox, "MasterVolumeLabel")
-	_move_control(master_volume_hbox, tab_audio)
-	_ensure_audio_label(music_volume_hbox, "MusicVolumeLabel")
-	_move_control(music_volume_hbox, tab_audio)
-	_ensure_audio_label(sfx_volume_hbox, "SFXVolumeLabel")
-	_move_control(sfx_volume_hbox, tab_audio)
-	_add_separator(tab_audio)
-	gloria_voice_check = CheckBox.new()
-	gloria_voice_check.name = "GloriaVoiceCheck"
-	gloria_voice_check.toggled.connect(_on_gloria_voice_toggled)
-	tab_audio.add_child(gloria_voice_check)
-	_move_control(voice_description, tab_voice)
-	_move_control(voice_availability_label, tab_voice)
-	_add_separator(tab_voice)
-	_move_control(voice_enabled_check, tab_voice)
-	_move_control(voice_options_box, tab_voice)
-func _create_tab_page(tab_name: String) -> VBoxContainer:
-	var scroll = ScrollContainer.new()
-	scroll.name = tab_name + "Scroll"
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var vbox = VBoxContainer.new()
-	vbox.name = tab_name + "VBox"
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 15)
-	var margin = MarginContainer.new()
-	margin.add_theme_constant_override("margin_top", 20)
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_bottom", 20)
-	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.add_child(margin)
-	margin.add_child(vbox)
-	tab_container.add_child(scroll)
-	return vbox
+func _rebuild_layout_into_tabs() -> void:
+	var result := SettingsMenuLayoutBuilderScript.rebuild_tabs(
+		main_vbox, original_scroll,
+		{
+			"language_label": language_label, "language_option": language_option,
+			"touch_controls_checkbox": touch_controls_checkbox,
+			"ai_settings_button": ai_settings_button, "delete_logs_button": delete_logs_button,
+			"fullscreen_label": fullscreen_label, "fullscreen_option": fullscreen_option,
+			"resolution_label": resolution_label, "resolution_option": resolution_option,
+			"font_size_label": font_size_label, "font_size_option": font_size_option,
+			"english_font_label": english_font_label, "english_font_option": english_font_option,
+			"chinese_font_label": chinese_font_label, "chinese_font_option": chinese_font_option,
+			"mute_check_box": mute_check_box,
+			"master_volume_hbox": master_volume_hbox, "music_volume_hbox": music_volume_hbox,
+			"sfx_volume_hbox": sfx_volume_hbox,
+			"voice_description": voice_description,
+			"voice_availability_label": voice_availability_label,
+			"voice_enabled_check": voice_enabled_check, "voice_options_box": voice_options_box,
+		},
+		Callable(self, "_on_gloria_voice_toggled"),
+		Callable(self, "_create_ai_log_tab_page"),
+	)
+	tab_container    = result["tab_container"]
+	tab_gameplay     = result["tab_gameplay"]
+	tab_display      = result["tab_display"]
+	tab_audio        = result["tab_audio"]
+	tab_voice        = result["tab_voice"]
+	tab_tutorial     = result["tab_tutorial"]
+	tab_developer    = result["tab_developer"]
+	text_speed_label  = result["text_speed_label"]
+	text_speed_option = result["text_speed_option"]
+	screen_shake_check = result["screen_shake_check"]
+	max_rounds_label  = result["max_rounds_label"]
+	max_rounds_spinbox = result["max_rounds_spinbox"]
+	gloria_voice_check = result["gloria_voice_check"]
 func _create_ai_log_tab_page() -> VBoxContainer:
 	_ai_log_ctrl = SettingsMenuAILogControllerScript.new()
 	var result: Dictionary = SettingsMenuAILogSectionScript.build_log_page(
@@ -492,15 +398,6 @@ func _create_ai_log_tab_page() -> VBoxContainer:
 	_ai_log_ctrl.initialize(result, _ai_chart_width, _ai_chart_height, tab_container, Callable(self, "_tr_ai"))
 	_normalize_ai_log_language_texts(result["outer_vbox"] as VBoxContainer)
 	return result["outer_vbox"] as VBoxContainer
-func _move_control(node: Control, new_parent: Control):
-	if node and node.get_parent():
-		node.get_parent().remove_child(node)
-		new_parent.add_child(node)
-		node.visible = true
-func _add_separator(parent: Control):
-	var sep = HSeparator.new()
-	sep.modulate = Color(1, 1, 1, 0.3)
-	parent.add_child(sep)
 func _initialize_new_controls():
 	_dev_ctrl = SettingsMenuDeveloperHandlersScript.new()
 	_dev_ctrl.setup(
@@ -1303,14 +1200,6 @@ func _on_title_label_gui_input(event: InputEvent) -> void:
 		var mouse_event := event as InputEventMouseButton
 		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
 			_emit_close_requested()
-func _ensure_audio_label(hbox: Control, label_name: String) -> void:
-	if not hbox: return
-	if hbox.has_node(label_name): return
-	var label = Label.new()
-	label.name = label_name
-	label.custom_minimum_size.x = 140
-	hbox.add_child(label)
-	hbox.move_child(label, 0)
 var agent_server_enabled_check: CheckBox
 var agent_server_status_label: Label
 var agent_server_help_button: Button

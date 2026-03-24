@@ -465,3 +465,44 @@ static func _get_handler(handlers: Dictionary, key: String) -> Callable:
 		if val is Callable:
 			return val as Callable
 	return Callable()
+
+## Applies localized text to all named widgets inside the AI-log tab root.
+## tr_fn  – Callable(key: String, fallback: String) -> String
+## ai_log_ctrl – the SettingsMenuAILogController instance (may be null)
+static func normalize_language_texts(root: Node, tr_fn: Callable, ai_log_ctrl: Object) -> void:
+	if root == null:
+		return
+	var title := root.find_child("AILogTitle", true, false) as Label
+	if title:
+		title.text = tr_fn.call("SETTINGS_AI_LOG_TITLE", "AI Call Log")
+	var toggle_log := root.find_child("AILogToggleLog", true, false) as Button
+	if toggle_log:
+		toggle_log.text = tr_fn.call("SETTINGS_AI_LOG_TOGGLE_LOG", "Log")
+	var toggle_charts := root.find_child("AILogToggleCharts", true, false) as Button
+	if toggle_charts:
+		toggle_charts.text = tr_fn.call("SETTINGS_AI_LOG_TOGGLE_CHARTS", "Charts")
+	var refresh_btn := root.find_child("AILogRefreshButton", true, false) as Button
+	if refresh_btn:
+		refresh_btn.tooltip_text = tr_fn.call("SETTINGS_AI_LOG_REFRESH_TOOLTIP", "Refresh")
+	var export_btn := root.find_child("AILogExportButton", true, false) as Button
+	if export_btn:
+		export_btn.tooltip_text = tr_fn.call("SETTINGS_AI_LOG_EXPORT_JSON_TOOLTIP", "Export log to JSON")
+	var export_csv_btn := root.find_child("AILogExportCsvButton", true, false) as Button
+	if export_csv_btn:
+		export_csv_btn.text = tr_fn.call("SETTINGS_AI_LOG_EXPORT_CSV_SHORT", "CSV")
+		export_csv_btn.tooltip_text = tr_fn.call("SETTINGS_AI_LOG_EXPORT_CSV_TOOLTIP", "Export log and chart data to CSV")
+	var clear_btn := root.find_child("AILogClearButton", true, false) as Button
+	if clear_btn:
+		clear_btn.tooltip_text = tr_fn.call("SETTINGS_AI_LOG_CLEAR_TOOLTIP", "Clear log")
+	var empty_lbl := root.find_child("AILogEmptyLabel", true, false) as Label
+	if empty_lbl:
+		empty_lbl.text = tr_fn.call("SETTINGS_AI_LOG_EMPTY", "No AI calls recorded yet.")
+	if ai_log_ctrl != null and is_instance_valid(ai_log_ctrl):
+		var toggle_btn = ai_log_ctrl.get("_ai_chart_toggle_button")
+		if toggle_btn != null and is_instance_valid(toggle_btn):
+			var charts_open = ai_log_ctrl.get("_ai_charts_open")
+			toggle_btn.text = (
+				tr_fn.call("SETTINGS_AI_LOG_HIDE_GRAPHS", "Hide Graphs")
+				if charts_open else
+				tr_fn.call("SETTINGS_AI_LOG_SHOW_GRAPHS", "Show Graphs")
+			)
