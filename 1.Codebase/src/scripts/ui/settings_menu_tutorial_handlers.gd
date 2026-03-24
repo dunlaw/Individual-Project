@@ -35,9 +35,9 @@ func update_progress_display() -> void:
 		return
 	var tutorial_system = ServiceLocator.get_tutorial_system() if ServiceLocator else null
 	if tutorial_system:
-		var progress := tutorial_system.get_tutorial_progress()
-		var completed_count := tutorial_system.get_completed_tutorials().size()
-		var total_count := tutorial_system.get_all_tutorial_steps().size()
+		var progress: float = tutorial_system.get_tutorial_progress()
+		var completed_count: int = tutorial_system.get_completed_tutorials().size()
+		var total_count: int = tutorial_system.get_all_tutorial_steps().size()
 		_tutorial_progress_label.text = "Progress: %d/%d (%.1f%%)" % [completed_count, total_count, progress]
 func update_status_labels() -> void:
 	if not _tutorial_list_container:
@@ -49,7 +49,7 @@ func update_status_labels() -> void:
 		if child is PanelContainer:
 			var status_label = child.find_child("Status_*", true, false)
 			if status_label and status_label is Label:
-				var step_id := status_label.name.replace("Status_", "")
+				var step_id: String = status_label.name.replace("Status_", "")
 				if tutorial_system.is_tutorial_completed(step_id):
 					status_label.text = "✓ Completed"
 					status_label.add_theme_color_override("font_color", Color(0.3, 1.0, 0.3))

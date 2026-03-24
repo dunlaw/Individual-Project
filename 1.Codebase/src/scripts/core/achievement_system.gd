@@ -323,8 +323,8 @@ func save_achievements() -> void:
 	if not game_state:
 		_report_warning("Unable to save achievements because GameState is unavailable")
 		return
-	game_state.set_metadata("achievements", unlocked_achievements)
-	game_state.set_metadata("achievement_progress", _progress_counters)
+	game_state.set_metadata("achievements", unlocked_achievements.duplicate(true))
+	game_state.set_metadata("achievement_progress", _progress_counters.duplicate(true))
 	game_state.save_game()
 func load_achievements() -> void:
 	var game_state: Variant = _get_game_state()

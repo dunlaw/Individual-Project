@@ -500,11 +500,11 @@ func _initialize_agent_server_controls():
 	agent_server_help_button = controls.get("help_button", null) as Button
 	_update_agent_server_status()
 func _initialize_tutorial_controls():
-	_tutorial_ctrl = SettingsMenuTutorialHandlersScript.new()
+	_tutorial_ctrl = SettingsMenuTutorialHandlers.new()
 	_tutorial_ctrl.setup(Callable(self, "_play_sfx"), Callable(self, "_show_notification"))
 	var tutorial_system = ServiceLocator.get_tutorial_system() if ServiceLocator else null
 	if _tutorial_section == null:
-		_tutorial_section = SettingsMenuTutorialSectionScript.new()
+		_tutorial_section = SettingsMenuTutorialSection.new()
 	var controls: Dictionary = _tutorial_section.build_section(
 		tab_tutorial,
 		tutorial_system,
