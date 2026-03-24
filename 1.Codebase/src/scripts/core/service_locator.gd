@@ -73,53 +73,53 @@ func has_service(name: String) -> bool:
 	return _services.has(name) and is_instance_valid(_services[name])
 func list_services() -> Array:
 	return _services.keys()
-func get_localization_manager():
+func get_localization_manager() -> LocalizationManager:
 	return get_service("LocalizationManager")
-func get_game_state():
+func get_game_state() -> GameState:
 	return get_service("GameState")
-func get_ai_manager():
+func get_ai_manager() -> AIManager:
 	return get_service("AIManager")
-func get_asset_registry():
+func get_asset_registry() -> AssetRegistry:
 	return get_service("AssetRegistry")
-func get_background_loader():
+func get_background_loader() -> BackgroundLoader:
 	return get_service("BackgroundLoader")
-func get_tutorial_system():
+func get_tutorial_system() -> TutorialSystem:
 	return get_service("TutorialSystem")
-func get_achievement_system():
+func get_achievement_system() -> AchievementSystem:
 	return get_service("AchievementSystem")
-func get_teammate_system():
+func get_teammate_system() -> TeammateSystem:
 	return get_service("TeammateSystem")
-func get_notification_system():
+func get_notification_system() -> NotificationSystem:
 	return get_service("NotificationSystem")
-func get_tooltip_manager():
+func get_tooltip_manager() -> TooltipManager:
 	return get_service("TooltipManager")
-func get_audio_manager():
+func get_audio_manager() -> AudioManager:
 	return get_service("AudioManager")
-func get_display_manager():
+func get_display_manager() -> DisplayManager:
 	return get_service("DisplayManager")
-func get_font_manager():
+func get_font_manager() -> FontManager:
 	return get_service("FontManager")
-func get_event_bus():
+func get_event_bus() -> EventBus:
 	return get_service("EventBus")
-func get_error_reporter():
+func get_error_reporter() -> ErrorReporter:
 	return get_service("ErrorReporter")
-func get_asset_interaction_system():
+func get_asset_interaction_system() -> AssetInteractionSystem:
 	return get_service("AssetInteractionSystem")
-func get_character_expression_loader():
+func get_character_expression_loader() -> CharacterExpressionLoader:
 	return get_service("CharacterExpressionLoader")
-func get_trolley_problem_generator():
+func get_trolley_problem_generator() -> TrolleyProblemGenerator:
 	return get_service("TrolleyProblemGenerator")
-func get_mission_summary_logger():
+func get_mission_summary_logger() -> MissionSummaryLogger:
 	return get_service("MissionSummaryLogger")
-func get_story_flow_controller():
+func get_story_flow_controller() -> StoryFlowController:
 	return get_service("StoryFlowController")
-func get_ollama_client():
+func get_ollama_client() -> OllamaClient:
 	return get_service("OllamaClient")
-func get_cli_runner():
+func get_cli_runner() -> CLIRunner:
 	return get_service("CLIRunner")
-func get_skill_manager():
+func get_skill_manager() -> SkillManager:
 	return get_service("SkillManager")
-func get_game_agent_server():
+func get_game_agent_server() -> GameAgentServer:
 	return get_service("GameAgentServer")
 func _report_warning(message: String, details: Dictionary = { }) -> void:
 	var reporter = _services.get("ErrorReporter", null)
