@@ -67,14 +67,56 @@ Once configured, you can ask Claude to:
 
 ## Available Tools
 
+### Game Flow
+
 | Tool | Description |
 |------|-------------|
 | `get_game_state` | Get current game state (story, choices, stats) |
 | `select_choice` | Select a dialogue choice by ID |
 | `start_mission` | Start a new mission |
+| `start_new_game` | Start a brand new game |
+| `continue_game` | Load and continue a saved game |
+| `save_game` | Save the current game |
+| `go_to_menu` | Return to the main menu |
+| `skip_intro` | Skip the intro sequence |
+| `skip_dialogue` | Skip the current dialogue |
+
+### Story & Interaction
+
+| Tool | Description |
+|------|-------------|
 | `submit_prayer` | Submit a prayer text |
-| `set_auto_mode` | Enable/disable auto-play |
-| `connect_to_game` | Reconnect to the game server |
+| `get_story_history` | Get the last 10 story history entries |
+| `set_auto_mode` | Enable/disable auto-play (with optional delay in ms) |
+
+### Overlays & UI
+
+| Tool | Description |
+|------|-------------|
+| `open_journal` | Open the in-game journal |
+| `close_overlay` | Close the current overlay |
+| `confirm_overlay` | Confirm/accept the current overlay prompt |
+
+### Stats & Debug
+
+| Tool | Description |
+|------|-------------|
+| `set_stat` | Set a game stat (e.g. `reality_score`, `positive_energy`, `entropy_level`) to a specific value |
+
+### AI Configuration
+
+| Tool | Description |
+|------|-------------|
+| `get_ai_config` | Get the current AI provider and model configuration |
+| `set_ai_provider` | Switch the active AI provider |
+| `set_ai_model` | Set the model for a given provider |
+| `set_api_key` | Set the API key for a given provider |
+
+### Connection
+
+| Tool | Description |
+|------|-------------|
+| `connect_to_game` | Connect (or reconnect) to the game server |
 
 ## Troubleshooting
 
