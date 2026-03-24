@@ -108,17 +108,16 @@ func create_achievement_item(achievement: Dictionary, progress_hint: String = ""
 	vbox.add_child(icon_center)
 	if achievement.has("icon") and achievement["icon"] != "":
 		var icon_path = achievement["icon"]
-		if ResourceLoader.exists(icon_path):
-			var icon_texture = load(icon_path)
-			if icon_texture:
-				var texture_rect = TextureRect.new()
-				texture_rect.texture = icon_texture
-				texture_rect.custom_minimum_size = Vector2(96, 96)
-				texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
-				texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-				if not achievement["unlocked"]:
-					texture_rect.modulate = UIConstants.COLOR_LOCKED
-				icon_center.add_child(texture_rect)
+		var icon_texture = load(icon_path)
+		if icon_texture:
+			var texture_rect = TextureRect.new()
+			texture_rect.texture = icon_texture
+			texture_rect.custom_minimum_size = Vector2(96, 96)
+			texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+			texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			if not achievement["unlocked"]:
+				texture_rect.modulate = UIConstants.COLOR_LOCKED
+			icon_center.add_child(texture_rect)
 	var title_label = Label.new()
 	title_label.text = achievement.get("title", "Achievement")
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

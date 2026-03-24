@@ -85,8 +85,9 @@ func _setup_achievement_layout(title: String, description: String, icon_path: St
 	texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 	texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	texture_rect.size_flags_vertical = SIZE_SHRINK_CENTER
-	if ResourceLoader.exists(icon_path):
-		texture_rect.texture = load(icon_path)
+	var loaded_tex = load(icon_path)
+	if loaded_tex:
+		texture_rect.texture = loaded_tex
 	hbox.add_child(texture_rect)
 	hbox.move_child(texture_rect, 0)
 	var content_vbox = VBoxContainer.new()
