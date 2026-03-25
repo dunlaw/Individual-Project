@@ -197,6 +197,7 @@ func test_backup_creation() -> bool:
 func test_backup_recovery() -> bool:
 	var success = true
 	_save_system.save_to_slot(1)
+	_save_system.save_to_slot(1)
 	var corrupt_file = FileAccess.open("user://gda1_save_slot_1.dat", FileAccess.WRITE)
 	if corrupt_file:
 		corrupt_file.store_string("CORRUPTED DATA")
