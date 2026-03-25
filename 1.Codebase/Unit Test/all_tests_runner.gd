@@ -1,100 +1,245 @@
 extends Node
 
-var test_results: Array = []
-var total_tests: int = 0
-var passed_tests: int = 0
-var failed_tests: int = 0
+# ---------------------------------------------------------------------------
+# Inline assertion tracking  (assert_test calls within this file)
+# ---------------------------------------------------------------------------
+var _inline_passed: int = 0
+var _inline_failed: int = 0
+var _inline_failures: Array[String] = []
 
-# Files that cannot be run as child nodes (extend SceneTree or are runners/utilities)
+# ---------------------------------------------------------------------------
+# Aggregated sub-suite tracking
+# ---------------------------------------------------------------------------
+var _total_passed: int = 0
+var _total_failed: int = 0
+var _suites_with_results: int = 0
+var _suites_without_results: int = 0
+var _suite_failures: Array[String] = []   # suite names that had failures
+
+# Scratch variable filled by _capture_suite_result() before tree_exited
+var _pending_result: Dictionary = {}
+
+# ---------------------------------------------------------------------------
+# Files to exclude from auto-discovery
+# ---------------------------------------------------------------------------
 const SKIP_FILES: Array[String] = [
 	"all_tests_runner.gd",
 	"ui_tests_runner.gd",
 	"quick_verify.gd",
-	"test_prayer_sanitization.gd",        # extends SceneTree
-	"test_gemini_session_resumption.gd",   # extends SceneTree
+	"test_prayer_sanitization.gd",         # extends SceneTree — not a Node
+	"test_gemini_session_resumption.gd",   # extends SceneTree — not a Node
 ]
 
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 func _ready() -> void:
 	print("\n" + "=".repeat(80))
 	print("   RUNNING ALL UNIT TESTS")
-	print("=".repeat(80) + "\n")
+	print("=".repeat(80))
 	call_deferred("_run_all_tests")
 
 func _run_all_tests() -> void:
 	await get_tree().process_frame
 
-	# --- Inline quick sanity checks (feed into this runner's assert counter) ---
-	print("\n Test Suite: Quick Sanity Checks")
-	print("-".repeat(80))
-	var suite_start := Time.get_ticks_msec()
+	var discovered := _discover_test_files("res://1.Codebase/Unit Test")
+	discovered.sort()
+
+	var total_suites := 1 + discovered.size()   # 1 inline + N discovered
+	print("\n   Discovered %d test files  (+1 inline suite)  = %d suites total\n" \
+			% [discovered.size(), total_suites])
+
+	# ── Suite 1: inline quick checks ──────────────────────────────────────
+	_print_suite_header(1, total_suites, "Quick Sanity Checks  [inline]")
+	var t0 := Time.get_ticks_msec()
 	_test_service_locator()
 	_test_error_reporter()
 	_test_game_state_quick()
 	_test_ai_system_quick()
-	print("     Duration: %d ms" % (Time.get_ticks_msec() - suite_start))
+	_flush_inline_to_totals()
+	_print_suite_footer_inline(Time.get_ticks_msec() - t0)
 
-	# --- Auto-discover and run all test_*.gd files ---
-	var discovered := _discover_test_files("res://1.Codebase/Unit Test")
-	discovered.sort()
+	# ── Auto-discovered suites ────────────────────────────────────────────
+	for idx in discovered.size():
+		var path: String = discovered[idx]
+		var name: String = path.get_file().get_basename()
+		_print_suite_header(idx + 2, total_suites, name)
+		var ts := Time.get_ticks_msec()
+		_pending_result = {}
+		await _run_test_file(path)
+		_print_suite_footer_file(name, Time.get_ticks_msec() - ts)
 
-	for file_path in discovered:
-		var suite_name: String = file_path.get_file().get_basename()
-		print("\n Test Suite: %s" % suite_name)
-		print("-".repeat(80))
-		var start_ms := Time.get_ticks_msec()
-		await _run_test_file(file_path)
-		print("     Duration: %d ms" % (Time.get_ticks_msec() - start_ms))
-
-	print_summary()
+	_print_final_summary(total_suites)
 	await get_tree().create_timer(1.0).timeout
 	_prepare_for_shutdown()
-	var exit_code := 0 if failed_tests == 0 else 1
 	Engine.print_error_messages = false
-	get_tree().quit(exit_code)
+	get_tree().quit(0 if _total_failed == 0 else 1)
 
+# ---------------------------------------------------------------------------
+# Discovery
+# ---------------------------------------------------------------------------
 func _discover_test_files(base_path: String) -> Array[String]:
 	var files: Array[String] = []
 	var dir := DirAccess.open(base_path)
 	if dir == null:
-		push_warning("all_tests_runner: Cannot open directory: %s" % base_path)
+		push_warning("all_tests_runner: cannot open '%s'" % base_path)
 		return files
 	dir.list_dir_begin()
 	var entry := dir.get_next()
 	while entry != "":
 		if dir.current_is_dir() and not entry.begins_with("."):
-			# Recurse into subdirectories (e.g. integration/)
-			var sub := _discover_test_files(base_path + "/" + entry)
-			files.append_array(sub)
-		elif entry.begins_with("test_") and entry.ends_with(".gd") and entry not in SKIP_FILES:
+			files.append_array(_discover_test_files(base_path + "/" + entry))
+		elif entry.begins_with("test_") and entry.ends_with(".gd") \
+				and entry not in SKIP_FILES:
 			files.append(base_path + "/" + entry)
 		entry = dir.get_next()
 	dir.list_dir_end()
 	return files
 
+# ---------------------------------------------------------------------------
+# Running a single discovered test file
+# ---------------------------------------------------------------------------
 func _run_test_file(path: String) -> void:
 	var TestClass = load(path)
 	if TestClass == null:
-		push_warning("all_tests_runner: Could not load %s" % path)
+		push_warning("all_tests_runner: cannot load '%s'" % path)
 		return
-	var test_instance: Node = TestClass.new()
-	add_child(test_instance)
-	await test_instance.tree_exited
+	var inst: Node = TestClass.new()
+	# Connect BEFORE adding to tree so we catch tree_exiting
+	inst.tree_exiting.connect(_capture_suite_result.bind(inst))
+	add_child(inst)
+	await inst.tree_exited
 
-func assert_test(condition: bool, test_name: String) -> void:
-	total_tests += 1
-	if condition:
-		passed_tests += 1
-		print("    PASS: %s" % test_name)
-		test_results.append({"name": test_name, "status": "PASS"})
+# Read result properties while the node is still in the tree
+func _capture_suite_result(inst: Node) -> void:
+	_pending_result = _read_results(inst)
+
+# Try every naming convention used across the test files
+func _read_results(inst: Node) -> Dictionary:
+	# Convention A: tests_passed / tests_failed
+	if "tests_passed" in inst:
+		return {
+			"passed": inst.get("tests_passed"),
+			"failed": inst.get("tests_failed") if "tests_failed" in inst else 0,
+		}
+	# Convention B: passed_tests / failed_tests  (integration/ folder)
+	if "passed_tests" in inst:
+		return {
+			"passed": inst.get("passed_tests"),
+			"failed": inst.get("failed_tests") if "failed_tests" in inst else 0,
+		}
+	# Convention C: _passed / _failed  (int)
+	if "_passed" in inst and inst.get("_passed") is int:
+		return {
+			"passed": inst.get("_passed"),
+			"failed": inst.get("_failed") if "_failed" in inst and inst.get("_failed") is int else 0,
+		}
+	# Convention D: _passed_tests + _total_tests
+	if "_passed_tests" in inst:
+		var p: int = inst.get("_passed_tests")
+		var total: int = inst.get("_total_tests") if "_total_tests" in inst else 0
+		return {"passed": p, "failed": maxi(0, total - p)}
+	# Convention E: _test_results  Array[{name, passed}]
+	if "_test_results" in inst and inst.get("_test_results") is Array:
+		var p := 0
+		var f := 0
+		for r in inst.get("_test_results"):
+			if r.get("passed", false):
+				p += 1
+			else:
+				f += 1
+		return {"passed": p, "failed": f}
+	# Unknown — no trackable counter
+	return {}
+
+# ---------------------------------------------------------------------------
+# Printing helpers
+# ---------------------------------------------------------------------------
+func _print_suite_header(idx: int, total: int, suite_name: String) -> void:
+	print("\n [%d/%d]  %s" % [idx, total, suite_name])
+	print("-".repeat(80))
+
+func _flush_inline_to_totals() -> void:
+	_total_passed += _inline_passed
+	_total_failed += _inline_failed
+	_suites_with_results += 1
+
+func _print_suite_footer_inline(duration_ms: int) -> void:
+	var mark := "PASS" if _inline_failed == 0 else "FAIL"
+	print("         [%s]  %d passed  %d failed  |  %d ms" \
+			% [mark, _inline_passed, _inline_failed, duration_ms])
+
+func _print_suite_footer_file(suite_name: String, duration_ms: int) -> void:
+	if _pending_result.is_empty():
+		print("         [----]  results not tracked  |  %d ms" % duration_ms)
+		_suites_without_results += 1
 	else:
-		failed_tests += 1
-		print("    FAIL: %s" % test_name)
-		test_results.append({"name": test_name, "status": "FAIL"})
+		var p: int = _pending_result.get("passed", 0)
+		var f: int = _pending_result.get("failed", 0)
+		var mark := "PASS" if f == 0 else "FAIL"
+		print("         [%s]  %d passed  %d failed  |  %d ms" % [mark, p, f, duration_ms])
+		_total_passed += p
+		_total_failed += f
+		_suites_with_results += 1
+		if f > 0:
+			_suite_failures.append(suite_name)
+
+func _print_final_summary(total_suites: int) -> void:
+	var total_assertions := _total_passed + _total_failed
+	var pass_rate := 100.0 * float(_total_passed) / float(total_assertions) \
+			if total_assertions > 0 else 0.0
+
+	print("\n" + "=".repeat(80))
+	print("   FINAL TEST SUMMARY")
+	print("=".repeat(80))
+	print("")
+	print("  Suites run       : %d" % total_suites)
+	print("  Suites tracked   : %d" % _suites_with_results)
+	if _suites_without_results > 0:
+		print("  Suites untracked : %d  (no standard counter found)" \
+				% _suites_without_results)
+	print("")
+	print("  Total assertions : %d" % total_assertions)
+	print("  Passed           : %d" % _total_passed)
+	print("  Failed           : %d" % _total_failed)
+	print("  Pass rate        : %.1f%%" % pass_rate)
+	print("")
+
+	if _total_failed == 0:
+		print("   ALL TRACKED TESTS PASSED!")
+		if _suites_without_results > 0:
+			print("   (%d untracked suites — check their output above)" \
+					% _suites_without_results)
+	else:
+		print("   SOME TESTS FAILED")
+		if _inline_failures.size() > 0:
+			print("")
+			print("  Failed inline assertions:")
+			for name in _inline_failures:
+				print("    FAIL  %s" % name)
+		if _suite_failures.size() > 0:
+			print("")
+			print("  Suites with failures:")
+			for s in _suite_failures:
+				print("    FAIL  %s" % s)
+
+	print("\n" + "=".repeat(80) + "\n")
 
 # ---------------------------------------------------------------------------
-# Inline quick checks — do NOT load external files; use assert_test() directly
+# Inline assertion helper  (used only by the four quick-check methods below)
 # ---------------------------------------------------------------------------
+func assert_test(condition: bool, test_name: String) -> void:
+	if condition:
+		_inline_passed += 1
+		print("    PASS  %s" % test_name)
+	else:
+		_inline_failed += 1
+		_inline_failures.append(test_name)
+		print("    FAIL  %s" % test_name)
 
+# ---------------------------------------------------------------------------
+# Inline quick-check suites
+# ---------------------------------------------------------------------------
 func _test_service_locator() -> void:
 	assert_test(ServiceLocator != null, "ServiceLocator exists")
 	var ai_manager = ServiceLocator.get_ai_manager()
@@ -107,7 +252,6 @@ func _test_service_locator() -> void:
 	assert_test(achievement_system != null, "Can get AchievementSystem via ServiceLocator")
 	var services = ServiceLocator.list_services()
 	assert_test(services.size() > 5, "ServiceLocator has multiple services registered")
-	print("     Magic strings reduced from 94 to 9 (only in test files)")
 
 func _test_error_reporter() -> void:
 	assert_test(ErrorReporter != null, "ErrorReporter exists as autoload")
@@ -115,10 +259,10 @@ func _test_error_reporter() -> void:
 	assert_test(true, "Can report info message")
 	ErrorReporter.report_warning("TestSuite", "Test warning message")
 	assert_test(true, "Can report warning message")
-	var previous_console_logs := ErrorReporter.enable_console_logs
+	var prev := ErrorReporter.enable_console_logs
 	ErrorReporter.enable_console_logs = false
 	ErrorReporter.report_error("TestSuite", "Test error message", 42, false, {"detail": "test"})
-	ErrorReporter.enable_console_logs = previous_console_logs
+	ErrorReporter.enable_console_logs = prev
 	assert_test(true, "Can report error with details")
 	var stats = ErrorReporter.get_statistics()
 	assert_test(stats.has("errors"), "ErrorReporter tracks error statistics")
@@ -127,20 +271,22 @@ func _test_error_reporter() -> void:
 	assert_test(ErrorReporter.enable_console_logs is bool, "ErrorReporter has console_logs config")
 	assert_test(ErrorReporter.enable_user_notifications is bool, "ErrorReporter has notifications config")
 	ErrorReporter.reset_statistics()
-	print("     ErrorReporter statistics reset")
 
 func _test_game_state_quick() -> void:
 	assert_test(GameState != null, "GameState exists")
-	var initial_reality := GameState.reality_score
+	var init_reality := GameState.reality_score
 	GameState.modify_reality_score(5, "Test")
-	assert_test(GameState.reality_score == initial_reality + 5, "Reality score modification works")
-	GameState.reality_score = initial_reality
+	assert_test(GameState.reality_score == init_reality + 5, "Reality score modification works")
+	GameState.reality_score = init_reality
 	GameState.reality_score = 98
 	GameState.modify_reality_score(10, "Test clamping")
 	assert_test(GameState.reality_score == 100, "Reality score clamps at 100")
-	GameState.reality_score = initial_reality
+	GameState.reality_score = init_reality
 	GameState.clear_events()
-	GameState.add_event("Test event EN", (LocalizationManager.get_translation("TEST_EVENT_ZH", "zh") if LocalizationManager else "Test Event") + " ZH")
+	GameState.add_event(
+		"Test event EN",
+		(LocalizationManager.get_translation("TEST_EVENT_ZH", "zh") if LocalizationManager else "Test Event") + " ZH",
+	)
 	assert_test(GameState.recent_events.size() > 0, "Event logging works")
 	var result := GameState.skill_check("logic", 5)
 	assert_test(result.has("success"), "Skill check returns result structure")
@@ -150,7 +296,6 @@ func _test_game_state_quick() -> void:
 	GameState.set_game_phase(GameConstants.GamePhase.NORMAL)
 	var entropy := GameState.calculate_void_entropy()
 	assert_test(entropy >= 0.0 and entropy <= 1.0, "Entropy calculation returns valid range")
-	print("     For comprehensive GameState tests, run game_state_test_runner.tscn")
 
 func _test_ai_system_quick() -> void:
 	assert_test(AIManager != null, "AIManager exists")
@@ -170,42 +315,24 @@ func _test_ai_system_quick() -> void:
 	)
 	assert_test(AIManager.memory_store != null, "AIManager has memory store")
 	AIManager.clear_notes()
-	AIManager.register_note_pair("Test EN", (LocalizationManager.get_translation("TEST_STAT_MODIFIER", "zh") if LocalizationManager else "Test") + " ZH", ["test"], 2, "test")
-	var note_count := AIManager.memory_store.get_note_count()
-	assert_test(note_count > 0, "AI note registration works")
+	AIManager.register_note_pair(
+		"Test EN",
+		(LocalizationManager.get_translation("TEST_STAT_MODIFIER", "zh") if LocalizationManager else "Test") + " ZH",
+		["test"], 2, "test",
+	)
+	assert_test(AIManager.memory_store.get_note_count() > 0, "AI note registration works")
 	AIManager.clear_notes()
 	assert_test(AIManager.gemini_model is String, "Gemini model configured")
 	assert_test(AIManager.openrouter_model is String, "OpenRouter model configured")
 	assert_test(AIManager.ollama_model is String, "Ollama model configured")
 	assert_test(AIManager.custom_ai_tone_style.length() > 0, "AI tone style is set")
-	print("     For comprehensive AI tests, run ai_system_test_runner.tscn")
 
 # ---------------------------------------------------------------------------
-# Summary & shutdown
+# Shutdown
 # ---------------------------------------------------------------------------
-
-func print_summary() -> void:
-	print("\n" + "=".repeat(80))
-	print("   TEST SUMMARY")
-	print("=".repeat(80))
-	var pass_rate := (float(passed_tests) / float(total_tests)) * 100.0 if total_tests > 0 else 0.0
-	print("\n  Total Tests: %d" % total_tests)
-	print("  Passed: %d" % passed_tests)
-	print("  Failed: %d" % failed_tests)
-	print("  Pass Rate: %.1f%%" % pass_rate)
-	if failed_tests == 0:
-		print("\n   ALL TESTS PASSED!")
-	else:
-		print("\n    SOME TESTS FAILED: Review output above")
-	print("\n" + "=".repeat(80) + "\n")
-	if failed_tests > 0:
-		print("Failed tests:")
-		for result in test_results:
-			if result["status"] == "FAIL":
-				print("  * %s" % result["name"])
-
 func _prepare_for_shutdown() -> void:
-	test_results.clear()
+	_inline_failures.clear()
+	_suite_failures.clear()
 	if AIManager:
 		if AIManager.has_method("cancel_parallel_requests"):
 			AIManager.cancel_parallel_requests()
