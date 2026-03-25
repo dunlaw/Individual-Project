@@ -85,8 +85,7 @@ jobs:
           echo "Running all unit tests via all_tests_runner.tscn..."
           echo "============================================"
 
-          timeout 300 ./godot_executable --headless --path . "res://1.Codebase/src/scenes/tests/all_tests_runner.tscn" 2>&1 | tee test-results/test-output.log || true
-
+          timeout 300 ./godot_executable --headless --path . "res://1.Codebase/src/scenes/tests/all_tests_runner.tscn" 2>&1 | tee test-results/test-output.log
           TEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "test_exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
           echo "Test execution completed with exit code: $TEST_EXIT_CODE"
@@ -109,10 +108,10 @@ jobs:
             exit 1
           fi
 
-          # 抓取日誌中的測試結果
-          TOTAL_TESTS=$(grep -c "PASS:\|✅ PASS\|❌ FAIL" "$OUTPUT_FILE" || echo "0")
-          PASSED_TESTS=$(grep -c "PASS:\|✅ PASS" "$OUTPUT_FILE" || echo "0")
-          FAILED_TESTS=$(grep -c "❌ FAIL" "$OUTPUT_FILE" || echo "0")
+          # Extract counts from the FINAL TEST SUMMARY lines emitted by all_tests_runner.gd
+          PASSED_TESTS=$(grep -E "^\s+Passed\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | tail -1 || echo "0")
+          FAILED_TESTS=$(grep -E "^\s+Failed\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | tail -1 || echo "0")
+          TOTAL_TESTS=$(grep -E "^\s+Total assertions\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | tail -1 || echo "0")
 
           echo "## Statistics" >> $SUMMARY_FILE
           echo "| Metric | Value |" >> $SUMMARY_FILE
@@ -127,13 +126,14 @@ jobs:
             echo "| Pass Rate | $PASS_RATE |" >> $SUMMARY_FILE
           fi
 
-          if [ "$FAILED_TESTS" -gt 0 ]; then
+          GODOT_EXIT="${{ steps.run-tests.outputs.test_exit_code }}"
+          if [ "$FAILED_TESTS" -gt 0 ] || [ "$GODOT_EXIT" = "1" ] || [ "$GODOT_EXIT" = "124" ]; then
             echo "test_status=failure" >> $GITHUB_OUTPUT
             echo "## ❌ Failures Detected" >> $SUMMARY_FILE
-            grep "❌ FAIL" "$OUTPUT_FILE" | head -10 >> $SUMMARY_FILE || true
+            grep -E "^\s+FAIL\s+" "$OUTPUT_FILE" | head -20 >> $SUMMARY_FILE || true
           elif [ "$TOTAL_TESTS" -eq 0 ]; then
             echo "test_status=error" >> $GITHUB_OUTPUT
-            echo "## ⚠️ Warning: No tests executed!" >> $SUMMARY_FILE
+            echo "## ⚠️ Warning: No tests detected in output!" >> $SUMMARY_FILE
           else
             echo "test_status=success" >> $GITHUB_OUTPUT
             echo "## ✅ All Tests Passed!" >> $SUMMARY_FILE
