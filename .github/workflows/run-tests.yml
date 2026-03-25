@@ -53,31 +53,22 @@ jobs:
           timeout 60 ./godot_executable --headless --editor --quit --path . 2>&1 || true
           echo "Import complete"
 
-      - name: Commit generated .import files
+      - name: Commit generated .import and .translation files
         if: github.event_name == 'push'
         run: |
-          echo "Checking for newly generated .import files..."
-          mapfile -t IMPORT_FILES < <(git ls-files --others --ignored --exclude-standard -- '1.Codebase/**/*.import')
-
-          if [ ${#IMPORT_FILES[@]} -eq 0 ]; then
-            echo "No new .import files detected."
-            exit 0
-          fi
-
-          printf "Found %d .import files to add:\n" "${#IMPORT_FILES[@]}"
-          printf ' - %s\n' "${IMPORT_FILES[@]}"
+          echo "Checking for newly generated or updated .import and .translation files..."
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add -f "${IMPORT_FILES[@]}"
+          git add -f '1.Codebase/**/*.import' '1.Codebase/**/*.translation' 2>/dev/null || true
 
           if git diff --cached --quiet; then
-            echo "No staged changes after adding .import files."
+            echo "No changes to .import or .translation files detected."
             exit 0
           fi
 
-          git commit -m "chore: add generated import metadata"
+          git commit -m "chore: add generated import metadata and translations"
           git push origin HEAD
 
       - name: Create test output directory
