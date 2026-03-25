@@ -30,6 +30,9 @@ const SKIP_FILES: Array[String] = [
 	"test_gemini_session_resumption.gd",   # extends SceneTree — not a Node
 ]
 
+# Maximum seconds a single discovered suite may run before it is force-killed.
+const SUITE_TIMEOUT_SEC: float = 60.0
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -108,7 +111,19 @@ func _run_test_file(path: String) -> void:
 	# Connect BEFORE adding to tree so we catch tree_exiting
 	inst.tree_exiting.connect(_capture_suite_result.bind(inst))
 	add_child(inst)
+	# Per-suite watchdog: force-kill a hanging suite so the rest can continue.
+	var _timed_out := false
+	var _watchdog := get_tree().create_timer(SUITE_TIMEOUT_SEC)
+	_watchdog.timeout.connect(func():
+		if is_instance_valid(inst) and inst.is_inside_tree():
+			_timed_out = true
+			push_warning("all_tests_runner: suite '%s' timed out after %.0fs — force-killing" \
+					% [path.get_file(), SUITE_TIMEOUT_SEC])
+			inst.queue_free()
+	)
 	await inst.tree_exited
+	if _timed_out:
+		_pending_result["timed_out"] = true
 
 # Read result properties while the node is still in the tree
 func _capture_suite_result(inst: Node) -> void:
@@ -143,12 +158,16 @@ func _read_results(inst: Node) -> Dictionary:
 	if "_test_results" in inst and inst.get("_test_results") is Array:
 		var p := 0
 		var f := 0
+		var failed_names: Array[String] = []
 		for r in inst.get("_test_results"):
 			if r.get("passed", false):
 				p += 1
 			else:
 				f += 1
-		return {"passed": p, "failed": f}
+				var n: String = r.get("name", "")
+				if n != "":
+					failed_names.append(n)
+		return {"passed": p, "failed": f, "failed_names": failed_names}
 	# Unknown — no trackable counter
 	return {}
 
@@ -170,6 +189,12 @@ func _print_suite_footer_inline(duration_ms: int) -> void:
 			% [mark, _inline_passed, _inline_failed, duration_ms])
 
 func _print_suite_footer_file(suite_name: String, duration_ms: int) -> void:
+	if _pending_result.get("timed_out", false):
+		print("         [TIME]  timed out after %d ms  —  counted as 1 failure" % duration_ms)
+		_total_failed += 1
+		_suites_with_results += 1
+		_suite_failures.append(suite_name + "  [TIMEOUT]")
+		return
 	if _pending_result.is_empty():
 		print("         [----]  results not tracked  |  %d ms" % duration_ms)
 		_suites_without_results += 1
@@ -183,6 +208,9 @@ func _print_suite_footer_file(suite_name: String, duration_ms: int) -> void:
 		_suites_with_results += 1
 		if f > 0:
 			_suite_failures.append(suite_name)
+			var failed_names: Array = _pending_result.get("failed_names", [])
+			for fname in failed_names:
+				print("    FAIL  %s" % fname)
 
 func _print_final_summary(total_suites: int) -> void:
 	var total_assertions := _total_passed + _total_failed
