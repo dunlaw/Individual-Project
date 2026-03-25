@@ -1,6 +1,7 @@
 extends Node
 var _test_log: Array = []
-var _failed: bool = false
+var _passed: int = 0
+var _failed: int = 0
 class MockServiceLocator extends Node:
 	var teammate_system = null
 	func get_teammate_system():
@@ -39,7 +40,7 @@ class MockGameState extends Node:
 func _ready() -> void:
 	print(" RUNNING TROLLEY PROBLEM BUG REPRODUCTION TEST")
 	test_reproduction()
-	if not _failed:
+	if _failed == 0:
 		print(" TEST PASSED (Bug Reproduced if failing expectedly, or Logic verified)")
 	queue_free()
 func test_reproduction():
@@ -90,13 +91,15 @@ func test_reproduction():
 	print("Gloria -> Player: ", gloria_to_player)
 	if player_to_gloria.get("status") == "Disappointed" and player_to_gloria.get("value") == -10:
 		print(" BUG CONFIRMED: Player -> Gloria was updated with 'Disappointed'")
-		_failed = true
+		_failed += 1
 	else:
 		print(" Player -> Gloria was NOT updated (or updated differently)")
+		_passed += 1
 	if gloria_to_player.get("status") == "Disappointed" and gloria_to_player.get("value") == -10:
 		print(" Gloria -> Player was updated with 'Disappointed' (Correct)")
+		_passed += 1
 	else:
 		print(" Gloria -> Player was NOT updated correctly")
-		_failed = true
+		_failed += 1
 	if using_mock and ServiceLocator and ServiceLocator.has_method("unregister_service"):
 		ServiceLocator.unregister_service("TeammateSystem")
