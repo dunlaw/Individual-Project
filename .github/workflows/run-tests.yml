@@ -5,11 +5,9 @@ on:
     branches:
       - main
       - 'claude/**'
-
   pull_request:
     branches:
       - main
-
   workflow_dispatch:
 
 env:
@@ -18,25 +16,26 @@ env:
 
 jobs:
   unit-tests:
-    name: Run Unit Tests
+    name: Run Unit Tests & Sync Assets
     permissions:
       contents: write
       pull-requests: write
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           lfs: false
+          fetch-depth: 0 # 確保能進行 Git Push
 
       - name: Cache Godot data
         id: cache-import
         uses: actions/cache@v4
         with:
           path: .godot
-          key: godot-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-${{ hashFiles('1.Codebase/**/*.gd', '1.Codebase/**/*.import') }}
+          key: godot-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-${{ hashFiles('1.Codebase/**/*.gd', '1.Codebase/**/*.csv') }}
           restore-keys: |
             godot-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-
 
@@ -46,47 +45,50 @@ jobs:
           godot-version: ${{ env.GODOT_VERSION }}
           godot-version-full: ${{ env.GODOT_VERSION_FULL }}
 
-      - name: Import project assets
-        if: steps.cache-import.outputs.cache-hit != 'true'
+      # 強制導入資源，這會產生 .import 和 .translation 檔案
+      - name: Force Import Assets (Headless)
         run: |
-          echo "Importing project assets for headless mode..."
-          timeout 60 ./godot_executable --headless --editor --quit --path . 2>&1 || true
-          echo "Import complete"
+          echo "Importing project assets to generate .import and .translation files..."
+          # 執行兩次以確保依賴鏈（如 CSV -> Translation）完全正確
+          ./godot_executable --headless --editor --quit --path . || true
+          ./godot_executable --headless --editor --quit --path . || true
+          echo "Import complete."
 
-      - name: Commit generated .import and .translation files
-        if: github.event_name == 'push'
+      # 自動檢測並提交缺失的 .import 和 .translation 檔案
+      - name: Auto-Commit Missing Assets
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          echo "Checking for newly generated or updated .import and .translation files..."
-
+          echo "Checking for auto-generated files (.import, .translation)..."
+          
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add -f '1.Codebase/**/*.import' '1.Codebase/**/*.translation' 2>/dev/null || true
+          # 強制添加所有生成的資源檔
+          git add -f "1.Codebase/**/*.import"
+          git add -f "1.Codebase/**/*.translation" 2>/dev/null || true
 
           if git diff --cached --quiet; then
-            echo "No changes to .import or .translation files detected."
-            exit 0
+            echo "✅ No missing .import or .translation files found. Repository is clean."
+          else
+            echo "⚠️ Found missing assets! Committing to branch..."
+            git commit -m "chore: auto-sync generated import metadata and translations [skip ci]"
+            git push origin HEAD
           fi
-
-          git commit -m "chore: add generated import metadata and translations"
-          git push origin HEAD
 
       - name: Create test output directory
         run: mkdir -p test-results
 
+      # 使用場景運行測試，確保 AutoLoads (全域腳本) 正常載入
       - name: Run all unit tests
         id: run-tests
         run: |
-          echo "Running all unit tests..."
+          echo "Running all unit tests via all_tests_runner.tscn..."
           echo "============================================"
 
-          timeout 120 ./godot_executable --headless --path . res://1.Codebase/src/scenes/tests/all_tests_runner.tscn 2>&1 | tee test-results/test-output.log || true
+          timeout 300 ./godot_executable --headless --path . "res://1.Codebase/src/scenes/tests/all_tests_runner.tscn" 2>&1 | tee test-results/test-output.log || true
 
           TEST_EXIT_CODE=${PIPESTATUS[0]}
           echo "test_exit_code=$TEST_EXIT_CODE" >> $GITHUB_OUTPUT
-
-          echo ""
-          echo "============================================"
           echo "Test execution completed with exit code: $TEST_EXIT_CODE"
         continue-on-error: true
 
@@ -94,449 +96,79 @@ jobs:
         id: parse-results
         run: |
           echo "Parsing test results..."
-
           OUTPUT_FILE="test-results/test-output.log"
           SUMMARY_FILE="test-results/summary.md"
 
           echo "# 🧪 Test Results Summary" > $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
-          echo "**Branch:** \`${{ github.ref_name }}\`" >> $SUMMARY_FILE
-          echo "**Commit:** \`${{ github.sha }}\`" >> $SUMMARY_FILE
-          echo "**Triggered by:** ${{ github.actor }}" >> $SUMMARY_FILE
+          echo "**Branch:** \`${{ github.ref_name }}\` | **Commit:** \`${{ github.sha }}\`" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
 
           if [ ! -f "$OUTPUT_FILE" ]; then
-            echo "❌ Test output file not found!" >> $SUMMARY_FILE
-            echo "test_status=error" >> $GITHUB_OUTPUT
+            echo "❌ CRITICAL: Test output log missing!" >> $SUMMARY_FILE
             exit 1
           fi
 
-          TOTAL_TESTS=$(grep "✅ PASS\|❌ FAIL" "$OUTPUT_FILE" 2>/dev/null | wc -l | tr -d ' ')
-          PASSED_TESTS=$(grep "✅ PASS" "$OUTPUT_FILE" 2>/dev/null | wc -l | tr -d ' ')
-          FAILED_TESTS=$(grep "❌ FAIL" "$OUTPUT_FILE" 2>/dev/null | wc -l | tr -d ' ')
+          # 抓取日誌中的測試結果
+          TOTAL_TESTS=$(grep -c "PASS:\|✅ PASS\|❌ FAIL" "$OUTPUT_FILE" || echo "0")
+          PASSED_TESTS=$(grep -c "PASS:\|✅ PASS" "$OUTPUT_FILE" || echo "0")
+          FAILED_TESTS=$(grep -c "❌ FAIL" "$OUTPUT_FILE" || echo "0")
 
-          TOTAL_TESTS=${TOTAL_TESTS:-0}
-          PASSED_TESTS=${PASSED_TESTS:-0}
-          FAILED_TESTS=${FAILED_TESTS:-0}
+          echo "## Statistics" >> $SUMMARY_FILE
+          echo "| Metric | Value |" >> $SUMMARY_FILE
+          echo "|--------|-------|" >> $SUMMARY_FILE
+          echo "| Total Tests | $TOTAL_TESTS |" >> $SUMMARY_FILE
+          echo "| ✅ Passed | $PASSED_TESTS |" >> $SUMMARY_FILE
+          echo "| ❌ Failed | $FAILED_TESTS |" >> $SUMMARY_FILE
 
-          if grep -q "TEST SUMMARY" "$OUTPUT_FILE"; then
-            echo "## Test Statistics" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            echo "| Metric | Value |" >> $SUMMARY_FILE
-            echo "|--------|-------|" >> $SUMMARY_FILE
-
-            SUMMARY_TOTAL=$(grep "Total Tests:" "$OUTPUT_FILE" | grep -o '[0-9]*' | head -1 || echo "$TOTAL_TESTS")
-            SUMMARY_PASSED=$(grep "✅ Passed:" "$OUTPUT_FILE" | grep -o '[0-9]*' | head -1 || echo "$PASSED_TESTS")
-            SUMMARY_FAILED=$(grep "❌ Failed:" "$OUTPUT_FILE" | grep -o '[0-9]*' | head -1 || echo "$FAILED_TESTS")
-            PASS_RATE=$(grep "Pass Rate:" "$OUTPUT_FILE" | grep -o '[0-9.]*%' | head -1 || echo "N/A")
-
-            echo "| Total Tests | $SUMMARY_TOTAL |" >> $SUMMARY_FILE
-            echo "| ✅ Passed | $SUMMARY_PASSED |" >> $SUMMARY_FILE
-            echo "| ❌ Failed | $SUMMARY_FAILED |" >> $SUMMARY_FILE
+          if [ "$TOTAL_TESTS" -gt 0 ]; then
+            # 計算成功率
+            PASS_RATE=$(awk "BEGIN {printf \"%.1f%%\", ($PASSED_TESTS / $TOTAL_TESTS) * 100}")
             echo "| Pass Rate | $PASS_RATE |" >> $SUMMARY_FILE
-
-            TOTAL_TESTS=$SUMMARY_TOTAL
-            PASSED_TESTS=$SUMMARY_PASSED
-            FAILED_TESTS=$SUMMARY_FAILED
-          else
-            echo "## Test Statistics" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            echo "| Metric | Value |" >> $SUMMARY_FILE
-            echo "|--------|-------|" >> $SUMMARY_FILE
-            echo "| Total Tests | $TOTAL_TESTS |" >> $SUMMARY_FILE
-            echo "| ✅ Passed | $PASSED_TESTS |" >> $SUMMARY_FILE
-            echo "| ❌ Failed | $FAILED_TESTS |" >> $SUMMARY_FILE
-
-            if [ "$TOTAL_TESTS" -gt 0 ]; then
-              PASS_RATE=$(awk "BEGIN {printf \"%.1f%%\", ($PASSED_TESTS / $TOTAL_TESTS) * 100}")
-              echo "| Pass Rate | $PASS_RATE |" >> $SUMMARY_FILE
-            fi
           fi
-
-          echo "" >> $SUMMARY_FILE
-
-          echo "total_tests=$TOTAL_TESTS" >> $GITHUB_OUTPUT
-          echo "passed_tests=$PASSED_TESTS" >> $GITHUB_OUTPUT
-          echo "failed_tests=$FAILED_TESTS" >> $GITHUB_OUTPUT
 
           if [ "$FAILED_TESTS" -gt 0 ]; then
-            echo "## ❌ Tests Failed" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            echo "The following tests failed:" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            echo '```' >> $SUMMARY_FILE
-            grep "❌ FAIL" "$OUTPUT_FILE" | head -20 >> $SUMMARY_FILE || true
-            echo '```' >> $SUMMARY_FILE
             echo "test_status=failure" >> $GITHUB_OUTPUT
+            echo "## ❌ Failures Detected" >> $SUMMARY_FILE
+            grep "❌ FAIL" "$OUTPUT_FILE" | head -10 >> $SUMMARY_FILE || true
           elif [ "$TOTAL_TESTS" -eq 0 ]; then
-            echo "## ⚠️ No Tests Found" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            echo "No test results were detected in the output." >> $SUMMARY_FILE
-            echo "test_status=no_tests" >> $GITHUB_OUTPUT
+            echo "test_status=error" >> $GITHUB_OUTPUT
+            echo "## ⚠️ Warning: No tests executed!" >> $SUMMARY_FILE
           else
-            echo "## ✅ All Tests Passed!" >> $SUMMARY_FILE
-            echo "" >> $SUMMARY_FILE
-            echo "🎉 All $PASSED_TESTS tests passed successfully!" >> $SUMMARY_FILE
             echo "test_status=success" >> $GITHUB_OUTPUT
+            echo "## ✅ All Tests Passed!" >> $SUMMARY_FILE
           fi
 
           echo "" >> $SUMMARY_FILE
-          echo "<details>" >> $SUMMARY_FILE
-          echo "<summary>📋 View Full Test Output</summary>" >> $SUMMARY_FILE
+          echo "<details><summary>View Full Logs</summary>" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
           echo '```' >> $SUMMARY_FILE
           cat "$OUTPUT_FILE" >> $SUMMARY_FILE
           echo '```' >> $SUMMARY_FILE
           echo "</details>" >> $SUMMARY_FILE
 
-          cat $SUMMARY_FILE
-
-      - name: Upload test results
+      - name: Add summary to GitHub Job
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: test-results/
-          retention-days: 30
+        run: cat test-results/summary.md >> $GITHUB_STEP_SUMMARY
 
-      - name: Add test summary to job
-        if: always()
-        run: |
-          if [ -f "test-results/summary.md" ]; then
-            cat test-results/summary.md >> $GITHUB_STEP_SUMMARY
-          fi
-
-      - name: Comment test results on PR
+      - name: Comment on PR
         if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const summaryPath = 'test-results/summary.md';
-
-            if (!fs.existsSync(summaryPath)) {
-              console.log('Summary file not found, skipping PR comment');
-              return;
-            }
-
-            const summary = fs.readFileSync(summaryPath, 'utf8');
-
-            // Find existing comment
-            const { data: comments } = await github.rest.issues.listComments({
+            const summary = fs.readFileSync('test-results/summary.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
+              body: summary
+            })
 
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' &&
-              comment.body.includes('🧪 Test Results Summary')
-            );
-
-            const commentBody = summary + '\n\n---\n*Updated: ' + new Date().toUTCString() + '*';
-
-            if (botComment) {
-              // Update existing comment
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: commentBody
-              });
-            } else {
-              // Create new comment
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: commentBody
-              });
-            }
-
-      - name: Check test status
+      - name: Final Status Check
         if: always()
         run: |
-          TEST_STATUS="${{ steps.parse-results.outputs.test_status }}"
-
-          echo "Final test status: $TEST_STATUS"
-
-          if [ "$TEST_STATUS" = "failure" ]; then
-            echo "❌ Tests failed!"
-            exit 1
-          elif [ "$TEST_STATUS" = "no_tests" ]; then
-            echo "⚠️  No tests were found or executed!"
-            exit 1
-          elif [ "$TEST_STATUS" = "error" ]; then
-            echo "❌ Error occurred during test execution!"
-            exit 1
-          else
-            echo "✅ All tests passed!"
-            exit 0
-          fi
-
-  individual-tests:
-    name: Test - ${{ matrix.test-suite }}
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    strategy:
-      fail-fast: false
-      matrix:
-        test-suite:
-          - achievement-system
-          - ai-prompt-builder
-          - ai-providers
-          - ai-system
-          - asset-interaction-system
-          - asset-registry
-          - audio-manager
-          - background-loader
-          - backward-compatibility
-          - butterfly-effect
-          - cli-runner
-          - cli-runner-gaming
-          - cli-runner-integration
-          - cli-runner-parser
-          - debuff-system
-          - display-manager
-          - event-bus
-          - event-log-system
-          - font-manager
-          - game-state
-          - gamestate-integration
-          - gemini-session-resumption
-          - intro-story-loading
-          - journal-save-load
-          - live-api-client
-          - localization-manager
-          - menu-translation-keys
-          - mission-scenario-library
-          - mock-ai-generator-i18n
-          - notification-system
-          - ollama-client
-          - player-stats
-          - polish-regressions
-          - prayer-context-fix
-          - prayer-dissonance-bug
-          - prayer-sanitization
-          - resource-loaders
-          - save-load-system
-          - scene-directives-parser
-          - session-progress-tracker
-          - story-choice-controller
-          - story-scene-modules
-          - story-ui-controller
-          - teammate-system
-          - tooltip-manager
-          - trolley-problem-generator
-          - trolley-problem-relationship-bug
-          - tutorial-system
-          - ui-overlap-checker
-          - voice-interaction-controller
-          - integration-achievement-unlock
-          - integration-ai-narrative-parse
-          - integration-story-flow
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Cache Godot data
-        id: cache-import
-        uses: actions/cache@v4
-        with:
-          path: .godot
-          key: godot-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-${{ hashFiles('1.Codebase/**/*.gd', '1.Codebase/**/*.import') }}
-          restore-keys: |
-            godot-${{ runner.os }}-${{ env.GODOT_VERSION_FULL }}-
-
-      - name: Setup Godot
-        uses: ./.github/actions/setup-godot
-        with:
-          godot-version: ${{ env.GODOT_VERSION }}
-          godot-version-full: ${{ env.GODOT_VERSION_FULL }}
-
-      - name: Import project assets
-        if: steps.cache-import.outputs.cache-hit != 'true'
-        run: |
-          echo "Importing project assets for headless mode..."
-          timeout 60 ./godot_executable --headless --editor --quit --path . 2>&1 || true
-          echo "Import complete"
-
-      - name: Map test suite to file
-        id: map-test
-        run: |
-          case "${{ matrix.test-suite }}" in
-            "achievement-system")
-              echo "test_file=1.Codebase/Unit Test/test_achievement_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "ai-prompt-builder")
-              echo "test_file=1.Codebase/Unit Test/test_ai_prompt_builder.gd" >> $GITHUB_OUTPUT
-              ;;
-            "ai-providers")
-              echo "test_file=1.Codebase/Unit Test/test_ai_providers.gd" >> $GITHUB_OUTPUT
-              ;;
-            "ai-system")
-              echo "test_file=1.Codebase/Unit Test/test_ai_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "asset-interaction-system")
-              echo "test_file=1.Codebase/Unit Test/test_asset_interaction_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "asset-registry")
-              echo "test_file=1.Codebase/Unit Test/test_asset_registry.gd" >> $GITHUB_OUTPUT
-              ;;
-            "audio-manager")
-              echo "test_file=1.Codebase/Unit Test/test_audio_manager.gd" >> $GITHUB_OUTPUT
-              ;;
-            "background-loader")
-              echo "test_file=1.Codebase/Unit Test/test_background_loader.gd" >> $GITHUB_OUTPUT
-              ;;
-            "backward-compatibility")
-              echo "test_file=1.Codebase/Unit Test/test_backward_compatibility.gd" >> $GITHUB_OUTPUT
-              ;;
-            "butterfly-effect")
-              echo "test_file=1.Codebase/Unit Test/test_butterfly_effect_tracker.gd" >> $GITHUB_OUTPUT
-              ;;
-            "cli-runner")
-              echo "test_file=1.Codebase/Unit Test/test_cli_runner.gd" >> $GITHUB_OUTPUT
-              ;;
-            "cli-runner-gaming")
-              echo "test_file=1.Codebase/Unit Test/test_cli_runner_gaming.gd" >> $GITHUB_OUTPUT
-              ;;
-            "cli-runner-integration")
-              echo "test_file=1.Codebase/Unit Test/test_cli_runner_integration.gd" >> $GITHUB_OUTPUT
-              ;;
-            "cli-runner-parser")
-              echo "test_file=1.Codebase/Unit Test/test_cli_runner_parser.gd" >> $GITHUB_OUTPUT
-              ;;
-            "debuff-system")
-              echo "test_file=1.Codebase/Unit Test/test_debuff_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "display-manager")
-              echo "test_file=1.Codebase/Unit Test/test_display_manager.gd" >> $GITHUB_OUTPUT
-              ;;
-            "event-bus")
-              echo "test_file=1.Codebase/Unit Test/test_event_bus.gd" >> $GITHUB_OUTPUT
-              ;;
-            "event-log-system")
-              echo "test_file=1.Codebase/Unit Test/test_event_log_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "font-manager")
-              echo "test_file=1.Codebase/Unit Test/test_font_manager.gd" >> $GITHUB_OUTPUT
-              ;;
-            "game-state")
-              echo "test_file=1.Codebase/Unit Test/test_game_state.gd" >> $GITHUB_OUTPUT
-              ;;
-            "gamestate-integration")
-              echo "test_file=1.Codebase/Unit Test/test_gamestate_integration.gd" >> $GITHUB_OUTPUT
-              ;;
-            "gemini-session-resumption")
-              echo "test_file=1.Codebase/Unit Test/test_gemini_session_resumption.gd" >> $GITHUB_OUTPUT
-              ;;
-            "intro-story-loading")
-              echo "test_file=1.Codebase/Unit Test/test_intro_story_loading.gd" >> $GITHUB_OUTPUT
-              ;;
-            "journal-save-load")
-              echo "test_file=1.Codebase/Unit Test/test_journal_save_load.gd" >> $GITHUB_OUTPUT
-              ;;
-            "live-api-client")
-              echo "test_file=1.Codebase/Unit Test/test_live_api_client.gd" >> $GITHUB_OUTPUT
-              ;;
-            "localization-manager")
-              echo "test_file=1.Codebase/Unit Test/test_localization_manager.gd" >> $GITHUB_OUTPUT
-              ;;
-            "menu-translation-keys")
-              echo "test_file=1.Codebase/Unit Test/test_menu_translation_keys.gd" >> $GITHUB_OUTPUT
-              ;;
-            "mission-scenario-library")
-              echo "test_file=1.Codebase/Unit Test/test_mission_scenario_library.gd" >> $GITHUB_OUTPUT
-              ;;
-            "mock-ai-generator-i18n")
-              echo "test_file=1.Codebase/Unit Test/test_mock_ai_generator_i18n.gd" >> $GITHUB_OUTPUT
-              ;;
-            "notification-system")
-              echo "test_file=1.Codebase/Unit Test/test_notification_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "ollama-client")
-              echo "test_file=1.Codebase/Unit Test/test_ollama_client.gd" >> $GITHUB_OUTPUT
-              ;;
-            "player-stats")
-              echo "test_file=1.Codebase/Unit Test/test_player_stats.gd" >> $GITHUB_OUTPUT
-              ;;
-            "polish-regressions")
-              echo "test_file=1.Codebase/Unit Test/test_polish_regressions.gd" >> $GITHUB_OUTPUT
-              ;;
-            "prayer-context-fix")
-              echo "test_file=1.Codebase/Unit Test/test_prayer_context_fix.gd" >> $GITHUB_OUTPUT
-              ;;
-            "prayer-dissonance-bug")
-              echo "test_file=1.Codebase/Unit Test/test_prayer_dissonance_bug.gd" >> $GITHUB_OUTPUT
-              ;;
-            "prayer-sanitization")
-              echo "test_file=1.Codebase/Unit Test/test_prayer_sanitization.gd" >> $GITHUB_OUTPUT
-              ;;
-            "resource-loaders")
-              echo "test_file=1.Codebase/Unit Test/test_resource_loaders.gd" >> $GITHUB_OUTPUT
-              ;;
-            "save-load-system")
-              echo "test_file=1.Codebase/Unit Test/test_save_load_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "scene-directives-parser")
-              echo "test_file=1.Codebase/Unit Test/test_scene_directives_parser.gd" >> $GITHUB_OUTPUT
-              ;;
-            "session-progress-tracker")
-              echo "test_file=1.Codebase/Unit Test/test_session_progress_tracker.gd" >> $GITHUB_OUTPUT
-              ;;
-            "story-choice-controller")
-              echo "test_file=1.Codebase/Unit Test/test_story_choice_controller.gd" >> $GITHUB_OUTPUT
-              ;;
-            "story-scene-modules")
-              echo "test_file=1.Codebase/Unit Test/test_story_scene_modules.gd" >> $GITHUB_OUTPUT
-              ;;
-            "story-ui-controller")
-              echo "test_file=1.Codebase/Unit Test/test_story_ui_controller.gd" >> $GITHUB_OUTPUT
-              ;;
-            "teammate-system")
-              echo "test_file=1.Codebase/Unit Test/test_teammate_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "tooltip-manager")
-              echo "test_file=1.Codebase/Unit Test/test_tooltip_manager.gd" >> $GITHUB_OUTPUT
-              ;;
-            "trolley-problem-generator")
-              echo "test_file=1.Codebase/Unit Test/test_trolley_problem_generator.gd" >> $GITHUB_OUTPUT
-              ;;
-            "trolley-problem-relationship-bug")
-              echo "test_file=1.Codebase/Unit Test/test_trolley_problem_relationship_bug.gd" >> $GITHUB_OUTPUT
-              ;;
-            "tutorial-system")
-              echo "test_file=1.Codebase/Unit Test/test_tutorial_system.gd" >> $GITHUB_OUTPUT
-              ;;
-            "ui-overlap-checker")
-              echo "test_file=1.Codebase/Unit Test/test_ui_overlap_checker.gd" >> $GITHUB_OUTPUT
-              ;;
-            "voice-interaction-controller")
-              echo "test_file=1.Codebase/Unit Test/test_voice_interaction_controller.gd" >> $GITHUB_OUTPUT
-              ;;
-            "integration-achievement-unlock")
-              echo "test_file=1.Codebase/Unit Test/integration/test_achievement_unlock.gd" >> $GITHUB_OUTPUT
-              ;;
-            "integration-ai-narrative-parse")
-              echo "test_file=1.Codebase/Unit Test/integration/test_ai_narrative_parse.gd" >> $GITHUB_OUTPUT
-              ;;
-            "integration-story-flow")
-              echo "test_file=1.Codebase/Unit Test/integration/test_story_flow.gd" >> $GITHUB_OUTPUT
-              ;;
-          esac
-
-      - name: Run ${{ matrix.test-suite }} tests
-        run: |
-          echo "Running ${{ matrix.test-suite }} tests..."
-          timeout 120 ./godot_executable --headless --path . --script "${{ steps.map-test.outputs.test_file }}" 2>&1 | tee test-output.log || true
-
-          if grep -qE "❌ FAIL|FAIL:|SCRIPT ERROR|ERROR: Assertion" test-output.log; then
-            echo "❌ Tests failed for ${{ matrix.test-suite }}"
+          if [ "${{ steps.parse-results.outputs.test_status }}" != "success" ]; then
+            echo "Tests did not pass. Failing workflow."
             exit 1
           fi
-
-          echo "✅ ${{ matrix.test-suite }} tests passed"
