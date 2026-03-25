@@ -1,10 +1,10 @@
 ﻿extends RefCounted
 const ERROR_CONTEXT := "SaveLoadSystem"
 const MAX_SAVE_SLOTS: int = 5
-var _game_state: Node = null
+var _game_state = null
 var current_save_slot: int = 1
 var _migrator: SaveVersionMigrator = SaveVersionMigrator.new()
-func set_game_state(game_state: Node) -> void:
+func set_game_state(game_state) -> void:
 	_game_state = game_state
 func autosave() -> bool:
 	if not _game_state:
@@ -209,6 +209,30 @@ func load_game() -> bool:
 				_game_state.load_save_data(save_data)
 				return true
 	return load_from_slot(current_save_slot)
+func load_from_autosave() -> bool:
+	if not _game_state:
+		ErrorReporter.report_error(ERROR_CONTEXT, "Cannot load autosave: GameState not set", -1)
+		return false
+	var autosave_path = "user://gda1_autosave.dat"
+	if not FileAccess.file_exists(autosave_path):
+		ErrorReporter.report_info(ERROR_CONTEXT, "Autosave file does not exist")
+		return false
+	var save_file = FileAccess.open(autosave_path, FileAccess.READ)
+	if not save_file:
+		var error = FileAccess.get_open_error()
+		ErrorReporter.report_error(ERROR_CONTEXT, "Failed to open autosave file", error)
+		return false
+	var save_data = save_file.get_var()
+	save_file.close()
+	if not save_data is Dictionary or not (save_data.has("reality_score") or save_data.has("player_stats_data")):
+		ErrorReporter.report_error(ERROR_CONTEXT, "Autosave data is invalid or corrupted", -1)
+		return false
+	if _migrator.needs_migration(save_data):
+		save_data = _migrator.migrate(save_data)
+		_rewrite_save_file(autosave_path, save_data)
+	_game_state.load_save_data(save_data)
+	ErrorReporter.report_info(ERROR_CONTEXT, "Game loaded from autosave")
+	return true
 func export_slot_to_path(slot: int, destination_path: String) -> bool:
 	slot = clamp(slot, 1, MAX_SAVE_SLOTS)
 	var save_path = "user://gda1_save_slot_%d.dat" % slot

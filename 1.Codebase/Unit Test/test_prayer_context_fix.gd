@@ -12,8 +12,8 @@ func test_choice_controller_sets_context_correctly():
 	var initial_context = state_controller.get_prayer_context()
 	print("[Test] Initial prayer context: %s" % initial_context)
 	assert(initial_context == "mission", "Initial context should be 'mission'")
-	if mock_story_scene and mock_story_scene.state_controller:
-		mock_story_scene.state_controller.set_prayer_context(choice_controller.PRAYER_CONTEXT_MISSION)
+	if mock_story_scene and mock_story_scene.get("state_controller"):
+		mock_story_scene.get("state_controller").set_prayer_context(choice_controller.PRAYER_CONTEXT_MISSION)
 	var context_after_choice = state_controller.get_prayer_context()
 	print("[Test] Prayer context after choice selection: %s" % context_after_choice)
 	assert(context_after_choice == "mission", "Context should be 'mission' after choice selection")
@@ -28,8 +28,8 @@ func test_night_overlay_sets_context_correctly():
 	var initial_context = state_controller.get_prayer_context()
 	print("[Test] Initial prayer context: %s" % initial_context)
 	assert(initial_context == "mission", "Initial context should be 'mission'")
-	if mock_story_scene and mock_story_scene.state_controller:
-		mock_story_scene.state_controller.set_prayer_context("night")
+	if mock_story_scene and mock_story_scene.get("state_controller"):
+		mock_story_scene.get("state_controller").set_prayer_context("night")
 	var context_after_night = state_controller.get_prayer_context()
 	print("[Test] Prayer context after night overlay request: %s" % context_after_night)
 	assert(context_after_night == "night", "Context should be 'night' after night overlay request")

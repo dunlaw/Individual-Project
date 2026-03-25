@@ -44,8 +44,7 @@ func _run_checks() -> void:
 		add_child(checker)
 		var result: Dictionary = checker.run_headless_check(instance)
 		checker.queue_free()
-		instance.queue_free()
-		await get_tree().process_frame
+		# Process result while instance is still alive (result holds node references)
 		var scene_name := scene_path.get_file()
 		var overlaps: Array = result.get("overlapping_pairs", [])
 		var missing: Array = result.get("missing_textures", [])
@@ -73,6 +72,9 @@ func _run_checks() -> void:
 			_pass_count += 1
 			var _ctrl_lbl = LocalizationManager.get_translation("TEST_UI_CONTROL_COUNT_LABEL_ZH", "zh") if LocalizationManager else "Controls"
 			print("[PASS] %s  (%s: %d)" % [scene_name, _ctrl_lbl, result.get("control_count", 0)])
+		# Free instance only after result processing is complete
+		instance.queue_free()
+		await get_tree().process_frame
 func _print_summary() -> void:
 	print("=".repeat(60))
 	print("Results: Pass %d / Fail %d / Total %d scenes" % [

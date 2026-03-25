@@ -55,7 +55,7 @@ class Skills:
 	}
 	const MIN_DICE_ROLL := 1
 	const MAX_DICE_ROLL := 10
-	const COGNITIVE_DISSONANCE_PENALTY := -2
+	const COGNITIVE_DISSONANCE_PENALTY := -3
 class Events:
 	const MAX_RECENT_EVENTS := 10
 	const MAX_EVENT_LOG_SIZE := 200

@@ -51,8 +51,8 @@ func modify_entropy(amount: int, reason: String = "") -> void:
 func calculate_void_entropy() -> float:
 	var divisor = GameConstants.Entropy.BASE_ENTROPY_DIVISOR
 	var multiplier = GameConstants.Entropy.POSITIVE_ENERGY_MULTIPLIER
-	var pe_component = (float(positive_energy) / divisor) * multiplier
-	var reality_component = (1.0 - (float(reality_score) / (divisor * 2.0))) * (1.0 - multiplier)
+	var pe_component = (float(positive_energy) / divisor) * (1.0 - multiplier)
+	var reality_component = (1.0 - (float(reality_score) / (divisor * 2.0))) * multiplier
 	return clamp(pe_component + reality_component, 0.0, 1.0)
 func get_entropy_threshold() -> String:
 	var entropy = calculate_void_entropy()

@@ -10,6 +10,7 @@ class MockGameState:
 	func get_save_data() -> Dictionary:
 		save_data_called = true
 		return {
+			"reality_score": 42,
 			"test_value": 42,
 			"test_string": "Hello Test",
 			"nested": { "key": "value" },

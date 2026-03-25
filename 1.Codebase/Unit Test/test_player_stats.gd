@@ -173,24 +173,21 @@ func test_cognitive_dissonance() -> bool:
 	return success
 func test_signal_emissions() -> bool:
 	var success = true
-	var reality_signal_count = 0
-	var energy_signal_count = 0
-	var entropy_signal_count = 0
-	var stats_signal_count = 0
-	_player_stats.reality_score_changed.connect(func(_new, _old): reality_signal_count += 1)
-	_player_stats.positive_energy_changed.connect(func(_new, _old): energy_signal_count += 1)
-	_player_stats.entropy_level_changed.connect(func(_new, _old): entropy_signal_count += 1)
-	_player_stats.stats_changed.connect(func(): stats_signal_count += 1)
+	var counts = {"reality": 0, "energy": 0, "entropy": 0, "stats": 0}
+	_player_stats.reality_score_changed.connect(func(_new, _old): counts["reality"] += 1)
+	_player_stats.positive_energy_changed.connect(func(_new, _old): counts["energy"] += 1)
+	_player_stats.entropy_level_changed.connect(func(_new, _old): counts["entropy"] += 1)
+	_player_stats.stats_changed.connect(func(): counts["stats"] += 1)
 	_player_stats.modify_reality_score(10)
 	await get_tree().process_frame
-	success = assert_equal(reality_signal_count, 1, "Reality signal emitted") and success
+	success = assert_equal(counts["reality"], 1, "Reality signal emitted") and success
 	_player_stats.modify_positive_energy(10)
 	await get_tree().process_frame
-	success = assert_equal(energy_signal_count, 1, "Energy signal emitted") and success
-	success = assert_equal(entropy_signal_count, 1, "Entropy signal emitted (from PE increase)") and success
+	success = assert_equal(counts["energy"], 1, "Energy signal emitted") and success
+	success = assert_equal(counts["entropy"], 1, "Entropy signal emitted (from PE increase)") and success
 	_player_stats.modify_skill("logic", 1)
 	await get_tree().process_frame
-	success = assert_equal(stats_signal_count, 1, "Stats changed signal emitted") and success
+	success = assert_equal(counts["stats"], 1, "Stats changed signal emitted") and success
 	return success
 func test_save_load() -> bool:
 	var success = true
