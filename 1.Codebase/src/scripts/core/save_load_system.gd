@@ -397,17 +397,17 @@ func get_save_slot_info(slot: int) -> Dictionary:
 		return { "exists": false }
 	return _build_save_info(save_data, { "save_slot": slot, "is_autosave": save_data.get("is_autosave", false) })
 func get_latest_save_info() -> Dictionary:
-	var latest_timestamp: int = -1
+	var latest_timestamp: float = -1.0
 	var latest_info: Dictionary = { "exists": false }
 	var autosave_info := get_autosave_info()
 	if autosave_info.get("exists", false):
-		latest_timestamp = int(autosave_info.get("timestamp", 0))
+		latest_timestamp = float(autosave_info.get("timestamp", 0))
 		latest_info = autosave_info.duplicate()
 	for slot in range(1, MAX_SAVE_SLOTS + 1):
 		var slot_info := get_save_slot_info(slot)
 		if not slot_info.get("exists", false):
 			continue
-		var slot_timestamp := int(slot_info.get("timestamp", 0))
+		var slot_timestamp := float(slot_info.get("timestamp", 0))
 		if slot_timestamp > latest_timestamp:
 			latest_timestamp = slot_timestamp
 			latest_info = slot_info.duplicate()
