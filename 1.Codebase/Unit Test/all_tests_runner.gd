@@ -16,6 +16,10 @@ var _suites_with_results: int = 0
 var _suites_without_results: int = 0
 var _suite_failures: Array[String] = []   # suite names that had failures
 
+# Per-suite timing/result records for the final table.
+# Each entry: { name, passed, failed, duration_ms, tracked, timed_out, category }
+var _suite_records: Array[Dictionary] = []
+
 # Scratch variable filled by _capture_suite_result() before tree_exited
 var _pending_result: Dictionary = {}
 
@@ -49,8 +53,10 @@ func _run_all_tests() -> void:
 	discovered.sort()
 
 	var total_suites := 1 + discovered.size()   # 1 inline + N discovered
-	print("\n   Discovered %d test files  (+1 inline suite)  = %d suites total\n" \
+	print("\n   Discovered %d test files  (+1 inline suite)  = %d suites total" \
 			% [discovered.size(), total_suites])
+	print("   Skipping %d file(s): %s\n" \
+			% [SKIP_FILES.size(), ", ".join(SKIP_FILES)])
 
 	# ── Suite 1: inline quick checks ──────────────────────────────────────
 	_print_suite_header(1, total_suites, "Quick Sanity Checks  [inline]")
@@ -60,20 +66,41 @@ func _run_all_tests() -> void:
 	_test_game_state_quick()
 	_test_ai_system_quick()
 	_flush_inline_to_totals()
-	_print_suite_footer_inline(Time.get_ticks_msec() - t0)
+	var inline_ms := Time.get_ticks_msec() - t0
+	_print_suite_footer_inline(inline_ms)
+	_suite_records.append({
+		"name": "Quick Sanity Checks [inline]",
+		"passed": _inline_passed,
+		"failed": _inline_failed,
+		"duration_ms": inline_ms,
+		"tracked": true,
+		"timed_out": false,
+		"category": "inline",
+	})
 
 	# ── Auto-discovered suites ────────────────────────────────────────────
 	for idx in discovered.size():
 		var path: String = discovered[idx]
-		var name: String = path.get_file().get_basename()
-		_print_suite_header(idx + 2, total_suites, name)
+		var suite_name: String = path.get_file().get_basename()
+		var category: String = "integration" if "/integration/" in path else "unit"
+		_print_suite_header(idx + 2, total_suites, suite_name + "  [" + category + "]")
 		var ts := Time.get_ticks_msec()
 		_pending_result = {}
 		await _run_test_file(path)
-		_print_suite_footer_file(name, Time.get_ticks_msec() - ts)
+		var dur_ms := Time.get_ticks_msec() - ts
+		_print_suite_footer_file(suite_name, dur_ms)
+		_suite_records.append({
+			"name": suite_name,
+			"passed": _pending_result.get("passed", 0),
+			"failed": _pending_result.get("failed", 0),
+			"duration_ms": dur_ms,
+			"tracked": not _pending_result.is_empty(),
+			"timed_out": _pending_result.get("timed_out", false),
+			"category": category,
+		})
 
 	_print_final_summary(total_suites)
-	await get_tree().create_timer(1.0).timeout
+	await get_tree().create_timer(0.2).timeout
 	_prepare_for_shutdown()
 	Engine.print_error_messages = false
 	get_tree().quit(0 if _total_failed == 0 else 1)
@@ -217,19 +244,35 @@ func _print_final_summary(total_suites: int) -> void:
 	var pass_rate := 100.0 * float(_total_passed) / float(total_assertions) \
 			if total_assertions > 0 else 0.0
 
+	# ── Category breakdown ──────────────────────────────────────────────
+	var unit_p := 0; var unit_f := 0; var unit_count := 0
+	var integ_p := 0; var integ_f := 0; var integ_count := 0
+	for rec in _suite_records:
+		if rec.get("category", "unit") == "integration":
+			integ_count += 1
+			integ_p += rec.get("passed", 0)
+			integ_f += rec.get("failed", 0)
+		else:
+			unit_count += 1
+			unit_p += rec.get("passed", 0)
+			unit_f += rec.get("failed", 0)
+
 	print("\n" + "=".repeat(80))
 	print("   FINAL TEST SUMMARY")
 	print("=".repeat(80))
 	print("")
-	print("  Suites run       : %d" % total_suites)
+	print("  Suites run       : %d  (unit: %d  integration: %d)" \
+			% [total_suites, unit_count, integ_count])
 	print("  Suites tracked   : %d" % _suites_with_results)
 	if _suites_without_results > 0:
-		print("  Suites untracked : %d  (no standard counter found)" \
+		print("  Suites untracked : %d  !! check output above !!" \
 				% _suites_without_results)
 	print("")
 	print("  Total assertions : %d" % total_assertions)
-	print("  Passed           : %d" % _total_passed)
-	print("  Failed           : %d" % _total_failed)
+	print("  Passed           : %d  (unit: %d  integration: %d)" \
+			% [_total_passed, unit_p, integ_p])
+	print("  Failed           : %d  (unit: %d  integration: %d)" \
+			% [_total_failed, unit_f, integ_f])
 	print("  Pass rate        : %.1f%%" % pass_rate)
 	print("")
 
@@ -250,6 +293,42 @@ func _print_final_summary(total_suites: int) -> void:
 			print("  Suites with failures:")
 			for s in _suite_failures:
 				print("    FAIL  %s" % s)
+
+	# ── Per-suite timing table ──────────────────────────────────────────
+	print("")
+	print("  Per-suite results  (sorted by duration, slowest first):")
+	print("  %-42s  %5s  %5s  %7s  %s" % ["Suite", "pass", "fail", "ms", "status"])
+	print("  " + "-".repeat(72))
+	var sorted_records := _suite_records.duplicate()
+	sorted_records.sort_custom(func(a, b): return a["duration_ms"] > b["duration_ms"])
+	for rec in sorted_records:
+		var status: String
+		if rec.get("timed_out", false):
+			status = "TIMEOUT"
+		elif not rec.get("tracked", true):
+			status = "----"
+		elif rec.get("failed", 0) > 0:
+			status = "FAIL"
+		else:
+			status = "pass"
+		var label: String = rec["name"]
+		if label.length() > 42:
+			label = label.substr(0, 39) + "..."
+		print("  %-42s  %5d  %5d  %7d  %s" % [
+			label,
+			rec.get("passed", 0),
+			rec.get("failed", 0),
+			rec.get("duration_ms", 0),
+			status,
+		])
+
+	# ── Slowest-suite callout ───────────────────────────────────────────
+	if _suite_records.size() >= 3:
+		print("")
+		print("  Slowest suites:")
+		for i in mini(3, sorted_records.size()):
+			var rec: Dictionary = sorted_records[i]
+			print("    %d ms  —  %s" % [rec.get("duration_ms", 0), rec["name"]])
 
 	print("\n" + "=".repeat(80) + "\n")
 
