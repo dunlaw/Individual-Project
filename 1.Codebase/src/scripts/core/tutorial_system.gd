@@ -60,6 +60,7 @@ var game_started: bool = false
 var _startup_grace_elapsed: bool = false
 var current_tutorial_popup: Control = null
 const SAVE_KEY: String = "tutorial_progress"
+const FALLBACK_SAVE_PATH: String = "user://tutorial_progress.cfg"
 signal tutorial_triggered(step: Dictionary)
 signal tutorial_completed(step_id: String)
 signal all_tutorials_completed
@@ -155,11 +156,21 @@ func get_tutorial_progress() -> float:
 func save_tutorial_progress() -> void:
 	if game_state and game_state.has_method("set_metadata"):
 		game_state.set_metadata(SAVE_KEY, completed_tutorials)
+	else:
+		var cfg := ConfigFile.new()
+		cfg.set_value("tutorials", "completed", completed_tutorials)
+		cfg.save(FALLBACK_SAVE_PATH)
 func load_tutorial_progress() -> void:
 	if game_state and game_state.has_method("get_metadata"):
 		var saved_progress: Variant = game_state.get_metadata(SAVE_KEY)
 		if saved_progress is Dictionary:
 			completed_tutorials = (saved_progress as Dictionary).duplicate(true)
+	else:
+		var cfg := ConfigFile.new()
+		if cfg.load(FALLBACK_SAVE_PATH) == OK:
+			var saved_progress: Variant = cfg.get_value("tutorials", "completed", {})
+			if saved_progress is Dictionary:
+				completed_tutorials = (saved_progress as Dictionary).duplicate(true)
 func _on_reality_score_changed(_new_value: int) -> void:
 	if not is_tutorial_completed("first_stat_change"):
 		check_tutorial_trigger("first_stat_change")

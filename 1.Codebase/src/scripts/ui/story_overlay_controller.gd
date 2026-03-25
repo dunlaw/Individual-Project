@@ -356,11 +356,12 @@ func _on_prayer_completed(result: Dictionary, paused_here: bool) -> void:
 	var context = String(result.get("context", "default"))
 	if context == "night" or story_scene.in_night_cycle:
 		_report_info("Night prayer complete, advancing to new mission")
-		if story_scene.state_controller:
-			var night_overlay = story_scene.state_controller.get_night_overlay()
+		var _sc_completed = story_scene.get("state_controller") if story_scene else null
+		if _sc_completed:
+			var night_overlay = _sc_completed.get_night_overlay()
 			if night_overlay and is_instance_valid(night_overlay):
 				night_overlay.queue_free()
-				story_scene.state_controller.unregister_night_overlay()
+				_sc_completed.unregister_night_overlay()
 				pop_overlay_pause(true)
 		story_scene.in_night_cycle = false
 		if story_scene.flow_controller:
@@ -373,11 +374,12 @@ func _on_prayer_completed(result: Dictionary, paused_here: bool) -> void:
 func _on_prayer_cancelled(paused_here: bool) -> void:
 	pop_overlay_pause(paused_here)
 	var context = "mission"
-	if story_scene.state_controller:
-		context = story_scene.state_controller.get_prayer_context()
+	var _sc_cancelled = story_scene.get("state_controller") if story_scene else null
+	if _sc_cancelled:
+		context = _sc_cancelled.get_prayer_context()
 	if context == "night":
-		if story_scene.state_controller:
-			var night_overlay = story_scene.state_controller.get_night_overlay()
+		if _sc_cancelled:
+			var night_overlay = _sc_cancelled.get_night_overlay()
 			if night_overlay and is_instance_valid(night_overlay):
 				_report_info("Prayer cancelled, restoring night overlay")
 				night_overlay.visible = true
@@ -413,8 +415,9 @@ func _on_night_overlay_prayer_requested(paused_here: bool) -> void:
 		night_overlay_instance.queue_free()
 		night_overlay_instance = null
 	pop_overlay_pause(paused_here)
-	if story_scene and story_scene.state_controller:
-		story_scene.state_controller.set_prayer_context("night")
+	var _sc_night_req = story_scene.get("state_controller") if story_scene else null
+	if _sc_night_req:
+		_sc_night_req.set_prayer_context("night")
 	open_prayer_system()
 func _on_night_overlay_continue(paused_here: bool) -> void:
 	if night_overlay_instance:

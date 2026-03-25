@@ -70,6 +70,9 @@ func _detect_overlaps(controls: Array[Control]) -> Array:
 		for j in range(i + 1, controls.size()):
 			var a := controls[i]
 			var b := controls[j]
+			# Skip background/decorative nodes that intentionally pass through mouse input
+			if a.mouse_filter == Control.MOUSE_FILTER_IGNORE or b.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+				continue
 			if _are_ancestor_related(a, b):
 				continue
 			var rect_a := a.get_global_rect()
