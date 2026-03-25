@@ -106,9 +106,9 @@ jobs:
           fi
 
           # Extract counts from the FINAL TEST SUMMARY lines emitted by all_tests_runner.gd
-          PASSED_TESTS=$(grep -E "^\s+Passed\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1) || true
-          FAILED_TESTS=$(grep -E "^\s+Failed\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1) || true
-          TOTAL_TESTS=$(grep -E "^\s+Total assertions\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1) || true
+          PASSED_TESTS=$(grep -E "^\s+Passed\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1 || echo 0)
+          FAILED_TESTS=$(grep -E "^\s+Failed\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1 || echo 0)
+          TOTAL_TESTS=$(grep -E "^\s+Total assertions\s+:" "$OUTPUT_FILE" | grep -oE '[0-9]+' | head -1 || echo 0)
 
           # Default to 0 if grep found no matches (head -1 exits 0 even on empty input,
           # so "|| echo 0" never triggered — use parameter expansion instead)
