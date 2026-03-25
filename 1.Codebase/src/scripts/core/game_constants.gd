@@ -38,7 +38,7 @@ class Stats:
 	const HIGH_ENTROPY_CRITICAL := 50
 	const STAT_CHANGE_IMPORTANCE_THRESHOLDS := [20, 12, 6, 2]
 class Entropy:
-	const LOW_THRESHOLD := 0.3
+	const LOW_THRESHOLD := 0.35
 	const MEDIUM_THRESHOLD := 0.7
 	const HIGH_THRESHOLD := 1.0
 	const BASE_ENTROPY_DIVISOR := 100.0
