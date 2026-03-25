@@ -3,7 +3,7 @@ var SaveLoadSystemScript = preload("res://1.Codebase/src/scripts/core/save_load_
 var _save_system = null
 var _mock_game_state = null
 var _test_results = []
-class MockGameState:
+class MockGameState extends RefCounted:
 	var save_data_called = false
 	var load_data_called = false
 	var last_loaded_data = null

@@ -13,7 +13,7 @@ func _ready() -> void:
 	_test_initialization()
 	_test_tutorial_steps_definition()
 	_test_tutorial_enabled_toggle()
-	_test_check_tutorial_trigger()
+	await _test_check_tutorial_trigger()
 	_test_is_tutorial_completed()
 	_test_get_tutorial_progress()
 	_test_get_all_tutorial_steps()
@@ -21,7 +21,7 @@ func _ready() -> void:
 	await _test_signal_emission()
 	await _test_save_load_persistence()
 	_test_reset_tutorials()
-	_test_all_tutorials_complete_check()
+	await _test_all_tutorials_complete_check()
 	TutorialSystem.completed_tutorials = initial_completed.duplicate(true)
 	TutorialSystem.tutorial_enabled = initial_enabled
 	print("[TutorialSystemTest] All tests completed.")
