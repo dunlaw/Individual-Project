@@ -68,7 +68,7 @@ static func rebuild_tabs(
 	var tab_voice    := create_tab_page(tab_container, "Voice")
 	var tab_tutorial := create_tab_page(tab_container, "Tutorial")
 	var tab_developer := create_tab_page(tab_container, "Developer")
-	var tab_ai_log: VBoxContainer = create_ai_log_page_fn.call()
+	var tab_ai_log: VBoxContainer = create_ai_log_page_fn.call(tab_container)
 	move_control(nodes.get("language_label"), tab_gameplay)
 	move_control(nodes.get("language_option"), tab_gameplay)
 	add_separator(tab_gameplay)
