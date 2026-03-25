@@ -195,6 +195,20 @@ func _read_results(inst: Node) -> Dictionary:
 				if n != "":
 					failed_names.append(n)
 		return {"passed": p, "failed": f, "failed_names": failed_names}
+	# Convention F: test_results  Array[{name, passed}]  (no leading underscore)
+	if "test_results" in inst and inst.get("test_results") is Array:
+		var p := 0
+		var f := 0
+		var failed_names: Array[String] = []
+		for r in inst.get("test_results"):
+			if r.get("passed", false):
+				p += 1
+			else:
+				f += 1
+				var n: String = r.get("name", "")
+				if n != "":
+					failed_names.append(n)
+		return {"passed": p, "failed": f, "failed_names": failed_names}
 	# Unknown — no trackable counter
 	return {}
 
