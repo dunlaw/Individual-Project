@@ -142,7 +142,7 @@ func test_skill_checks() -> bool:
 	var successes = 0
 	var failures = 0
 	for i in range(20):
-		var result = _player_stats.skill_check("logic", 10)
+		var result = _player_stats.skill_check("logic", 12)
 		success = assert_true(result.has("success"), "Result has success field") and success
 		success = assert_true(result.has("roll"), "Result has roll field") and success
 		success = assert_true(result.has("skill_value"), "Result has skill_value field") and success
