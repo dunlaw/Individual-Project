@@ -27,7 +27,6 @@ func _ready():
 	cleanup_test_files()
 	queue_free()
 func run_all_tests():
-	cleanup_test_files()
 	await run_test("Initialization", test_initialization)
 	await run_test("Autosave Creation", test_autosave)
 	await run_test("Save to Slot", test_save_to_slot)
@@ -44,6 +43,7 @@ func run_all_tests():
 	await run_test("Slot Clamping", test_slot_clamping)
 	await run_test("Empty GameState Handling", test_empty_gamestate)
 func run_test(test_name: String, test_func: Callable):
+	cleanup_test_files()
 	_save_system = SaveLoadSystemScript.new()
 	_mock_game_state = MockGameState.new()
 	_save_system.set_game_state(_mock_game_state)
