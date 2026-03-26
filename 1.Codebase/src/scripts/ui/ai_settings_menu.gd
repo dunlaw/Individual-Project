@@ -17,7 +17,7 @@ const GEMINI_MODEL_OPTIONS := [
 	"★ gemini-3.1-flash-lite-preview",
 	"gemini-3.1-pro-preview",
 	"gemini-3-flash-preview",
-	"gemini-2.5-flash-native-audio-preview-12-2025",
+	"gemini-3.1-flash-live-preview",
 ]
 const OPENROUTER_MODEL_OPTIONS := [
 	"openrouter/free",

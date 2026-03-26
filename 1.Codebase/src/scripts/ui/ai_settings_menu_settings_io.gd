@@ -105,7 +105,7 @@ func save_ui_to_manager() -> bool:
 		"gemini-3.1-flash-lite-preview",
 		"gemini-3.1-pro-preview",
 		"gemini-3-flash-preview",
-		"gemini-2.5-flash-native-audio-preview-12-2025",
+		"gemini-3.1-flash-live-preview",
 	]
 	var gemini_selected = _menu.gemini_model_option.selected
 	if gemini_selected >= 0 and gemini_selected < gemini_values.size():

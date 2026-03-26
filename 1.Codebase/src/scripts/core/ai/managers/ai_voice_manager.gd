@@ -11,7 +11,7 @@ func _report_warning(message: String, details: Dictionary = {}) -> void:
 func _report_error(message: String, details: Dictionary = {}) -> void:
 	ErrorReporterBridge.report_error(ERROR_CONTEXT, message, -1, false, details)
 const GEMINI_NATIVE_AUDIO_MODELS := [
-	"gemini-2.5-flash-native-audio-preview-12-2025",
+	"gemini-3.1-flash-live-preview",
 ]
 const DEFAULT_INPUT_SAMPLE_RATE := GameConstants.AI.DEFAULT_INPUT_SAMPLE_RATE
 const DEFAULT_OUTPUT_SAMPLE_RATE := GameConstants.AI.DEFAULT_OUTPUT_SAMPLE_RATE

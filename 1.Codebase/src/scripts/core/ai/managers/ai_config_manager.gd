@@ -220,7 +220,7 @@ func _migrate_gemini_model(config: ConfigFile) -> bool:
 	return true
 func _migrate_openrouter_model(config: ConfigFile) -> bool:
 	var normalized := openrouter_model.strip_edges().to_lower()
-	if normalized == "google/gemini-pro" or normalized == "google/gemini-pro-vision" or normalized == "google/gemini-2.0-flash-001":
+	if normalized == "google/gemini-pro" or normalized == "google/gemini-pro-vision" or normalized == "google/gemini-2.0-flash-001" or normalized == "google/gemini-2.5-flash":
 		_report_info("Migrating OpenRouter model from '%s' to '%s'" % [openrouter_model, DEFAULT_OPENROUTER_MODEL])
 		openrouter_model = DEFAULT_OPENROUTER_MODEL
 		config.set_value("ai", "openrouter_model", openrouter_model)
@@ -235,10 +235,10 @@ func _normalize_gemini_model_name(value: String) -> String:
 	var lower := trimmed.to_lower()
 	if lower == "gemini-2.5-flash" or lower == "gemini-flash-latest":
 		return "gemini-3.1-flash-lite-preview"
-	if lower == "gemini-2.5-flash-native-audio-preview-09-2025":
-		return "gemini-2.5-flash-native-audio-preview-12-2025"
+	if lower == "gemini-2.5-flash-native-audio-preview-09-2025" or lower == "gemini-2.5-flash-native-audio-preview-12-2025":
+		return "gemini-3.1-flash-live-preview"
 	if lower == "gemini-live-2.5-flash-preview":
-		return "gemini-2.5-flash-native-audio-preview-12-2025"
+		return "gemini-3.1-flash-live-preview"
 	if lower == "gemini-2.5-flash-lite":
 		return "gemini-3.1-flash-lite-preview"
 	if lower == "gemini-3-pro-preview":

@@ -459,7 +459,7 @@ func _create_ai_router_controls(parent: VBoxContainer) -> void:
 	parent.add_child(_menu.ai_router_model_label)
 	_menu.ai_router_model_input = LineEdit.new()
 	_menu.ai_router_model_input.name = "AIRouterModelInput"
-	_menu.ai_router_model_input.placeholder_text = "e.g., gemini-3-flash, claude-sonnet-4-5, gemini-2.5-flash-thinking"
+	_menu.ai_router_model_input.placeholder_text = "e.g., gemini-3-flash, claude-sonnet-4-5, gemini-3.1-flash-thinking"
 	_menu.ai_router_model_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(_menu.ai_router_model_input)
 	_menu.ai_router_endpoint_label = Label.new()

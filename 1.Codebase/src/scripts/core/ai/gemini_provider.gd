@@ -3,7 +3,7 @@ class_name GeminiProvider
 const GEMINI_ENDPOINT_BASE = "https://generativelanguage.googleapis.com/v1beta/models/"
 const GEMINI_DEFAULT_MODEL = "gemini-3.1-flash-lite-preview"
 const GEMINI_NATIVE_AUDIO_MODELS = [
-	"gemini-2.5-flash-native-audio-preview-12-2025",
+	"gemini-3.1-flash-live-preview",
 ]
 const DEFAULT_OUTPUT_SAMPLE_RATE := 24000
 const DEFAULT_MAX_OUTPUT_TOKENS := 4096
