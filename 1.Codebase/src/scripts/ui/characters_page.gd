@@ -15,6 +15,9 @@ var _details_container: VBoxContainer
 var _graph_container: Control
 var _is_graph_mode: bool = false
 var _graph_nodes: Dictionary = {}
+var _reference_overlay: ColorRect
+var _reference_texture: TextureRect
+var _show_reference_btn: Button
 func _ready():
 	var game_state = ServiceLocator.get_game_state() if ServiceLocator else null
 	current_language = game_state.current_language if game_state else "en"
@@ -32,43 +35,50 @@ func _init_character_data():
 			"name_key": "CHAR_PROTAGONIST_NAME",
 			"title_key": "CHAR_PROTAGONIST_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_protagonist.png",
-			"desc_key": "CHAR_PROTAGONIST_DESC"
+			"desc_key": "CHAR_PROTAGONIST_DESC",
+			"reference_path": "res://1.Codebase/src/assets/characters/reference_protagonist.png"
 		},
 		"gloria": {
 			"name_key": "CHAR_GLORIA_NAME",
 			"title_key": "CHAR_GLORIA_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_gloria.png",
-			"desc_key": "CHAR_GLORIA_DESC"
+			"desc_key": "CHAR_GLORIA_DESC",
+			"reference_path": "res://1.Codebase/src/assets/characters/reference_gloria.png"
 		},
 		"donkey": {
 			"name_key": "CHAR_DONKEY_NAME",
 			"title_key": "CHAR_DONKEY_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_donkey.png",
-			"desc_key": "CHAR_DONKEY_DESC"
+			"desc_key": "CHAR_DONKEY_DESC",
+			"reference_path": "res://1.Codebase/src/assets/characters/reference_donkey.png"
 		},
 		"ark": {
 			"name_key": "CHAR_ARK_NAME",
 			"title_key": "CHAR_ARK_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_ark.png",
-			"desc_key": "CHAR_ARK_DESC"
+			"desc_key": "CHAR_ARK_DESC",
+			"reference_path": "res://1.Codebase/src/assets/characters/reference_ark.png"
 		},
 		"one": {
 			"name_key": "CHAR_ONE_NAME",
 			"title_key": "CHAR_ONE_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_one.png",
-			"desc_key": "CHAR_ONE_DESC"
+			"desc_key": "CHAR_ONE_DESC",
+			"reference_path": "res://1.Codebase/src/assets/characters/reference_one.png"
 		},
 		"teacher_chan": {
 			"name_key": "CHAR_TEACHER_NAME",
 			"title_key": "CHAR_TEACHER_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_teacher_chan.png",
-			"desc_key": "CHAR_TEACHER_DESC"
+			"desc_key": "CHAR_TEACHER_DESC",
+			"reference_path": "res://1.Codebase/src/assets/characters/reference_teacher_chan.png"
 		},
 		"fsm": {
 			"name_key": "CHAR_FSM_NAME",
 			"title_key": "CHAR_FSM_TITLE",
 			"icon_path": "",
-			"desc_key": "CHAR_FSM_DESC"
+			"desc_key": "CHAR_FSM_DESC",
+			"reference_path": "res://1.Codebase/src/assets/characters/reference_fsm.png"
 		}
 	}
 func _rebuild_ui_layout(panel: Control):
@@ -154,7 +164,47 @@ func _rebuild_ui_layout(panel: Control):
 	_character_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_character_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_character_portrait.custom_minimum_size = Vector2(200, 200)
-	_details_container.add_child(_character_portrait)
+
+	var portrait_hbox = HBoxContainer.new()
+	portrait_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_details_container.add_child(portrait_hbox)
+
+	portrait_hbox.add_child(_character_portrait)
+
+	_show_reference_btn = Button.new()
+	_show_reference_btn.text = _tr("CHAR_BUTTON_REFERENCE")
+	_show_reference_btn.connect("pressed", Callable(self, "_on_show_reference_pressed"))
+	UIStyleManager.apply_button_style(_show_reference_btn, "secondary", "small")
+	_show_reference_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	portrait_hbox.add_child(_show_reference_btn)
+
+	_reference_overlay = ColorRect.new()
+	_reference_overlay.color = Color(0, 0, 0, 0.85)
+	_reference_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_reference_overlay.visible = false
+	panel.add_child(_reference_overlay)
+
+	var ref_vbox = VBoxContainer.new()
+	ref_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	ref_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	_reference_overlay.add_child(ref_vbox)
+
+	_reference_texture = TextureRect.new()
+	_reference_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_reference_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_reference_texture.custom_minimum_size = Vector2(800, 600)
+	_reference_texture.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	ref_vbox.add_child(_reference_texture)
+
+	var close_ref_btn = Button.new()
+	close_ref_btn.text = _tr("CHAR_BUTTON_CLOSE")
+	close_ref_btn.icon = ICON_QUIT
+	close_ref_btn.expand_icon = true
+	close_ref_btn.connect("pressed", Callable(self, "_on_close_reference_pressed"))
+	UIStyleManager.apply_button_style(close_ref_btn, "primary", "medium")
+	close_ref_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	ref_vbox.add_child(close_ref_btn)
+
 	_content_title = Label.new()
 	_content_title.text = ""
 	_content_title.add_theme_font_size_override("font_size", 32)
@@ -193,6 +243,11 @@ func _select_character(char_key: String):
 	else:
 		_character_portrait.texture = null
 		_character_portrait.visible = false
+
+	var ref_path = data.get("reference_path", "")
+	if _show_reference_btn:
+		_show_reference_btn.visible = (ref_path != "" and ResourceLoader.exists(ref_path))
+
 	_content_title.text = name_text + "\n" + title_text
 	_content_title.add_theme_font_size_override("font_size", 32)
 	var desc_text = _tr(data["desc_key"])
@@ -207,6 +262,23 @@ func _select_character(char_key: String):
 				else:
 					UIStyleManager.apply_button_style(btn, "secondary", "medium")
 			child_idx += 1
+
+func _on_show_reference_pressed():
+	if selected_character_id == "" or not character_data.has(selected_character_id):
+		return
+	var data = character_data[selected_character_id]
+	var ref_path = data.get("reference_path", "")
+	if ref_path != "":
+		var tex = _load_texture_safe(ref_path)
+		if tex:
+			_reference_texture.texture = tex
+			_reference_overlay.visible = true
+			_reference_overlay.move_to_front()
+
+func _on_close_reference_pressed():
+	if _reference_overlay:
+		_reference_overlay.visible = false
+
 func _on_close_pressed():
 	queue_free()
 func _input(event: InputEvent) -> void:
@@ -214,7 +286,10 @@ func _input(event: InputEvent) -> void:
 		return
 	match (event as InputEventKey).keycode:
 		KEY_ESCAPE:
-			_on_close_pressed()
+			if _reference_overlay and _reference_overlay.visible:
+				_on_close_reference_pressed()
+			else:
+				_on_close_pressed()
 			get_viewport().set_input_as_handled()
 		KEY_G:
 			_toggle_graph_view()
