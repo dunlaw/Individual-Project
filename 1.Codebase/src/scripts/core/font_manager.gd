@@ -22,20 +22,22 @@ const FALLBACK_FONT: Font = preload("res://1.Codebase/src/assets/font/LibreBaske
 const CJK_FONT: Font = preload("res://1.Codebase/src/assets/font/NotoSansCJKsc-Regular.otf")
 const DEFAULT_EN_FONT := "Trajan Pro"
 const DEFAULT_ZH_FONT := "Noto Sans SC"
+const DEFAULT_DE_FONT := "Berlin Type"
 const FONT_CATALOG := {
-	DEFAULT_EN_FONT: { "font": preload("res://1.Codebase/src/assets/font/TrajanPro-Bold.otf"), "languages": ["en", "de"] },
-	"Libre Baskerville": { "font": FALLBACK_FONT, "languages": ["en", "de"] },
-	"Play": { "font": preload("res://1.Codebase/src/assets/font/Play-Regular.ttf"), "languages": ["en", "de"] },
-	"Ticketing": { "font": preload("res://1.Codebase/src/assets/font/Ticketing.ttf"), "languages": ["en", "de"] },
-	"Britannic": { "font": preload("res://1.Codebase/src/assets/font/britrdn_.ttf"), "languages": ["en", "de"] },
+	DEFAULT_EN_FONT: { "font": preload("res://1.Codebase/src/assets/font/TrajanPro-Bold.otf"), "languages": ["en"] },
+	"Libre Baskerville": { "font": FALLBACK_FONT, "languages": ["en"] },
+	"Play": { "font": preload("res://1.Codebase/src/assets/font/Play-Regular.ttf"), "languages": ["en"] },
+	"Ticketing": { "font": preload("res://1.Codebase/src/assets/font/Ticketing.ttf"), "languages": ["en"] },
+	"Britannic": { "font": preload("res://1.Codebase/src/assets/font/britrdn_.ttf"), "languages": ["en"] },
 	DEFAULT_ZH_FONT: { "font": CJK_FONT, "languages": ["zh"] },
 	"Chiron Go Round": { "font": preload("res://1.Codebase/src/assets/font/ChironGoRoundTCVF.ttf"), "languages": ["zh"] },
+	DEFAULT_DE_FONT: { "font": preload("res://1.Codebase/src/assets/font/BerlinType-Bold.otf"), "languages": ["de"] },
 }
 var REGISTERED_FONTS: Array[Font] = []
 var _selected_fonts := {
 	"en": DEFAULT_EN_FONT,
 	"zh": DEFAULT_ZH_FONT,
-	"de": DEFAULT_EN_FONT,
+	"de": DEFAULT_DE_FONT,
 }
 var _active_font: Font = null
 var _tree_connected: bool = false
@@ -105,8 +107,10 @@ func load_font_settings():
 		current_multiplier = font_size_multipliers.get(current_font_size, 1.0)
 		var en_font := String(config.get_value("display", "font_en", DEFAULT_EN_FONT))
 		var zh_font := String(config.get_value("display", "font_zh", DEFAULT_ZH_FONT))
+		var de_font := String(config.get_value("display", "font_de", DEFAULT_DE_FONT))
 		_selected_fonts["en"] = _resolve_font_key_for_language("en", en_font)
 		_selected_fonts["zh"] = _resolve_font_key_for_language("zh", zh_font)
+		_selected_fonts["de"] = _resolve_font_key_for_language("de", de_font)
 func _build_registered_fonts() -> void:
 	REGISTERED_FONTS.clear()
 	for font_key in FONT_CATALOG.keys():
@@ -209,8 +213,9 @@ func get_available_fonts_for_language(language: String) -> Array[String]:
 func get_selected_font(language: String) -> String:
 	if language == "zh":
 		return _selected_fonts.get("zh", DEFAULT_ZH_FONT)
-	var lang := language if language == "de" else "en"
-	return _selected_fonts.get(lang, DEFAULT_EN_FONT)
+	if language == "de":
+		return _selected_fonts.get("de", DEFAULT_DE_FONT)
+	return _selected_fonts.get("en", DEFAULT_EN_FONT)
 func set_selected_font(language: String, font_key: String) -> void:
 	var lang := language if language in ["zh", "de"] else "en"
 	var resolved := _resolve_font_key_for_language(lang, font_key)
@@ -333,6 +338,8 @@ func _get_current_language() -> String:
 func _get_default_font_for_language(language: String) -> String:
 	if language == "zh":
 		return DEFAULT_ZH_FONT
+	if language == "de":
+		return DEFAULT_DE_FONT
 	return DEFAULT_EN_FONT
 func _font_supports_language(font_key: String, language: String) -> bool:
 	if not FONT_CATALOG.has(font_key):
