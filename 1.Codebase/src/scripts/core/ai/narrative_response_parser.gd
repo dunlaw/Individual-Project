@@ -7,9 +7,9 @@ const VALID_ARCHETYPE_IDS := ["cautious", "balanced", "reckless", "positive", "c
 const MIN_AI_CHOICES := 3
 const MAX_AI_CHOICES := 5
 const MIN_ZH_SUMMARY_CHARS := 10
-const MAX_ZH_SUMMARY_CHARS := 20
+const MAX_ZH_SUMMARY_CHARS := 80
 const MIN_NON_ZH_SUMMARY_WORDS := 10
-const MAX_NON_ZH_SUMMARY_WORDS := 20
+const MAX_NON_ZH_SUMMARY_WORDS := 35
 const ARCHETYPE_LABELS := {
 	"en": {
 		"cautious": "[Cautious]",
@@ -256,6 +256,8 @@ static func parse_mission_response(response: Dictionary, ai_manager: Variant) ->
 			directives["assets"] = normalize_asset_directives(json_data["assets"])
 		if json_data.has("relationships"):
 			directives["relationships"] = json_data["relationships"]
+		if json_data.has("mission_status"):
+			directives["mission_status"] = String(json_data.get("mission_status", "ongoing")).strip_edges().to_lower()
 		if json_data.has("story_text"):
 			clean_content = String(json_data["story_text"])
 		if json_data.has("choices"):

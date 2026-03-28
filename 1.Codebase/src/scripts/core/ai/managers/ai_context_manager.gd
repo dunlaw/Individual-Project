@@ -101,6 +101,7 @@ func _inject_skill_context(messages: Array[Dictionary], context: Dictionary) -> 
 		return
 	var injected_skills: Array[String] = []
 	var purpose: String = str(context.get("purpose", ""))
+	var is_choice_followup := purpose == "choice_followup"
 	if not purpose.is_empty():
 		var skill_name: String = skill_mgr.get_skill_for_purpose(purpose)
 		if not skill_name.is_empty() and skill_name not in injected_skills:
@@ -111,7 +112,7 @@ func _inject_skill_context(messages: Array[Dictionary], context: Dictionary) -> 
 			honeymoon_skill = "honeymoon-phase"
 		if honeymoon_skill not in injected_skills:
 			_inject_single_skill(messages, honeymoon_skill, injected_skills)
-	if GameState:
+	if GameState and not is_choice_followup:
 		var entropy_threshold: String = GameState.get_entropy_threshold()
 		if entropy_threshold == "high" or entropy_threshold == "medium":
 			var entropy_skill: String = skill_mgr.get_skill_for_purpose("entropy_" + entropy_threshold)
@@ -122,7 +123,9 @@ func _inject_skill_context(messages: Array[Dictionary], context: Dictionary) -> 
 	if purpose in ["interference", "gloria_intervention", "teammate_interference"]:
 		if "character-profiles" not in injected_skills:
 			_inject_single_skill(messages, "character-profiles", injected_skills)
-	var story_purposes := ["new_mission", "mission_generation", "consequence", "choice_followup",
+	if is_choice_followup and "character-profiles" not in injected_skills:
+		_inject_single_skill(messages, "character-profiles", injected_skills)
+	var story_purposes := ["new_mission", "mission_generation", "consequence",
 						   "intro_story", "night_cycle", "teammate_interference", "gloria_intervention", "prayer"]
 	if purpose in story_purposes:
 		if "scene-directives" not in injected_skills:

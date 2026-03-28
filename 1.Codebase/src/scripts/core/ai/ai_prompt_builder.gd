@@ -179,6 +179,11 @@ func _build_user_message_incremental(prompt: String, context: Dictionary, langua
 	var meta_lines := _build_metadata_lines(context, language)
 	if meta_lines.size() > 0:
 		content_parts.append("\n".join(meta_lines))
+	if _should_use_compact_user_context(context):
+		var compact_used_tokens := _delta.estimate_tokens("\n".join(content_parts))
+		var compact_remaining_tokens: int = max(1, available_tokens - compact_used_tokens)
+		content_parts.append(_build_prompt_chunk(prompt, language, compact_remaining_tokens))
+		return "\n".join(content_parts)
 	var used_tokens := _delta.estimate_tokens("\n".join(content_parts))
 	var events_block := _collect_recent_events(language)
 	used_tokens = _append_user_context_block(content_parts, used_tokens, available_tokens,
@@ -202,6 +207,9 @@ func _build_user_message_incremental(prompt: String, context: Dictionary, langua
 	var remaining_tokens: int = max(1, available_tokens - used_tokens)
 	content_parts.append(_build_prompt_chunk(prompt, language, remaining_tokens))
 	return "\n".join(content_parts)
+func _should_use_compact_user_context(context: Dictionary) -> bool:
+	var purpose := String(context.get("purpose", "")).strip_edges().to_lower()
+	return purpose == "choice_followup"
 func _append_user_context_block(content_parts: Array[String], used_tokens: int, available_tokens: int,
 	section_name: String, header_key: String, block: String, unchanged_marker: String, language: String) -> int:
 	if _delta.has_section_changed(section_name, block):

@@ -338,8 +338,15 @@ func _on_choice_followup_generated(response: Dictionary) -> void:
 	if content.is_empty():
 		return
 	var parser := JSON.new()
-	if parser.parse(content) != OK or not (parser.data is Dictionary):
-		return
+	var parse_source := content
+	if parser.parse(parse_source) != OK or not (parser.data is Dictionary):
+		var json_block := _extract_primary_json_block(content)
+		if json_block.is_empty():
+			return
+		parse_source = json_block
+		parser = JSON.new()
+		if parser.parse(parse_source) != OK or not (parser.data is Dictionary):
+			return
 	var json_data: Dictionary = parser.data
 	if not json_data.has("choices"):
 		return
@@ -452,7 +459,12 @@ func _on_consequence_generated(response: Dictionary) -> void:
 		_report_warning("Consequence generation failed: AI manager missing")
 		story_scene.overlay_controller.show_gloria_overlay(content if not content.is_empty() else "Gloria glares at you silently...")
 		return
-	var directives = ai_manager.parse_scene_directives(content)
+	var parsed := NarrativeResponseParser.parse_mission_response(response, ai_manager)
+	var directives: Dictionary = parsed.get("directives", {})
+	var ai_choice_payload: Array[Dictionary] = parsed.get("choices", [])
+	var clean_content: String = String(parsed.get("story_text", ""))
+	if clean_content.strip_edges().is_empty():
+		clean_content = ai_manager.extract_story_content(content)
 	if not directives.is_empty():
 		if directives.has("characters"):
 			directives["characters"] = _normalize_character_directives(directives.get("characters", { }))
@@ -461,7 +473,6 @@ func _on_consequence_generated(response: Dictionary) -> void:
 		story_scene.apply_scene_directives(directives)
 		if directives.has("relationships"):
 			_process_relationship_updates(directives["relationships"])
-	var clean_content = ai_manager.extract_story_content(content)
 	var sanitized: String = StoryUIHelper.sanitize_story_text(clean_content)
 	await _update_story_display(sanitized)
 	_last_story_text = sanitized
@@ -492,7 +503,7 @@ func _on_consequence_generated(response: Dictionary) -> void:
 				_debug_log("[Narrative] Triggering automatic Gloria intervention (Positive Energy <= %d)" % GameConstants.Choice.GLORIA_POSITIVE_THRESHOLD)
 				request_gloria_intervention(last_choice)
 				return
-		_update_story_choices([], sanitized)
+		_update_story_choices(ai_choice_payload, sanitized)
 		if story_scene and story_scene.flow_controller:
 			story_scene.flow_controller._try_schedule_trolley_problem()
 func _handle_mission_completion(last_text: String) -> void:

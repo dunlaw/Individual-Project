@@ -9,6 +9,7 @@ const DEFAULT_OUTPUT_SAMPLE_RATE := 24000
 const DEFAULT_MAX_OUTPUT_TOKENS := 4096
 const MAX_OUTPUT_TOKENS_CAP := 8192
 const LEGACY_REQUIRED_CHARACTERS := ["protagonist", "gloria", "donkey", "ark", "one"]
+const LEGACY_ARCHETYPE_IDS := ["cautious", "balanced", "reckless", "positive", "complain"]
 const LEGACY_BACKGROUND_IDS := [
 	"ruins",
 	"cave",
@@ -337,6 +338,21 @@ func _apply_legacy_scene_schema(generation_config: Dictionary) -> void:
 		"required": ["background"],
 		"additionalProperties": false,
 	}
+	var choice_schema := {
+		"type": "object",
+		"properties": {
+			"archetype": {
+				"type": "string",
+				"enum": LEGACY_ARCHETYPE_IDS,
+			},
+			"summary": {
+				"type": "string",
+				"description": "Short preview for this choice path.",
+			},
+		},
+		"required": ["archetype", "summary"],
+		"additionalProperties": false,
+	}
 	var root_schema := {
 		"type": "object",
 		"description": "Structured story payload consumed by the stage renderer.",
@@ -347,10 +363,17 @@ func _apply_legacy_scene_schema(generation_config: Dictionary) -> void:
 			},
 			"scene": scene_schema,
 			"characters": characters_schema,
+			"choices": {
+				"type": "array",
+				"description": "Optional follow-up choices rendered as action buttons.",
+				"minItems": 3,
+				"maxItems": 5,
+				"items": choice_schema,
+			},
 		},
 		"required": ["story_text", "scene", "characters"],
 		"additionalProperties": false,
-		"propertyOrdering": ["story_text", "scene", "characters"],
+		"propertyOrdering": ["story_text", "scene", "characters", "choices"],
 	}
 	generation_config["responseMimeType"] = "application/json"
 	generation_config["responseSchema"] = _convert_schema_for_gemini(root_schema)
