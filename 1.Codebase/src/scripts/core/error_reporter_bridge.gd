@@ -32,7 +32,7 @@ static func report_info(
 	if reporter:
 		reporter.report_info(context, message, details)
 		return
-	print_rich("[color=cyan][INFO][%s][/color] %s" % [context, message])
+	print_rich("[color=cyan][%s][INFO][%s][/color] %s" % [_get_console_timestamp(), context, message])
 static func report_critical(
 		context: String,
 		message: String,
@@ -64,6 +64,16 @@ static func _get_reporter() -> Variant:
 			return sl.call("get_error_reporter")
 	return null
 static func _push_error(context: String, message: String) -> void:
-	push_error("[%s] %s" % [context, message])
+	push_error("[%s] [%s] %s" % [_get_console_timestamp(), context, message])
 static func _push_warning(context: String, message: String) -> void:
-	push_warning("[%s] %s" % [context, message])
+	push_warning("[%s] [%s] %s" % [_get_console_timestamp(), context, message])
+static func _get_console_timestamp() -> String:
+	var datetime: Dictionary = Time.get_datetime_dict_from_system()
+	return "%02d/%02d/%04d %02d:%02d:%02d" % [
+		int(datetime.get("day", 0)),
+		int(datetime.get("month", 0)),
+		int(datetime.get("year", 0)),
+		int(datetime.get("hour", 0)),
+		int(datetime.get("minute", 0)),
+		int(datetime.get("second", 0)),
+	]

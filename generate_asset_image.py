@@ -21,11 +21,11 @@ DEFAULT_API_ENDPOINT = os.environ.get(
 )
 DEFAULT_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-3.1-flash-image")
 DEFAULT_STYLE_PROMPT = """
-Generate a single square pixel art illustration using the provided reference image as the main guide for composition, framing, lighting, colour palette, and rendering quality.
+Generate a single square pixel art illustration using the provided reference image or images as the main guide for composition, framing, lighting, colour palette, and rendering quality.
 
-Use the reference image to keep the overall structure and art direction cohesive unless the main prompt explicitly asks for a change.
+Use the reference images together to keep the overall structure and art direction cohesive unless the main prompt explicitly asks for a change.
 - Keep the image production ready and visually consistent.
-- Match the reference image's overall style and pixel density.
+- Match the reference images' overall style and pixel density.
 - Avoid legible text, UI elements, letters, and numbers unless the main prompt explicitly asks for them.
 """.strip()
 RESAMPLING = getattr(PIL.Image, "Resampling", PIL.Image)
@@ -33,7 +33,7 @@ PREVIEW_SIZE = (360, 360)
 
 @dataclass
 class GenerationConfig:
-    reference_image: Path
+    reference_images: tuple[Path, ...]
     output_image: Path
     prompt: str
     style_prompt: str
@@ -59,6 +59,9 @@ def default_reference_image() -> Path:
         if candidate.is_file():
             return candidate
     return candidates[0]
+
+def default_reference_images() -> tuple[Path, ...]:
+    return (default_reference_image(),)
 
 def default_output_image() -> Path:
     return (
@@ -147,11 +150,28 @@ def build_full_prompt(style_prompt: str, prompt: str) -> str:
 def normalize_output_path(path: Path) -> Path:
     return path if path.suffix else path.with_suffix(".png")
 
+def format_reference_image_paths(paths: tuple[Path, ...]) -> str:
+    return os.pathsep.join(str(path) for path in paths)
+
+def parse_reference_image_paths(raw_value: str) -> tuple[Path, ...]:
+    paths = tuple(
+        Path(chunk.strip())
+        for chunk in raw_value.split(os.pathsep)
+        if chunk.strip()
+    )
+    if not paths:
+        raise ValueError("At least one reference image is required.")
+    return paths
+
 def generate_single_image(config: GenerationConfig) -> PIL.Image.Image:
-    reference_image = config.reference_image.expanduser().resolve()
+    reference_images = tuple(
+        reference_image.expanduser().resolve()
+        for reference_image in config.reference_images
+    )
     output_image = normalize_output_path(config.output_image.expanduser())
-    if not reference_image.is_file():
-        raise FileNotFoundError(f"Reference image not found: {reference_image}")
+    for reference_image in reference_images:
+        if not reference_image.is_file():
+            raise FileNotFoundError(f"Reference image not found: {reference_image}")
 
     client = genai.Client(
         api_key=config.api_key,
@@ -159,12 +179,14 @@ def generate_single_image(config: GenerationConfig) -> PIL.Image.Image:
     )
     full_prompt = build_full_prompt(config.style_prompt, config.prompt)
 
-    with PIL.Image.open(reference_image) as image:
-        reference_copy = image.copy()
+    contents: list[object] = [full_prompt]
+    for reference_image in reference_images:
+        with PIL.Image.open(reference_image) as image:
+            contents.append(image.copy())
 
     response = client.models.generate_content(
         model=config.model,
-        contents=[full_prompt, reference_copy],
+        contents=contents,
     )
     result = extract_generated_image(response, debug=config.debug)
     output_image.parent.mkdir(parents=True, exist_ok=True)
@@ -179,7 +201,9 @@ class AssetImageGeneratorUI:
         self.reference_preview_image = None
         self.output_preview_image = None
 
-        self.reference_path_var = tk.StringVar(value=str(args.reference_image))
+        self.reference_path_var = tk.StringVar(
+            value=format_reference_image_paths(args.reference_images)
+        )
         self.output_path_var = tk.StringVar(value=str(args.output))
         self.model_var = tk.StringVar(value=args.model)
         self.endpoint_var = tk.StringVar(value=args.api_endpoint)
@@ -214,7 +238,7 @@ class AssetImageGeneratorUI:
         self._add_path_row(
             controls,
             row=0,
-            label="Reference Image",
+            label="Reference Images",
             variable=self.reference_path_var,
             browse_command=self._browse_reference_image,
         )
@@ -329,9 +353,13 @@ class AssetImageGeneratorUI:
         self._refresh_output_preview()
 
     def _browse_reference_image(self) -> None:
-        current_path = Path(self.reference_path_var.get()).expanduser()
-        selected = filedialog.askopenfilename(
-            title="Choose a reference image",
+        try:
+            current_paths = parse_reference_image_paths(self.reference_path_var.get())
+        except ValueError:
+            current_paths = default_reference_images()
+        current_path = current_paths[0].expanduser()
+        selected = filedialog.askopenfilenames(
+            title="Choose reference images",
             filetypes=[
                 ("Image Files", "*.png *.jpg *.jpeg *.webp *.bmp"),
                 ("All Files", "*.*"),
@@ -339,7 +367,9 @@ class AssetImageGeneratorUI:
             initialdir=str(current_path.parent if current_path.parent.exists() else repo_root()),
         )
         if selected:
-            self.reference_path_var.set(selected)
+            self.reference_path_var.set(
+                format_reference_image_paths(tuple(Path(path) for path in selected))
+            )
             self._refresh_reference_preview()
 
     def _browse_output_image(self) -> None:
@@ -356,8 +386,12 @@ class AssetImageGeneratorUI:
             self._refresh_output_preview()
 
     def _refresh_reference_preview(self) -> None:
-        self._load_preview(
-            path=Path(self.reference_path_var.get().strip()),
+        try:
+            paths = parse_reference_image_paths(self.reference_path_var.get().strip())
+        except ValueError:
+            paths = ()
+        self._load_reference_preview(
+            paths=paths,
             label=self.reference_preview_label,
             missing_text="Reference image not found.",
             attribute_name="reference_preview_image",
@@ -395,8 +429,63 @@ class AssetImageGeneratorUI:
             label.configure(text=f"Preview failed: {exc}", image="")
             setattr(self, attribute_name, None)
 
+    def _load_reference_preview(
+        self,
+        paths: tuple[Path, ...],
+        label: ttk.Label,
+        missing_text: str,
+        attribute_name: str,
+    ) -> None:
+        try:
+            preview = self._build_reference_preview_image(paths)
+        except ValueError:
+            label.configure(text=missing_text, image="")
+            setattr(self, attribute_name, None)
+            return
+        except Exception as exc:
+            label.configure(text=f"Preview failed: {exc}", image="")
+            setattr(self, attribute_name, None)
+            return
+
+        tk_image = ImageTk.PhotoImage(preview)
+        label.configure(image=tk_image, text="")
+        setattr(self, attribute_name, tk_image)
+
+    def _build_reference_preview_image(
+        self, paths: tuple[Path, ...]
+    ) -> PIL.Image.Image:
+        previews: list[PIL.Image.Image] = []
+        for path in paths[:4]:
+            if not path.is_file():
+                continue
+            with PIL.Image.open(path) as image:
+                tile = image.convert("RGBA")
+            tile.thumbnail((172, 172), RESAMPLING.LANCZOS)
+            previews.append(tile)
+
+        if not previews:
+            raise ValueError("No reference image available for preview.")
+
+        if len(previews) == 1:
+            preview = previews[0]
+            preview.thumbnail(PREVIEW_SIZE, RESAMPLING.LANCZOS)
+            return preview
+
+        canvas = PIL.Image.new("RGBA", PREVIEW_SIZE, (28, 28, 28, 255))
+        columns = 2
+        rows = (len(previews) + columns - 1) // columns
+        cell_width = PREVIEW_SIZE[0] // columns
+        cell_height = PREVIEW_SIZE[1] // rows
+        for index, tile in enumerate(previews):
+            x = (index % columns) * cell_width
+            y = (index // columns) * cell_height
+            tile_x = x + (cell_width - tile.width) // 2
+            tile_y = y + (cell_height - tile.height) // 2
+            canvas.paste(tile, (tile_x, tile_y), tile)
+        return canvas
+
     def _collect_config(self) -> GenerationConfig:
-        reference_image = Path(self.reference_path_var.get().strip())
+        reference_images = parse_reference_image_paths(self.reference_path_var.get().strip())
         output_image = normalize_output_path(Path(self.output_path_var.get().strip()))
         prompt = self._get_text(self.prompt_text)
         style_prompt = self._get_text(self.style_prompt_text)
@@ -405,7 +494,7 @@ class AssetImageGeneratorUI:
 
         self.output_path_var.set(str(output_image))
         return GenerationConfig(
-            reference_image=reference_image,
+            reference_images=reference_images,
             output_image=output_image,
             prompt=prompt,
             style_prompt=style_prompt,
@@ -469,9 +558,15 @@ class AssetImageGeneratorUI:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate one reference-guided image with a simple desktop UI."
+        description="Generate one image guided by one or more reference images."
     )
-    parser.add_argument("--reference-image", type=Path, default=default_reference_image())
+    parser.add_argument(
+        "--reference-image",
+        type=Path,
+        action="append",
+        dest="reference_images",
+        help="Repeat this flag to provide multiple reference images.",
+    )
     parser.add_argument("--output", type=Path, default=default_output_image())
     parser.add_argument("--prompt", default="")
     parser.add_argument("--style-prompt", default=DEFAULT_STYLE_PROMPT)
@@ -488,11 +583,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Run a single generation from the command line instead of opening the UI.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if not args.reference_images:
+        args.reference_images = list(default_reference_images())
+    else:
+        args.reference_images = [path.expanduser() for path in args.reference_images]
+    return args
 
 def run_cli(args: argparse.Namespace) -> int:
     config = GenerationConfig(
-        reference_image=args.reference_image,
+        reference_images=tuple(args.reference_images),
         output_image=args.output,
         prompt=args.prompt,
         style_prompt=args.style_prompt,
