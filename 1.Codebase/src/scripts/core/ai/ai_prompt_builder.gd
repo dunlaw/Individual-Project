@@ -5,7 +5,6 @@ const MAX_CHOICE_TEXT_PREVIEW := 60
 const MAX_JOURNAL_ENTRIES := 3
 const REALITY_SCORE_MAX := 100
 const POSITIVE_ENERGY_MAX := 100
-const ACKNOWLEDGEMENT_MESSAGE := "Acknowledged. I will maintain ironic, pessimistic storytelling for GDA1 while enforcing the recorded facts."
 const AIPromptsI18n = preload("res://1.Codebase/src/scripts/core/ai/ai_prompts_i18n.gd")
 const AIContextDeltaScript = preload("res://1.Codebase/src/scripts/core/ai/ai_context_delta.gd")
 var game_state: Node = null
@@ -41,7 +40,7 @@ func build_prompt(prompt: String, context: Dictionary) -> Array[Dictionary]:
 	_append_single_incremental(messages, "system_persona",
 		{ "role": "system", "content": _system_persona })
 	_append_budgeted_message(messages,
-		{ "role": "assistant", "content": ACKNOWLEDGEMENT_MESSAGE },
+		{ "role": "assistant", "content": _get_acknowledgement_message(language) },
 		_pre_user_token_reserve)
 	_append_section_incremental(messages, "entropy_modifier",
 		_get_entropy_modifier_message(language))
@@ -49,7 +48,7 @@ func build_prompt(prompt: String, context: Dictionary) -> Array[Dictionary]:
 		_get_long_term_context(language))
 	_append_section_incremental(messages, "notes_context",
 		_get_notes_context(language))
-	_append_short_term_memory(messages, _get_short_term_memory())
+	_append_short_term_memory(messages, _get_short_term_memory(), language)
 	var user_available_tokens := _delta.remaining_budget()
 	var user_message_content := _build_user_message_incremental(
 		prompt,
@@ -128,12 +127,14 @@ func _summarize_section(section_name: String, section_msgs: Array[Dictionary]) -
 func _summarize_single_section(section_name: String, content: String) -> String:
 	return "[context:%s updated, 1 message, ~%d chars - truncated for budget]" % [
 		section_name, content.length()]
-func _append_short_term_memory(messages: Array[Dictionary], short_term_entries: Array[Dictionary]) -> void:
+func _append_short_term_memory(messages: Array[Dictionary], short_term_entries: Array[Dictionary], language: String) -> void:
 	var omitted_entries: Array[Dictionary] = []
 	for entry in short_term_entries:
 		var msg_copy := _sanitize_short_term_entry(entry)
 		var content := str(msg_copy.get("content", ""))
 		if content.is_empty():
+			continue
+		if not _should_include_short_term_entry(content, language):
 			continue
 		if _has_budget_with_reserve(content, _pre_user_token_reserve):
 			messages.append(msg_copy)
@@ -164,7 +165,7 @@ func _build_minimum_user_message(prompt: String, context: Dictionary, language: 
 	var content_parts: Array[String] = []
 	content_parts.append(AIPromptsI18n.get_section_header("session_data", language))
 	content_parts.append(AIPromptsI18n.get_language_instruction(language))
-	var meta_lines := _build_metadata_lines(context)
+	var meta_lines := _build_metadata_lines(context, language)
 	if meta_lines.size() > 0:
 		content_parts.append("\n".join(meta_lines))
 	content_parts.append(_build_prompt_chunk(prompt, language, _delta.token_budget))
@@ -175,7 +176,7 @@ func _build_user_message_incremental(prompt: String, context: Dictionary, langua
 	var content_parts: Array[String] = []
 	content_parts.append(AIPromptsI18n.get_section_header("session_data", language))
 	content_parts.append(AIPromptsI18n.get_language_instruction(language))
-	var meta_lines := _build_metadata_lines(context)
+	var meta_lines := _build_metadata_lines(context, language)
 	if meta_lines.size() > 0:
 		content_parts.append("\n".join(meta_lines))
 	var used_tokens := _delta.estimate_tokens("\n".join(content_parts))
@@ -191,7 +192,7 @@ func _build_user_message_incremental(prompt: String, context: Dictionary, langua
 	var assets_block := _collect_assets_context(context)
 	used_tokens = _append_user_context_block(content_parts, used_tokens, available_tokens,
 		"available_assets", "available_assets", assets_block, "[available_assets unchanged]", language)
-	var stat_snapshot := _build_stat_snapshot(context)
+	var stat_snapshot := _build_stat_snapshot(context, language)
 	if not stat_snapshot.is_empty():
 		var stat_chunk := "\n" + stat_snapshot
 		var stat_tokens := _delta.estimate_tokens(stat_chunk)
@@ -291,21 +292,12 @@ func _collect_player_reflections(language: String) -> String:
 		var timestamp := str(entry.get("timestamp", ""))
 		var reflection_text := str(entry.get("text", "")).strip_edges()
 		var summary_text := str(entry.get("ai_summary", "")).strip_edges()
-		var reflection_line: String
-		if language == "en":
-			reflection_line = ""
-			if not timestamp.is_empty():
-				reflection_line += "[" + timestamp + "] "
-			reflection_line += reflection_text
-			if not summary_text.is_empty():
-				reflection_line += " | Insight: " + summary_text
-		else:
-			reflection_line = ""
-			if not timestamp.is_empty():
-				reflection_line += "[" + timestamp + "] "
-			reflection_line += reflection_text
-			if not summary_text.is_empty():
-				reflection_line += " | Reflection: " + summary_text
+		var reflection_line := ""
+		if not timestamp.is_empty():
+			reflection_line += "[" + timestamp + "] "
+		reflection_line += reflection_text
+		if not summary_text.is_empty():
+			reflection_line += _get_reflection_label(language) + summary_text
 		lines.append("- " + reflection_line)
 	return "\n".join(lines)
 func _collect_assets_context(context: Dictionary) -> String:
@@ -322,48 +314,48 @@ func _collect_assets_context(context: Dictionary) -> String:
 		game_state.set_metadata("recent_asset_icons", asset_registry.get_asset_icons(assets_for_prompt))
 		game_state.set_metadata("current_asset_ids", asset_ids)
 	var parts: Array[String] = []
-	parts.append(asset_registry.format_assets_for_prompt(assets_for_prompt))
+	parts.append(asset_registry.format_assets_for_prompt(assets_for_prompt, _get_language()))
 	parts.append(AIPromptsI18n.get_text(AIPromptsI18n.ASSET_CONTEXT_INSTRUCTIONS, "freshest_context", _get_language()))
 	return "\n".join(parts)
 func _build_user_message(prompt: String, context: Dictionary, language: String) -> String:
 	var content_parts: Array[String] = []
 	content_parts.append(AIPromptsI18n.get_section_header("session_data", language))
 	content_parts.append(AIPromptsI18n.get_language_instruction(language))
-	var meta_lines := _build_metadata_lines(context)
+	var meta_lines := _build_metadata_lines(context, language)
 	if meta_lines.size() > 0:
 		content_parts.append("\n".join(meta_lines))
 	_append_recent_events(content_parts, language)
 	_append_butterfly_effect_context(content_parts, language)
 	_append_player_reflections(content_parts, language)
 	_append_assets_context(content_parts, context)
-	_append_stat_snapshot(content_parts, context)
+	_append_stat_snapshot(content_parts, context, language)
 	content_parts.append("\n" + AIPromptsI18n.get_section_header("prompt", language))
 	content_parts.append(prompt.strip_edges())
 	return "\n".join(content_parts)
-func _build_metadata_lines(context: Dictionary) -> Array[String]:
+func _build_metadata_lines(context: Dictionary, language: String) -> Array[String]:
 	var meta_lines: Array[String] = []
 	if context.has("purpose"):
 		var safe_purpose := _sanitize_user_text(str(context["purpose"]))
 		if not safe_purpose.is_empty():
-			meta_lines.append("Purpose: %s" % safe_purpose)
+			meta_lines.append(_get_metadata_format("purpose", language) % safe_purpose)
 	if context.has("choice_text"):
 		var safe_choice := _sanitize_user_text(str(context["choice_text"]))
 		if not safe_choice.is_empty():
-			meta_lines.append("Player choice: %s" % safe_choice)
+			meta_lines.append(_get_metadata_format("player_choice", language) % safe_choice)
 	if context.has("success"):
-		meta_lines.append("Success check: %s" % ("true" if bool(context["success"]) else "false"))
+		meta_lines.append(_get_metadata_format("success_check", language) % ("true" if bool(context["success"]) else "false"))
 	if context.has("prayer_text"):
 		var safe_prayer := _sanitize_user_text(str(context["prayer_text"]), MAX_PRAYER_LENGTH)
 		if not safe_prayer.is_empty():
-			meta_lines.append("Player prayer: %s" % safe_prayer)
+			meta_lines.append(_get_metadata_format("player_prayer", language) % safe_prayer)
 	if context.has("player_action"):
 		var safe_action := _sanitize_user_text(str(context["player_action"]))
 		if not safe_action.is_empty():
-			meta_lines.append("Player action: %s" % safe_action)
+			meta_lines.append(_get_metadata_format("player_action", language) % safe_action)
 	if context.has("teammate"):
 		var safe_teammate := _sanitize_user_text(str(context["teammate"]))
 		if not safe_teammate.is_empty():
-			meta_lines.append("Current teammate: %s" % safe_teammate)
+			meta_lines.append(_get_metadata_format("current_teammate", language) % safe_teammate)
 	return meta_lines
 func _append_recent_events(content_parts: Array[String], language: String) -> void:
 	if not game_state:
@@ -401,21 +393,12 @@ func _append_player_reflections(content_parts: Array[String], language: String) 
 		var timestamp := str(entry.get("timestamp", ""))
 		var reflection_text := str(entry.get("text", "")).strip_edges()
 		var summary_text := str(entry.get("ai_summary", "")).strip_edges()
-		var reflection_line: String
-		if language == "en":
-			reflection_line = ""
-			if not timestamp.is_empty():
-				reflection_line += "[" + timestamp + "] "
-			reflection_line += reflection_text
-			if not summary_text.is_empty():
-				reflection_line += " | Insight: " + summary_text
-		else:
-			reflection_line = ""
-			if not timestamp.is_empty():
-				reflection_line += "[" + timestamp + "] "
-			reflection_line += reflection_text
-			if not summary_text.is_empty():
-				reflection_line += " | Reflection: " + summary_text
+		var reflection_line := ""
+		if not timestamp.is_empty():
+			reflection_line += "[" + timestamp + "] "
+		reflection_line += reflection_text
+		if not summary_text.is_empty():
+			reflection_line += _get_reflection_label(language) + summary_text
 		content_parts.append("- " + reflection_line)
 func _append_assets_context(content_parts: Array[String], context: Dictionary) -> void:
 	if not asset_registry:
@@ -430,24 +413,25 @@ func _append_assets_context(content_parts: Array[String], context: Dictionary) -
 		game_state.set_metadata("recent_assets_data", assets_for_prompt)
 		game_state.set_metadata("recent_asset_icons", asset_registry.get_asset_icons(assets_for_prompt))
 		game_state.set_metadata("current_asset_ids", asset_ids)
-	content_parts.append("\n" + AIPromptsI18n.get_section_header("available_assets", _get_language()))
-	content_parts.append(asset_registry.format_assets_for_prompt(assets_for_prompt))
-	content_parts.append(AIPromptsI18n.get_text(AIPromptsI18n.ASSET_CONTEXT_INSTRUCTIONS, "freshest_context", _get_language()))
-func _build_stat_snapshot(context: Dictionary) -> String:
+	var language := _get_language()
+	content_parts.append("\n" + AIPromptsI18n.get_section_header("available_assets", language))
+	content_parts.append(asset_registry.format_assets_for_prompt(assets_for_prompt, language))
+	content_parts.append(AIPromptsI18n.get_text(AIPromptsI18n.ASSET_CONTEXT_INSTRUCTIONS, "freshest_context", language))
+func _build_stat_snapshot(context: Dictionary, language: String) -> String:
 	var stat_parts: Array[String] = []
 	if context.has("reality_score"):
-		stat_parts.append("Reality %d/%d" % [int(context["reality_score"]), REALITY_SCORE_MAX])
+		stat_parts.append(_get_stat_format("reality", language) % [int(context["reality_score"]), REALITY_SCORE_MAX])
 	if context.has("positive_energy"):
-		stat_parts.append("Positive %d/%d" % [int(context["positive_energy"]), POSITIVE_ENERGY_MAX])
+		stat_parts.append(_get_stat_format("positive", language) % [int(context["positive_energy"]), POSITIVE_ENERGY_MAX])
 	if context.has("entropy_level"):
-		stat_parts.append("Entropy %d" % int(context["entropy_level"]))
+		stat_parts.append(_get_stat_format("entropy", language) % int(context["entropy_level"]))
 	elif context.has("entropy"):
-		stat_parts.append("Entropy %d" % int(context["entropy"]))
+		stat_parts.append(_get_stat_format("entropy", language) % int(context["entropy"]))
 	if stat_parts.size() > 0:
-		return "Stats: " + ", ".join(stat_parts)
+		return _get_stat_format("stats_label", language) % ", ".join(stat_parts)
 	return ""
-func _append_stat_snapshot(content_parts: Array[String], context: Dictionary) -> void:
-	var stat_snapshot := _build_stat_snapshot(context)
+func _append_stat_snapshot(content_parts: Array[String], context: Dictionary, language: String) -> void:
+	var stat_snapshot := _build_stat_snapshot(context, language)
 	if not stat_snapshot.is_empty():
 		content_parts.append(stat_snapshot)
 func _get_language() -> String:
@@ -480,6 +464,30 @@ func _sanitize_user_text(text: String, max_length: int = 256) -> String:
 	if ai_manager and ai_manager.has_method("sanitize_user_text"):
 		return ai_manager.sanitize_user_text(text, max_length)
 	return text.strip_edges()
+func _should_include_short_term_entry(content: String, language: String) -> bool:
+	if language == "zh":
+		return true
+	return not _contains_cjk(content)
+func _contains_cjk(text: String) -> bool:
+	for i in range(text.length()):
+		var codepoint := text.unicode_at(i)
+		if (codepoint >= 0x3400 and codepoint <= 0x4DBF) or (codepoint >= 0x4E00 and codepoint <= 0x9FFF) or (codepoint >= 0xF900 and codepoint <= 0xFAFF):
+			return true
+	return false
+func _get_metadata_format(key: String, language: String) -> String:
+	return AIPromptsI18n.get_text(AIPromptsI18n.METADATA_LABELS, key, language)
+func _get_stat_format(key: String, language: String) -> String:
+	return AIPromptsI18n.get_text(AIPromptsI18n.STATS_FORMAT, key, language)
+func _get_reflection_label(language: String) -> String:
+	if LocalizationManager:
+		return LocalizationManager.get_translation("AI_CTX_INSIGHT_LABEL", language)
+	return " | Insight: "
+func _get_acknowledgement_message(language: String) -> String:
+	if LocalizationManager:
+		var localized := LocalizationManager.get_translation("AI_CTX_ACKNOWLEDGEMENT_MESSAGE", language)
+		if localized != "AI_CTX_ACKNOWLEDGEMENT_MESSAGE":
+			return localized
+	return "Acknowledged. I will maintain ironic, pessimistic storytelling for GDA1 while enforcing the recorded facts."
 func _coerce_message_array(raw_messages) -> Array[Dictionary]:
 	var safe_messages: Array[Dictionary] = []
 	if raw_messages is Array:

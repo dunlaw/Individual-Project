@@ -57,6 +57,7 @@ var is_muted: bool = false
 var touch_controls_enabled: bool = false
 var text_speed: float = 1.0
 var screen_shake_enabled: bool = true
+var trolley_ai_story_enabled: bool = false
 var max_rounds_per_mission: int = 0
 var auto_advance_enabled: bool = false
 var high_contrast_mode: bool = false
@@ -131,6 +132,7 @@ var gloria_voice_check: CheckBox
 var text_speed_label: Label
 var text_speed_option: OptionButton
 var screen_shake_check: CheckBox
+var trolley_ai_story_check: CheckBox
 var max_rounds_label: Label
 var max_rounds_spinbox: SpinBox
 var force_mission_complete_check: CheckBox
@@ -371,6 +373,7 @@ func _rebuild_layout_into_tabs() -> void:
 	text_speed_label  = result["text_speed_label"]
 	text_speed_option = result["text_speed_option"]
 	screen_shake_check = result["screen_shake_check"]
+	trolley_ai_story_check = result["trolley_ai_story_check"]
 	max_rounds_label  = result["max_rounds_label"]
 	max_rounds_spinbox = result["max_rounds_spinbox"]
 	gloria_voice_check = result["gloria_voice_check"]
@@ -393,6 +396,10 @@ func _create_ai_log_tab_page(tab_container: TabContainer) -> VBoxContainer:
 			"export_json":           Callable(_ai_log_ctrl, "_on_ai_export_pressed"),
 			"export_csv":            Callable(_ai_log_ctrl, "_on_ai_export_csv_pressed"),
 			"clear":                 Callable(_ai_log_ctrl, "_on_ai_log_clear_pressed"),
+			"toggle_save_details":   Callable(_ai_log_ctrl, "_on_ai_log_save_details_toggled"),
+			"copy_all":              Callable(_ai_log_ctrl, "_on_ai_log_copy_all_pressed"),
+			"copy_request":          Callable(_ai_log_ctrl, "_on_ai_log_copy_request_pressed"),
+			"copy_response":         Callable(_ai_log_ctrl, "_on_ai_log_copy_response_pressed"),
 			"chart_size_changed":    Callable(_ai_log_ctrl, "_on_ai_chart_size_changed"),
 			"chart_visibility_toggled": Callable(_ai_log_ctrl, "_on_ai_chart_visibility_toggled"),
 			"tab_changed":           Callable(_ai_log_ctrl, "_on_ai_log_tab_changed"),
@@ -415,17 +422,20 @@ func _initialize_new_controls():
 		{
 			"text_speed_option": text_speed_option,
 			"screen_shake_check": screen_shake_check,
+			"trolley_ai_story_check": trolley_ai_story_check,
 			"max_rounds_spinbox": max_rounds_spinbox,
 		},
 		{
 			"text_speed": text_speed,
 			"screen_shake_enabled": screen_shake_enabled,
+			"trolley_ai_story_enabled": trolley_ai_story_enabled,
 			"max_rounds_per_mission": max_rounds_per_mission,
 		},
 		game_state,
 		{
 			"on_text_speed_selected":          _on_text_speed_selected,
 			"on_screen_shake_toggled":         _on_screen_shake_toggled,
+			"on_trolley_ai_story_toggled":     _on_trolley_ai_story_toggled,
 			"on_max_rounds_changed":           _on_max_rounds_changed,
 			"on_force_mission_complete_toggled": Callable(_dev_ctrl, "_on_force_mission_complete_toggled"),
 			"on_force_gloria_pressed":         _on_force_gloria_pressed,
@@ -531,6 +541,11 @@ func _on_text_speed_selected(index: int):
 	_play_sfx("menu_click")
 func _on_screen_shake_toggled(toggled: bool):
 	screen_shake_enabled = toggled
+func _on_trolley_ai_story_toggled(toggled: bool):
+	trolley_ai_story_enabled = toggled
+	var game_state := _get_game_state()
+	if game_state:
+		game_state.settings["trolley_ai_story_enabled"] = trolley_ai_story_enabled
 func _on_max_rounds_changed(value: float):
 	max_rounds_per_mission = int(value)
 	var game_state := _get_game_state()
@@ -612,6 +627,7 @@ func update_ui_text():
 		"text_speed_label": text_speed_label,
 		"text_speed_option": text_speed_option,
 		"screen_shake_check": screen_shake_check,
+		"trolley_ai_story_check": trolley_ai_story_check,
 		"max_rounds_label": max_rounds_label,
 		"max_rounds_spinbox": max_rounds_spinbox,
 		"touch_controls_checkbox": touch_controls_checkbox,
@@ -756,7 +772,7 @@ func _connect_button_sounds() -> void:
 	var menu_click_buttons = [
 		back_button, ai_settings_button,
 		voice_preview_button, voice_capture_button,
-		screen_shake_check, touch_controls_checkbox,
+		screen_shake_check, trolley_ai_story_check, touch_controls_checkbox,
 		mute_check_box, gloria_voice_check, delete_logs_button
 	]
 	for btn in menu_click_buttons:
@@ -1117,6 +1133,7 @@ func save_settings():
 		"language": selected_language,
 		"text_speed": text_speed,
 		"screen_shake": screen_shake_enabled,
+		"trolley_ai_story_enabled": trolley_ai_story_enabled,
 		"max_rounds_per_mission": max_rounds_per_mission,
 		"master_volume": master_volume,
 		"music_volume": music_volume,
@@ -1140,6 +1157,7 @@ func load_settings():
 		"font_zh": _get_default_font("zh"),
 		"font_de": _get_default_font("de"),
 		"gloria_voice_enabled": false,
+		"trolley_ai_story_enabled": false,
 		"voice_enabled": false,
 		"voice_output_enabled": false,
 		"voice_input_enabled": false,
@@ -1165,6 +1183,7 @@ func load_settings():
 		selected_language = data["language"]
 		text_speed = data["text_speed"]
 		screen_shake_enabled = data["screen_shake"]
+		trolley_ai_story_enabled = bool(data.get("trolley_ai_story_enabled", false))
 		max_rounds_per_mission = data["max_rounds_per_mission"]
 		master_volume = data["master_volume"]
 		music_volume = data["music_volume"]
@@ -1181,6 +1200,9 @@ func load_settings():
 			"voice_proactive_enabled": data["voice_proactive_enabled"],
 		}
 		touch_controls_enabled = data["touch_controls_enabled"]
+		var game_state := _get_game_state()
+		if game_state:
+			game_state.settings["trolley_ai_story_enabled"] = trolley_ai_story_enabled
 	else:
 		_normalize_selected_resolution(fallback_window_size)
 func _emit_close_requested() -> void:

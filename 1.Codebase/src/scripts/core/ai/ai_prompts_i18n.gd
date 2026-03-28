@@ -267,7 +267,7 @@ const METADATA_LABELS := {
 	"current_teammate": {
 		"en": "Current teammate: %s",
 		"zh": "AI_I18N_META_CURRENT_TEAMMATE",
-		"de": "Aktuelles Teammitglied: %s",
+		"de": "Aktueller Teamkollege: %s",
 	},
 }
 const STATS_FORMAT := {

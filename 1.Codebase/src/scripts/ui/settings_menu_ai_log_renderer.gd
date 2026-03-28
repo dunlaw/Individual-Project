@@ -112,6 +112,7 @@ static func refresh_table(
 	container: VBoxContainer,
 	log_entries: Array,
 	tr_callable: Callable,
+	on_entry_selected: Callable = Callable(),
 ) -> void:
 	if not container:
 		return
@@ -197,4 +198,74 @@ static func refresh_table(
 			var err_str: String = str(entry.get("error", ""))
 			if not err_str.is_empty():
 				row_panel.tooltip_text = "Error: " + err_str
+		elif bool(entry.get("detail_available", false)):
+			row_panel.tooltip_text = tr_callable.call(
+				"SETTINGS_AI_LOG_DETAIL_OPEN_HINT",
+				"Click to inspect full request and response details.",
+			)
+		if on_entry_selected.is_valid() and bool(entry.get("detail_available", false)):
+			row_panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+			row_panel.gui_input.connect(
+				func(event: InputEvent) -> void:
+					if event is InputEventMouseButton:
+						var mouse_event := event as InputEventMouseButton
+						if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
+							on_entry_selected.call(entry)
+			)
 		container.add_child(row_panel)
+static func format_detail_text(entry: Dictionary, tr_callable: Callable) -> String:
+	var lines: PackedStringArray = []
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_REQUEST_TIME", "Request Time"))
+	lines.append(_format_timestamp(str(entry.get("request_timestamp", entry.get("timestamp", "")))))
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_DURATION", "Duration"))
+	lines.append("%dms" % int(entry.get("duration_msec", int(round(float(entry.get("response_time_sec", 0.0)) * 1000.0)))))
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_TOKENS", "Token Usage (In/Out)"))
+	lines.append("In: %d" % int(entry.get("input_tokens", 0)))
+	lines.append("Out: %d" % int(entry.get("output_tokens", 0)))
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_PROTOCOL", "Request Protocol"))
+	lines.append(str(entry.get("protocol", "")))
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_ENDPOINT", "Endpoint"))
+	lines.append(str(entry.get("request_endpoint", "-")) if not str(entry.get("request_endpoint", "")).is_empty() else "-")
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_PROVIDER", "Provider"))
+	lines.append(str(entry.get("provider", "")))
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_MODEL", "Model"))
+	lines.append(str(entry.get("model", "")))
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_ACCOUNT", "Account"))
+	lines.append(str(entry.get("account", "-")) if not str(entry.get("account", "")).is_empty() else "-")
+	lines.append("")
+	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_PURPOSE", "Purpose"))
+	lines.append(str(entry.get("purpose", "")))
+	lines.append("")
+	lines.append("%s (Request)" % tr_callable.call("SETTINGS_AI_LOG_DETAIL_REQUEST", "Request"))
+	lines.append(format_request_body(entry))
+	lines.append("")
+	lines.append("%s (Response)" % tr_callable.call("SETTINGS_AI_LOG_DETAIL_RESPONSE", "Response"))
+	lines.append(format_response_body(entry))
+	return "\n".join(lines)
+static func format_request_body(entry: Dictionary) -> String:
+	var request_body := str(entry.get("request_body", ""))
+	if request_body.is_empty():
+		return "{}"
+	return _pretty_json_string(request_body)
+static func format_response_body(entry: Dictionary) -> String:
+	var response_body := str(entry.get("response_body", ""))
+	if response_body.is_empty():
+		return "{}"
+	return _pretty_json_string(response_body)
+static func _pretty_json_string(raw_text: String) -> String:
+	var json := JSON.new()
+	if json.parse(raw_text) == OK:
+		return JSON.stringify(json.data, "\t")
+	return raw_text
+static func _format_timestamp(timestamp: String) -> String:
+	var formatted := timestamp
+	if formatted.length() > 19:
+		formatted = formatted.substr(0, 19)
+	return formatted.replace("T", " ")

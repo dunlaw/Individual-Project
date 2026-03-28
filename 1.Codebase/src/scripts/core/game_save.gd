@@ -12,6 +12,7 @@ static func save_settings(data: Dictionary) -> void:
 	config.set_value("game", "text_speed", data.get("text_speed", 1.0))
 	config.set_value("game", "screen_shake", data.get("screen_shake", true))
 	config.set_value("game", "max_rounds_per_mission", data.get("max_rounds_per_mission", 0))
+	config.set_value("game", "trolley_ai_story_enabled", data.get("trolley_ai_story_enabled", false))
 	config.set_value("audio", "master_volume", data.get("master_volume", 100.0))
 	config.set_value("audio", "music_volume", data.get("music_volume", 100.0))
 	config.set_value("audio", "sfx_volume", data.get("sfx_volume", 100.0))
@@ -44,6 +45,7 @@ static func load_settings(defaults: Dictionary) -> Dictionary:
 		"text_speed": float(config.get_value("game", "text_speed", 1.0)),
 		"screen_shake": bool(config.get_value("game", "screen_shake", true)),
 		"max_rounds_per_mission": int(config.get_value("game", "max_rounds_per_mission", 0)),
+		"trolley_ai_story_enabled": bool(config.get_value("game", "trolley_ai_story_enabled", defaults.get("trolley_ai_story_enabled", false))),
 		"master_volume": float(config.get_value("audio", "master_volume", 100.0)),
 		"music_volume": float(config.get_value("audio", "music_volume", 100.0)),
 		"sfx_volume": float(config.get_value("audio", "sfx_volume", 100.0)),

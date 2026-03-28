@@ -323,20 +323,27 @@ func get_assets_for_context(context: Dictionary) -> Array:
 			if data:
 				selected.append(data.duplicate(true))
 	return selected
-func format_assets_for_prompt(asset_list: Array) -> String:
+func format_assets_for_prompt(asset_list: Array, language: String = "") -> String:
 	if asset_list.is_empty():
 		return "No symbolic assets have been defined."
+	var lang := language if not language.is_empty() else _get_current_language()
 	var lines: Array = []
-	if LocalizationManager:
-		var en_header = LocalizationManager.get_translation("ASSET_REG_AVAILABLE_ASSETS", "en")
-		var zh_header = LocalizationManager.get_translation("ASSET_REG_AVAILABLE_ASSETS", "zh")
-		lines.append(en_header)
-		if zh_header != en_header:
-			lines.append(zh_header)
-	else:
-		lines.append(_tr("ASSET_REG_AVAILABLE_ASSETS"))
-	lines.append(_tr("ASSET_REG_TABLE_HEADER"))
+	lines.append(_tr_lang("ASSET_REG_AVAILABLE_ASSETS", lang))
+	lines.append(_tr_lang("ASSET_REG_TABLE_HEADER", lang))
 	lines.append("")
+	for asset in asset_list:
+		var id = asset.get("id", "Unknown")
+		var name = asset.get("default_name", id.capitalize())
+		var tags: Array = asset.get("tags", [])
+		var summary = asset.get("summary", "")
+		lines.append("- %s | %s | [%s]" % [id, name, ", ".join(tags)])
+		lines.append("  %s" % summary)
+	lines.append("")
+	lines.append(_tr_lang("ASSET_REG_PROVIDE_FOR_ASSETS", lang))
+	lines.append(_tr_lang("ASSET_REG_PROVIDE_1", lang))
+	lines.append(_tr_lang("ASSET_REG_PROVIDE_2", lang))
+	lines.append(_tr_lang("ASSET_REG_PROVIDE_3", lang))
+	return "\n".join(lines)
 	for asset in asset_list:
 		var id = asset.get("id", "Unknown")
 		var name = asset.get("default_name", id.capitalize())
@@ -367,3 +374,13 @@ func _tr(key: String) -> String:
 	if LocalizationManager:
 		return LocalizationManager.get_translation(key)
 	return key
+func _tr_lang(key: String, language: String) -> String:
+	if LocalizationManager:
+		return LocalizationManager.get_translation(key, language)
+	return key
+func _get_current_language() -> String:
+	if GameState and "current_language" in GameState:
+		return String(GameState.current_language)
+	if LocalizationManager and LocalizationManager.has_method("get_language"):
+		return String(LocalizationManager.get_language())
+	return "en"

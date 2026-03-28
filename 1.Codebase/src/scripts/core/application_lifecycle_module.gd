@@ -15,6 +15,7 @@ var settings: Dictionary = {
 	"screen_shake_enabled": true,
 	"high_contrast_mode": false,
 	"auto_advance_enabled": false,
+	"trolley_ai_story_enabled": false,
 }
 func process_autosave(delta: float) -> bool:
 	if not autosave_enabled:

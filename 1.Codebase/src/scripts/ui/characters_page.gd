@@ -1,6 +1,8 @@
 extends Control
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
 const ICON_QUIT = preload("res://1.Codebase/src/assets/ui/icon_quit.svg")
+const TURNAROUND_BACKGROUND_DIR = "res://1.Codebase/src/assets/backgrounds"
+
 var current_language: String = "en"
 var selected_character_id: String = ""
 var character_data: Dictionary = {}
@@ -15,10 +17,16 @@ var _graph_container: Control
 var _is_graph_mode: bool = false
 var _graph_nodes: Dictionary = {}
 var _turnaround_overlay: ColorRect
+var _turnaround_background: TextureRect
 var _turnaround_texture: TextureRect
 var _show_turnaround_btn: Button
+var _turnaround_background_paths: Array[String] = []
+var _last_turnaround_background_path: String = ""
+var _turnaround_rng := RandomNumberGenerator.new()
 
 func _ready():
+	_turnaround_rng.randomize()
+	_load_turnaround_background_paths()
 	var game_state = ServiceLocator.get_game_state() if ServiceLocator else null
 	current_language = game_state.current_language if game_state else "en"
 	_init_character_data()
@@ -213,13 +221,51 @@ func _rebuild_ui_layout(panel: Control):
 	overlay_title.add_theme_font_size_override("font_size", 26)
 	overlay_title.add_theme_color_override("font_color", Color(0.96, 0.96, 1.0))
 	overlay_header.add_child(overlay_title)
+	var turnaround_preview = Control.new()
+	turnaround_preview.custom_minimum_size = Vector2(960, 680)
+	turnaround_preview.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	turnaround_preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	turnaround_preview.clip_contents = true
+	overlay_vbox.add_child(turnaround_preview)
+	var turnaround_preview_frame = PanelContainer.new()
+	turnaround_preview_frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	turnaround_preview_frame.clip_contents = true
+	var turnaround_preview_style = StyleBoxFlat.new()
+	turnaround_preview_style.bg_color = Color(0.06, 0.08, 0.11, 0.96)
+	turnaround_preview_style.corner_radius_top_left = 24
+	turnaround_preview_style.corner_radius_top_right = 24
+	turnaround_preview_style.corner_radius_bottom_right = 24
+	turnaround_preview_style.corner_radius_bottom_left = 24
+	turnaround_preview_style.border_width_left = 2
+	turnaround_preview_style.border_width_top = 2
+	turnaround_preview_style.border_width_right = 2
+	turnaround_preview_style.border_width_bottom = 2
+	turnaround_preview_style.border_color = Color(1.0, 1.0, 1.0, 0.08)
+	turnaround_preview_frame.add_theme_stylebox_override("panel", turnaround_preview_style)
+	turnaround_preview.add_child(turnaround_preview_frame)
+	_turnaround_background = TextureRect.new()
+	_turnaround_background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_turnaround_background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_turnaround_background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_turnaround_background.modulate = Color(1.0, 1.0, 1.0, 0.92)
+	turnaround_preview_frame.add_child(_turnaround_background)
+	var turnaround_shade = ColorRect.new()
+	turnaround_shade.color = Color(0.04, 0.05, 0.08, 0.28)
+	turnaround_shade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	turnaround_preview_frame.add_child(turnaround_shade)
+	var turnaround_margin = MarginContainer.new()
+	turnaround_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	turnaround_margin.add_theme_constant_override("margin_left", 24)
+	turnaround_margin.add_theme_constant_override("margin_right", 24)
+	turnaround_margin.add_theme_constant_override("margin_top", 24)
+	turnaround_margin.add_theme_constant_override("margin_bottom", 24)
+	turnaround_preview_frame.add_child(turnaround_margin)
 	_turnaround_texture = TextureRect.new()
 	_turnaround_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_turnaround_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_turnaround_texture.custom_minimum_size = Vector2(960, 680)
 	_turnaround_texture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_turnaround_texture.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	overlay_vbox.add_child(_turnaround_texture)
+	turnaround_margin.add_child(_turnaround_texture)
 	var close_turnaround_btn = Button.new()
 	close_turnaround_btn.text = _tr("CHAR_BUTTON_CLOSE")
 	close_turnaround_btn.icon = ICON_QUIT
@@ -294,6 +340,7 @@ func _on_show_turnaround_pressed():
 		return
 	var tex = _load_texture_safe(turnaround_path)
 	if tex and _turnaround_overlay and _turnaround_texture:
+		_apply_random_turnaround_background()
 		_turnaround_texture.texture = tex
 		_turnaround_overlay.visible = true
 		_turnaround_overlay.move_to_front()
@@ -460,6 +507,45 @@ func _tr(key: String) -> String:
 	if LocalizationManager:
 		return LocalizationManager.get_translation(key, current_language)
 	return tr(key)
+
+func _load_turnaround_background_paths() -> void:
+	_turnaround_background_paths.clear()
+	var dir := DirAccess.open(TURNAROUND_BACKGROUND_DIR)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if not dir.current_is_dir():
+			var extension := file_name.get_extension().to_lower()
+			if extension in ["png", "jpg", "jpeg", "webp"]:
+				var file_path := "%s/%s" % [TURNAROUND_BACKGROUND_DIR, file_name]
+				if ResourceLoader.exists(file_path):
+					_turnaround_background_paths.append(file_path)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+	_turnaround_background_paths.sort()
+
+func _apply_random_turnaround_background() -> void:
+	if not _turnaround_background:
+		return
+	if _turnaround_background_paths.is_empty():
+		_turnaround_background.texture = null
+		return
+	var candidate_paths: Array[String] = []
+	for background_path in _turnaround_background_paths:
+		if background_path != _last_turnaround_background_path:
+			candidate_paths.append(background_path)
+	if candidate_paths.is_empty():
+		candidate_paths = _turnaround_background_paths.duplicate()
+	var selected_index := _turnaround_rng.randi_range(0, candidate_paths.size() - 1)
+	var selected_path := candidate_paths[selected_index]
+	var background_texture := _load_texture_safe(selected_path)
+	if background_texture:
+		_turnaround_background.texture = background_texture
+		_last_turnaround_background_path = selected_path
+	else:
+		_turnaround_background.texture = null
 
 func _load_texture_safe(path: String) -> Texture2D:
 	if path == "" or not ResourceLoader.exists(path):

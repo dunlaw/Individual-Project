@@ -3,6 +3,13 @@ class_name NarrativeResponseParser
 const ErrorReporterBridge = preload("res://1.Codebase/src/scripts/core/error_reporter_bridge.gd")
 const ERROR_CONTEXT := "NarrativeResponseParser"
 const REQUIRED_CHARACTER_IDS := ["protagonist", "gloria", "donkey", "ark", "one"]
+const VALID_ARCHETYPE_IDS := ["cautious", "balanced", "reckless", "positive", "complain"]
+const MIN_AI_CHOICES := 3
+const MAX_AI_CHOICES := 5
+const MIN_ZH_SUMMARY_CHARS := 10
+const MAX_ZH_SUMMARY_CHARS := 20
+const MIN_NON_ZH_SUMMARY_WORDS := 10
+const MAX_NON_ZH_SUMMARY_WORDS := 20
 const ARCHETYPE_LABELS := {
 	"en": {
 		"cautious": "[Cautious]",
@@ -94,13 +101,90 @@ static func normalize_ai_choice_payload(payload: Variant) -> Array[Dictionary]:
 			if entry is Dictionary:
 				var archetype := String(entry.get("archetype", "")).to_lower()
 				var summary := String(entry.get("summary", "")).strip_edges()
-				if archetype.is_empty() or summary.is_empty():
+				if archetype.is_empty() or summary.is_empty() or not VALID_ARCHETYPE_IDS.has(archetype):
 					continue
 				normalized.append({
 					"archetype": archetype,
 					"summary": summary,
 				})
 	return normalized
+static func are_ai_choices_valid(payload: Variant, lang: String) -> bool:
+	return get_ai_choice_validation_report(payload, lang).get("valid", false)
+static func get_ai_choice_validation_report(payload: Variant, lang: String) -> Dictionary:
+	var choices: Variant = payload
+	if not (choices is Array):
+		choices = normalize_ai_choice_payload(payload)
+	var normalized_choices: Array = choices
+	if normalized_choices.size() < MIN_AI_CHOICES or normalized_choices.size() > MAX_AI_CHOICES:
+		return {
+			"valid": false,
+			"reason": "invalid_choice_count",
+			"count": normalized_choices.size(),
+		}
+	var seen: Dictionary = {}
+	for index in range(normalized_choices.size()):
+		var choice_variant = normalized_choices[index]
+		if not (choice_variant is Dictionary):
+			return {
+				"valid": false,
+				"reason": "choice_not_dictionary",
+				"index": index,
+			}
+		var choice: Dictionary = choice_variant
+		var archetype := String(choice.get("archetype", "")).to_lower()
+		var summary := String(choice.get("summary", "")).strip_edges()
+		if archetype.is_empty() or summary.is_empty():
+			return {
+				"valid": false,
+				"reason": "missing_choice_fields",
+				"index": index,
+				"archetype": archetype,
+			}
+		if not VALID_ARCHETYPE_IDS.has(archetype):
+			return {
+				"valid": false,
+				"reason": "invalid_archetype",
+				"index": index,
+				"archetype": archetype,
+			}
+		if seen.has(archetype):
+			return {
+				"valid": false,
+				"reason": "duplicate_archetype",
+				"index": index,
+				"archetype": archetype,
+			}
+		seen[archetype] = true
+		if not _is_choice_summary_length_valid(summary, lang):
+			return {
+				"valid": false,
+				"reason": "invalid_summary_length",
+				"index": index,
+				"archetype": archetype,
+				"summary": summary,
+			}
+	return {
+		"valid": true,
+		"reason": "ok",
+		"count": normalized_choices.size(),
+	}
+static func _is_choice_summary_length_valid(summary: String, lang: String) -> bool:
+	var trimmed := summary.strip_edges()
+	if trimmed.is_empty():
+		return false
+	if lang == "zh":
+		var visible_chars := 0
+		for i in range(trimmed.length()):
+			var ch := trimmed.substr(i, 1)
+			if ch.strip_edges().is_empty():
+				continue
+			visible_chars += 1
+		return visible_chars >= MIN_ZH_SUMMARY_CHARS and visible_chars <= MAX_ZH_SUMMARY_CHARS
+	var normalized := trimmed.replace("\n", " ").replace("\t", " ")
+	while normalized.find("  ") != -1:
+		normalized = normalized.replace("  ", " ")
+	var words := normalized.split(" ", false)
+	return words.size() >= MIN_NON_ZH_SUMMARY_WORDS and words.size() <= MAX_NON_ZH_SUMMARY_WORDS
 static func normalize_asset_directives(assets_variant: Variant) -> Array:
 	var normalized: Array = []
 	if assets_variant is Array:

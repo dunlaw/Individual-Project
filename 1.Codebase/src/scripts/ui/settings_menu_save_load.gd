@@ -7,6 +7,7 @@ static func save(data: Dictionary, game_state: Node) -> void:
 		game_state.settings.screen_shake_enabled = bool(data.get("screen_shake", true))
 		game_state.settings.high_contrast_mode = bool(data.get("high_contrast", false))
 		game_state.settings["max_rounds_per_mission"] = int(data.get("max_rounds_per_mission", 0))
+		game_state.settings["trolley_ai_story_enabled"] = bool(data.get("trolley_ai_story_enabled", false))
 static func load(
 	defaults: Dictionary,
 	game_state: Node,
@@ -20,6 +21,7 @@ static func load(
 			game_state.settings.screen_shake_enabled = bool(data.get("screen_shake", true))
 			game_state.settings.high_contrast_mode = bool(data.get("high_contrast", false))
 			game_state.settings["max_rounds_per_mission"] = int(data.get("max_rounds_per_mission", 0))
+			game_state.settings["trolley_ai_story_enabled"] = bool(data.get("trolley_ai_story_enabled", false))
 	return data
 static func get_default_font(language: String) -> String:
 	if language == "zh":

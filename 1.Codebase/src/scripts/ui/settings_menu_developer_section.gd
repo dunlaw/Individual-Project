@@ -30,6 +30,15 @@ static func build_section(
 		if h is Callable and h.is_valid():
 			screen_shake_check.toggled.connect(h)
 		screen_shake_check.button_pressed = bool(initial.get("screen_shake_enabled", true))
+	var trolley_ai_story_check: CheckBox = existing_nodes.get("trolley_ai_story_check")
+	if trolley_ai_story_check:
+		var h := _get_handler(handlers, "on_trolley_ai_story_toggled")
+		if h is Callable and h.is_valid():
+			trolley_ai_story_check.toggled.connect(h)
+		var ai_trolley_enabled: bool = bool(initial.get("trolley_ai_story_enabled", false))
+		if game_state and game_state.settings.has("trolley_ai_story_enabled"):
+			ai_trolley_enabled = bool(game_state.settings["trolley_ai_story_enabled"])
+		trolley_ai_story_check.button_pressed = ai_trolley_enabled
 	var max_rounds_spinbox: SpinBox = existing_nodes.get("max_rounds_spinbox")
 	if max_rounds_spinbox:
 		max_rounds_spinbox.min_value = 0

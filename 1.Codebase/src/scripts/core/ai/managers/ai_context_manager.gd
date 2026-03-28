@@ -135,7 +135,8 @@ func _inject_single_skill(messages: Array[Dictionary], skill_name: String, injec
 	var skill_mgr := _get_skill_manager()
 	if not skill_mgr:
 		return
-	var skill_content: String = skill_mgr.load_skill(skill_name)
+	var language := GameState.current_language if GameState else "en"
+	var skill_content: String = skill_mgr.load_skill(skill_name, language)
 	if skill_content.is_empty():
 		return
 	var skill_message := {

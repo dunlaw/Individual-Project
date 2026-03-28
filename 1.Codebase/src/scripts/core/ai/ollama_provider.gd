@@ -74,6 +74,7 @@ func send_request(messages: Array, callback: Callable, _options: Dictionary = { 
 		_notify_callback_failure(callback, health_msg)
 		request_completed.emit(false)
 		return
+	clear_debug_snapshot()
 	is_requesting = true
 	partial_response = ""
 	last_progress_emit_msec = 0
@@ -81,9 +82,31 @@ func send_request(messages: Array, callback: Callable, _options: Dictionary = { 
 	var task_id: int
 	if use_chat:
 		var chat_messages := _messages_to_chat(messages)
+		_store_debug_request(
+			"ollama",
+			"http://%s:%d/api/chat" % [host, port],
+			JSON.stringify({
+				"model": model,
+				"messages": chat_messages,
+				"options": options.duplicate(true),
+				"stream": true,
+			}),
+			{ "model": model },
+		)
 		task_id = ollama_client.ask_chat(chat_messages, options.duplicate(true))
 	else:
 		var prompt_text := _messages_to_prompt(messages)
+		_store_debug_request(
+			"ollama",
+			"http://%s:%d/api/generate" % [host, port],
+			JSON.stringify({
+				"model": model,
+				"prompt": prompt_text,
+				"options": options.duplicate(true),
+				"stream": true,
+			}),
+			{ "model": model },
+		)
 		task_id = ollama_client.ask_prompt(prompt_text, options.duplicate(true))
 	var pending_task := PendingTask.new()
 	pending_task.callback = callback if not callback.is_null() else Callable()
@@ -195,6 +218,7 @@ func _on_completed(task_id: int, ok: bool, data: Dictionary) -> void:
 		var stats: Dictionary = data["done_payload"]
 		response["input_tokens"] = int(stats.get("prompt_eval_count", 0))
 		response["output_tokens"] = int(stats.get("eval_count", 0))
+	_store_debug_response(200, JSON.stringify(response))
 	if pending_tasks.has(task_id):
 		var entry: PendingTask = pending_tasks[task_id]
 		var cb: Callable = entry.callback if entry != null else Callable()
@@ -210,6 +234,11 @@ func _on_error(task_id: int, reason: String) -> void:
 	is_requesting = false
 	active_task_id = -1
 	partial_response = ""
+	_store_debug_response(0, JSON.stringify({
+		"success": false,
+		"error": "Ollama error: %s" % reason,
+		"content": "",
+	}))
 	if pending_tasks.has(task_id):
 		var entry: PendingTask = pending_tasks[task_id]
 		var cb: Callable = entry.callback if entry != null else Callable()

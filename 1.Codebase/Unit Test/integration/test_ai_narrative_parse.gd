@@ -10,6 +10,7 @@ func _ready() -> void:
 	_test_scene_directives_normalization()
 	_test_character_directives_normalization()
 	_test_choice_extraction_from_json()
+	_test_choice_validation_rules()
 	_test_choice_extraction_from_text_labels()
 	_test_night_cycle_response_parsing()
 	_test_gloria_speech_extraction()
@@ -117,6 +118,47 @@ func _test_choice_extraction_from_json() -> void:
 	var filtered = NarrativeResponseParser.normalize_ai_choice_payload(bad_payload)
 	assert_test(filtered.size() == 0,
 		"Invalid choices filtered out completely")
+func _test_choice_validation_rules() -> void:
+	print("[Test] Choice validation rules...")
+	var valid_de = [
+		{"archetype": "cautious", "summary": "Study the brittle mechanism carefully before moving, even if Gloria keeps calling caution a trust issue"},
+		{"archetype": "balanced", "summary": "Negotiate a compromise with the altar while ARK quietly arms safeguards behind Gloria's radiant sermon"},
+		{"archetype": "reckless", "summary": "Kick the glowing console immediately and pretend the explosion was always part of the strategic vision"},
+	]
+	assert_test(
+		NarrativeResponseParser.are_ai_choices_valid(valid_de, "de"),
+		"German-style 10-20 word summaries validate successfully")
+	var valid_zh = [
+		{"archetype": "cautious", "summary": "先幫ARK抽乾怪物能量避免它立刻當場爆炸"},
+		{"archetype": "balanced", "summary": "說服Gloria安撫怪物同時暗中部署後備炸彈"},
+		{"archetype": "reckless", "summary": "直接把怨靈拖走當隊伍吉祥物完全不管風險"},
+	]
+	assert_test(
+		NarrativeResponseParser.are_ai_choices_valid(valid_zh, "zh"),
+		"Chinese 10-20 character summaries validate successfully")
+	var duplicate_archetypes = [
+		{"archetype": "cautious", "summary": "Study the brittle mechanism carefully before moving, even if Gloria keeps calling caution a trust issue"},
+		{"archetype": "cautious", "summary": "Wait beside the altar and let the fumes judge everyone in patient administrative silence"},
+		{"archetype": "reckless", "summary": "Kick the glowing console immediately and pretend the explosion was always part of the strategic vision"},
+	]
+	assert_test(
+		not NarrativeResponseParser.are_ai_choices_valid(duplicate_archetypes, "de"),
+		"Duplicate archetypes fail validation")
+	var long_zh = [
+		{"archetype": "cautious", "summary": "秘密協助ARK抽乾怪物的能量並且順便記錄所有異常指標避免它爆炸"},
+		{"archetype": "balanced", "summary": "說服Gloria讓怪物在這裡靜修同時安排遠端引爆作為保險"},
+		{"archetype": "reckless", "summary": "採納Donkey建議把這隻隨時會爆掉的怪物當寵物帶回營地"},
+	]
+	assert_test(
+		not NarrativeResponseParser.are_ai_choices_valid(long_zh, "zh"),
+		"Chinese summaries over 20 characters fail validation")
+	var wrong_count = [
+		{"archetype": "cautious", "summary": "Study the brittle mechanism carefully before moving, even if Gloria keeps calling caution a trust issue"},
+		{"archetype": "balanced", "summary": "Negotiate a compromise with the altar while ARK quietly arms safeguards behind Gloria's radiant sermon"},
+	]
+	assert_test(
+		not NarrativeResponseParser.are_ai_choices_valid(wrong_count, "de"),
+		"Fewer than 3 choices fail validation")
 func _test_choice_extraction_from_text_labels() -> void:
 	print("[Test] Choice extraction from text labels...")
 	var story_text = """The path splits before you.

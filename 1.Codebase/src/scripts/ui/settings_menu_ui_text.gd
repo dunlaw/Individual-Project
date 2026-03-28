@@ -25,6 +25,9 @@ static func apply_labels(nodes: Dictionary, tr_callable: Callable, voice_capture
 	var screen_shake_check: CheckBox = nodes.get("screen_shake_check") as CheckBox
 	if screen_shake_check:
 		screen_shake_check.text = tr_callable.call("SETTINGS_SCREEN_SHAKE")
+	var trolley_ai_story_check: CheckBox = nodes.get("trolley_ai_story_check") as CheckBox
+	if trolley_ai_story_check:
+		trolley_ai_story_check.text = tr_callable.call("SETTINGS_TROLLEY_AI_STORY")
 	var max_rounds_label: Label = nodes.get("max_rounds_label") as Label
 	if max_rounds_label:
 		max_rounds_label.text = tr_callable.call("SETTINGS_MAX_ROUNDS_LABEL")

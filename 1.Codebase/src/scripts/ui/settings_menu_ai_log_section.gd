@@ -32,6 +32,17 @@ static func build_log_page(
 	title_lbl.add_theme_color_override("font_color", Color(0.4, 0.85, 1.0))
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header_hbox.add_child(title_lbl)
+	var save_details_check := CheckBox.new()
+	save_details_check.name = "AILogSaveDetailsCheck"
+	save_details_check.text = tr_callable.call("SETTINGS_AI_LOG_SAVE_DETAILS", "Save full request details")
+	save_details_check.tooltip_text = tr_callable.call(
+		"SETTINGS_AI_LOG_SAVE_DETAILS_TOOLTIP",
+		"Store full request and response content in local AI usage records.",
+	)
+	save_details_check.button_pressed = true
+	save_details_check.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	save_details_check.toggled.connect(_get_handler(handlers, "toggle_save_details"))
+	header_hbox.add_child(save_details_check)
 	var log_toggle := Button.new()
 	log_toggle.name = "AILogToggleLog"
 	log_toggle.text = tr_callable.call("SETTINGS_AI_LOG_TOGGLE_LOG", "Log")
@@ -147,6 +158,58 @@ static func build_log_page(
 	empty_lbl.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
 	empty_lbl.add_theme_font_size_override("font_size", 14)
 	log_rows_container.add_child(empty_lbl)
+	var detail_dialog := AcceptDialog.new()
+	detail_dialog.name = "AILogDetailDialog"
+	detail_dialog.title = tr_callable.call("SETTINGS_AI_LOG_DETAIL_TITLE", "AI Call Details")
+	detail_dialog.ok_button_text = tr_callable.call("SETTINGS_AI_LOG_DETAIL_CLOSE", "Close")
+	detail_dialog.min_size = Vector2i(1160, 760)
+	outer_vbox.add_child(detail_dialog)
+	var detail_margin := MarginContainer.new()
+	detail_margin.add_theme_constant_override("margin_top", 10)
+	detail_margin.add_theme_constant_override("margin_left", 10)
+	detail_margin.add_theme_constant_override("margin_right", 10)
+	detail_margin.add_theme_constant_override("margin_bottom", 10)
+	detail_dialog.add_child(detail_margin)
+	var detail_vbox := VBoxContainer.new()
+	detail_vbox.add_theme_constant_override("separation", 8)
+	detail_margin.add_child(detail_vbox)
+	var detail_hint := Label.new()
+	detail_hint.name = "AILogDetailHint"
+	detail_hint.text = tr_callable.call(
+		"SETTINGS_AI_LOG_DETAIL_HINT",
+		"Click a log row to inspect the full request and response. Use the buttons below to copy quickly.",
+	)
+	detail_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	detail_hint.add_theme_color_override("font_color", Color(0.75, 0.82, 0.92))
+	detail_vbox.add_child(detail_hint)
+	var detail_actions := HBoxContainer.new()
+	detail_actions.add_theme_constant_override("separation", 8)
+	detail_vbox.add_child(detail_actions)
+	var detail_copy_all_btn := Button.new()
+	detail_copy_all_btn.name = "AILogDetailCopyAll"
+	detail_copy_all_btn.text = tr_callable.call("SETTINGS_AI_LOG_COPY_ALL", "Copy All")
+	detail_copy_all_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	detail_copy_all_btn.pressed.connect(_get_handler(handlers, "copy_all"))
+	detail_actions.add_child(detail_copy_all_btn)
+	var detail_copy_request_btn := Button.new()
+	detail_copy_request_btn.name = "AILogDetailCopyRequest"
+	detail_copy_request_btn.text = tr_callable.call("SETTINGS_AI_LOG_COPY_REQUEST", "Copy Request")
+	detail_copy_request_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	detail_copy_request_btn.pressed.connect(_get_handler(handlers, "copy_request"))
+	detail_actions.add_child(detail_copy_request_btn)
+	var detail_copy_response_btn := Button.new()
+	detail_copy_response_btn.name = "AILogDetailCopyResponse"
+	detail_copy_response_btn.text = tr_callable.call("SETTINGS_AI_LOG_COPY_RESPONSE", "Copy Response")
+	detail_copy_response_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	detail_copy_response_btn.pressed.connect(_get_handler(handlers, "copy_response"))
+	detail_actions.add_child(detail_copy_response_btn)
+	var detail_text := TextEdit.new()
+	detail_text.name = "AILogDetailText"
+	detail_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_text.custom_minimum_size = Vector2(1080, 620)
+	detail_text.editable = false
+	detail_vbox.add_child(detail_text)
 	var analytics_scroll := ScrollContainer.new()
 	analytics_scroll.name = "AIAnalyticsScroll"
 	analytics_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -163,6 +226,12 @@ static func build_log_page(
 		"log_view_panel": log_view,
 		"log_rows_container": log_rows_container,
 		"analytics_view": analytics_scroll,
+		"save_details_check": save_details_check,
+		"detail_dialog": detail_dialog,
+		"detail_text": detail_text,
+		"detail_copy_all_btn": detail_copy_all_btn,
+		"detail_copy_request_btn": detail_copy_request_btn,
+		"detail_copy_response_btn": detail_copy_response_btn,
 	}
 	for key in analytics_result.keys():
 		result[key] = analytics_result[key]
@@ -482,6 +551,32 @@ static func normalize_language_texts(root: Node, tr_fn: Callable, ai_log_ctrl: O
 	var empty_lbl := root.find_child("AILogEmptyLabel", true, false) as Label
 	if empty_lbl:
 		empty_lbl.text = tr_fn.call("SETTINGS_AI_LOG_EMPTY", "No AI calls recorded yet.")
+	var save_details_check := root.find_child("AILogSaveDetailsCheck", true, false) as CheckBox
+	if save_details_check:
+		save_details_check.text = tr_fn.call("SETTINGS_AI_LOG_SAVE_DETAILS", "Save full request details")
+		save_details_check.tooltip_text = tr_fn.call(
+			"SETTINGS_AI_LOG_SAVE_DETAILS_TOOLTIP",
+			"Store full request and response content in local AI usage records.",
+		)
+	var detail_dialog := root.find_child("AILogDetailDialog", true, false) as AcceptDialog
+	if detail_dialog:
+		detail_dialog.title = tr_fn.call("SETTINGS_AI_LOG_DETAIL_TITLE", "AI Call Details")
+		detail_dialog.ok_button_text = tr_fn.call("SETTINGS_AI_LOG_DETAIL_CLOSE", "Close")
+	var detail_hint := root.find_child("AILogDetailHint", true, false) as Label
+	if detail_hint:
+		detail_hint.text = tr_fn.call(
+			"SETTINGS_AI_LOG_DETAIL_HINT",
+			"Click a log row to inspect the full request and response. Use the buttons below to copy quickly.",
+		)
+	var copy_all_btn := root.find_child("AILogDetailCopyAll", true, false) as Button
+	if copy_all_btn:
+		copy_all_btn.text = tr_fn.call("SETTINGS_AI_LOG_COPY_ALL", "Copy All")
+	var copy_request_btn := root.find_child("AILogDetailCopyRequest", true, false) as Button
+	if copy_request_btn:
+		copy_request_btn.text = tr_fn.call("SETTINGS_AI_LOG_COPY_REQUEST", "Copy Request")
+	var copy_response_btn := root.find_child("AILogDetailCopyResponse", true, false) as Button
+	if copy_response_btn:
+		copy_response_btn.text = tr_fn.call("SETTINGS_AI_LOG_COPY_RESPONSE", "Copy Response")
 	if ai_log_ctrl != null and is_instance_valid(ai_log_ctrl):
 		var toggle_btn = ai_log_ctrl.get("_ai_chart_toggle_button")
 		if toggle_btn != null and is_instance_valid(toggle_btn):

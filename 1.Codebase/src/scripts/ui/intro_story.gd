@@ -160,18 +160,50 @@ func _try_load_story_pages_from_csv() -> bool:
 	if content.strip_edges().is_empty():
 		return false
 	var all_rows := _parse_csv_text(content)
+	if all_rows.is_empty():
+		return false
+	var header_row: Array = all_rows[0]
+	var column_indices := _build_story_csv_column_indices(header_row)
 	for ri in range(1, all_rows.size()):
 		var row: Array = all_rows[ri]
-		if row.size() < 9:
+		if row.is_empty():
 			continue
 		story_pages.append({
-			"title_zh": row[4],
-			"title_en": row[5],
-			"text_zh": row[6],
-			"text_en": row[7],
-			"image_path": row[8].strip_edges(),
+			"title_zh": _decode_story_escape_sequences(_get_story_csv_value(row, column_indices, "title_zh")),
+			"title_en": _decode_story_escape_sequences(_get_story_csv_value(row, column_indices, "title_en")),
+			"title_de": _decode_story_escape_sequences(_get_story_csv_value(row, column_indices, "title_de")),
+			"text_zh": _decode_story_escape_sequences(_get_story_csv_value(row, column_indices, "text_zh")),
+			"text_en": _decode_story_escape_sequences(_get_story_csv_value(row, column_indices, "text_en")),
+			"text_de": _decode_story_escape_sequences(_get_story_csv_value(row, column_indices, "text_de")),
+			"image_path": _get_story_csv_value(row, column_indices, "image_path").strip_edges(),
 		})
 	return not story_pages.is_empty()
+func _build_story_csv_column_indices(header_row: Array) -> Dictionary:
+	var column_indices: Dictionary = {}
+	for i in range(header_row.size()):
+		var column_name := str(header_row[i]).strip_edges()
+		if column_name.is_empty():
+			continue
+		column_indices[column_name] = i
+	return column_indices
+func _get_story_csv_value(row: Array, column_indices: Dictionary, column_name: String) -> String:
+	if not column_indices.has(column_name):
+		return ""
+	var column_index := int(column_indices[column_name])
+	if column_index < 0 or column_index >= row.size():
+		return ""
+	return str(row[column_index])
+func _decode_story_escape_sequences(value: String) -> String:
+	if value.find("\\") == -1:
+		return value
+	var decoded := value
+	decoded = decoded.replace("\\r\\n", "\n")
+	decoded = decoded.replace("\\n", "\n")
+	decoded = decoded.replace("\\r", "\n")
+	decoded = decoded.replace("\\t", "\t")
+	decoded = decoded.replace("\\\"", "\"")
+	decoded = decoded.replace("\\'", "'")
+	return decoded
 func _has_complete_story_pages(pages: Array[Dictionary]) -> bool:
 	if pages.size() < TOTAL_PAGES:
 		return false
@@ -459,13 +491,9 @@ func _update_display() -> void:
 		return
 	var page_data: Dictionary = story_pages[current_page]
 	_play_story_music_for_current_page()
-	var title_key := "title_zh" if current_language == "zh" else "title_en"
-	var text_key := "text_zh" if current_language == "zh" else "text_en"
-	var title: String = page_data.get(title_key, "")
-	var text: String = page_data.get(text_key, "")
-	if current_language == "zh":
-		title = IntroStoryData._tr(title)
-		text = IntroStoryData._tr(text)
+	var page_number := current_page + 1
+	var title := _get_story_page_text(page_data, "title", page_number)
+	var text := _get_story_page_text(page_data, "text", page_number)
 	var safe_title := title.replace("[", "[lb]")
 	var safe_text := text.replace("[", "[lb]")
 	var color_title := COLOR_TITLE_INK.to_html(false)
@@ -602,6 +630,36 @@ func _update_story_image_size() -> void:
 	var target_height := clampi(int(viewport_height * STORY_IMAGE_HEIGHT_RATIO), STORY_IMAGE_MIN_HEIGHT, STORY_IMAGE_MAX_HEIGHT)
 	story_image_margin.custom_minimum_size = Vector2(0, target_height)
 	story_image.custom_minimum_size = Vector2(0, target_height)
+func _get_story_page_text(page_data: Dictionary, field_name: String, page_number: int) -> String:
+	var english_value := _decode_story_escape_sequences(str(page_data.get("%s_en" % field_name, "")))
+	match current_language:
+		"zh":
+			return _resolve_story_translation(
+				str(page_data.get("%s_zh" % field_name, "")),
+				_get_story_translation_key(page_number, field_name),
+				english_value,
+			)
+		"de":
+			var german_value := _decode_story_escape_sequences(str(page_data.get("%s_de" % field_name, "")))
+			if not german_value.strip_edges().is_empty():
+				return german_value
+			return _resolve_story_translation("", _get_story_translation_key(page_number, field_name), english_value)
+		_:
+			return english_value
+func _get_story_translation_key(page_number: int, field_name: String) -> String:
+	return "INTRO_DATA_PAGE_%d_%s" % [page_number, field_name.to_upper()]
+func _resolve_story_translation(raw_value: String, translation_key: String, fallback: String) -> String:
+	var trimmed_raw := raw_value.strip_edges()
+	if not trimmed_raw.is_empty():
+		if trimmed_raw == translation_key or trimmed_raw.begins_with("INTRO_DATA_PAGE_"):
+			var translated_from_raw := _tr(trimmed_raw)
+			if translated_from_raw != trimmed_raw:
+				return _decode_story_escape_sequences(translated_from_raw)
+		return _decode_story_escape_sequences(raw_value)
+	var translated := _tr(translation_key)
+	if translated != translation_key:
+		return _decode_story_escape_sequences(translated)
+	return _decode_story_escape_sequences(fallback)
 func _tr(key: String) -> String:
 	if LocalizationManager:
 		return LocalizationManager.get_translation(key, current_language)
@@ -625,8 +683,10 @@ func set_story_page(page_index: int, title_en: String, title_zh: String, text_en
 		story_pages[page_index] = {
 			"title_en": title_en,
 			"title_zh": title_zh,
+			"title_de": story_pages[page_index].get("title_de", ""),
 			"text_en": text_en,
 			"text_zh": text_zh,
+			"text_de": story_pages[page_index].get("text_de", ""),
 			"image_path": story_pages[page_index].get("image_path", ""),
 		}
 		if page_index == current_page:

@@ -98,15 +98,38 @@ func get_available_skills_xml() -> String:
 	return xml
 func get_skill_for_purpose(purpose: String) -> String:
 	return _purpose_map.get(purpose, "")
-func load_skill(skill_name: String) -> String:
+func load_skill(skill_name: String, language: String = "") -> String:
 	if not _skills_cache.has(skill_name):
 		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Skill not found", { "skill_name": skill_name })
 		return ""
 	var skill: Dictionary = _skills_cache[skill_name]
-	var file_path: String = skill.get("path", "")
-	if file_path.is_empty() or not FileAccess.file_exists(file_path):
-		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Skill file not found", { "file_path": file_path })
-		return ""
+	for file_path in _get_skill_candidate_paths(skill, language):
+		if file_path.is_empty() or not FileAccess.file_exists(file_path):
+			continue
+		return _read_skill_body(file_path)
+	ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Skill file not found", {
+		"skill_name": skill_name,
+		"language": language,
+		"path": skill.get("path", ""),
+	})
+	return ""
+func _get_skill_candidate_paths(skill: Dictionary, language: String) -> Array[String]:
+	var base_path: String = skill.get("path", "")
+	if base_path.is_empty():
+		return []
+	var candidates: Array[String] = []
+	if not language.is_empty():
+		var extension_index := base_path.rfind(".")
+		if extension_index != -1:
+			candidates.append("%s.%s%s" % [
+				base_path.substr(0, extension_index),
+				language,
+				base_path.substr(extension_index),
+			])
+	if base_path not in candidates:
+		candidates.append(base_path)
+	return candidates
+func _read_skill_body(file_path: String) -> String:
 	var file := FileAccess.open(file_path, FileAccess.READ)
 	if not file:
 		return ""

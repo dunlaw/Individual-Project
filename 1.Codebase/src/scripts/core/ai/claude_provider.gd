@@ -31,6 +31,7 @@ func send_request(messages: Array, callback: Callable, _options: Dictionary = {}
 		_emit_error("Claude API key is not configured")
 		_notify_callback_failure(callback, "Claude API key is not configured")
 		return
+	clear_debug_snapshot()
 	is_requesting = true
 	pending_callback = callback
 	request_started.emit()
@@ -49,6 +50,7 @@ func send_request(messages: Array, callback: Callable, _options: Dictionary = {}
 		"anthropic-version: " + ANTHROPIC_VERSION,
 	]
 	var json_body = JSON.stringify(body)
+	_store_debug_request("claude", CLAUDE_ENDPOINT, json_body, { "model": model })
 	_emit_progress({"status": "sending", "body_bytes": json_body.length()})
 	var error = http_request.request(CLAUDE_ENDPOINT, headers, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
@@ -62,13 +64,15 @@ func cancel_request() -> void:
 	if http_request:
 		http_request.cancel_request()
 func parse_response(result: int, response_code: int, body: PackedByteArray) -> Dictionary:
+	var body_text := body.get_string_from_utf8()
+	_store_debug_response(response_code, body_text)
 	if result != HTTPRequest.RESULT_SUCCESS:
 		_report_error("Network error, result code: %s" % result)
 		return {"success": false, "error": "Network error (code: %d)" % result, "content": ""}
 	if response_code != 200:
 		var error_text = "HTTP %d" % response_code
 		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK:
+		if json.parse(body_text) == OK:
 			var data = json.data
 			if data is Dictionary and data.has("error"):
 				var err = data["error"]
@@ -79,7 +83,6 @@ func parse_response(result: int, response_code: int, body: PackedByteArray) -> D
 		_report_error("HTTP error: %s" % error_text)
 		return {"success": false, "error": error_text, "content": ""}
 	var json = JSON.new()
-	var body_text := body.get_string_from_utf8()
 	if json.parse(body_text) != OK:
 		_report_error("JSON parse error. Body preview: %s" % body_text.left(200))
 		return {"success": false, "error": "JSON parse error", "content": ""}

@@ -69,6 +69,7 @@ func send_request(messages: Array, callback: Callable, _options: Dictionary = {}
 		_emit_error("AI Router is not configured")
 		_notify_callback_failure(callback, "AI Router is not configured")
 		return
+	clear_debug_snapshot()
 	is_requesting = true
 	pending_callback = callback
 	request_started.emit()
@@ -85,6 +86,7 @@ func send_request(messages: Array, callback: Callable, _options: Dictionary = {}
 		APIFormat.GEMINI:
 			headers = _build_gemini_headers()
 			json_body = _build_gemini_body(messages, _options)
+	_store_debug_request(_get_debug_protocol_name(), endpoint, json_body, { "model": model })
 	_emit_progress({"status": "sending", "body_bytes": json_body.length(), "endpoint": endpoint})
 	var error = http_request.request(endpoint, headers, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
@@ -98,13 +100,15 @@ func cancel_request() -> void:
 	if http_request:
 		http_request.cancel_request()
 func parse_response(result: int, response_code: int, body: PackedByteArray) -> Dictionary:
+	var body_text := body.get_string_from_utf8()
+	_store_debug_response(response_code, body_text)
 	if result != HTTPRequest.RESULT_SUCCESS:
 		_report_error("Network error, result code: %s" % result)
 		return {"success": false, "error": "Network error (code: %d)" % result, "content": ""}
 	if response_code != 200:
 		var error_text := "HTTP %d" % response_code
 		var json = JSON.new()
-		if json.parse(body.get_string_from_utf8()) == OK:
+		if json.parse(body_text) == OK:
 			var data = json.data
 			if data is Dictionary and data.has("error"):
 				var err = data["error"]
@@ -336,6 +340,16 @@ func _resolve_max_tokens(options: Dictionary) -> int:
 	if options.has("max_tokens"):
 		requested = int(options.get("max_tokens", DEFAULT_MAX_TOKENS))
 	return clampi(requested, 1, MAX_TOKENS_CAP)
+func _get_debug_protocol_name() -> String:
+	match api_format:
+		APIFormat.OPENAI:
+			return "openai"
+		APIFormat.CLAUDE:
+			return "claude"
+		APIFormat.GEMINI:
+			return "gemini"
+		_:
+			return "openai"
 static func get_api_format_name(format: APIFormat) -> String:
 	match format:
 		APIFormat.OPENAI:

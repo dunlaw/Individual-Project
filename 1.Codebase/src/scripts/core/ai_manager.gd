@@ -199,6 +199,12 @@ var custom_ai_tone_style: String:
 		return _config_manager.custom_ai_tone_style if _config_manager else ""
 	set(value):
 		if _config_manager: _config_manager.custom_ai_tone_style = value
+var save_detailed_ai_call_logs: bool:
+	get:
+		return _config_manager.save_detailed_ai_call_logs if _config_manager else true
+	set(value):
+		if _config_manager:
+			_config_manager.save_detailed_ai_call_logs = value
 var pending_callback: Callable:
 	get:
 		return _request_manager.pending_callback if _request_manager else Callable()

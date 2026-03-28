@@ -146,6 +146,7 @@ func send_request(messages: Array, callback: Callable, options: Dictionary = { }
 	if not is_configured():
 		_emit_error("Gemini API key is not configured")
 		return
+	clear_debug_snapshot()
 	if _is_web_environment_restricted():
 		var error_msg := "Gemini web access is disabled. Enable web requests in AI settings or project settings."
 		_report_error(
@@ -487,6 +488,7 @@ func _send_rest_request(messages: Array) -> void:
 		body["speechConfig"] = speech_config
 	var headers: PackedStringArray = ["Content-Type: application/json"]
 	var json_body := JSON.stringify(body)
+	_store_debug_request("gemini", url, json_body, { "model": model })
 	_emit_progress({ "status": "sending_rest", "body_bytes": json_body.length() })
 	var error := http_request.request(url, headers, HTTPClient.METHOD_POST, json_body)
 	if error != OK:
@@ -557,6 +559,20 @@ func _send_live_request(messages: Array) -> void:
 	var realtime_input_config := {}
 	if normalized_model == "gemini-3.1-flash-live-preview":
 		realtime_input_config["turnCoverage"] = "TURN_INCLUDES_ONLY_ACTIVITY"
+	_store_debug_request(
+		"gemini-live",
+		"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent",
+		JSON.stringify({
+			"model": model,
+			"generationConfig": generation_config,
+			"system_instruction": system_instruction_text,
+			"speechConfig": speech_config,
+			"transcriptionConfig": transcription_config,
+			"realtimeInputConfig": realtime_input_config,
+			"contents": contents_array,
+		}),
+		{ "model": model },
+	)
 	_emit_progress({ "status": "connecting_live", "messages": messages.size() })
 	live_api_client.connect_to_server(
 		model.trim_prefix("models/"),
@@ -637,6 +653,7 @@ func _on_live_api_server_message(message: Dictionary) -> void:
 		"thought_signature": _live_accumulated_thought_signature,
 		"error": "",
 	}
+	_store_debug_response(200, JSON.stringify(response))
 	_live_turn_completed = true
 	if not pending_callback.is_null():
 		pending_callback.call(response)
@@ -745,6 +762,11 @@ func _sample_rate_from_mime(mime: String, fallback: int) -> int:
 	return fallback
 func _on_live_api_error(error_message: String) -> void:
 	is_requesting = false
+	_store_debug_response(0, JSON.stringify({
+		"success": false,
+		"error": "Live API error: " + error_message,
+		"content": "",
+	}))
 	_emit_error("Live API error: " + error_message)
 	request_completed.emit(false)
 func _on_live_api_session_updated(session_handle: String) -> void:
@@ -764,6 +786,7 @@ func _message_to_plain_text(message: Dictionary) -> String:
 	return str(message.get("content", ""))
 func parse_response(result: int, response_code: int, body: PackedByteArray) -> Dictionary:
 	var body_str := body.get_string_from_utf8()
+	_store_debug_response(response_code, body_str)
 	if result != HTTPRequest.RESULT_SUCCESS:
 		var network_error := "Network error (code %d)" % result
 		if OS.has_feature("web"):

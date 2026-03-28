@@ -3,6 +3,8 @@ const ErrorReporterBridge = preload("res://1.Codebase/src/scripts/core/error_rep
 signal dilemma_generated(dilemma_data: Dictionary)
 signal dilemma_resolved(choice: String, consequences: Dictionary)
 const ERROR_CONTEXT := "TrolleyProblemGenerator"
+const SETTINGS_PATH := "user://settings.cfg"
+const TROLLEY_AI_STORY_KEY := "trolley_ai_story_enabled"
 var current_dilemma: Dictionary = { }
 var dilemma_history: Array = []
 const DILEMMA_TEMPLATES = {
@@ -47,7 +49,7 @@ func generate_dilemma(template_type: String = "", context: Dictionary = { }) -> 
 			return
 	var template = DILEMMA_TEMPLATES[template_type]
 	var prompt = _build_dilemma_prompt(template_type, template, context)
-	if AIManager:
+	if _is_trolley_ai_story_enabled() and AIManager:
 		var ai_context = context.duplicate()
 		ai_context["purpose"] = "trolley_problem"
 		ai_context["template"] = template_type
@@ -61,104 +63,112 @@ func generate_dilemma(template_type: String = "", context: Dictionary = { }) -> 
 		AIManager.generate_story(prompt, ai_context, callback)
 	else:
 		_generate_preset_dilemma(template_type)
+func _is_trolley_ai_story_enabled() -> bool:
+	if GameState and GameState.settings is Dictionary:
+		var game_settings: Dictionary = GameState.settings
+		if game_settings.has(TROLLEY_AI_STORY_KEY):
+			return bool(game_settings[TROLLEY_AI_STORY_KEY])
+	var config := ConfigFile.new()
+	var load_result: int = config.load(SETTINGS_PATH)
+	if load_result != OK:
+		return false
+	return bool(config.get_value("game", TROLLEY_AI_STORY_KEY, false))
+func _get_skill_manager() -> Node:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree and tree.root:
+		var locator = tree.root.get_node_or_null("ServiceLocator")
+		if locator and locator.has_method("get_skill_manager"):
+			var locator_skill_manager = locator.call("get_skill_manager")
+			if locator_skill_manager != null:
+				return locator_skill_manager
+		return tree.root.get_node_or_null("SkillManager")
+	return null
 func _build_dilemma_prompt(template_type: String, template: Dictionary, context: Dictionary) -> String:
 	var lang = GameState.current_language if GameState else "en"
 	var reality = GameState.reality_score if GameState else 50
 	var positive = GameState.positive_energy if GameState else 50
 	var mission_context = context.get("mission_summary", "")
 	var recent_events = context.get("recent_events", [])
-	var prompt = ""
-	if lang == "en":
-		prompt = """Generate a trolley problem moral dilemma that INTERRUPTS the current story for Glorious Deliverance Agency 1.
-
-**Template:** %s (%s)
-**Current Context:**
-- Reality Score: %d/100 (lower = more delusional)
-- Positive Energy: %d/100 (higher = more toxic positivity)
-- **CURRENT SITUATION:** %s
-
-**Requirements:**
-1. The scenario must be an IMMEDIATE INTERRUPTION or CRISIS related to the Current Situation above.
-2. Do NOT generate a generic trolley problem. It must feel like a natural (but catastrophic) branch of the story text provided.
-3. Create a scenario with %d distinct choices
-4. Each choice must have negative consequences
-5. Frame at least one option in "positive energy" language that actually causes more harm
-6. Make the player complicit in the disaster regardless of choice
-
-**Output Format (JSON):**
-{
-	"scenario": "Detailed setup of the dilemma (100-150 words)",
-	"choices": [
-		{
-			"id": "choice_1",
-			"text": "Choice description",
-			"framing": "How it's presented (honest/positive/manipulative)",
-			"immediate_consequence": "What happens right away",
-			"long_term_consequence": "The true cost revealed later",
-			"stat_changes": {"reality": -5, "positive_energy": 10, "entropy": 1},
-			"relationship_changes": [
-				{"target": "gloria", "value": -10, "status": "Disappointed"},
-				{"target": "ark", "value": 5, "status": "Approved"}
-			]
-		}
-	],
-	"thematic_point": "What this dilemma reveals about the world"
-}
-
-Make it darkly satirical while maintaining emotional weight. Begin the scenario with "Suddenly..." or "Just then..." to bridge the gap.""" % [
-			template_type,
-			template["setup"],
-			reality,
-			positive,
-			mission_context if not mission_context.is_empty() else "No specific context",
-			template["choice_count"],
-		]
-	else:
-		prompt = """Generate a trolley problem moral dilemma that INTERRUPTS the current story for Glorious Deliverance Agency 1. Output all scenario text in Traditional Chinese.
-
-**Template:** %s (%s)
-**Current Context:**
-- Reality Score: %d/100 (lower = more delusional)
-- Positive Energy: %d/100 (higher = more toxic positivity)
-- **CURRENT SITUATION:** %s
-
-**Requirements:**
-1. The scenario must be an IMMEDIATE INTERRUPTION or CRISIS related to the Current Situation above.
-2. Do NOT generate a generic trolley problem. It must feel like a natural (but catastrophic) branch of the story text provided.
-3. Create a scenario with %d distinct choices
-4. Each choice must have negative consequences
-5. Frame at least one option in "positive energy" language that actually causes more harm
-6. Make the player complicit in the disaster regardless of choice
-
-**Output Format (JSON):**
-{
-	"scenario": "Detailed setup of the dilemma (100-150 words)",
-	"choices": [
-		{
-			"id": "choice_1",
-			"text": "Choice description",
-			"framing": "How it's presented (honest/positive/manipulative)",
-			"immediate_consequence": "What happens right away",
-			"long_term_consequence": "The true cost revealed later",
-			"stat_changes": {"reality": -5, "positive_energy": 10, "entropy": 1},
-			"relationship_changes": [
-				{"target": "gloria", "value": -10, "status": "Disappointed"},
-				{"target": "ark", "value": 5, "status": "Approved"}
-			]
-		}
-	],
-	"thematic_point": "What this dilemma reveals about the world"
-}
-
-Make it darkly satirical while maintaining emotional weight. Begin the scenario with "Suddenly..." or "Just then..." to bridge the gap. Write the scenario and all player-facing text in Traditional Chinese.""" % [
-			template_type,
-			template["setup"],
-			reality,
-			positive,
-			mission_context if not mission_context.is_empty() else "No specific context",
-			template["choice_count"],
-		]
-	return prompt
+	var skill_prompt := _build_dilemma_prompt_from_skill(
+		template_type,
+		template,
+		lang,
+		reality,
+		positive,
+		mission_context,
+		recent_events
+	)
+	if not skill_prompt.is_empty():
+		return skill_prompt
+	return _build_dilemma_prompt_fallback(template_type, template, lang, reality, positive, mission_context)
+func _build_dilemma_prompt_from_skill(
+	template_type: String,
+	template: Dictionary,
+	lang: String,
+	reality: int,
+	positive: int,
+	mission_context: String,
+	recent_events: Variant
+) -> String:
+	var skill_mgr := _get_skill_manager()
+	if not skill_mgr or not skill_mgr.is_initialized():
+		return ""
+	var skill_content: String = skill_mgr.load_skill("trolley-problem", lang)
+	if skill_content.is_empty():
+		return ""
+	var context_lines: Array[String] = []
+	context_lines.append("=== Trolley Problem Request ===")
+	context_lines.append("Template: %s (%s)" % [template_type, str(template.get("setup", ""))])
+	context_lines.append("Reality Score: %d/100 (lower = more delusional)" % reality)
+	context_lines.append("Positive Energy: %d/100 (higher = more toxic positivity)" % positive)
+	context_lines.append("Current Situation: %s" % (mission_context if not mission_context.is_empty() else "No specific context"))
+	if recent_events is Array and not (recent_events as Array).is_empty():
+		var event_lines: Array[String] = []
+		var limit: int = min(3, (recent_events as Array).size())
+		for i in range(limit):
+			var event_text: String = str((recent_events as Array)[i]).strip_edges()
+			if not event_text.is_empty():
+				event_lines.append("- %s" % event_text)
+		if not event_lines.is_empty():
+			context_lines.append("Recent events:\n%s" % "\n".join(event_lines))
+	context_lines.append("Required choice count: %d" % int(template.get("choice_count", 2)))
+	match lang:
+		"zh":
+			context_lines.append("Output all player-facing text in Traditional Chinese.")
+		"de":
+			context_lines.append("Output all player-facing text in German.")
+		_:
+			context_lines.append("Output all player-facing text in English.")
+	context_lines.append("Return VALID JSON only. Do not add markdown fences.")
+	return "\n\n".join(context_lines) + "\n\n" + skill_content
+func _build_dilemma_prompt_fallback(
+	template_type: String,
+	template: Dictionary,
+	lang: String,
+	reality: int,
+	positive: int,
+	mission_context: String
+) -> String:
+	var lines: Array[String] = []
+	lines.append("Generate a trolley problem moral dilemma that INTERRUPTS the current GDA1 story.")
+	lines.append("Template: %s (%s)" % [template_type, template.get("setup", "")])
+	lines.append("Reality Score: %d/100 (lower = more delusional)" % reality)
+	lines.append("Positive Energy: %d/100 (higher = more toxic positivity)" % positive)
+	lines.append("Current Situation: %s" % (mission_context if not mission_context.is_empty() else "No specific context"))
+	lines.append("Required choice count: %d" % int(template.get("choice_count", 2)))
+	match lang:
+		"zh":
+			lines.append("Output all player-facing text in Traditional Chinese.")
+		"de":
+			lines.append("Output all player-facing text in German.")
+		_:
+			lines.append("Output all player-facing text in English.")
+	lines.append("Each choice must have negative consequences.")
+	lines.append("At least one 'positive energy' framed option should cause greater harm.")
+	lines.append("Include one option that risks breaking friendship, and one option that tries to fix the immediate problem.")
+	lines.append("Return VALID JSON only with keys: scenario, choices, thematic_point.")
+	lines.append("Each choice must include: id, text, framing, immediate_consequence, long_term_consequence, stat_changes, relationship_changes.")
+	return "\n".join(lines)
 func _on_dilemma_generated(response: Dictionary, template_type: String) -> void:
 	if not response.success:
 		_report_error(

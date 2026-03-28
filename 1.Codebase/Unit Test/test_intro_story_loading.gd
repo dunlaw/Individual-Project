@@ -8,6 +8,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	_test_bundled_story_pages_complete()
 	_test_csv_story_pages_complete()
+	_test_german_story_text_escape_sequences_are_decoded()
 	print("[IntroStoryLoadingTest] All tests completed.")
 	queue_free()
 func _test_bundled_story_pages_complete() -> void:
@@ -49,6 +50,21 @@ func _test_csv_story_pages_complete() -> void:
 	file.close()
 	_assert(valid_rows >= IntroStoryScript.TOTAL_PAGES, "CSV intro story should provide complete data for all intro pages")
 	print("[Test] Intro story CSV completeness PASSED")
+func _test_german_story_text_escape_sequences_are_decoded() -> void:
+	var intro_story := IntroStoryScript.new()
+	var loaded_from_csv := intro_story._try_load_story_pages_from_csv()
+	_assert(loaded_from_csv, "Intro story CSV should load through IntroStory parser")
+	if not loaded_from_csv:
+		return
+	_assert(intro_story.story_pages.size() >= 6, "Intro story CSV should include page 6 for German text validation")
+	if intro_story.story_pages.size() < 6:
+		return
+	var page_six: Dictionary = intro_story.story_pages[5]
+	var german_text := String(page_six.get("text_de", ""))
+	_assert(german_text.contains("\n"), "German story page 6 should contain actual line breaks")
+	_assert(not german_text.contains("\\n"), "German story page 6 should not keep escaped newline markers")
+	_assert(not german_text.contains("\\\""), "German story page 6 should not keep escaped quote markers")
+	print("[Test] German intro story text escape decoding PASSED")
 func _assert(condition: bool, message: String) -> void:
 	if condition:
 		tests_passed += 1
