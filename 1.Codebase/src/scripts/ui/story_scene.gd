@@ -172,7 +172,18 @@ func _any_overlay_open() -> bool:
 	return (overlay_controller.pause_menu_instance != null
 		or overlay_controller.settings_menu_instance != null
 		or overlay_controller.journal_menu_instance != null
-		or overlay_controller.gloria_overlay_instance != null)
+		or overlay_controller.characters_page_instance != null
+		or overlay_controller.night_overlay_instance != null
+		or overlay_controller.gloria_overlay_instance != null
+		or overlay_controller.prayer_overlay_instance != null
+		or overlay_controller.export_story_dialog_instance != null
+		or overlay_controller.trolley_problem_overlay_instance != null
+		or overlay_controller.game_recap_overlay_instance != null
+		or overlay_controller.achievement_viewer_instance != null
+		or _has_choice_selection_overlay())
+func _has_choice_selection_overlay() -> bool:
+	var overlay: Node = get_node_or_null("ChoiceSelectionOverlay")
+	return overlay != null and is_instance_valid(overlay)
 func _process(delta: float) -> void:
 		if ui_controller:
 			ui_controller.process_loading_animation(delta)

@@ -51,7 +51,7 @@ var selected_chinese_font: String = ""
 var master_volume: float = 100.0
 var music_volume: float = 100.0
 var sfx_volume: float = 100.0
-var gloria_voice_enabled: bool = true
+var gloria_voice_enabled: bool = false
 var is_muted: bool = false
 var touch_controls_enabled: bool = false
 var text_speed: float = 1.0
@@ -871,6 +871,7 @@ func _on_sfx_volume_changed(value: float):
 	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _on_gloria_voice_toggled(button_pressed: bool):
 	gloria_voice_enabled = button_pressed
+	print("[Godot-Cmd-Debug] Settings Menu - Gloria Voice toggled to: ", "ON" if button_pressed else "OFF")
 	SettingsMenuAudioSectionScript.apply_audio_settings(_get_audio_settings_data())
 func _on_mute_toggled(button_pressed: bool):
 	is_muted = button_pressed
@@ -1116,6 +1117,7 @@ func load_settings():
 		"resolution": fallback_window_size,
 		"font_en": _get_default_font("en"),
 		"font_zh": _get_default_font("zh"),
+		"gloria_voice_enabled": false,
 		"voice_enabled": false,
 		"voice_output_enabled": false,
 		"voice_input_enabled": false,

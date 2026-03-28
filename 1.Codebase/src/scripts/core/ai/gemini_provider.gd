@@ -83,6 +83,8 @@ const MAX_LIVE_API_RETRIES: int = 3
 var _live_accumulated_text_parts: Array[String] = []
 var _live_accumulated_audio_payloads: Array = []
 var _live_accumulated_thought_signature: String = ""
+var _live_output_transcription_text: String = ""
+var _live_turn_completed: bool = false
 func _get_audio_output_guardrail_text() -> String:
 	return "Audio reading rules: When generating AUDIO, speak only the narrative/story text and the player choice list. Do NOT read aloud any [SCENE_DIRECTIVES] blocks, JSON, schemas, tool/function-calling data, or other metadata. Keep those silent in audio, even if they appear in the text."
 func _should_add_audio_output_guardrail() -> bool:
@@ -498,6 +500,8 @@ func _send_live_request(messages: Array) -> void:
 	_live_accumulated_text_parts.clear()
 	_live_accumulated_audio_payloads.clear()
 	_live_accumulated_thought_signature = ""
+	_live_output_transcription_text = ""
+	_live_turn_completed = false
 	var system_instruction_text := ""
 	if _should_add_audio_output_guardrail():
 		system_instruction_text += _get_audio_output_guardrail_text() + "\n"
@@ -528,10 +532,15 @@ func _send_live_request(messages: Array) -> void:
 				"parts": parts_payload,
 			})
 	system_instruction_text = system_instruction_text.strip_edges()
+	var normalized_model := model.strip_edges().to_lower()
 	var generation_config: Dictionary = {
 		"temperature": 0.9,
 		"maxOutputTokens": _resolve_max_output_tokens(),
 	}
+	if normalized_model == "gemini-3.1-flash-live-preview":
+		generation_config["thinkingConfig"] = {
+			"thinkingLevel": "minimal",
+		}
 	var speech_config := { }
 	if voice_session and voice_session.has_method("prefers_native_audio") and voice_session.prefers_native_audio():
 		speech_config = {
@@ -540,8 +549,14 @@ func _send_live_request(messages: Array) -> void:
 					"voiceName": voice_session.get_preferred_voice_name() if voice_session.has_method("get_preferred_voice_name") else "Kore",
 				},
 			},
-			"enableNativeVoice": true,
 		}
+	var transcription_config := {
+		"input": voice_session and voice_session.has_method("wants_voice_input") and voice_session.wants_voice_input(),
+		"output": voice_session and voice_session.has_method("wants_voice_output") and voice_session.wants_voice_output(),
+	}
+	var realtime_input_config := {}
+	if normalized_model == "gemini-3.1-flash-live-preview":
+		realtime_input_config["turnCoverage"] = "TURN_INCLUDES_ONLY_ACTIVITY"
 	_emit_progress({ "status": "connecting_live", "messages": messages.size() })
 	live_api_client.connect_to_server(
 		model.trim_prefix("models/"),
@@ -550,7 +565,12 @@ func _send_live_request(messages: Array) -> void:
 		live_api_session_handle,
 		system_instruction_text,
 		speech_config,
+		transcription_config,
+		realtime_input_config,
 	)
+	if contents_array.size() > 1 and live_api_client.has_method("seed_initial_history"):
+		var history_turns := contents_array.slice(0, contents_array.size() - 1)
+		live_api_client.seed_initial_history(history_turns)
 func _on_live_api_connection_established() -> void:
 	_emit_progress({ "status": "live_connected" })
 	if last_sent_messages.is_empty():
@@ -570,15 +590,22 @@ func _on_live_api_connection_established() -> void:
 			if not text_to_send.is_empty():
 				live_api_client.send_user_turn([{ "text": text_to_send }])
 func _on_live_api_connection_closed(code: int, reason: String) -> void:
+	if _live_turn_completed and code == 1000:
+		_live_turn_completed = false
+		_emit_progress({ "status": "live_session_closed" })
+		return
 	if code == 1011 and live_api_retry_count < MAX_LIVE_API_RETRIES:
+		_live_turn_completed = false
 		live_api_retry_count += 1
 		_emit_progress({ "status": "live_retry", "attempt": live_api_retry_count })
 		_send_live_request(last_sent_messages)
 		return
+	_live_turn_completed = false
 	is_requesting = false
 	_emit_error("Live API connection closed. Code: %d, Reason: %s" % [code, reason])
 	request_completed.emit(false)
 func _on_live_api_connection_error() -> void:
+	_live_turn_completed = false
 	if live_api_retry_count < MAX_LIVE_API_RETRIES:
 		live_api_retry_count += 1
 		_emit_progress({ "status": "live_retry", "attempt": live_api_retry_count })
@@ -598,18 +625,24 @@ func _on_live_api_server_message(message: Dictionary) -> void:
 	is_requesting = false
 	live_api_retry_count = 0
 	_emit_progress({ "status": "live_completed" })
-	var combined_text := "".join(_live_accumulated_text_parts)
+	var response_text_parts := _live_accumulated_text_parts.duplicate(true)
+	if response_text_parts.is_empty() and not _live_output_transcription_text.is_empty():
+		response_text_parts = [_live_output_transcription_text]
+	var combined_text := "".join(response_text_parts)
 	var response := {
 		"success": true,
 		"content": combined_text,
-		"text_parts": _live_accumulated_text_parts.duplicate(true),
+		"text_parts": response_text_parts,
 		"audio_payloads": _live_accumulated_audio_payloads.duplicate(true),
 		"thought_signature": _live_accumulated_thought_signature,
 		"error": "",
 	}
+	_live_turn_completed = true
 	if not pending_callback.is_null():
 		pending_callback.call(response)
 	request_completed.emit(true)
+	if live_api_client and live_api_client.has_method("close_connection"):
+		live_api_client.close_connection(1000, "Live turn completed")
 func _on_live_api_setup_response_received(message: Dictionary) -> void:
 	if message.has("serverContent") or message.has("server_content"):
 		_on_live_api_server_message(message)
@@ -618,6 +651,15 @@ func _extract_live_response_chunks(message: Dictionary) -> void:
 		return
 	var server_content: Variant = message.get("serverContent", message.get("server_content", null))
 	var content_dict: Dictionary = server_content if server_content is Dictionary else message
+	var input_transcription: Variant = content_dict.get("inputTranscription", content_dict.get("input_transcription", null))
+	var output_transcription: Variant = content_dict.get("outputTranscription", content_dict.get("output_transcription", null))
+	if voice_session and voice_session.has_method("process_transcription_entry"):
+		if input_transcription != null:
+			voice_session.process_transcription_entry(input_transcription, "input")
+		if output_transcription != null:
+			voice_session.process_transcription_entry(output_transcription, "output")
+	if output_transcription != null:
+		_merge_live_output_transcription(output_transcription)
 	var model_turn: Variant = content_dict.get("modelTurn", content_dict.get("model_turn", null))
 	var turn_dict: Dictionary = model_turn if model_turn is Dictionary else content_dict
 	var parts_variant: Variant = turn_dict.get("parts", null)
@@ -654,6 +696,35 @@ func _extract_live_response_chunks(message: Dictionary) -> void:
 						"sample_rate": _sample_rate_from_mime(mime, DEFAULT_OUTPUT_SAMPLE_RATE),
 					},
 				)
+func _merge_live_output_transcription(entry: Variant) -> void:
+	var items: Array = []
+	if entry is Array:
+		items = entry
+	elif entry is Dictionary:
+		items = [entry]
+	else:
+		return
+	for item in items:
+		if not (item is Dictionary):
+			continue
+		var text_value := ""
+		if item.has("text"):
+			text_value = str(item["text"])
+		elif item.has("transcript"):
+			text_value = str(item["transcript"])
+		if text_value.strip_edges().is_empty():
+			continue
+		if _live_output_transcription_text.is_empty():
+			_live_output_transcription_text = text_value
+			continue
+		if text_value == _live_output_transcription_text:
+			continue
+		if text_value.begins_with(_live_output_transcription_text):
+			_live_output_transcription_text = text_value
+			continue
+		if _live_output_transcription_text.ends_with(text_value):
+			continue
+		_live_output_transcription_text += text_value
 func _is_live_turn_complete(message: Dictionary) -> bool:
 	var server_content: Variant = message.get("serverContent", message.get("server_content", null))
 	if server_content is Dictionary:

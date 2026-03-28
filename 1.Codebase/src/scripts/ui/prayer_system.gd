@@ -45,7 +45,7 @@ func _tr(key: String) -> String:
 	return key
 func _ready():
 	_debug_log("Prayer screen initialized")
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	_setup_fullscreen_layout()
 	_apply_modern_styling()
 	_apply_localization()
@@ -55,7 +55,7 @@ func _ready():
 	_enhance_input_field_sacred()
 	_setup_button_focus()
 	if prayer_panel:
-		prayer_panel.mouse_filter = Control.MOUSE_FILTER_PASS
+		prayer_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		prayer_panel.modulate.a = 0.0
 		prayer_panel.scale = Vector2.ONE
 		var tween = create_tween()

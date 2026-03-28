@@ -132,6 +132,10 @@ func _restore_normal_audio(audio: Node) -> void:
 		and audio.has_sound(_previous_music_name)
 	):
 		audio.play_music(_previous_music_name, true)
+const _SOUND_FALLBACK_DURATIONS := {
+	"trolley problem ON": 3.5,
+	"trolley problem OFF": 4.2,
+}
 func _play_sound_and_wait(audio: Node, sound_name: String, volume_multiplier: float = 1.0) -> void:
 	if not audio or not audio.has_method("has_sound") or not audio.has_method("play_sfx"):
 		return
@@ -139,6 +143,8 @@ func _play_sound_and_wait(audio: Node, sound_name: String, volume_multiplier: fl
 		return
 	audio.play_sfx(sound_name, volume_multiplier)
 	var sound_length := _get_sound_length(audio, sound_name)
+	if sound_length <= 0.0:
+		sound_length = _SOUND_FALLBACK_DURATIONS.get(sound_name, 0.0)
 	if sound_length > 0.0:
 		await get_tree().create_timer(sound_length).timeout
 func _get_sound_length(audio: Node, sound_name: String) -> float:

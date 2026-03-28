@@ -49,6 +49,8 @@ static func generate_response(prompt: String, context: Dictionary) -> String:
 			return _generate_interference(context)
 		"gloria_intervention":
 			return _generate_gloria_intervention(context)
+		"trolley_problem":
+			return _generate_trolley_problem(context)
 		"night_cycle":
 			return _generate_night_cycle(context)
 		"journal_story_summary", "journal_summary", "journal_prompt":
@@ -406,6 +408,66 @@ static func _build_choice_preview_lines(choices: Array[Dictionary], lang: String
 		var label := String(labels.get(archetype, "[Choice]"))
 		lines.append("%s %s" % [label, summary])
 	return lines
+static func _generate_trolley_problem(context: Dictionary) -> String:
+	var lang := _resolve_language(context)
+	var template: String = str(context.get("template", ""))
+	if lang == "zh":
+		match template:
+			"sacrifice", "complicity", "lesser_evil":
+				pass
+			_:
+				template = "positive_energy_trap"
+		var dilemma := {
+			"scenario": "突然間，一名市民走進你的服務窗口，面色灰白，眼神空洞。他三週前失業了。Gloria站在你身後低聲催促：「告訴他一切都是天意！給他正能量！笑！」ARK的分析靜靜地閃爍：「受試者需要具體的就業資源和心理健康轉介。強制正向強化可能放大自我歸咎。」你只有三秒鐘。",
+			"choices": [
+				{
+					"id": "positive",
+					"text": "跟隨Gloria：「一切都是天意！保持正向！」",
+					"framing": "positive",
+					"immediate_consequence": "他勉強擠出一個微笑。Gloria拍拍你的肩膀：「做得好。」",
+					"long_term_consequence": "因相信「一切皆有意義」，他停止積極求職。六個月後，他出現在機構的「成功案例」影片裡帶著從未真正痊癒的微笑。",
+					"stat_changes": {"reality": -10, "positive_energy": 18, "entropy": 3},
+					"relationship_changes": [{"target": "gloria", "value": 8, "status": "讚許"}, {"target": "ark", "value": -8, "status": "失望"}]
+				},
+				{
+					"id": "realistic",
+					"text": "跟隨ARK：提供就業資源，並承認他的痛苦是真實的",
+					"framing": "honest",
+					"immediate_consequence": "Gloria事後把你拉到一旁：「你太負面了。你在傷害他。」他帶著通紅的雙眼和三份轉介表格離開。",
+					"long_term_consequence": "兩個月後他找到工作。他發了一封電郵給你，但機構的郵件過濾系統自動將其標記為「無關信件」並送進垃圾桶。",
+					"stat_changes": {"reality": 8, "positive_energy": -12, "entropy": 1},
+					"relationship_changes": [{"target": "gloria", "value": -12, "status": "敵對"}, {"target": "ark", "value": 10, "status": "認同"}]
+				},
+			],
+			"thematic_point": "毒性正能量最殘忍的地方：它讓受害者相信，自己的痛苦是自己的錯。",
+		}
+		return JSON.stringify(dilemma)
+	else:
+		var dilemma := {
+			"scenario": "Suddenly, a citizen walks into your service window, face ashen, eyes hollow. He lost his job three weeks ago. Gloria stands behind you and hisses: 'Tell him everything happens for a reason! Give him positive energy! Smile!' ARK's analysis flashes quietly: 'Subject requires concrete employment resources and mental health referral. Forced positivity reinforcement is likely to amplify self-blame.' You have three seconds.",
+			"choices": [
+				{
+					"id": "positive",
+					"text": "Follow Gloria: 'Everything happens for a reason! Stay positive!'",
+					"framing": "positive",
+					"immediate_consequence": "He forces a weak smile. Gloria pats your shoulder: 'Well done.' You're rated 'Excellent Attitude' in the monthly report.",
+					"long_term_consequence": "Believing 'everything has meaning,' he stops actively job-seeking. Six months later, he appears in the Agency's 'success story' video, smiling a smile that never truly healed.",
+					"stat_changes": {"reality": -10, "positive_energy": 18, "entropy": 3},
+					"relationship_changes": [{"target": "gloria", "value": 8, "status": "Praises"}, {"target": "ark", "value": -8, "status": "Disappointed"}]
+				},
+				{
+					"id": "realistic",
+					"text": "Follow ARK: Provide job resources and acknowledge his pain is real",
+					"framing": "honest",
+					"immediate_consequence": "Gloria pulls you aside afterward: 'You're being negative. You're hurting him.' He leaves with reddened eyes, and three referral forms in his hand.",
+					"long_term_consequence": "Two months later he finds work. He sends you an email, but the Agency's mail filter auto-tags it 'irrelevant' and sends it to trash. You never see what it said.",
+					"stat_changes": {"reality": 8, "positive_energy": -12, "entropy": 1},
+					"relationship_changes": [{"target": "gloria", "value": -12, "status": "Hostile"}, {"target": "ark", "value": 10, "status": "Aligned"}]
+				},
+			],
+			"thematic_point": "The cruelest part of toxic positivity: it makes victims believe their suffering is their own fault.",
+		}
+		return JSON.stringify(dilemma)
 static func _generate_generic() -> String:
 	var lang := _get_current_language()
 	var filler_keys := ["AI_OFFLINE_FILLER_1", "AI_OFFLINE_FILLER_2", "AI_OFFLINE_FILLER_3", "AI_OFFLINE_FILLER_4", "AI_OFFLINE_FILLER_5"]

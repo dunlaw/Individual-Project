@@ -1,6 +1,5 @@
 extends Control
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
-const TeammateSystem = preload("res://1.Codebase/src/scripts/core/teammate_system.gd")
 const ICON_QUIT = preload("res://1.Codebase/src/assets/ui/icon_quit.svg")
 var current_language: String = "en"
 var selected_character_id: String = ""
@@ -15,9 +14,10 @@ var _details_container: VBoxContainer
 var _graph_container: Control
 var _is_graph_mode: bool = false
 var _graph_nodes: Dictionary = {}
-var _reference_overlay: ColorRect
-var _reference_texture: TextureRect
-var _show_reference_btn: Button
+var _turnaround_overlay: ColorRect
+var _turnaround_texture: TextureRect
+var _show_turnaround_btn: Button
+
 func _ready():
 	var game_state = ServiceLocator.get_game_state() if ServiceLocator else null
 	current_language = game_state.current_language if game_state else "en"
@@ -36,51 +36,51 @@ func _init_character_data():
 			"title_key": "CHAR_PROTAGONIST_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_protagonist.png",
 			"desc_key": "CHAR_PROTAGONIST_DESC",
-			"reference_path": "res://1.Codebase/src/assets/characters/reference_protagonist.png"
+			"turnaround_path": "res://1.Codebase/src/assets/characters/turnaround_protagonist.png"
 		},
 		"gloria": {
 			"name_key": "CHAR_GLORIA_NAME",
 			"title_key": "CHAR_GLORIA_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_gloria.png",
 			"desc_key": "CHAR_GLORIA_DESC",
-			"reference_path": "res://1.Codebase/src/assets/characters/reference_gloria.png"
+			"turnaround_path": "res://1.Codebase/src/assets/characters/turnaround_gloria.png"
 		},
 		"donkey": {
 			"name_key": "CHAR_DONKEY_NAME",
 			"title_key": "CHAR_DONKEY_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_donkey.png",
 			"desc_key": "CHAR_DONKEY_DESC",
-			"reference_path": "res://1.Codebase/src/assets/characters/reference_donkey.png"
+			"turnaround_path": "res://1.Codebase/src/assets/characters/turnaround_donkey.png"
 		},
 		"ark": {
 			"name_key": "CHAR_ARK_NAME",
 			"title_key": "CHAR_ARK_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_ark.png",
 			"desc_key": "CHAR_ARK_DESC",
-			"reference_path": "res://1.Codebase/src/assets/characters/reference_ark.png"
+			"turnaround_path": "res://1.Codebase/src/assets/characters/turnaround_ark.png"
 		},
 		"one": {
 			"name_key": "CHAR_ONE_NAME",
 			"title_key": "CHAR_ONE_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_one.png",
 			"desc_key": "CHAR_ONE_DESC",
-			"reference_path": "res://1.Codebase/src/assets/characters/reference_one.png"
+			"turnaround_path": "res://1.Codebase/src/assets/characters/turnaround_one.png"
 		},
 		"teacher_chan": {
 			"name_key": "CHAR_TEACHER_NAME",
 			"title_key": "CHAR_TEACHER_TITLE",
 			"icon_path": "res://1.Codebase/src/assets/characters/portrait_teacher_chan.png",
 			"desc_key": "CHAR_TEACHER_DESC",
-			"reference_path": "res://1.Codebase/src/assets/characters/reference_teacher_chan.png"
+			"turnaround_path": "res://1.Codebase/src/assets/characters/turnaround_teacher_chan.png"
 		},
 		"fsm": {
 			"name_key": "CHAR_FSM_NAME",
 			"title_key": "CHAR_FSM_TITLE",
-			"icon_path": "",
-			"desc_key": "CHAR_FSM_DESC",
-			"reference_path": "res://1.Codebase/src/assets/characters/reference_fsm.png"
+			"icon_path": "res://1.Codebase/src/assets/ui/praytoMonster.png",
+			"desc_key": "CHAR_FSM_DESC"
 		}
 	}
+
 func _rebuild_ui_layout(panel: Control):
 	var children = panel.get_children()
 	for child in children:
@@ -163,40 +163,72 @@ func _rebuild_ui_layout(panel: Control):
 	_character_portrait = TextureRect.new()
 	_character_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_character_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_character_portrait.custom_minimum_size = Vector2(200, 200)
-	var portrait_hbox = HBoxContainer.new()
-	portrait_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_details_container.add_child(portrait_hbox)
-	portrait_hbox.add_child(_character_portrait)
-	_show_reference_btn = Button.new()
-	_show_reference_btn.text = _tr("CHAR_BUTTON_REFERENCE")
-	_show_reference_btn.connect("pressed", Callable(self, "_on_show_reference_pressed"))
-	UIStyleManager.apply_button_style(_show_reference_btn, "secondary", "small")
-	_show_reference_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	portrait_hbox.add_child(_show_reference_btn)
-	_reference_overlay = ColorRect.new()
-	_reference_overlay.color = Color(0, 0, 0, 0.85)
-	_reference_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_reference_overlay.visible = false
-	panel.add_child(_reference_overlay)
-	var ref_vbox = VBoxContainer.new()
-	ref_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
-	ref_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	_reference_overlay.add_child(ref_vbox)
-	_reference_texture = TextureRect.new()
-	_reference_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_reference_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_reference_texture.custom_minimum_size = Vector2(800, 600)
-	_reference_texture.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	ref_vbox.add_child(_reference_texture)
-	var close_ref_btn = Button.new()
-	close_ref_btn.text = _tr("CHAR_BUTTON_CLOSE")
-	close_ref_btn.icon = ICON_QUIT
-	close_ref_btn.expand_icon = true
-	close_ref_btn.connect("pressed", Callable(self, "_on_close_reference_pressed"))
-	UIStyleManager.apply_button_style(close_ref_btn, "primary", "medium")
-	close_ref_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	ref_vbox.add_child(close_ref_btn)
+	_character_portrait.custom_minimum_size = Vector2(320, 320)
+	_character_portrait.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var portrait_row = HBoxContainer.new()
+	portrait_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	portrait_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	portrait_row.add_theme_constant_override("separation", 24)
+	_details_container.add_child(portrait_row)
+	portrait_row.add_child(_character_portrait)
+	var action_column = VBoxContainer.new()
+	action_column.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	action_column.add_theme_constant_override("separation", 10)
+	portrait_row.add_child(action_column)
+	_show_turnaround_btn = Button.new()
+	_show_turnaround_btn.text = _tr("CHAR_BUTTON_REFERENCE")
+	_show_turnaround_btn.custom_minimum_size = Vector2(220, 72)
+	_show_turnaround_btn.connect("pressed", Callable(self, "_on_show_turnaround_pressed"))
+	UIStyleManager.apply_button_style(_show_turnaround_btn, "accent", "large")
+	action_column.add_child(_show_turnaround_btn)
+	var turnaround_hint = Label.new()
+	turnaround_hint.text = "Front / Side / Back"
+	turnaround_hint.add_theme_font_size_override("font_size", 14)
+	turnaround_hint.add_theme_color_override("font_color", Color(0.75, 0.82, 0.92))
+	turnaround_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	action_column.add_child(turnaround_hint)
+	_turnaround_overlay = ColorRect.new()
+	_turnaround_overlay.color = Color(0, 0, 0, 0.88)
+	_turnaround_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_turnaround_overlay.visible = false
+	panel.add_child(_turnaround_overlay)
+	var overlay_margin = MarginContainer.new()
+	overlay_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay_margin.add_theme_constant_override("margin_left", 48)
+	overlay_margin.add_theme_constant_override("margin_right", 48)
+	overlay_margin.add_theme_constant_override("margin_top", 36)
+	overlay_margin.add_theme_constant_override("margin_bottom", 36)
+	_turnaround_overlay.add_child(overlay_margin)
+	var overlay_panel = PanelContainer.new()
+	UIStyleManager.apply_panel_style(overlay_panel, 0.98, UIStyleManager.CORNER_RADIUS_LARGE)
+	overlay_margin.add_child(overlay_panel)
+	var overlay_vbox = VBoxContainer.new()
+	overlay_vbox.add_theme_constant_override("separation", 16)
+	overlay_panel.add_child(overlay_vbox)
+	var overlay_header = HBoxContainer.new()
+	overlay_header.alignment = BoxContainer.ALIGNMENT_CENTER
+	overlay_vbox.add_child(overlay_header)
+	var overlay_title = Label.new()
+	overlay_title.text = _tr("CHAR_BUTTON_REFERENCE")
+	overlay_title.add_theme_font_size_override("font_size", 26)
+	overlay_title.add_theme_color_override("font_color", Color(0.96, 0.96, 1.0))
+	overlay_header.add_child(overlay_title)
+	_turnaround_texture = TextureRect.new()
+	_turnaround_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_turnaround_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_turnaround_texture.custom_minimum_size = Vector2(960, 680)
+	_turnaround_texture.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_turnaround_texture.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	overlay_vbox.add_child(_turnaround_texture)
+	var close_turnaround_btn = Button.new()
+	close_turnaround_btn.text = _tr("CHAR_BUTTON_CLOSE")
+	close_turnaround_btn.icon = ICON_QUIT
+	close_turnaround_btn.expand_icon = true
+	close_turnaround_btn.custom_minimum_size = Vector2(220, 56)
+	close_turnaround_btn.connect("pressed", Callable(self, "_on_close_turnaround_pressed"))
+	UIStyleManager.apply_button_style(close_turnaround_btn, "primary", "medium")
+	close_turnaround_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	overlay_vbox.add_child(close_turnaround_btn)
 	_content_title = Label.new()
 	_content_title.text = ""
 	_content_title.add_theme_font_size_override("font_size", 32)
@@ -235,9 +267,9 @@ func _select_character(char_key: String):
 	else:
 		_character_portrait.texture = null
 		_character_portrait.visible = false
-	var ref_path = data.get("reference_path", "")
-	if _show_reference_btn:
-		_show_reference_btn.visible = (ref_path != "" and ResourceLoader.exists(ref_path))
+	var turnaround_path = data.get("turnaround_path", "")
+	if _show_turnaround_btn:
+		_show_turnaround_btn.visible = turnaround_path != "" and ResourceLoader.exists(turnaround_path)
 	_content_title.text = name_text + "\n" + title_text
 	_content_title.add_theme_font_size_override("font_size", 32)
 	var desc_text = _tr(data["desc_key"])
@@ -252,35 +284,41 @@ func _select_character(char_key: String):
 				else:
 					UIStyleManager.apply_button_style(btn, "secondary", "medium")
 			child_idx += 1
-func _on_show_reference_pressed():
+
+func _on_show_turnaround_pressed():
 	if selected_character_id == "" or not character_data.has(selected_character_id):
 		return
 	var data = character_data[selected_character_id]
-	var ref_path = data.get("reference_path", "")
-	if ref_path != "":
-		var tex = _load_texture_safe(ref_path)
-		if tex:
-			_reference_texture.texture = tex
-			_reference_overlay.visible = true
-			_reference_overlay.move_to_front()
-func _on_close_reference_pressed():
-	if _reference_overlay:
-		_reference_overlay.visible = false
+	var turnaround_path = data.get("turnaround_path", "")
+	if turnaround_path == "":
+		return
+	var tex = _load_texture_safe(turnaround_path)
+	if tex and _turnaround_overlay and _turnaround_texture:
+		_turnaround_texture.texture = tex
+		_turnaround_overlay.visible = true
+		_turnaround_overlay.move_to_front()
+
+func _on_close_turnaround_pressed():
+	if _turnaround_overlay:
+		_turnaround_overlay.visible = false
+
 func _on_close_pressed():
 	queue_free()
+
 func _input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.pressed or event.echo:
 		return
 	match (event as InputEventKey).keycode:
 		KEY_ESCAPE:
-			if _reference_overlay and _reference_overlay.visible:
-				_on_close_reference_pressed()
+			if _turnaround_overlay and _turnaround_overlay.visible:
+				_on_close_turnaround_pressed()
 			else:
 				_on_close_pressed()
 			get_viewport().set_input_as_handled()
 		KEY_G:
 			_toggle_graph_view()
 			get_viewport().set_input_as_handled()
+
 func _toggle_graph_view():
 	_is_graph_mode = true
 	if _details_container: _details_container.visible = false
@@ -290,6 +328,7 @@ func _toggle_graph_view():
 		if btn is Button:
 			UIStyleManager.apply_button_style(btn, "secondary", "medium")
 	_render_graph()
+
 func _render_graph():
 	if not _graph_container: return
 	for child in _graph_container.get_children():
@@ -308,6 +347,7 @@ func _render_graph():
 	_draw_relationship_lines()
 	for node in _graph_nodes.values():
 		node.move_to_front()
+
 func _create_graph_node(char_key: String, position: Vector2):
 	if not character_data.has(char_key): return
 	var data = character_data[char_key]
@@ -347,6 +387,7 @@ func _create_graph_node(char_key: String, position: Vector2):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			_select_character(char_key)
 	)
+
 func _draw_relationship_lines():
 	var player_node = _graph_nodes.get("protagonist")
 	if not player_node: return
@@ -382,6 +423,7 @@ func _draw_relationship_lines():
 		bg.position = mid_point - Vector2(30, 10)
 		bg.add_child(status_label)
 		_graph_container.add_child(bg)
+
 func _get_relationship_status(char_key: String) -> Dictionary:
 	var game_state = ServiceLocator.get_game_state() if ServiceLocator else null
 	if not game_state: return {"color": Color.GRAY, "width": 2, "text": "?"}
@@ -413,10 +455,12 @@ func _get_relationship_status(char_key: String) -> Dictionary:
 				result = {"color": Color.GRAY, "width": 1, "text": "RELATIONSHIP_DISTANT"}
 	result.text = _tr(result.text)
 	return result
+
 func _tr(key: String) -> String:
 	if LocalizationManager:
 		return LocalizationManager.get_translation(key, current_language)
 	return tr(key)
+
 func _load_texture_safe(path: String) -> Texture2D:
 	if path == "" or not ResourceLoader.exists(path):
 		return null

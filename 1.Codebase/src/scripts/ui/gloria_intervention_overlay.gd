@@ -76,7 +76,6 @@ func _ready() -> void:
 		_apply_diary_judgment_portrait()
 	_apply_localization()
 	_start_bgm()
-	_play_random_gloria_voice("open")
 	await get_tree().process_frame
 	if body_text.get_parsed_text().is_empty() and (not ai_guilt_text or ai_guilt_text.text.is_empty()):
 		_request_ai_guilt_trip()
@@ -227,6 +226,7 @@ func apply_content(base_line: String, argument_text: String) -> void:
 		_has_played_main_voice = true
 		_play_random_gloria_voice("guilt")
 func _animate_in() -> void:
+	_play_random_gloria_voice("open")
 	dim_background.modulate.a = 0.0
 	var bg_tween := dim_background.create_tween()
 	bg_tween.set_ease(Tween.EASE_OUT)

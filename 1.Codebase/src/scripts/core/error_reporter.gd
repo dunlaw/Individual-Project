@@ -32,14 +32,15 @@ func _report(level: ErrorLevel, context: String, message: String, error_code: in
 		formatted_msg += " (Error code: %d)" % error_code
 	if not details.is_empty():
 		formatted_msg += " | Details: %s" % JSON.stringify(details)
+	var timestamped_msg = "[%s] %s" % [_get_console_timestamp(), formatted_msg]
 	if enable_console_logs:
 		match level:
 			ErrorLevel.INFO:
-				print(formatted_msg)
+				print(timestamped_msg)
 			ErrorLevel.WARNING:
-				print("[WARN] %s" % formatted_msg)
+				print("[WARN] %s" % timestamped_msg)
 			ErrorLevel.ERROR, ErrorLevel.CRITICAL:
-				print("[ERROR] %s" % formatted_msg)
+				print("[ERROR] %s" % timestamped_msg)
 	if log_to_file:
 		_log_to_file(level, context, message, error_code, details)
 	if enable_user_notifications and (notify_user or level == ErrorLevel.CRITICAL):
@@ -109,7 +110,7 @@ func _log_to_file(level: ErrorLevel, context: String, message: String, error_cod
 	var file = FileAccess.open(log_file_path, FileAccess.READ_WRITE)
 	if file:
 		file.seek_end()
-		var timestamp = Time.get_datetime_string_from_system()
+		var timestamp = _get_console_timestamp()
 		var level_str = _get_level_string(level)
 		var log_entry = "[%s] [%s] %s: %s" % [timestamp, level_str, context, message]
 		if error_code >= 0:
@@ -118,6 +119,16 @@ func _log_to_file(level: ErrorLevel, context: String, message: String, error_cod
 			log_entry += " | Details: %s" % JSON.stringify(details)
 		file.store_line(log_entry)
 		file.close()
+func _get_console_timestamp() -> String:
+	var datetime: Dictionary = Time.get_datetime_dict_from_system()
+	return "%02d/%02d/%04d %02d:%02d:%02d" % [
+		int(datetime.get("day", 0)),
+		int(datetime.get("month", 0)),
+		int(datetime.get("year", 0)),
+		int(datetime.get("hour", 0)),
+		int(datetime.get("minute", 0)),
+		int(datetime.get("second", 0)),
+	]
 func get_statistics() -> Dictionary:
 	return {
 		"errors": error_count,

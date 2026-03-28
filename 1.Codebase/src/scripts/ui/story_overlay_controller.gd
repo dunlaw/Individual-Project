@@ -6,6 +6,7 @@ var journal_menu_instance: Control = null
 var characters_page_instance: Control = null
 var night_overlay_instance: Control = null
 var gloria_overlay_instance: Control = null
+var prayer_overlay_instance: Control = null
 var export_story_dialog_instance: Control = null
 var _is_diary_verdict_active: bool = false
 var overlay_pause_requests: int = 0
@@ -309,6 +310,9 @@ func _on_relationship_graph_closed(paused_here: bool, instance: Node) -> void:
 	if audio_manager:
 		audio_manager.play_sfx("menu_click")
 func open_prayer_system() -> void:
+	if prayer_overlay_instance and is_instance_valid(prayer_overlay_instance):
+		prayer_overlay_instance.queue_free()
+		prayer_overlay_instance = null
 	if story_scene:
 		for child in story_scene.get_children():
 			if child and is_instance_valid(child) and child.name == "ChoiceSelectionOverlay":
@@ -322,10 +326,12 @@ func open_prayer_system() -> void:
 		return
 	var paused_here: bool = push_overlay_pause()
 	var prayer_instance: Control = prayer_scene.instantiate()
+	prayer_overlay_instance = prayer_instance
 	_prepare_overlay_node(prayer_instance)
 	story_scene.add_child(prayer_instance)
 	if prayer_instance is Control:
 		prayer_instance.z_index = 200
+	prayer_instance.tree_exiting.connect(_on_prayer_overlay_tree_exiting.bind(prayer_instance), CONNECT_ONE_SHOT)
 	var context = "mission"
 	if story_scene.has_method("get") and story_scene.get("state_controller"):
 		var state_ctrl = story_scene.get("state_controller")
@@ -340,7 +346,11 @@ func open_prayer_system() -> void:
 	var audio_manager = get_audio_manager()
 	if audio_manager:
 		audio_manager.play_sfx("prayer_start")
+func _on_prayer_overlay_tree_exiting(instance: Node) -> void:
+	if prayer_overlay_instance == instance:
+		prayer_overlay_instance = null
 func _on_prayer_completed(result: Dictionary, paused_here: bool) -> void:
+	prayer_overlay_instance = null
 	pop_overlay_pause(paused_here)
 	var game_state = get_game_state()
 	if game_state:
@@ -370,8 +380,10 @@ func _on_prayer_completed(result: Dictionary, paused_here: bool) -> void:
 			story_scene.narrative_controller.start_new_mission()
 	else:
 		if story_scene.choice_controller:
-			story_scene.choice_controller.generate_choices()
+			if not story_scene.choice_controller.restore_choices_after_prayer():
+				story_scene.choice_controller.generate_choices()
 func _on_prayer_cancelled(paused_here: bool) -> void:
+	prayer_overlay_instance = null
 	pop_overlay_pause(paused_here)
 	var context = "mission"
 	var _sc_cancelled = story_scene.get("state_controller") if story_scene else null
@@ -385,7 +397,8 @@ func _on_prayer_cancelled(paused_here: bool) -> void:
 				night_overlay.visible = true
 				return
 	if story_scene.choice_controller:
-		story_scene.choice_controller.generate_choices()
+		if not story_scene.choice_controller.restore_choices_after_prayer():
+			story_scene.choice_controller.generate_choices()
 func enter_night_cycle(payload: Dictionary) -> void:
 	story_scene.in_night_cycle = true
 	story_scene.last_night_payload = payload

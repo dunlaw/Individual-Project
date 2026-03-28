@@ -92,7 +92,12 @@ func get_voice_settings() -> Dictionary:
 func apply_voice_settings(settings: Dictionary) -> void:
 	if _voice_bridge == null:
 		return
-	_voice_bridge.apply_settings(settings)
+	var sanitized_settings := settings.duplicate(true)
+	if not _supports_proactive_audio():
+		sanitized_settings["proactive_audio_enabled"] = false
+	if not _supports_affective_dialog():
+		sanitized_settings["affective_dialog_enabled"] = false
+	_voice_bridge.apply_settings(sanitized_settings)
 	_voice_bridge.update_native_support(_evaluate_native_voice_support())
 func queue_voice_input(pcm_bytes: PackedByteArray, sample_rate: int = DEFAULT_INPUT_SAMPLE_RATE, mime_type: String = "") -> void:
 	if _voice_bridge == null:
@@ -144,6 +149,10 @@ func sync_voice_flags_from_settings_file() -> void:
 		"proactive_audio_enabled": config.get_value("voice", "proactive_audio_enabled", voice_session.proactive_audio_enabled),
 		"affective_dialog_enabled": config.get_value("voice", "affective_dialog_enabled", voice_session.affective_dialog_enabled),
 	}
+	if not _supports_proactive_audio():
+		overrides["proactive_audio_enabled"] = false
+	if not _supports_affective_dialog():
+		overrides["affective_dialog_enabled"] = false
 	_voice_bridge.apply_settings(overrides)
 	refresh_capabilities()
 func process_voice_payloads(audio_payloads: Array) -> void:
@@ -151,6 +160,20 @@ func process_voice_payloads(audio_payloads: Array) -> void:
 		voice_session.process_voice_payloads(audio_payloads, DEFAULT_OUTPUT_SAMPLE_RATE)
 func is_initialized() -> bool:
 	return _voice_bridge != null and voice_session != null
+func _supports_proactive_audio() -> bool:
+	var normalized_model := _get_current_gemini_model()
+	if normalized_model == "gemini-3.1-flash-live-preview":
+		return false
+	return normalized_model.find("native-audio") != -1
+func _supports_affective_dialog() -> bool:
+	var normalized_model := _get_current_gemini_model()
+	if normalized_model == "gemini-3.1-flash-live-preview":
+		return false
+	return normalized_model.find("native-audio") != -1
+func _get_current_gemini_model() -> String:
+	if not _config_manager or _config_manager.current_provider != AIProvider.GEMINI:
+		return ""
+	return _config_manager.gemini_model.strip_edges().to_lower()
 func _on_voice_session_capability_changed(supported: bool) -> void:
 	voice_capability_changed.emit(supported)
 func _on_voice_session_input_ready(pcm: PackedByteArray, sample_rate: int, metadata: Dictionary) -> void:

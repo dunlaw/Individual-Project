@@ -1,6 +1,57 @@
 extends Node
 var tests_passed: int = 0
 var tests_failed: int = 0
+class MockLiveClient:
+	extends Node
+	signal connection_established()
+	signal connection_closed(code, reason)
+	signal connection_error()
+	signal setup_response_received(response)
+	signal server_message_received(message)
+	signal error_received(error_message)
+	signal session_updated(session_handle)
+	var connect_calls: Array = []
+	var seeded_history: Array = []
+	var close_calls: Array = []
+	func connect_to_server(
+			model_name: String,
+			api_key: String,
+			config: Dictionary,
+			session_handle: String = "",
+			system_instruction: String = "",
+			speech_config: Dictionary = { },
+			transcription_config: Dictionary = { },
+			realtime_input_config: Dictionary = { },
+	) -> void:
+		connect_calls.append({
+			"model_name": model_name,
+			"api_key": api_key,
+			"config": config.duplicate(true),
+			"session_handle": session_handle,
+			"system_instruction": system_instruction,
+			"speech_config": speech_config.duplicate(true),
+			"transcription_config": transcription_config.duplicate(true),
+			"realtime_input_config": realtime_input_config.duplicate(true),
+		})
+	func seed_initial_history(turns: Array) -> void:
+		seeded_history = turns.duplicate(true)
+	func close_connection(code: int = 1000, reason: String = "Client requested disconnect") -> void:
+		close_calls.append({
+			"code": code,
+			"reason": reason,
+		})
+class MockVoiceSession:
+	extends Node
+	func prefers_native_audio() -> bool:
+		return true
+	func wants_voice_output() -> bool:
+		return true
+	func wants_voice_input() -> bool:
+		return false
+	func get_preferred_voice_name() -> String:
+		return "Kore"
+	func process_transcription_entry(_entry: Variant, _direction: String) -> void:
+		pass
 func _ready() -> void:
 	print("\n" + "=".repeat(80))
 	print("   TESTING AI PROVIDERS")
@@ -9,6 +60,9 @@ func _ready() -> void:
 	await _test_provider_base_interface()
 	await _test_gemini_provider_structure()
 	await _test_provider_configuration()
+	await _test_gemini_live_request_configuration()
+	await _test_gemini_live_transcription_fallback()
+	await _test_gemini_live_expected_close()
 	await _test_provider_signals()
 	await _test_error_handling()
 	_print_summary()
@@ -86,6 +140,101 @@ func _test_provider_configuration() -> void:
 	_assert(config["api_key"] == "test_key_123", "Config should return correct API key")
 	_assert(config["model"] == "gemini-pro", "Config should return correct model")
 	print("    PASS: Provider configuration")
+func _test_gemini_live_request_configuration() -> void:
+	print("\n[Test] Gemini Live request configuration...")
+	var GeminiProviderScript = load("res://1.Codebase/src/scripts/core/ai/gemini_provider.gd")
+	var gemini = GeminiProviderScript.new()
+	var mock_http := HTTPRequest.new()
+	var mock_live := MockLiveClient.new()
+	var mock_voice := MockVoiceSession.new()
+	add_child(mock_http)
+	add_child(mock_live)
+	add_child(mock_voice)
+	gemini.api_key = "test_key_123"
+	gemini.model = "gemini-3.1-flash-live-preview"
+	gemini.setup(mock_http, mock_live, mock_voice)
+	gemini._send_live_request([
+		{ "role": "system", "content": "Speak naturally." },
+		{ "role": "assistant", "content": "Previous reply." },
+		{ "role": "user", "parts": [{ "text": "Tell me a story." }] },
+	])
+	_assert(mock_live.connect_calls.size() == 1, "Live request should open exactly one WebSocket session")
+	if mock_live.connect_calls.size() > 0:
+		var connect_call: Dictionary = mock_live.connect_calls[0]
+		_assert(connect_call["config"].has("thinkingConfig"),
+			"Gemini 3.1 Live should use thinkingConfig in generation config")
+		_assert(connect_call["config"]["thinkingConfig"].get("thinkingLevel", "") == "minimal",
+			"Gemini 3.1 Live should default to minimal thinking level")
+		_assert(connect_call["realtime_input_config"].get("turnCoverage", "") == "TURN_INCLUDES_ONLY_ACTIVITY",
+			"Gemini 3.1 Live should pin turn coverage to activity-only behavior")
+		_assert(bool(connect_call["transcription_config"].get("output", false)),
+			"Gemini 3.1 Live should enable output transcription for voice responses")
+	_assert(mock_live.seeded_history.size() == 1, "Assistant history should be seeded via clientContent before live turn")
+	mock_http.queue_free()
+	mock_live.queue_free()
+	mock_voice.queue_free()
+	print("    PASS: Gemini Live request configuration")
+func _test_gemini_live_transcription_fallback() -> void:
+	print("\n[Test] Gemini Live transcription fallback...")
+	var GeminiProviderScript = load("res://1.Codebase/src/scripts/core/ai/gemini_provider.gd")
+	var gemini = GeminiProviderScript.new()
+	var response_holder := { "data": { } }
+	gemini.pending_callback = func(response): response_holder["data"] = response
+	gemini.is_requesting = true
+	gemini._extract_live_response_chunks({
+		"serverContent": {
+			"outputTranscription": { "text": "Hello" },
+		},
+	})
+	gemini._extract_live_response_chunks({
+		"serverContent": {
+			"outputTranscription": { "text": "Hello there" },
+		},
+	})
+	_assert(gemini._live_output_transcription_text == "Hello there",
+		"Gemini Live should keep the latest cumulative output transcription")
+	gemini._on_live_api_server_message({
+		"serverContent": {
+			"turnComplete": true,
+		},
+	})
+	var captured_response: Dictionary = response_holder.get("data", {})
+	_assert(captured_response.get("content", "") == "Hello there",
+		"Gemini Live should fall back to output transcription when no text parts arrive")
+	print("    PASS: Gemini Live transcription fallback")
+func _test_gemini_live_expected_close() -> void:
+	print("\n[Test] Gemini Live expected close handling...")
+	var GeminiProviderScript = load("res://1.Codebase/src/scripts/core/ai/gemini_provider.gd")
+	var gemini = GeminiProviderScript.new()
+	var mock_http := HTTPRequest.new()
+	var mock_live := MockLiveClient.new()
+	add_child(mock_http)
+	add_child(mock_live)
+	gemini.setup(mock_http, mock_live, null)
+	gemini.pending_callback = func(_response): pass
+	gemini.is_requesting = true
+	gemini._extract_live_response_chunks({
+		"serverContent": {
+			"modelTurn": {
+				"parts": [
+					{ "text": "Done." },
+				],
+			},
+		},
+	})
+	gemini._on_live_api_server_message({
+		"serverContent": {
+			"turnComplete": true,
+		},
+	})
+	_assert(mock_live.close_calls.size() == 1,
+		"Gemini Live should close the websocket after a completed turn")
+	gemini._on_live_api_connection_closed(1000, "Live turn completed")
+	_assert(gemini.is_requesting == false,
+		"Expected websocket close after completion should not reopen request state")
+	mock_http.queue_free()
+	mock_live.queue_free()
+	print("    PASS: Gemini Live expected close handling")
 func _test_provider_signals() -> void:
 	print("\n[Test] Provider signals...")
 	var AIProviderBaseScript = load("res://1.Codebase/src/scripts/core/ai/ai_provider_base.gd")

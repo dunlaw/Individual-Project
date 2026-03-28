@@ -456,36 +456,61 @@ func get_latest_save_info() -> Dictionary:
 	return { "exists": false }
 func has_saved_game() -> bool:
 	return get_latest_save_info().get("exists", false)
+func _find_latest_manual_save_slot() -> int:
+	var latest_timestamp: float = -1.0
+	var latest_slot: int = -1
+	for slot in range(1, MAX_SAVE_SLOTS + 1):
+		var slot_info := get_save_slot_info(slot)
+		if not slot_info.get("exists", false):
+			continue
+		var slot_timestamp := float(slot_info.get("timestamp", 0))
+		if slot_timestamp > latest_timestamp:
+			latest_timestamp = slot_timestamp
+			latest_slot = slot
+	return latest_slot
+func _refresh_current_save_slot_after_delete(deleted_slot: int) -> void:
+	if current_save_slot != deleted_slot:
+		return
+	var fallback_slot := _find_latest_manual_save_slot()
+	current_save_slot = fallback_slot if fallback_slot != -1 else 1
+func _delete_save_file_pair(main_name: String, backup_name: String, main_label: String, backup_label: String) -> bool:
+	var success := true
+	if _file_exists(main_name):
+		if not _remove_file(main_name):
+			success = false
+			ErrorReporter.report_error(ERROR_CONTEXT, "Failed to delete %s" % main_label, -1, false, { "path": main_name })
+		else:
+			ErrorReporter.report_info(ERROR_CONTEXT, "Deleted %s" % main_label, { "path": main_name })
+	if _file_exists(backup_name):
+		if not _remove_file(backup_name):
+			success = false
+			ErrorReporter.report_error(ERROR_CONTEXT, "Failed to delete %s" % backup_label, -1, false, { "path": backup_name })
+		else:
+			ErrorReporter.report_info(ERROR_CONTEXT, "Deleted %s" % backup_label, { "path": backup_name })
+	return success
 func delete_save_slot(slot: int) -> bool:
 	slot = clamp(slot, 1, MAX_SAVE_SLOTS)
 	var main_name = "user://gda1_save_slot_%d.dat" % slot
 	var backup_name = "user://gda1_save_slot_%d_backup.dat" % slot
-	var success = true
-	if _file_exists(main_name):
-		if not _remove_file(main_name):
-			success = false
-			ErrorReporter.report_error(ERROR_CONTEXT, "Failed to delete save slot %d" % slot, -1)
-		else:
-			ErrorReporter.report_info(ERROR_CONTEXT, "Deleted main save file " + main_name)
-	if _file_exists(backup_name):
-		if _remove_file(backup_name):
-			ErrorReporter.report_info(ERROR_CONTEXT, "Deleted backup save file " + backup_name)
+	var success := _delete_save_file_pair(
+		main_name,
+		backup_name,
+		"save slot %d" % slot,
+		"save slot %d backup" % slot,
+	)
 	if success:
+		_refresh_current_save_slot_after_delete(slot)
 		ErrorReporter.report_info(ERROR_CONTEXT, "Save slot %d and its backup have been removed." % slot)
 	return success
 func delete_autosave() -> bool:
 	var main_name = "user://gda1_autosave.dat"
 	var backup_name = "user://gda1_autosave_backup.dat"
-	var success = true
-	if _file_exists(main_name):
-		if not _remove_file(main_name):
-			success = false
-			ErrorReporter.report_error(ERROR_CONTEXT, "Failed to delete autosave", -1)
-		else:
-			ErrorReporter.report_info(ERROR_CONTEXT, "Deleted autosave file")
-	if _file_exists(backup_name):
-		if _remove_file(backup_name):
-			ErrorReporter.report_info(ERROR_CONTEXT, "Deleted autosave backup file")
+	var success := _delete_save_file_pair(
+		main_name,
+		backup_name,
+		"autosave",
+		"autosave backup",
+	)
 	if success:
 		ErrorReporter.report_info(ERROR_CONTEXT, "Autosave and its backup have been removed.")
 	return success

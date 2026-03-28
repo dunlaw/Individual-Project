@@ -347,7 +347,7 @@ func _dispatch_to_provider(full_messages: Array[Dictionary]) -> void:
 	var timeout_seconds := _request_timeout
 	if _config_manager and _config_manager.current_provider == AIProvider.GEMINI:
 		var normalized_model := String(_config_manager.gemini_model).strip_edges().to_lower()
-		if normalized_model.find("native-audio") != -1:
+		if normalized_model.find("native-audio") != -1 or normalized_model.find("flash-live") != -1:
 			timeout_seconds = max(timeout_seconds, LIVE_NATIVE_AUDIO_TIMEOUT)
 	_timeout_timer.start(timeout_seconds)
 	request_started.emit()

@@ -155,7 +155,7 @@ popup/item_3/id = 3
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 modulate = Color(0.85, 0.85, 0.85, 1)
-text = "Model list last updated: March 2026.\nThis list is curated for compatibility and stability. Not every Gemini model ID or configuration is supported in-game.\nSupported in this game: Gemini 3.1 Flash Lite (★ recommended for text), Gemini 3.1 Pro, Gemini 3 Flash (text-only), and Gemini 3.1 Flash Live (for voice).\nNative audio model (gemini-3.1-flash-live-preview) is required for voice interaction features.\nIf you need voice features, select the native audio model. For text-only interaction, use Gemini 3.1 Flash Lite.\nIf Gemini models are discontinued in the future, please switch to Ollama (Local) or OpenRouter instead (quality may vary)."
+text = "Model list last updated: March 2026.\nThis list is curated for compatibility and stability. Not every Gemini model ID or configuration is supported in-game.\nSupported in this game: Gemini 3.1 Flash Lite (★ recommended for text), Gemini 3.1 Pro, Gemini 3 Flash (text-only), and Gemini 3.1 Flash Live (for voice).\nCurrent Live model: gemini-3.1-flash-live-preview.\nGemini 3.1 Flash Live replaces Gemini 2.5 Flash Native Audio for in-game voice interaction.\nGemini 3.1 Flash Live currently does not support proactive audio or affective dialog in this game.\nIf you need voice features, select the live model. For text-only interaction, use Gemini 3.1 Flash Lite.\nIf Gemini models are discontinued in the future, please switch to Ollama (Local) or OpenRouter instead (quality may vary)."
 autowrap_mode = 3
 
 [node name="GeminiDisabledLabel" type="Label" parent="ScrollContainer/Panel/VBoxContainer"]

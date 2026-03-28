@@ -18,6 +18,11 @@ class MockGameState extends RefCounted:
 	func load_save_data(data: Dictionary) -> void:
 		load_data_called = true
 		last_loaded_data = data
+func _get_error_reporter() -> Node:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return null
+	return tree.root.get_node_or_null("ErrorReporter")
 func _ready():
 	print("\n" + "=".repeat(80))
 	print(" SAVE/LOAD SYSTEM TEST SUITE")
@@ -25,7 +30,9 @@ func _ready():
 	await run_all_tests()
 	print_summary()
 	cleanup_test_files()
+	var exit_code := 0 if _test_results.all(func(result): return bool(result.get("passed", false))) else 1
 	queue_free()
+	get_tree().quit(exit_code)
 func run_all_tests():
 	await run_test("Initialization", test_initialization)
 	await run_test("Autosave Creation", test_autosave)
@@ -175,18 +182,26 @@ func test_has_saved_game() -> bool:
 func test_delete_slot() -> bool:
 	var success = true
 	_save_system.save_to_slot(3)
+	_save_system.save_to_slot(3)
+	_save_system.current_save_slot = 3
 	success = assert_file_exists("user://gda1_save_slot_3.dat", "Slot 3 created") and success
+	success = assert_file_exists("user://gda1_save_slot_3_backup.dat", "Slot 3 backup created") and success
 	var result = _save_system.delete_save_slot(3)
 	success = assert_true(result, "Delete succeeded") and success
 	success = assert_file_not_exists("user://gda1_save_slot_3.dat", "Slot 3 deleted") and success
+	success = assert_file_not_exists("user://gda1_save_slot_3_backup.dat", "Slot 3 backup deleted") and success
+	success = assert_equal(_save_system.current_save_slot, 1, "Current slot falls back after deleting active slot") and success
 	return success
 func test_delete_autosave() -> bool:
 	var success = true
 	_save_system.autosave()
+	_save_system.autosave()
 	success = assert_file_exists("user://gda1_autosave.dat", "Autosave created") and success
+	success = assert_file_exists("user://gda1_autosave_backup.dat", "Autosave backup created") and success
 	var result = _save_system.delete_autosave()
 	success = assert_true(result, "Delete succeeded") and success
 	success = assert_file_not_exists("user://gda1_autosave.dat", "Autosave deleted") and success
+	success = assert_file_not_exists("user://gda1_autosave_backup.dat", "Autosave backup deleted") and success
 	return success
 func test_backup_creation() -> bool:
 	var success = true
@@ -221,26 +236,27 @@ func test_empty_gamestate() -> bool:
 	var previous_console_logs := true
 	var previous_notifications := true
 	var previous_error_count := 0
-	if ErrorReporter:
-		previous_console_logs = ErrorReporter.enable_console_logs
-		previous_notifications = ErrorReporter.enable_user_notifications
-		previous_error_count = int(ErrorReporter.error_count)
-		ErrorReporter.enable_console_logs = false
-		ErrorReporter.enable_user_notifications = false
+	var error_reporter := _get_error_reporter()
+	if error_reporter:
+		previous_console_logs = error_reporter.enable_console_logs
+		previous_notifications = error_reporter.enable_user_notifications
+		previous_error_count = int(error_reporter.error_count)
+		error_reporter.enable_console_logs = false
+		error_reporter.enable_user_notifications = false
 	var result = empty_system.autosave()
 	success = assert_equal(result, false, "Autosave fails without GameState") and success
 	result = empty_system.save_to_slot(1)
 	success = assert_equal(result, false, "Save fails without GameState") and success
 	result = empty_system.load_from_slot(1)
 	success = assert_equal(result, false, "Load fails without GameState") and success
-	if ErrorReporter:
+	if error_reporter:
 		success = assert_equal(
-			int(ErrorReporter.error_count),
+			int(error_reporter.error_count),
 			previous_error_count + 3,
 			"Expected GameState-not-set errors are still recorded"
 		) and success
-		ErrorReporter.enable_console_logs = previous_console_logs
-		ErrorReporter.enable_user_notifications = previous_notifications
+		error_reporter.enable_console_logs = previous_console_logs
+		error_reporter.enable_user_notifications = previous_notifications
 	return success
 func cleanup_test_files():
 	var dir = DirAccess.open("user://")

@@ -37,6 +37,7 @@ var choice_buttons: Array[Button] = []
 var choices_container: VBoxContainer
 var show_options_button: Button
 var current_choices: Array[Dictionary] = []
+var _cached_prayer_return_choices: Array[Dictionary] = []
 var force_prayer_only: bool = false
 func _tr(key: String) -> String:
 	if LocalizationManager:
@@ -100,11 +101,17 @@ func generate_choices() -> void:
 	if _get_scene_flag("in_night_cycle"):
 		hide_choice_buttons()
 		return
-	if force_prayer_only:
+	var should_force_prayer_only: bool = force_prayer_only
+	if story_scene and story_scene.state_controller:
+		should_force_prayer_only = should_force_prayer_only or story_scene.state_controller.is_force_prayer_only()
+	if should_force_prayer_only:
 		force_prayer_only = false
+		if story_scene and story_scene.state_controller:
+			story_scene.state_controller.set_force_prayer_only(false)
 		_show_prayer_only(prayer_text)
 		return
 	current_choices = _build_choice_list(lang, prayer_text)
+	_sync_current_choices_metadata()
 	_display_choices()
 func _build_choice_list(lang: String, prayer_text: String) -> Array[Dictionary]:
 	var choices: Array[Dictionary] = []
@@ -168,8 +175,7 @@ func apply_ai_choices(ai_choices: Array[Dictionary], lang: String) -> void:
 		"effect_type": "prayer"
 	})
 	current_choices = normalized
-	if GameState:
-		GameState.set_metadata("current_choices", current_choices)
+	_sync_current_choices_metadata()
 	_display_choices()
 func _build_archetype_choice(entry: Dictionary, lang: String) -> Dictionary:
 	var archetype := String(entry.get("archetype", "")).to_lower()
@@ -203,6 +209,7 @@ func _show_prayer_only(prayer_text: String) -> void:
 			"difficulty": 0,
 		},
 	]
+	_sync_current_choices_metadata()
 	for i in range(choice_buttons.size()):
 		var button := choice_buttons[i]
 		if i == 0:
@@ -237,6 +244,13 @@ func _display_choices() -> void:
 		if button:
 			button.visible = false
 			button.disabled = true
+	var max_buttons: int = int(min(current_choices.size(), choice_buttons.size()))
+	for i in range(max_buttons):
+		_setup_choice_button(i)
+	if show_options_button:
+		var has_extra_choices: bool = current_choices.size() > choice_buttons.size()
+		show_options_button.visible = has_extra_choices
+		show_options_button.disabled = not has_extra_choices
 func _setup_choice_button(index: int) -> void:
 	var button: Button = choice_buttons[index]
 	var choice: Dictionary = current_choices[index]
@@ -261,7 +275,8 @@ func _animate_choice_entrance(button: Button, index: int) -> void:
 	button.scale = Vector2(0.85, 0.85)
 	var original_y := button.position.y
 	button.position.y += 20.0
-	await story_scene.get_tree().create_timer(0.12 * float(index)).timeout
+	var _anim_timer := story_scene.get_tree().create_timer(0.12 * float(index), true, false, true)
+	await _anim_timer.timeout
 	var tween := button.create_tween()
 	tween.set_parallel(true)
 	tween.set_ease(Tween.EASE_OUT)
@@ -502,6 +517,7 @@ func _process_reckless_choice(choice: Dictionary, lang: String) -> void:
 	if story_scene.narrative_controller:
 		story_scene.narrative_controller.request_consequence_generation(choice, false)
 func _process_prayer_choice() -> void:
+	cache_choices_for_prayer()
 	if story_scene:
 		var tutorial_system = ServiceLocator.get_tutorial_system() if ServiceLocator else null
 		if tutorial_system and tutorial_system.has_method("check_tutorial_trigger"):
@@ -515,6 +531,7 @@ func hide_choice_buttons() -> void:
 		button.visible = false
 func clear_and_hide() -> void:
 	current_choices.clear()
+	_sync_current_choices_metadata()
 	hide_choice_buttons()
 	if choices_container:
 		choices_container.visible = false
@@ -531,6 +548,24 @@ func enable_choice_buttons() -> void:
 	for button in choice_buttons:
 		if button.visible:
 			button.disabled = false
+func cache_choices_for_prayer() -> void:
+	_cached_prayer_return_choices.clear()
+	if current_choices.is_empty():
+		return
+	_cached_prayer_return_choices = current_choices.duplicate(true)
+func restore_choices_after_prayer() -> bool:
+	if _cached_prayer_return_choices.is_empty():
+		return false
+	current_choices = _cached_prayer_return_choices.duplicate(true)
+	_cached_prayer_return_choices.clear()
+	_sync_current_choices_metadata()
+	_display_choices()
+	return true
+func clear_cached_prayer_choices() -> void:
+	_cached_prayer_return_choices.clear()
+func _sync_current_choices_metadata() -> void:
+	if GameState:
+		GameState.set_metadata("current_choices", current_choices.duplicate(true))
 func _clamp_summary_length(summary: String) -> String:
 	var trimmed := summary.strip_edges()
 	if trimmed.is_empty():

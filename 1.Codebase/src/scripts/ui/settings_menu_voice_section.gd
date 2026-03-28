@@ -16,6 +16,15 @@ static func gather_preferences(
 		"voice_input_mode": voice_input_mode,
 		"proactive_audio_enabled": voice_proactive_enabled,
 	}
+static func supports_proactive_audio(ai_manager: Node) -> bool:
+	if not ai_manager:
+		return false
+	if ai_manager.current_provider != ai_manager.AIProvider.GEMINI:
+		return false
+	var model_name := String(ai_manager.gemini_model).strip_edges().to_lower()
+	if model_name == "gemini-3.1-flash-live-preview":
+		return false
+	return model_name.find("native-audio") != -1
 static func build_availability_text(ai_manager: Node, voice_supported: bool) -> String:
 	if not ai_manager:
 		return "Native voice unavailable (AI Manager missing)."
@@ -33,7 +42,10 @@ static func build_availability_text(ai_manager: Node, voice_supported: bool) -> 
 		ai_manager.AIProvider.OLLAMA:
 			provider_name = "Ollama (Local)"
 			model_name = ai_manager.ollama_model
-	return "Native audio ready via %s (%s)." % [provider_name, model_name]
+	var suffix := ""
+	if ai_manager.current_provider == ai_manager.AIProvider.GEMINI and String(model_name).strip_edges().to_lower() == "gemini-3.1-flash-live-preview":
+		suffix = " Proactive listening is unavailable on Gemini 3.1 Flash Live."
+	return "Native audio ready via %s (%s).%s" % [provider_name, model_name, suffix]
 static func try_enable_gemini_native_audio(ai_manager: Node) -> bool:
 	if not ai_manager:
 		return false

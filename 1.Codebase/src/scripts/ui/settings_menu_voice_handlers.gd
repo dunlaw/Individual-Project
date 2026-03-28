@@ -105,6 +105,8 @@ func initialize(preloaded: Dictionary = {}) -> void:
 		voice_enabled        = false
 		voice_output_enabled = false
 		voice_input_enabled  = false
+	if not SettingsMenuVoiceSectionScript.supports_proactive_audio(_get_ai_manager_fn.call()):
+		voice_proactive_enabled = false
 	if _volume_slider:
 		_volume_slider.value = voice_volume
 	_update_volume_display()
@@ -159,10 +161,13 @@ func cancel_capture(ai_manager: Node) -> void:
 		voice_capture_active = false
 func sync_ui_state() -> void:
 	var supported := voice_supported
+	var proactive_supported := SettingsMenuVoiceSectionScript.supports_proactive_audio(_get_ai_manager_fn.call())
 	if voice_enabled and not supported:
 		voice_enabled        = false
 		voice_output_enabled = false
 		voice_input_enabled  = false
+	if not proactive_supported:
+		voice_proactive_enabled = false
 	if not (voice_enabled and supported):
 		voice_capture_active = false
 	_set_button_safely_fn.call(_enabled_check, voice_enabled and supported)
@@ -181,7 +186,9 @@ func sync_ui_state() -> void:
 	var continuous_available := voice_enabled and supported and voice_input_enabled
 	_input_mode_option.disabled = not continuous_available
 	_set_button_safely_fn.call(_proactive_check, voice_proactive_enabled)
-	_proactive_check.disabled  = not (voice_enabled and supported and voice_output_enabled)
+	_proactive_check.disabled  = not (voice_enabled and supported and voice_output_enabled and proactive_supported)
+	if _proactive_check:
+		_proactive_check.tooltip_text = "" if proactive_supported else "Gemini 3.1 Flash Live does not support proactive audio."
 	_preview_button.disabled   = not (voice_enabled and supported and voice_output_enabled)
 	_capture_button.disabled   = not (voice_enabled and supported and voice_input_enabled)
 	_capture_button.text       = (
@@ -311,6 +318,11 @@ func on_voice_input_mode_selected(index: int) -> void:
 	voice_input_mode = selected_id
 	_apply_preferences()
 func on_voice_proactive_toggled(button_pressed: bool) -> void:
+	if not SettingsMenuVoiceSectionScript.supports_proactive_audio(_get_ai_manager_fn.call()):
+		voice_proactive_enabled = false
+		_set_button_safely_fn.call(_proactive_check, false)
+		_update_status("Gemini 3.1 Flash Live does not support proactive audio.", true)
+		return
 	voice_proactive_enabled = button_pressed
 	_apply_preferences()
 func on_voice_preview_button_pressed() -> void:

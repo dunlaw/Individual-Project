@@ -235,7 +235,13 @@ func _normalize_gemini_model_name(value: String) -> String:
 	var lower := trimmed.to_lower()
 	if lower == "gemini-2.5-flash" or lower == "gemini-flash-latest":
 		return "gemini-3.1-flash-lite-preview"
-	if lower == "gemini-2.5-flash-native-audio-preview-09-2025" or lower == "gemini-2.5-flash-native-audio-preview-12-2025":
+	if lower in [
+		"gemini-2.5-flash-native-audio-preview-09-2025",
+		"gemini-2.5-flash-native-audio-preview-12-2025",
+		"gemini-2.5-flash-preview-native-audio-dialog",
+		"gemini-2.5-flash-exp-native-audio-thinking-dialog",
+		"gemini-2.5-flash-live-preview",
+	]:
 		return "gemini-3.1-flash-live-preview"
 	if lower == "gemini-live-2.5-flash-preview":
 		return "gemini-3.1-flash-live-preview"

@@ -139,23 +139,37 @@ func test_skill_management() -> bool:
 func test_skill_checks() -> bool:
 	var success = true
 	_player_stats.modify_skill("logic", 3)
-	var successes = 0
-	var failures = 0
-	for i in range(20):
-		var result = _player_stats.skill_check("logic", 12)
-		success = assert_true(result.has("success"), "Result has success field") and success
-		success = assert_true(result.has("roll"), "Result has roll field") and success
-		success = assert_true(result.has("skill_value"), "Result has skill_value field") and success
-		success = assert_true(result.has("total"), "Result has total field") and success
-		success = assert_true(result.has("difficulty"), "Result has difficulty field") and success
-		success = assert_equal(result["skill_value"], 8, "Skill value correct") and success
-		success = assert_in_range(result["roll"], 1, 10, "Roll in range 1-10") and success
-		if result["success"]:
-			successes += 1
-		else:
-			failures += 1
-	success = assert_true(successes > 10, "Should have some successes") and success
-	success = assert_true(failures > 0, "Should have some failures") and success
+	var skill_value: int = _player_stats.get_skill("logic")
+	var guaranteed_success_dc: int = skill_value + GameConstants.Skills.MIN_DICE_ROLL
+	var guaranteed_failure_dc: int = skill_value + GameConstants.Skills.MAX_DICE_ROLL + 1
+	var success_result = _player_stats.skill_check("logic", guaranteed_success_dc)
+	success = assert_true(success_result.has("success"), "Success result has success field") and success
+	success = assert_true(success_result.has("roll"), "Success result has roll field") and success
+	success = assert_true(success_result.has("skill_value"), "Success result has skill_value field") and success
+	success = assert_true(success_result.has("total"), "Success result has total field") and success
+	success = assert_true(success_result.has("difficulty"), "Success result has difficulty field") and success
+	success = assert_equal(success_result["skill_value"], skill_value, "Success result skill value correct") and success
+	success = assert_in_range(
+		success_result["roll"],
+		GameConstants.Skills.MIN_DICE_ROLL,
+		GameConstants.Skills.MAX_DICE_ROLL,
+		"Success result roll in range"
+	) and success
+	success = assert_true(success_result["success"], "Minimum-roll difficulty should guarantee success") and success
+	var failure_result = _player_stats.skill_check("logic", guaranteed_failure_dc)
+	success = assert_true(failure_result.has("success"), "Failure result has success field") and success
+	success = assert_true(failure_result.has("roll"), "Failure result has roll field") and success
+	success = assert_true(failure_result.has("skill_value"), "Failure result has skill_value field") and success
+	success = assert_true(failure_result.has("total"), "Failure result has total field") and success
+	success = assert_true(failure_result.has("difficulty"), "Failure result has difficulty field") and success
+	success = assert_equal(failure_result["skill_value"], skill_value, "Failure result skill value correct") and success
+	success = assert_in_range(
+		failure_result["roll"],
+		GameConstants.Skills.MIN_DICE_ROLL,
+		GameConstants.Skills.MAX_DICE_ROLL,
+		"Failure result roll in range"
+	) and success
+	success = assert_true(not failure_result["success"], "Above-maximum difficulty should guarantee failure") and success
 	return success
 func test_cognitive_dissonance() -> bool:
 	var success = true
