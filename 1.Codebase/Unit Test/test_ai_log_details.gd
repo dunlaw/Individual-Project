@@ -92,7 +92,7 @@ func _run_renderer_format_test() -> void:
 	_assert_test(renderer_script != null, "Renderer script loads")
 	if renderer_script == null:
 		return
-	var detail_text := renderer_script.format_detail_text(
+	var detail_text: String = str(renderer_script.format_detail_text(
 		{
 			"request_timestamp": "2026-03-28T20:00:40",
 			"duration_msec": 18028,
@@ -109,7 +109,7 @@ func _run_renderer_format_test() -> void:
 		},
 		func(_key: String, fallback: String) -> String:
 			return fallback
-	)
+	))
 	_assert_test(detail_text.find("Request Time") != -1, "Detail view includes request timestamp heading")
 	_assert_test(detail_text.find("Request (Request)") != -1, "Detail view includes request payload section")
 	_assert_test(detail_text.find("Response (Response)") != -1, "Detail view includes response payload section")

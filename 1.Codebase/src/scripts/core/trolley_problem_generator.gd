@@ -49,7 +49,7 @@ func generate_dilemma(template_type: String = "", context: Dictionary = { }) -> 
 			return
 	var template = DILEMMA_TEMPLATES[template_type]
 	var prompt = _build_dilemma_prompt(template_type, template, context)
-	if _is_trolley_ai_story_enabled() and AIManager:
+	if _is_trolley_ai_story_enabled() and AIManager and not prompt.is_empty():
 		var ai_context = context.duplicate()
 		ai_context["purpose"] = "trolley_problem"
 		ai_context["template"] = template_type
@@ -62,6 +62,10 @@ func generate_dilemma(template_type: String = "", context: Dictionary = { }) -> 
 		var callback = Callable(self, "_on_dilemma_generated").bind(template_type)
 		AIManager.generate_story(prompt, ai_context, callback)
 	else:
+		if _is_trolley_ai_story_enabled() and prompt.is_empty():
+			_report_warning("Trolley skill prompt unavailable; falling back to preset dilemma.", {
+				"template_type": template_type,
+			})
 		_generate_preset_dilemma(template_type)
 func _is_trolley_ai_story_enabled() -> bool:
 	if GameState and GameState.settings is Dictionary:
@@ -98,9 +102,7 @@ func _build_dilemma_prompt(template_type: String, template: Dictionary, context:
 		mission_context,
 		recent_events
 	)
-	if not skill_prompt.is_empty():
-		return skill_prompt
-	return _build_dilemma_prompt_fallback(template_type, template, lang, reality, positive, mission_context)
+	return skill_prompt
 func _build_dilemma_prompt_from_skill(
 	template_type: String,
 	template: Dictionary,
@@ -141,34 +143,6 @@ func _build_dilemma_prompt_from_skill(
 			context_lines.append("Output all player-facing text in English.")
 	context_lines.append("Return VALID JSON only. Do not add markdown fences.")
 	return "\n\n".join(context_lines) + "\n\n" + skill_content
-func _build_dilemma_prompt_fallback(
-	template_type: String,
-	template: Dictionary,
-	lang: String,
-	reality: int,
-	positive: int,
-	mission_context: String
-) -> String:
-	var lines: Array[String] = []
-	lines.append("Generate a trolley problem moral dilemma that INTERRUPTS the current GDA1 story.")
-	lines.append("Template: %s (%s)" % [template_type, template.get("setup", "")])
-	lines.append("Reality Score: %d/100 (lower = more delusional)" % reality)
-	lines.append("Positive Energy: %d/100 (higher = more toxic positivity)" % positive)
-	lines.append("Current Situation: %s" % (mission_context if not mission_context.is_empty() else "No specific context"))
-	lines.append("Required choice count: %d" % int(template.get("choice_count", 2)))
-	match lang:
-		"zh":
-			lines.append("Output all player-facing text in Traditional Chinese.")
-		"de":
-			lines.append("Output all player-facing text in German.")
-		_:
-			lines.append("Output all player-facing text in English.")
-	lines.append("Each choice must have negative consequences.")
-	lines.append("At least one 'positive energy' framed option should cause greater harm.")
-	lines.append("Include one option that risks breaking friendship, and one option that tries to fix the immediate problem.")
-	lines.append("Return VALID JSON only with keys: scenario, choices, thematic_point.")
-	lines.append("Each choice must include: id, text, framing, immediate_consequence, long_term_consequence, stat_changes, relationship_changes.")
-	return "\n".join(lines)
 func _on_dilemma_generated(response: Dictionary, template_type: String) -> void:
 	if not response.success:
 		_report_error(
@@ -355,13 +329,13 @@ func _normalize_dilemma_data(raw_data: Dictionary) -> Dictionary:
 	normalized["choices"] = normalized_choices
 	normalized["thematic_point"] = thematic_point
 	return normalized
-func _get_first_non_empty_string(source: Dictionary, keys: Array, fallback: String = "") -> String:
+func _get_first_non_empty_string(source: Dictionary, keys: Array, default_value: String = "") -> String:
 	for key_variant in keys:
 		var key := String(key_variant)
 		var value := String(source.get(key, "")).strip_edges()
 		if not value.is_empty():
 			return value
-	return fallback
+	return default_value
 func _get_first_non_empty_array(source: Dictionary, keys: Array) -> Variant:
 	for key_variant in keys:
 		var key := String(key_variant)
