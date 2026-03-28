@@ -104,6 +104,8 @@ static func rebuild_tabs(
 	move_control(nodes.get("english_font_option"), tab_display)
 	move_control(nodes.get("chinese_font_label"), tab_display)
 	move_control(nodes.get("chinese_font_option"), tab_display)
+	move_control(nodes.get("german_font_label"), tab_display)
+	move_control(nodes.get("german_font_option"), tab_display)
 	move_control(nodes.get("mute_check_box"), tab_audio)
 	add_separator(tab_audio)
 	ensure_audio_label(nodes.get("master_volume_hbox"), "MasterVolumeLabel")

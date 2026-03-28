@@ -149,6 +149,9 @@ static func apply_labels(nodes: Dictionary, tr_callable: Callable, voice_capture
 	var chinese_font_label: Label = nodes.get("chinese_font_label") as Label
 	if chinese_font_label:
 		chinese_font_label.text = tr_callable.call("SETTINGS_FONT_CHINESE")
+	var german_font_label: Label = nodes.get("german_font_label") as Label
+	if german_font_label:
+		german_font_label.text = tr_callable.call("SETTINGS_FONT_GERMAN")
 	var tab_tutorial: Control = nodes.get("tab_tutorial") as Control
 	if tab_tutorial:
 		if tab_tutorial.has_node("TutorialInfoPanel"):

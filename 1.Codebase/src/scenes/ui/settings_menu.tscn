@@ -446,6 +446,16 @@ custom_minimum_size = Vector2(0, 45)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 
+[node name="GermanFontLabel" type="Label" parent="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "德文字體 / German Font:"
+
+[node name="GermanFontOption" type="OptionButton" parent="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox"]
+custom_minimum_size = Vector2(0, 45)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+
 [node name="ControlsSection" type="Label" parent="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.9, 1, 1)
@@ -604,6 +614,7 @@ text = "返回"
 [connection signal="item_selected" from="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/FontSizeOption" to="." method="_on_font_size_changed"]
 [connection signal="item_selected" from="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/EnglishFontOption" to="." method="_on_english_font_changed"]
 [connection signal="item_selected" from="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/ChineseFontOption" to="." method="_on_chinese_font_changed"]
+[connection signal="item_selected" from="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/GermanFontOption" to="." method="_on_german_font_changed"]
 [connection signal="pressed" from="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/ForceGloriaButton" to="." method="_on_force_gloria_pressed"]
 [connection signal="toggled" from="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/ForceTrolleyCheck" to="." method="_on_force_trolley_toggled"]
 [connection signal="toggled" from="MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/ForceHoneymoonCheck" to="." method="_on_force_honeymoon_toggled"]

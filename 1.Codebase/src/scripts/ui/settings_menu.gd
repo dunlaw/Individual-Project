@@ -48,6 +48,7 @@ var selected_language: String = "en"
 var selected_font_size: int = 2
 var selected_english_font: String = ""
 var selected_chinese_font: String = ""
+var selected_german_font: String = ""
 var master_volume: float = 100.0
 var music_volume: float = 100.0
 var sfx_volume: float = 100.0
@@ -90,6 +91,8 @@ var resolutions = {
 @onready var english_font_option = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/EnglishFontOption
 @onready var chinese_font_label = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/ChineseFontLabel
 @onready var chinese_font_option = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/ChineseFontOption
+@onready var german_font_label = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/GermanFontLabel
+@onready var german_font_option = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/GermanFontOption
 @onready var language_label = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/LanguageLabel
 @onready var language_option = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/LanguageOption
 @onready var master_volume_hbox = $MenuContainer/Panel/VBoxContainer/ScrollContainer/SettingsVBox/MasterVolumeHBox
@@ -347,6 +350,7 @@ func _rebuild_layout_into_tabs() -> void:
 			"font_size_label": font_size_label, "font_size_option": font_size_option,
 			"english_font_label": english_font_label, "english_font_option": english_font_option,
 			"chinese_font_label": chinese_font_label, "chinese_font_option": chinese_font_option,
+			"german_font_label": german_font_label, "german_font_option": german_font_option,
 			"mute_check_box": mute_check_box,
 			"master_volume_hbox": master_volume_hbox, "music_volume_hbox": music_volume_hbox,
 			"sfx_volume_hbox": sfx_volume_hbox,
@@ -648,6 +652,7 @@ func update_ui_text():
 		"font_size_label": font_size_label,
 		"english_font_label": english_font_label,
 		"chinese_font_label": chinese_font_label,
+		"german_font_label": german_font_label,
 		"tab_tutorial": tab_tutorial,
 		"tutorial_enabled_toggle": tutorial_enabled_toggle,
 		"reset_tutorials_button": reset_tutorials_button,
@@ -883,23 +888,30 @@ func _normalize_selected_resolution(fallback_size: Vector2i) -> void:
 		selected_resolution, resolutions, fallback_size
 	)
 func _initialize_font_options() -> void:
-	if english_font_option == null or chinese_font_option == null:
+	if english_font_option == null or chinese_font_option == null or german_font_option == null:
 		return
 	var en_fonts: Array = []
 	var zh_fonts: Array = []
+	var de_fonts: Array = []
 	if FontManager and FontManager.has_method("get_available_fonts_for_language"):
 		en_fonts = FontManager.get_available_fonts_for_language("en")
 		zh_fonts = FontManager.get_available_fonts_for_language("zh")
+		de_fonts = FontManager.get_available_fonts_for_language("de")
 	if en_fonts.is_empty():
 		en_fonts.append(_get_default_font("en"))
 	if zh_fonts.is_empty():
 		zh_fonts.append(_get_default_font("zh"))
+	if de_fonts.is_empty():
+		de_fonts.append(_get_default_font("de"))
 	SettingsMenuDisplaySectionScript.populate_font_option(english_font_option, en_fonts)
 	SettingsMenuDisplaySectionScript.populate_font_option(chinese_font_option, zh_fonts)
+	SettingsMenuDisplaySectionScript.populate_font_option(german_font_option, de_fonts)
 	if selected_english_font.is_empty():
 		selected_english_font = en_fonts[0]
 	if selected_chinese_font.is_empty():
 		selected_chinese_font = zh_fonts[0]
+	if selected_german_font.is_empty():
+		selected_german_font = de_fonts[0]
 	_sync_font_option_selection()
 func _sync_font_option_selection() -> void:
 	selected_english_font = SettingsMenuDisplaySectionScript.select_option_by_metadata(
@@ -908,12 +920,16 @@ func _sync_font_option_selection() -> void:
 	selected_chinese_font = SettingsMenuDisplaySectionScript.select_option_by_metadata(
 		chinese_font_option, selected_chinese_font, _get_default_font("zh")
 	)
+	selected_german_font = SettingsMenuDisplaySectionScript.select_option_by_metadata(
+		german_font_option, selected_german_font, _get_default_font("de")
+	)
 func _apply_selected_fonts_for_current_language() -> void:
 	if not FontManager:
 		return
 	if FontManager.has_method("set_selected_font"):
 		FontManager.set_selected_font("en", selected_english_font)
 		FontManager.set_selected_font("zh", selected_chinese_font)
+		FontManager.set_selected_font("de", selected_german_font)
 	if FontManager.has_method("apply_language_font"):
 		FontManager.apply_language_font(selected_language)
 func _sync_display_options_with_state() -> void:
@@ -967,6 +983,10 @@ func _on_english_font_changed(index: int):
 func _on_chinese_font_changed(index: int):
 	selected_chinese_font = SettingsMenuDisplaySectionScript.get_option_metadata(chinese_font_option, index)
 	_report_info("Chinese font changed to: %s" % selected_chinese_font)
+	_apply_selected_fonts_for_current_language()
+func _on_german_font_changed(index: int):
+	selected_german_font = SettingsMenuDisplaySectionScript.get_option_metadata(german_font_option, index)
+	_report_info("German font changed to: %s" % selected_german_font)
 	_apply_selected_fonts_for_current_language()
 func _on_apply_button_pressed():
 	var window := get_window()
@@ -1092,6 +1112,7 @@ func save_settings():
 		"font_size": selected_font_size,
 		"font_en": selected_english_font,
 		"font_zh": selected_chinese_font,
+		"font_de": selected_german_font,
 		"high_contrast": high_contrast_mode,
 		"language": selected_language,
 		"text_speed": text_speed,
@@ -1117,6 +1138,7 @@ func load_settings():
 		"resolution": fallback_window_size,
 		"font_en": _get_default_font("en"),
 		"font_zh": _get_default_font("zh"),
+		"font_de": _get_default_font("de"),
 		"gloria_voice_enabled": false,
 		"voice_enabled": false,
 		"voice_output_enabled": false,
@@ -1138,6 +1160,7 @@ func load_settings():
 		selected_font_size = data["font_size"]
 		selected_english_font = data["font_en"]
 		selected_chinese_font = data["font_zh"]
+		selected_german_font = String(data.get("font_de", _get_default_font("de")))
 		high_contrast_mode = data["high_contrast"]
 		selected_language = data["language"]
 		text_speed = data["text_speed"]

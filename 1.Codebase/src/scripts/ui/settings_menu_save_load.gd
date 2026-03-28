@@ -24,4 +24,6 @@ static func load(
 static func get_default_font(language: String) -> String:
 	if language == "zh":
 		return FontManager.DEFAULT_ZH_FONT if FontManager else "Noto Sans SC"
+	if language == "de":
+		return FontManager.DEFAULT_DE_FONT if FontManager else "Berlin Type"
 	return FontManager.DEFAULT_EN_FONT if FontManager else "Trajan Pro"

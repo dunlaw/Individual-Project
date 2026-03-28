@@ -1507,6 +1507,7 @@ SETTINGS_LANGUAGE,Language:,語言：,Sprache:
 SETTINGS_FONT_SIZE,Font Size:,字體大小：,Schriftgröße:
 SETTINGS_FONT_ENGLISH,English Font:,英文字體：,Englische Schriftart:
 SETTINGS_FONT_CHINESE,Chinese Font:,中文字體：,Chinesische Schriftart:
+SETTINGS_FONT_GERMAN,German Font:,德文字體：,Deutsche Schriftart:
 SETTINGS_ABOUT_TUTORIALS,About Tutorials,關於教學,Über Tutorials
 SETTINGS_TUTORIAL_DESC,Tutorials provide helpful tips when you encounter new game mechanics. You can replay any tutorial here or disable them entirely.,教學會在您遇到新遊戲機制時提供有用的提示。您可以在此重新觀看任何教學或完全停用它們。,"Tutorials geben hilfreiche Tipps, wenn du auf neue Spielmechaniken stößt. Du kannst jedes Tutorial hier erneut abspielen oder ganz deaktivieren."
 SETTINGS_TUTORIAL_HEADER,Settings,設定,Einstellungen
