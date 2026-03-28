@@ -16,6 +16,13 @@ const WAV_FMT_CHUNK := "fmt "
 const WAV_DATA_CHUNK := "data"
 const WAV_FORMAT_PCM := 1
 const WAV_SUPPORTED_BITS := 16
+const GLORIA_VOICE_GROUP_COUNTS := {
+	"accept": 4,
+	"guilt": 8,
+	"open": 4,
+	"pua": 10,
+}
+const GLORIA_VOICE_LANGUAGES := ["en", "zh"]
 const SFX_ALIASES := {
 	"menu_close": "menu_click",
 	"menu_back": "menu_click",
@@ -231,7 +238,7 @@ func _register_sound(sound_name: String, resource_path: String, category: String
 			return
 		if previous_path == resource_path:
 			return
-	if not FileAccess.file_exists(resource_path):
+	if not _audio_resource_exists(resource_path):
 		ErrorReporterBridge.report_warning(
 			ERROR_CONTEXT,
 			"Audio asset missing at %s (key: %s)" % [resource_path, sound_name],
@@ -259,6 +266,8 @@ func _register_sound(sound_name: String, resource_path: String, category: String
 		"path": resource_path,
 		"category": category,
 	}
+func _audio_resource_exists(resource_path: String) -> bool:
+	return ResourceLoader.exists(resource_path, "AudioStream") or FileAccess.file_exists(resource_path)
 func _load_audio_stream(resource_path: String) -> AudioStream:
 	if ResourceLoader.exists(resource_path, "AudioStream"):
 		var stream := ResourceLoader.load(resource_path, "AudioStream") as AudioStream
@@ -340,34 +349,37 @@ func _join_path(base_path: String, element: String) -> String:
 	return "%s/%s" % [sanitized_base, sanitized_element]
 func _warm_export_preloads() -> void:
 	for sound_name in _PRELOADED_SOUND_PATHS.keys():
-		var stream := ResourceLoader.load(_PRELOADED_SOUND_PATHS[sound_name]) as AudioStream
-		if stream == null:
-			ErrorReporterBridge.report_warning(
-				ERROR_CONTEXT,
-				"Failed to warm preload audio stream",
-				{ "key": sound_name, "path": _PRELOADED_SOUND_PATHS[sound_name] },
-			)
-			continue
-		sounds[sound_name] = stream
-		sound_manifest[sound_name] = {
-			"path": "preloaded",
-			"category": "sfx",
-		}
+		_register_preloaded_audio(sound_name, _PRELOADED_SOUND_PATHS[sound_name], "sfx")
+	var gloria_voice_preloads := _build_gloria_voice_preloads()
+	for sound_name in gloria_voice_preloads.keys():
+		_register_preloaded_audio(sound_name, gloria_voice_preloads[sound_name], "sfx")
 	for music_name in _PRELOADED_MUSIC_PATHS.keys():
-		var stream := ResourceLoader.load(_PRELOADED_MUSIC_PATHS[music_name]) as AudioStream
-		if stream == null:
-			ErrorReporterBridge.report_warning(
-				ERROR_CONTEXT,
-				"Failed to warm preload music stream",
-				{ "key": music_name, "path": _PRELOADED_MUSIC_PATHS[music_name] },
-			)
-			continue
-		sounds[music_name] = stream
-		sound_manifest[music_name] = {
-			"path": "preloaded",
-			"category": "music",
-		}
+		_register_preloaded_audio(music_name, _PRELOADED_MUSIC_PATHS[music_name], "music")
 	ErrorReporterBridge.report_info(ERROR_CONTEXT, "Registered %d preloaded audio assets." % sounds.size())
+func _register_preloaded_audio(sound_name: String, resource_path: String, category: String) -> void:
+	var stream := ResourceLoader.load(resource_path, "AudioStream") as AudioStream
+	if stream == null:
+		ErrorReporterBridge.report_warning(
+			ERROR_CONTEXT,
+			"Failed to warm preload audio stream",
+			{ "key": sound_name, "path": resource_path },
+		)
+		return
+	sounds[sound_name] = stream
+	sound_manifest[sound_name] = {
+		"path": "preloaded",
+		"category": category,
+	}
+func _build_gloria_voice_preloads() -> Dictionary:
+	var voice_paths: Dictionary = {}
+	for lang_code in GLORIA_VOICE_LANGUAGES:
+		for group_name in GLORIA_VOICE_GROUP_COUNTS.keys():
+			var clip_count: int = int(GLORIA_VOICE_GROUP_COUNTS[group_name])
+			for clip_index in range(1, clip_count + 1):
+				var voice_id := "gloria_%s_%02d" % [group_name, clip_index]
+				var sound_key := "gloria/%s/%s" % [lang_code, voice_id]
+				voice_paths[sound_key] = "res://1.Codebase/src/assets/sound/gloria/%s/%s.wav" % [lang_code, voice_id]
+	return voice_paths
 func _apply_music_loop(stream: AudioStream, loop: bool) -> void:
 	if stream == null:
 		return

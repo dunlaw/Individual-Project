@@ -327,11 +327,10 @@ jobs:
           git push origin "${{ steps.generate_tag.outputs.tag_name }}"
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.generate_tag.outputs.tag_name }}
-          name: "Release ${{ steps.generate_tag.outputs.tag_name }}"
-          body: |
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.generate_tag.outputs.tag_name }}
+          RELEASE_NOTES: |
             Automated release created from workflow run
 
             **Commit:** ${{ github.sha }}
@@ -342,14 +341,16 @@ jobs:
             - **Windows**: `windows-game.zip` - Extract and run `GDA1.exe`
             - **Linux (x86_64)**: `linux-game.zip` - Extract and run `GDA1.x86_64`
             - **Linux (ARM64)**: `linux-arm64-game.zip` - Extract and run `GDA1.arm64`
-          files: |
-            web-game.zip
-            windows-game.zip
-            linux-game.zip
-            linux-arm64-game.zip
-          generate_release_notes: true
-          draft: false
-          prerelease: false
+        run: |
+          gh release create "$TAG_NAME" \
+            web-game.zip \
+            windows-game.zip \
+            linux-game.zip \
+            linux-arm64-game.zip \
+            --title "Release $TAG_NAME" \
+            --generate-notes \
+            --notes "$RELEASE_NOTES" \
+            --verify-tag
 
   deploy-github-pages:
     name: Deploy to GitHub Pages
