@@ -20,8 +20,6 @@ var current_font_size: int = FontSize.NORMAL
 var current_multiplier: float = 1.0
 const FALLBACK_FONT: Font = preload("res://1.Codebase/src/assets/font/LibreBaskerville-Bold.ttf")
 const CJK_FONT: Font = preload("res://1.Codebase/src/assets/font/NotoSansCJKsc-Regular.otf")
-const OPTIONAL_DB_FONT_KEY := "DB Neo"
-const OPTIONAL_DB_FONT_PATH := "res://1.Codebase/src/assets/font/DBNeo-Regular.otf"
 const DEFAULT_EN_FONT := "Trajan Pro"
 const DEFAULT_ZH_FONT := "Noto Sans SC"
 const DEFAULT_DE_FONT := "Berlin Type"
@@ -36,7 +34,6 @@ const FONT_CATALOG := {
 	DEFAULT_DE_FONT: { "font": preload("res://1.Codebase/src/assets/font/BerlinType-Bold.otf"), "languages": ["de"] },
 }
 var REGISTERED_FONTS: Array[Font] = []
-var _runtime_font_catalog: Dictionary = {}
 var _selected_fonts := {
 	"en": DEFAULT_EN_FONT,
 	"zh": DEFAULT_ZH_FONT,
@@ -53,7 +50,6 @@ func _report_warning(message: String, details: Dictionary = {}) -> void:
 func _report_error(message: String, details: Dictionary = {}) -> void:
 	ErrorReporterBridge.report_error(ERROR_CONTEXT, message, -1, false, details)
 func _ready():
-	_register_optional_runtime_fonts()
 	_build_registered_fonts()
 	load_font_settings()
 	_register_font_fallbacks()
@@ -118,30 +114,11 @@ func load_font_settings():
 		_selected_fonts["de"] = _resolve_font_key_for_language("de", de_font)
 func _build_registered_fonts() -> void:
 	REGISTERED_FONTS.clear()
-	var catalog := _get_combined_font_catalog()
-	for font_key in catalog.keys():
-		var entry: Dictionary = catalog[font_key]
+	for font_key in FONT_CATALOG.keys():
+		var entry: Dictionary = FONT_CATALOG[font_key]
 		var font: Font = entry.get("font", null)
 		if font != null and not REGISTERED_FONTS.has(font):
 			REGISTERED_FONTS.append(font)
-func _register_optional_runtime_fonts() -> void:
-	_runtime_font_catalog.clear()
-	if not ResourceLoader.exists(OPTIONAL_DB_FONT_PATH):
-		_report_info("Optional DB font not found", { "path": OPTIONAL_DB_FONT_PATH })
-		return
-	var loaded_font: Resource = load(OPTIONAL_DB_FONT_PATH)
-	if loaded_font is Font:
-		_runtime_font_catalog[OPTIONAL_DB_FONT_KEY] = { "font": loaded_font as Font, "languages": ["de"] }
-		_report_info("Loaded optional DB font", { "path": OPTIONAL_DB_FONT_PATH, "key": OPTIONAL_DB_FONT_KEY })
-	else:
-		_report_warning("Optional DB font exists but could not be loaded as Font", { "path": OPTIONAL_DB_FONT_PATH })
-func _get_combined_font_catalog() -> Dictionary:
-	var merged: Dictionary = {}
-	for key in FONT_CATALOG.keys():
-		merged[key] = FONT_CATALOG[key]
-	for key in _runtime_font_catalog.keys():
-		merged[key] = _runtime_font_catalog[key]
-	return merged
 func _register_font_fallbacks() -> void:
 	if FALLBACK_FONT == null:
 		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Fallback font is null, skipping fallback registration")
@@ -226,11 +203,10 @@ func get_available_fonts_for_language(language: String) -> Array[String]:
 	var preferred := _get_default_font_for_language(lang)
 	if _font_supports_language(preferred, lang):
 		options.append(preferred)
-	var catalog := _get_combined_font_catalog()
-	for key in catalog.keys():
+	for key in FONT_CATALOG.keys():
 		if key == preferred:
 			continue
-		var entry: Dictionary = catalog[key]
+		var entry: Dictionary = FONT_CATALOG[key]
 		var langs: Array = entry.get("languages", [])
 		if lang in langs and not (key in options):
 			options.append(key)
@@ -333,10 +309,9 @@ func _resolve_font_key_for_language(language: String, requested: String) -> Stri
 		return requested
 	return _get_default_font_for_language(language)
 func _get_font_resource(font_key: String) -> Font:
-	var catalog := _get_combined_font_catalog()
-	if not catalog.has(font_key):
+	if not FONT_CATALOG.has(font_key):
 		return FALLBACK_FONT
-	var entry: Dictionary = catalog[font_key]
+	var entry: Dictionary = FONT_CATALOG[font_key]
 	return entry.get("font", FALLBACK_FONT)
 func _apply_theme_default_font(font: Font) -> void:
 	if font == null:
@@ -368,8 +343,7 @@ func _get_default_font_for_language(language: String) -> String:
 		return DEFAULT_DE_FONT
 	return DEFAULT_EN_FONT
 func _font_supports_language(font_key: String, language: String) -> bool:
-	var catalog := _get_combined_font_catalog()
-	if not catalog.has(font_key):
+	if not FONT_CATALOG.has(font_key):
 		return false
-	var langs: Array = catalog[font_key].get("languages", [])
+	var langs: Array = FONT_CATALOG[font_key].get("languages", [])
 	return language in langs
