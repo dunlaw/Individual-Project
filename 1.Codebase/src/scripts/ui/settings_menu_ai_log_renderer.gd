@@ -266,7 +266,6 @@ static func format_response_body(entry: Dictionary) -> String:
 	if response_body.is_empty():
 		return "{}"
 	return _pretty_json_string(response_body)
-# --- Prompt module helpers ---
 static func _extract_messages_from_body(request_body: String) -> Array:
 	if request_body.is_empty():
 		return []
@@ -277,12 +276,10 @@ static func _extract_messages_from_body(request_body: String) -> Array:
 	if not (data is Dictionary):
 		return []
 	var d := data as Dictionary
-	# OpenAI / Claude / Ollama format
 	if d.has("messages"):
 		var msgs: Variant = d["messages"]
 		if msgs is Array:
 			return msgs as Array
-	# Gemini format
 	if d.has("contents"):
 		var contents: Variant = d["contents"]
 		if contents is Array:
@@ -292,7 +289,6 @@ static func _get_message_text(msg: Dictionary) -> String:
 	var content: Variant = msg.get("content", "")
 	if content is String and not (content as String).is_empty():
 		return content as String
-	# Gemini parts format
 	var parts: Variant = msg.get("parts", null)
 	if parts is Array:
 		var text_parts: PackedStringArray = []
@@ -305,7 +301,6 @@ static func _get_message_text(msg: Dictionary) -> String:
 			return "\n".join(text_parts)
 	return str(content)
 static func _extract_sections_from_user_message(content: String) -> Array:
-	# Split on === SECTION === headers and return Array of {name, content} Dictionaries
 	var sections: Array = []
 	var current_name := "(preamble)"
 	var current_lines: PackedStringArray = []
@@ -321,7 +316,6 @@ static func _extract_sections_from_user_message(content: String) -> Array:
 	if current_lines.size() > 0:
 		sections.append({"name": current_name, "content": "\n".join(current_lines).strip_edges()})
 	return sections
-# Returns a human-readable breakdown of which prompt modules were sent
 static func format_prompt_modules(entry: Dictionary) -> String:
 	var request_body := str(entry.get("request_body", ""))
 	var messages := _extract_messages_from_body(request_body)
@@ -336,7 +330,6 @@ static func format_prompt_modules(entry: Dictionary) -> String:
 		var role := str(msg.get("role", "unknown"))
 		var content := _get_message_text(msg)
 		msg_idx += 1
-		# Unchanged / summarised context markers
 		if content.begins_with("[context:"):
 			lines.append("[%d] %-12s → %s" % [msg_idx, role, content])
 			continue
@@ -366,7 +359,6 @@ static func format_prompt_modules(entry: Dictionary) -> String:
 			for sub_line in preview.split("\n"):
 				lines.append("              %s" % sub_line)
 	return "\n".join(lines)
-# Extracts just the text inside === PROMPT === from the last user message in request_body
 static func extract_prompt_text(request_body: String) -> String:
 	var messages := _extract_messages_from_body(request_body)
 	var user_content := ""
@@ -377,7 +369,6 @@ static func extract_prompt_text(request_body: String) -> String:
 				user_content = _get_message_text(msg)
 	if user_content.is_empty():
 		return ""
-	# Look for the PROMPT section
 	var sections := _extract_sections_from_user_message(user_content)
 	for sec_var in sections:
 		if not (sec_var is Dictionary):
@@ -387,7 +378,6 @@ static func extract_prompt_text(request_body: String) -> String:
 		if "PROMPT" in sec_name:
 			return str(sec.get("content", ""))
 	return user_content
-# Returns comma-separated list of active (non-unchanged) module/section names
 static func extract_active_modules_summary(request_body: String) -> String:
 	var messages := _extract_messages_from_body(request_body)
 	var active: PackedStringArray = []
@@ -398,11 +388,9 @@ static func extract_active_modules_summary(request_body: String) -> String:
 		var msg := msg_var as Dictionary
 		var role := str(msg.get("role", ""))
 		var content := _get_message_text(msg)
-		# Skip unchanged markers
 		if content.begins_with("[context:") and " unchanged]" in content:
 			continue
 		if role == "system":
-			# Try to extract module name from summarised marker
 			if content.begins_with("[context:") and " updated," in content:
 				var start := content.find(":") + 1
 				var end := content.find(" updated,")
@@ -423,7 +411,6 @@ static func extract_active_modules_summary(request_body: String) -> String:
 				if not sec_content.is_empty():
 					active.append(str(sec.get("name", "")))
 	return ", ".join(active)
-# Extracts the plain-text AI reply from various provider response body formats
 static func extract_ai_response_text(response_body: String) -> String:
 	if response_body.is_empty():
 		return ""
@@ -434,7 +421,6 @@ static func extract_ai_response_text(response_body: String) -> String:
 	if not (data is Dictionary):
 		return ""
 	var d := data as Dictionary
-	# OpenAI / OpenRouter / Claude format: choices[0].message.content
 	if d.has("choices"):
 		var choices: Variant = d["choices"]
 		if choices is Array and (choices as Array).size() > 0:
@@ -444,7 +430,6 @@ static func extract_ai_response_text(response_body: String) -> String:
 				var message: Variant = fc.get("message", null)
 				if message is Dictionary:
 					return str((message as Dictionary).get("content", ""))
-	# Gemini format: candidates[0].content.parts[0].text
 	if d.has("candidates"):
 		var candidates: Variant = d["candidates"]
 		if candidates is Array and (candidates as Array).size() > 0:
@@ -458,13 +443,11 @@ static func extract_ai_response_text(response_body: String) -> String:
 						var first_part: Variant = (parts as Array)[0]
 						if first_part is Dictionary:
 							return str((first_part as Dictionary).get("text", ""))
-	# Ollama chat format: message.content
 	if d.has("message"):
 		var message: Variant = d.get("message", null)
 		if message is Dictionary:
 			return str((message as Dictionary).get("content", ""))
 	return ""
-# --- End prompt module helpers ---
 static func _pretty_json_string(raw_text: String) -> String:
 	var json := JSON.new()
 	if json.parse(raw_text) == OK:

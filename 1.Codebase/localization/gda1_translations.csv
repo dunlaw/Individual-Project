@@ -2574,3 +2574,5 @@ SETTINGS_BORDERLESS,Borderless,無邊框,Grenzenlos
 FSM_IMG_CAPTION_GUIDE,Gloria is watching.,Gloria 正在注視。,Gloria schaut zu.
 FSM_IMG_CAPTION_GLORIA_NEUTRAL,She seems calm.,她看起來很平靜。,Sie wirkt ruhig.
 CHAR_BUTTON_REFERENCE,View Reference,三視圖,Referenz anzeigen
+EASTER_EGG_CANT_TOUCH_TITLE,~ Can't Touch This ~,~ Can't Touch This ~,~ Can't Touch This ~
+EASTER_EGG_CANT_TOUCH_BODY,"You kept reaching.\nYou clicked, and clicked, and clicked again.\n\nBut some connections resist every attempt.\n\nThis is not a mission failure.\nThis is the real mission report:\n\n[i]some things stay just out of reach—\nno matter what you do.[/i]\n\nCan't Touch This?","你不斷伸手。\n你點擊、再點擊、一次又一次。\n\n但有些連結抗拒一切嘗試。\n\n這不是任務失敗。\n這才是真正的任務報告：\n\n[i]有些事就是觸碰不到——\n無論你做什麼。[/i]\n\nCan't Touch This?","Du hast immer wieder versucht, es zu berühren.\nGeklickt, und geklickt, und nochmals geklickt.\n\nDoch manche Verbindungen widerstehen jedem Versuch.\n\nDas ist kein Missionsversagen.\nDas ist der eigentliche Missionsbericht:\n\n[i]Manche Dinge bleiben außer Reichweite—\negal was man tut.[/i]\n\nCan't Touch This?"

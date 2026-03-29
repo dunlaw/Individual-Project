@@ -1,10 +1,7 @@
 extends Node
-
 const NarrativeResponseParser = preload("res://1.Codebase/src/scripts/core/ai/narrative_response_parser.gd")
-
 var tests_passed: int = 0
 var tests_failed: int = 0
-
 func _ready() -> void:
 	print("[NarrativeResponseParserTest] Starting tests...")
 	await get_tree().process_frame
@@ -13,7 +10,6 @@ func _ready() -> void:
 	_test_parse_response_extracts_choices_from_json()
 	print("[NarrativeResponseParserTest] Completed. Passed=%d Failed=%d" % [tests_passed, tests_failed])
 	queue_free()
-
 func _test_choice_validation_accepts_longer_zh_summaries() -> void:
 	var payload: Array[Dictionary] = [
 		{"archetype": "cautious", "summary": "先穩住場面再排查封印裂痕，避免團隊再次被情緒勒索"},
@@ -24,7 +20,6 @@ func _test_choice_validation_accepts_longer_zh_summaries() -> void:
 	]
 	var report := NarrativeResponseParser.get_ai_choice_validation_report(payload, "zh")
 	_assert(bool(report.get("valid", false)), "ZH summaries longer than 20 chars should still be accepted")
-
 func _test_choice_validation_accepts_longer_non_zh_summaries() -> void:
 	var payload: Array[Dictionary] = [
 		{"archetype": "cautious", "summary": "Stabilize the altar seals first, then inspect hidden fractures before anyone triggers another avoidable collapse."},
@@ -35,7 +30,6 @@ func _test_choice_validation_accepts_longer_non_zh_summaries() -> void:
 	]
 	var report := NarrativeResponseParser.get_ai_choice_validation_report(payload, "en")
 	_assert(bool(report.get("valid", false)), "Non-ZH summaries above 20 words should still be accepted")
-
 func _test_parse_response_extracts_choices_from_json() -> void:
 	var response := {
 		"success": true,
@@ -61,7 +55,6 @@ func _test_parse_response_extracts_choices_from_json() -> void:
 	_assert(String(parsed.get("story_text", "")).find("chamber") != -1, "Parser should preserve story_text")
 	var choices: Array[Dictionary] = parsed.get("choices", [])
 	_assert(choices.size() == 3, "Parser should extract choices array from JSON payload")
-
 func _assert(condition: bool, message: String) -> void:
 	if condition:
 		tests_passed += 1
