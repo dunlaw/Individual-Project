@@ -27,8 +27,8 @@ const GEMINI_BASE = "https://generativelanguage.googleapis.com";
 // Allowed origins - add your GitHub Pages / itch.io URLs here
 const ALLOWED_ORIGINS = [
 	"https://localhost",
-	// GitHub Pages: "https://your-username.github.io",
-	// itch.io:      "https://html-classic.itch.zone",
+	"https://dun4law.github.io",
+	// itch.io: "https://html-classic.itch.zone",
 ];
 
 function corsHeaders(origin) {
@@ -55,6 +55,34 @@ export default {
 			});
 		}
 
+		// Health check endpoint - visit GET /health to diagnose the worker
+		const url = new URL(request.url);
+		if (request.method === "GET" && url.pathname === "/health") {
+			const apiKey = env.GEMINI_API_KEY;
+			const originAllowed = ALLOWED_ORIGINS.some(
+				(o) => origin === o || origin.startsWith(o),
+			);
+			const health = {
+				status: "ok",
+				api_key_configured: !!apiKey,
+				request_origin: origin || "(none)",
+				origin_allowed: originAllowed,
+				allowed_origins: ALLOWED_ORIGINS,
+				hint: !apiKey
+					? "Run: wrangler secret put GEMINI_API_KEY"
+					: !originAllowed && origin
+					? `Add "${origin}" to ALLOWED_ORIGINS in gemini-proxy.js, then redeploy`
+					: "All good",
+			};
+			return new Response(JSON.stringify(health, null, 2), {
+				status: 200,
+				headers: {
+					"Content-Type": "application/json",
+					...corsHeaders(origin),
+				},
+			});
+		}
+
 		if (request.method !== "POST") {
 			return new Response("Method Not Allowed", { status: 405 });
 		}
@@ -75,7 +103,6 @@ export default {
 
 		// Forward path: strip leading slash, proxy the Gemini path
 		// e.g. /v1beta/models/gemini-3.1-flash-lite-preview:generateContent
-		const url = new URL(request.url);
 		const geminiPath = url.pathname.replace(/^\/+/, "");
 
 		if (!geminiPath.startsWith("v1beta/models/")) {

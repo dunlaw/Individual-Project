@@ -57,6 +57,10 @@ const _GLORIA_SEQUENCE := [KEY_G, KEY_L, KEY_O, KEY_R, KEY_I, KEY_A]
 var _gloria_seq_index: int = 0
 var _gloria_seq_timer: float = 0.0
 const _GLORIA_SEQ_TIMEOUT := 3.0
+const _SUPER_SEQUENCE := [KEY_S, KEY_U, KEY_P, KEY_E, KEY_R]
+var _super_seq_index: int = 0
+var _super_seq_timer: float = 0.0
+const _SUPER_SEQ_TIMEOUT := 3.0
 var _logo_click_count: int = 0
 var _logo_click_timer: float = 0.0
 const _LOGO_CLICK_TIMEOUT := 4.0
@@ -153,6 +157,10 @@ func _process(delta: float) -> void:
 		_youtube_click_timer -= delta
 		if _youtube_click_timer <= 0.0:
 			_youtube_click_count = 0
+	if _super_seq_index > 0:
+		_super_seq_timer -= delta
+		if _super_seq_timer <= 0.0:
+			_super_seq_index = 0
 func _exit_tree() -> void:
 	if get_tree():
 		get_tree().set_auto_accept_quit(true)
@@ -179,6 +187,18 @@ func _input(event: InputEvent) -> void:
 	else:
 		_gloria_seq_index = 0
 		_gloria_seq_timer = 0.0
+	if key_code == _SUPER_SEQUENCE[_super_seq_index]:
+		_super_seq_index += 1
+		_super_seq_timer = _SUPER_SEQ_TIMEOUT
+		if _super_seq_index >= _SUPER_SEQUENCE.size():
+			_super_seq_index = 0
+			_super_seq_timer = 0.0
+			_show_cant_touch_easter_egg()
+		get_viewport().set_input_as_handled()
+		return
+	else:
+		_super_seq_index = 0
+		_super_seq_timer = 0.0
 	match key_code:
 		KEY_ENTER, KEY_KP_ENTER, KEY_SPACE:
 			if get_viewport().gui_get_focus_owner() == null:
@@ -1171,3 +1191,88 @@ func _on_fsm_bless_pressed(overlay: Control) -> void:
 				bless_btn.text = _tr("EASTER_EGG_FSM_CLOSE_BTN")
 				bless_btn.pressed.disconnect(_on_fsm_bless_pressed.bind(overlay))
 				bless_btn.pressed.connect(overlay.queue_free)
+func _show_cant_touch_easter_egg() -> void:
+	var audio := _get_audio_manager()
+	if audio:
+		audio.play_sfx("group_present", 0.9)
+	var overlay := Control.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.0, 0.0, 0.05, 0.92)
+	overlay.add_child(bg)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(700, 580)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.07, 0.06, 0.12, 0.97)
+	sb.corner_radius_top_left = 18
+	sb.corner_radius_top_right = 18
+	sb.corner_radius_bottom_left = 18
+	sb.corner_radius_bottom_right = 18
+	sb.border_width_left = 1
+	sb.border_width_right = 1
+	sb.border_width_top = 1
+	sb.border_width_bottom = 1
+	sb.border_color = Color(0.5, 0.4, 0.7, 0.6)
+	sb.shadow_size = 16
+	sb.shadow_color = Color(0, 0, 0, 0.6)
+	panel.add_theme_stylebox_override("panel", sb)
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 40)
+	margin.add_theme_constant_override("margin_right", 40)
+	margin.add_theme_constant_override("margin_top", 32)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 16)
+	margin.add_child(vbox)
+	var title_lbl := Label.new()
+	title_lbl.text = _tr("EASTER_EGG_CANT_TOUCH_TITLE")
+	title_lbl.add_theme_font_size_override("font_size", 22)
+	title_lbl.add_theme_color_override("font_color", Color(0.85, 0.75, 1.0))
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title_lbl)
+	var sep := HSeparator.new()
+	sep.modulate = Color(0.5, 0.4, 0.7, 0.5)
+	vbox.add_child(sep)
+	var img_texture := _load_texture_safe("res://1.Codebase/src/assets/ui/easter_egg_cant_touch.png")
+	if img_texture:
+		var img_rect := TextureRect.new()
+		img_rect.texture = img_texture
+		img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		img_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		img_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		img_rect.custom_minimum_size = Vector2(160, 160)
+		vbox.add_child(img_rect)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(scroll)
+	var body_lbl := RichTextLabel.new()
+	body_lbl.bbcode_enabled = true
+	body_lbl.text = _tr("EASTER_EGG_CANT_TOUCH_BODY")
+	body_lbl.fit_content = true
+	body_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_lbl.add_theme_font_size_override("normal_font_size", 16)
+	body_lbl.add_theme_color_override("default_color", Color(0.9, 0.88, 0.95))
+	scroll.add_child(body_lbl)
+	var close_btn := Button.new()
+	close_btn.text = _tr("EASTER_EGG_CLOSE")
+	close_btn.custom_minimum_size = Vector2(160, 44)
+	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	UIStyleManager.apply_button_style(close_btn, "primary", "medium")
+	UIStyleManager.add_hover_scale_effect(close_btn, 1.06)
+	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	close_btn.pressed.connect(overlay.queue_free)
+	vbox.add_child(close_btn)
+	overlay.modulate.a = 0.0
+	UIStyleManager.fade_in(overlay, 0.35)
+	add_child(overlay)
+	_debug_log("[StartMenu] Easter egg triggered: Can't Touch This")

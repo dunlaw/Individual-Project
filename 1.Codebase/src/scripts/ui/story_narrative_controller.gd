@@ -300,16 +300,23 @@ func _update_story_choices(ai_choices: Array[Dictionary], story_text: String, al
 			str(extracted_report.get("reason", "unknown")),
 		])
 	if not _are_ai_choices_valid(final_choices, lang):
+		print("[StoryNarrative] DEBUG: AI choices INVALID (count=%d) — entering fallback path" % final_choices.size())
 		_debug_log("[Narrative] No valid AI choices available after extraction; falling back to legacy generator")
 		if allow_followup and not _pending_choice_followup:
 			_debug_log("[Narrative] Triggering choice_followup fallback request")
 			_request_story_choice_followup(story_text, lang)
+			if not _pending_choice_followup:
+				print("[StoryNarrative] DEBUG: choice_followup resolved SYNC — skipping generate_choices() overwrite (FIX ACTIVE)")
+				_debug_log("[Narrative] choice_followup resolved synchronously (mock mode); skipping legacy fallback")
+				return
 		elif allow_followup:
 			_debug_log("[Narrative] choice_followup already pending for current story; skipping duplicate request")
 		else:
 			_debug_log("[Narrative] choice_followup disabled for this update path")
+		print("[StoryNarrative] DEBUG: Falling back to generate_choices() legacy path")
 		story_scene.choice_controller.generate_choices()
 		return
+	print("[StoryNarrative] DEBUG: AI choices VALID (count=%d) — applying directly via apply_ai_choices (FIX ACTIVE)" % final_choices.size())
 	_debug_log("[Narrative] Applying valid AI choices to controller without follow-up")
 	story_scene.choice_controller.apply_ai_choices(final_choices, lang)
 func _are_ai_choices_valid(ai_choices: Array[Dictionary], lang: String) -> bool:

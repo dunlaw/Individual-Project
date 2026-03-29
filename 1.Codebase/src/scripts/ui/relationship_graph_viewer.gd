@@ -11,6 +11,11 @@ var node_spacing: Vector2 = Vector2(250, 150)
 var connection_lines: Array[Dictionary] = []
 var current_mode: String = "butterfly"
 var toggle_button: Button = null
+var _node_click_count: int = 0
+var _node_last_click_time: int = 0
+var _was_playlist_active: bool = false
+const _NODE_CLICK_TIMEOUT_MS := 3000
+const _NODE_CLICK_TARGET := 5
 signal close_requested
 var choice_color := Color(0.4, 0.7, 1.0)
 var consequence_color := Color(1.0, 0.5, 0.3)
@@ -216,6 +221,19 @@ func _create_node(position: Vector2, text: String, color: Color, node_id: String
 	graph_container.add_child(node)
 	node.mouse_entered.connect(func(): _on_node_hover(node_id, node_type))
 	node.mouse_exited.connect(func(): _on_node_unhover(node_id, node_type))
+	node.gui_input.connect(func(event: InputEvent):
+		if not (event is InputEventMouseButton): return
+		var mb := event as InputEventMouseButton
+		if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed: return
+		var now := Time.get_ticks_msec()
+		if now - _node_last_click_time > _NODE_CLICK_TIMEOUT_MS:
+			_node_click_count = 0
+		_node_click_count += 1
+		_node_last_click_time = now
+		if _node_click_count >= _NODE_CLICK_TARGET:
+			_node_click_count = 0
+			_show_cant_touch_easter_egg()
+	)
 func _create_connection_line(from_pos: Vector2, to_pos: Vector2, from_id: String, to_id: String, label: String = "") -> void:
 	var start = from_pos + node_size / 2
 	var end = to_pos + node_size / 2
@@ -289,6 +307,10 @@ func _on_node_hover(node_id: String, node_type: String) -> void:
 func _on_node_unhover(node_id: String, node_type: String) -> void:
 	pass
 func _on_close_pressed() -> void:
+	if _was_playlist_active:
+		AudioManager.resume_gameplay_playlist()
+	else:
+		AudioManager.play_music("background_music", true)
 	emit_signal("close_requested")
 	hide()
 func _input(event: InputEvent) -> void:
@@ -308,4 +330,84 @@ func _on_refresh_pressed() -> void:
 	_render_current_mode()
 func show_graph() -> void:
 	show()
+	_was_playlist_active = AudioManager.is_playlist_active()
+	AudioManager.suspend_gameplay_playlist()
+	AudioManager.play_music("chopin_nocturne_op9_no2", true)
 	_render_current_mode()
+func _show_cant_touch_easter_egg() -> void:
+	var overlay := Control.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.0, 0.0, 0.05, 0.92)
+	overlay.add_child(bg)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(600, 520)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.07, 0.06, 0.12, 0.97)
+	sb.corner_radius_top_left = 18
+	sb.corner_radius_top_right = 18
+	sb.corner_radius_bottom_left = 18
+	sb.corner_radius_bottom_right = 18
+	sb.border_width_left = 1
+	sb.border_width_right = 1
+	sb.border_width_top = 1
+	sb.border_width_bottom = 1
+	sb.border_color = Color(0.7, 0.3, 0.8, 0.6)
+	sb.shadow_size = 16
+	sb.shadow_color = Color(0, 0, 0, 0.6)
+	panel.add_theme_stylebox_override("panel", sb)
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 40)
+	margin.add_theme_constant_override("margin_right", 40)
+	margin.add_theme_constant_override("margin_top", 32)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 16)
+	margin.add_child(vbox)
+	var title_lbl := Label.new()
+	title_lbl.text = _tr("EASTER_EGG_CANT_TOUCH_TITLE")
+	title_lbl.add_theme_font_size_override("font_size", 24)
+	title_lbl.add_theme_color_override("font_color", Color(0.9, 0.7, 1.0))
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title_lbl)
+	var sep := HSeparator.new()
+	sep.modulate = Color(0.5, 0.4, 0.7, 0.5)
+	vbox.add_child(sep)
+	var img_texture := load("res://1.Codebase/src/assets/ui/easter_egg_cant_touch.png") as Texture2D
+	if img_texture:
+		var img_rect := TextureRect.new()
+		img_rect.texture = img_texture
+		img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		img_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		img_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		img_rect.custom_minimum_size = Vector2(160, 160)
+		vbox.add_child(img_rect)
+	var body_lbl := RichTextLabel.new()
+	body_lbl.bbcode_enabled = true
+	body_lbl.text = _tr("EASTER_EGG_CANT_TOUCH_BODY")
+	body_lbl.fit_content = true
+	body_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_lbl.add_theme_font_size_override("normal_font_size", 15)
+	body_lbl.add_theme_color_override("default_color", Color(0.9, 0.88, 0.95))
+	vbox.add_child(body_lbl)
+	var close_btn := Button.new()
+	close_btn.text = _tr("EASTER_EGG_CLOSE")
+	close_btn.custom_minimum_size = Vector2(160, 44)
+	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	close_btn.pressed.connect(overlay.queue_free)
+	vbox.add_child(close_btn)
+	overlay.modulate.a = 0.0
+	add_child(overlay)
+	var tween := create_tween()
+	tween.tween_property(overlay, "modulate:a", 1.0, 0.35)

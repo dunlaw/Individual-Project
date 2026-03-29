@@ -33,9 +33,10 @@ var _ai_showing_charts: bool = false
 var _ai_charts_open: bool = true
 var _ai_chart_width: float = 480.0
 var _ai_chart_height: float = 190.0
-var _tab_container: TabContainer = null  
-var _tr_fn: Callable                      
+var _tab_container: TabContainer = null
+var _tr_fn: Callable
 var _selected_log_entry: Dictionary = { }
+var _csv_file_dialog: FileDialog = null
 func initialize(
 	result: Dictionary,
 	chart_width: float,
@@ -83,6 +84,17 @@ func initialize(
 		else:
 			_ai_save_details_check.button_pressed = enabled
 	_apply_ai_chart_layout()
+	_setup_csv_file_dialog()
+func _setup_csv_file_dialog() -> void:
+	if not is_instance_valid(_tab_container):
+		return
+	_csv_file_dialog = FileDialog.new()
+	_csv_file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+	_csv_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+	_csv_file_dialog.use_native_dialog = true
+	_csv_file_dialog.add_filter("*.csv", "CSV Files")
+	_csv_file_dialog.file_selected.connect(_on_csv_save_path_selected)
+	_tab_container.add_child(_csv_file_dialog)
 func _on_ai_log_tab_changed(tab_idx: int) -> void:
 	if _tab_container and tab_idx == _tab_container.get_tab_count() - 1:
 		_refresh_ai_log_table()
@@ -118,12 +130,21 @@ func _on_ai_export_pressed() -> void:
 	var notifier: Node = ServiceLocator.get_notification_system() if ServiceLocator else null
 	SettingsMenuAILogExportScript.export_json(log_entries, metrics, _tr_fn, notifier)
 func _on_ai_export_csv_pressed() -> void:
+	if is_instance_valid(_csv_file_dialog):
+		var ts := Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
+		_csv_file_dialog.current_file = "ai_usage_%s.csv" % ts
+		_csv_file_dialog.popup_centered_ratio(0.75)
+	else:
+		_do_export_csv("")
+func _on_csv_save_path_selected(path: String) -> void:
+	_do_export_csv(path)
+func _do_export_csv(save_path: String) -> void:
 	var ai_manager: Node = ServiceLocator.get_ai_manager() if ServiceLocator else null
 	var log_entries: Array = []
 	if ai_manager and ai_manager.has_method("get_call_log"):
 		log_entries = ai_manager.get_call_log()
 	var notifier: Node = ServiceLocator.get_notification_system() if ServiceLocator else null
-	SettingsMenuAILogExportScript.export_csv(log_entries, _tr_fn, notifier)
+	SettingsMenuAILogExportScript.export_csv(log_entries, _tr_fn, notifier, save_path)
 func _on_ai_chart_size_changed(_value: float) -> void:
 	if is_instance_valid(_ai_chart_width_spin):
 		_ai_chart_width = maxf(260.0, float(_ai_chart_width_spin.value))

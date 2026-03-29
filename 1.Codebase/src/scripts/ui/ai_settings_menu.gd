@@ -343,7 +343,9 @@ func _input(event: InputEvent) -> void:
 	match (event as InputEventKey).keycode:
 		KEY_ESCAPE:
 			_on_back_button_pressed()
-			get_viewport().set_input_as_handled()
+			var vp := get_viewport()
+			if vp:
+				vp.set_input_as_handled()
 func _exit_tree() -> void:
 	if ai_manager:
 		if ai_manager.ai_response_received.is_connected(_handlers.on_ai_test_success):

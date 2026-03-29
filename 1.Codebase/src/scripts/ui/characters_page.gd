@@ -2,7 +2,6 @@ extends Control
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
 const ICON_QUIT = preload("res://1.Codebase/src/assets/ui/icon_quit.svg")
 const TURNAROUND_BACKGROUND_DIR = "res://1.Codebase/src/assets/backgrounds"
-
 var current_language: String = "en"
 var selected_character_id: String = ""
 var character_data: Dictionary = {}
@@ -23,7 +22,6 @@ var _show_turnaround_btn: Button
 var _turnaround_background_paths: Array[String] = []
 var _last_turnaround_background_path: String = ""
 var _turnaround_rng := RandomNumberGenerator.new()
-
 func _ready():
 	_turnaround_rng.randomize()
 	_load_turnaround_background_paths()
@@ -88,7 +86,6 @@ func _init_character_data():
 			"desc_key": "CHAR_FSM_DESC"
 		}
 	}
-
 func _rebuild_ui_layout(panel: Control):
 	var children = panel.get_children()
 	for child in children:
@@ -330,7 +327,6 @@ func _select_character(char_key: String):
 				else:
 					UIStyleManager.apply_button_style(btn, "secondary", "medium")
 			child_idx += 1
-
 func _on_show_turnaround_pressed():
 	if selected_character_id == "" or not character_data.has(selected_character_id):
 		return
@@ -344,14 +340,11 @@ func _on_show_turnaround_pressed():
 		_turnaround_texture.texture = tex
 		_turnaround_overlay.visible = true
 		_turnaround_overlay.move_to_front()
-
 func _on_close_turnaround_pressed():
 	if _turnaround_overlay:
 		_turnaround_overlay.visible = false
-
 func _on_close_pressed():
 	queue_free()
-
 func _input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.pressed or event.echo:
 		return
@@ -365,7 +358,6 @@ func _input(event: InputEvent) -> void:
 		KEY_G:
 			_toggle_graph_view()
 			get_viewport().set_input_as_handled()
-
 func _toggle_graph_view():
 	_is_graph_mode = true
 	if _details_container: _details_container.visible = false
@@ -375,7 +367,6 @@ func _toggle_graph_view():
 		if btn is Button:
 			UIStyleManager.apply_button_style(btn, "secondary", "medium")
 	_render_graph()
-
 func _render_graph():
 	if not _graph_container: return
 	for child in _graph_container.get_children():
@@ -394,7 +385,6 @@ func _render_graph():
 	_draw_relationship_lines()
 	for node in _graph_nodes.values():
 		node.move_to_front()
-
 func _create_graph_node(char_key: String, position: Vector2):
 	if not character_data.has(char_key): return
 	var data = character_data[char_key]
@@ -434,7 +424,6 @@ func _create_graph_node(char_key: String, position: Vector2):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			_select_character(char_key)
 	)
-
 func _draw_relationship_lines():
 	var player_node = _graph_nodes.get("protagonist")
 	if not player_node: return
@@ -470,7 +459,6 @@ func _draw_relationship_lines():
 		bg.position = mid_point - Vector2(30, 10)
 		bg.add_child(status_label)
 		_graph_container.add_child(bg)
-
 func _get_relationship_status(char_key: String) -> Dictionary:
 	var game_state = ServiceLocator.get_game_state() if ServiceLocator else null
 	if not game_state: return {"color": Color.GRAY, "width": 2, "text": "?"}
@@ -502,12 +490,10 @@ func _get_relationship_status(char_key: String) -> Dictionary:
 				result = {"color": Color.GRAY, "width": 1, "text": "RELATIONSHIP_DISTANT"}
 	result.text = _tr(result.text)
 	return result
-
 func _tr(key: String) -> String:
 	if LocalizationManager:
 		return LocalizationManager.get_translation(key, current_language)
 	return tr(key)
-
 func _load_turnaround_background_paths() -> void:
 	_turnaround_background_paths.clear()
 	var dir := DirAccess.open(TURNAROUND_BACKGROUND_DIR)
@@ -525,7 +511,6 @@ func _load_turnaround_background_paths() -> void:
 		file_name = dir.get_next()
 	dir.list_dir_end()
 	_turnaround_background_paths.sort()
-
 func _apply_random_turnaround_background() -> void:
 	if not _turnaround_background:
 		return
@@ -546,7 +531,6 @@ func _apply_random_turnaround_background() -> void:
 		_last_turnaround_background_path = selected_path
 	else:
 		_turnaround_background.texture = null
-
 func _load_texture_safe(path: String) -> Texture2D:
 	if path == "" or not ResourceLoader.exists(path):
 		return null

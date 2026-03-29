@@ -44,6 +44,10 @@ var mission_complete_container: PanelContainer = null
 var mission_complete_label: Label = null
 var mission_complete_timer_label: Label = null
 var _mission_complete_tween: Tween = null
+var _gloria_portrait_click_count: int = 0
+var _gloria_portrait_last_click_time: int = 0
+const _GLORIA_PORTRAIT_CLICK_TIMEOUT_MS := 3000
+const _GLORIA_PORTRAIT_CLICK_TARGET := 5
 var _exit_confirmation_dialog: ConfirmationDialog = null
 var _quit_confirmation_dialog: ConfirmationDialog = null
 var _pending_quit_request: bool = false
@@ -113,6 +117,8 @@ func _setup_character_hover_effects() -> void:
 			tween.set_trans(Tween.TRANS_CUBIC)
 			tween.tween_property(char_node, "position:y", orig_y, 0.28)
 		)
+		var name_lbl := char_node.get_node_or_null("NameLabel") as Label
+		var is_gloria := name_lbl != null and name_lbl.text.to_lower().contains("gloria")
 		char_node.gui_input.connect(func(event: InputEvent):
 			if not (event is InputEventMouseButton):
 				return
@@ -142,6 +148,15 @@ func _setup_character_hover_effects() -> void:
 			pt.tween_property(pop, "position:y", pop.position.y - 40, 0.5)
 			pt.tween_property(pop, "modulate:a", 0.0, 0.5)
 			pt.chain().tween_callback(pop.queue_free)
+			if is_gloria:
+				var now := Time.get_ticks_msec()
+				if now - _gloria_portrait_last_click_time > _GLORIA_PORTRAIT_CLICK_TIMEOUT_MS:
+					_gloria_portrait_click_count = 0
+				_gloria_portrait_click_count += 1
+				_gloria_portrait_last_click_time = now
+				if _gloria_portrait_click_count >= _GLORIA_PORTRAIT_CLICK_TARGET:
+					_gloria_portrait_click_count = 0
+					_show_cant_touch_easter_egg()
 		)
 func _input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.pressed or event.echo:
@@ -1200,3 +1215,71 @@ func _localize_ui_labels() -> void:
 		ui.next_step_button.text = localization_manager.get_translation("UI_NEXT_STEP")
 	if ui_controller and ui_controller.has_method("refresh_nav_buttons"):
 		ui_controller.refresh_nav_buttons()
+func _show_cant_touch_easter_egg() -> void:
+	var overlay := Control.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.z_index = 200
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.0, 0.0, 0.05, 0.88)
+	overlay.add_child(bg)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var panel := Panel.new()
+	panel.custom_minimum_size = Vector2(560, 360)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.07, 0.06, 0.12, 0.97)
+	sb.corner_radius_top_left = 18
+	sb.corner_radius_top_right = 18
+	sb.corner_radius_bottom_left = 18
+	sb.corner_radius_bottom_right = 18
+	sb.border_width_left = 1
+	sb.border_width_right = 1
+	sb.border_width_top = 1
+	sb.border_width_bottom = 1
+	sb.border_color = Color(0.7, 0.3, 0.8, 0.6)
+	sb.shadow_size = 16
+	sb.shadow_color = Color(0, 0, 0, 0.6)
+	panel.add_theme_stylebox_override("panel", sb)
+	center.add_child(panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 40)
+	margin.add_theme_constant_override("margin_right", 40)
+	margin.add_theme_constant_override("margin_top", 32)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 16)
+	margin.add_child(vbox)
+	var title_lbl := Label.new()
+	title_lbl.text = _tr("EASTER_EGG_CANT_TOUCH_TITLE")
+	title_lbl.add_theme_font_size_override("font_size", 24)
+	title_lbl.add_theme_color_override("font_color", Color(0.9, 0.7, 1.0))
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title_lbl)
+	var sep := HSeparator.new()
+	sep.modulate = Color(0.5, 0.4, 0.7, 0.5)
+	vbox.add_child(sep)
+	var body_lbl := RichTextLabel.new()
+	body_lbl.bbcode_enabled = true
+	body_lbl.text = _tr("EASTER_EGG_CANT_TOUCH_BODY")
+	body_lbl.fit_content = true
+	body_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_lbl.add_theme_font_size_override("normal_font_size", 15)
+	body_lbl.add_theme_color_override("default_color", Color(0.9, 0.88, 0.95))
+	vbox.add_child(body_lbl)
+	var close_btn := Button.new()
+	close_btn.text = _tr("EASTER_EGG_CLOSE")
+	close_btn.custom_minimum_size = Vector2(160, 44)
+	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	close_btn.pressed.connect(overlay.queue_free)
+	vbox.add_child(close_btn)
+	overlay.modulate.a = 0.0
+	add_child(overlay)
+	var tween := create_tween()
+	tween.tween_property(overlay, "modulate:a", 1.0, 0.35)

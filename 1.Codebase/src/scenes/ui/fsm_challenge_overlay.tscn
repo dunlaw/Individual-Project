@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3 uid="uid://c3vc0m1qjxgjk"]
+[gd_scene load_steps=8 format=3 uid="uid://c3vc0m1qjxgjk"]
 
 [ext_resource type="Script" path="res://1.Codebase/src/scripts/ui/fsm_challenge_overlay.gd" id="1_fsm_challenge"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/gloria_protagonis_happy.png" id="2_gloria_happy"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/gloria_protagonis_sad.png" id="3_gloria_sad"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/ui/guide_fsm.png" id="4_fsm_image"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/teacher_chan_happy.png" id="5_teacher_chan"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/rebirth_challenge/rebirth_conclusion_bg.png" id="6_crash_bg"]
 
 [sub_resource type="Gradient" id="1_gradient_bg"]
 interpolation_mode = 2
@@ -414,6 +415,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="CrashBackground" type="TextureRect" parent="CrashPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("6_crash_bg")
+expand_mode = 1
+stretch_mode = 6
+
 [node name="CrashParticles" type="CPUParticles2D" parent="CrashPanel"]
 z_index = 1
 position = Vector2(960, 540)
@@ -461,7 +473,7 @@ layout_mode = 2
 text = "系統崩潰"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 32
-theme_override_colors/font_color = Color(1, 0.3, 0.3, 1)
+theme_override_colors/font_color = Color(1, 1, 0, 1)
 
 [node name="CrashContent" type="RichTextLabel" parent="CrashPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -492,13 +504,14 @@ Gloria 正在等你。
 [/center]"
 fit_content = true
 theme_override_font_sizes/normal_font_size = 18
+theme_override_colors/default_color = Color(1, 1, 0, 0.95)
 
 [node name="CrashFooter" type="Label" parent="CrashPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 text = "— Glorious Deliverance Agency —"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.5, 0.5, 0.6, 0.7)
+theme_override_colors/font_color = Color(1, 1, 0, 0.9)
 
 [node name="BackButton" type="Button" parent="CrashPanel/MarginContainer/VBoxContainer"]
 custom_minimum_size = Vector2(260, 56)

@@ -174,7 +174,16 @@ func request_ai(prompt: String, callback: Callable = Callable(), context_or_call
 		"force_mock": force_mock,
 	}
 	var current_provider = _config_manager.current_provider if _config_manager else AIProvider.GEMINI
-	last_prompt_metrics["mode"] = "local" if current_provider == AIProvider.OLLAMA else "live"
+	if current_provider in [AIProvider.OLLAMA, AIProvider.LMSTUDIO, AIProvider.AI_ROUTER]:
+		last_prompt_metrics["mode"] = "local"
+	elif current_provider == AIProvider.GEMINI and _config_manager:
+		var gemini_model_lower := String(_config_manager.gemini_model).strip_edges().to_lower()
+		if gemini_model_lower.find("native-audio") != -1 or gemini_model_lower.find("flash-live") != -1:
+			last_prompt_metrics["mode"] = "live"
+		else:
+			last_prompt_metrics["mode"] = "api"
+	else:
+		last_prompt_metrics["mode"] = "api"
 	last_prompt_metrics["provider"] = current_provider
 	last_prompt_metrics["response_chars"] = 0
 	last_prompt_metrics["response_tokens_est"] = 0

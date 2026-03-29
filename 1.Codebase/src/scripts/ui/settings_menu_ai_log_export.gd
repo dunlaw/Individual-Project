@@ -29,10 +29,11 @@ static func export_csv(
 	log_entries: Array,
 	tr_callable: Callable,
 	notifier: Node,
+	save_path: String = "",
 ) -> void:
 	var analytics: Dictionary = SettingsMenuAIAnalytics.compute_analytics(log_entries)
 	var ts: String = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
-	var path: String = "user://ai_usage_charts_%s.csv" % ts
+	var path: String = save_path if not save_path.is_empty() else "user://ai_usage_charts_%s.csv" % ts
 	var lines: PackedStringArray = []
 	lines.append("section,timestamp,provider,model,status,input_tokens,output_tokens,response_time_sec,mode,purpose,error,prompt_text,prompt_modules_active,ai_response_text")
 	for entry in log_entries:
