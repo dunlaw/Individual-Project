@@ -462,13 +462,24 @@ For simplifying AI integration, the AIManager presents a facade interface to the
 
 \subsection{Context Management Architecture}
 
-The three-layer context-management system represents my solution to the fundamental tension between providing sufficient narrative history for coherent generation and respecting token limits. I implemented this as three distinct data structures within the \texttt{AIMemoryStore} class (\texttt{ai\_memory\_store.gd}).
+The context-management system operates at two complementary layers: \textbf{storage-level compression} in \texttt{AIMemoryStore} and \textbf{runtime budget-aware assembly} in \texttt{AIPromptBuilder} with \texttt{AIContextDelta}. Together they ensure the final prompt stays within the token budget while preserving narrative coherence.
 
-The short-term memory layer maintains the most recent five conversational exchanges in full detail, providing immediate context for the current interaction. When story memory exceeds the configurable threshold of twenty-four entries, older entries are automatically summarised and migrated to the long-term summaries layer. The notes register layer maintains persistent facts and constraints that should influence all generations, regardless of when they were established. This hierarchical approach ensures that critical narrative elements persist across extended sessions whilst managing token consumption.
+\subsubsection{Storage Layer --- AIMemoryStore}
 
-\subsection{Prompt Engineering Architecture}
+I implemented three distinct data structures within the \texttt{AIMemoryStore} class (\texttt{ai\_memory\_store.gd}). The short-term memory layer retains the most recent entries calculated as \texttt{max(SHORT\_TERM\_WINDOW, memory\_full\_entries * 2)} --- with defaults of 5 and 6 respectively, the effective window is twelve entries, not five. When story memory exceeds the configurable threshold of twenty-four entries, older entries are migrated to the long-term summaries layer. Crucially, this migration is \textbf{sampling-based compression rather than semantic summarisation}: the \texttt{\_summarize\_entries()} function selects representative samples at the earliest, quarter, middle, three-quarter, and latest positions from the archived block, tagging each with its temporal position (e.g.\ ``Earliest'', ``Early'', ``Middle'', ``Late'', ``Latest summary''). For a block of one hundred entries, approximately five representative samples are retained. This approach preserves key narrative landmarks without requiring an additional LLM call for summarisation. The notes register layer maintains persistent facts and constraints that should influence all generations, regardless of when they were established.
 
-The \texttt{AIPromptBuilder} class (\texttt{ai\_prompt\_builder.gd}) implements structured prompt construction that assembles multiple context sources into a coherent prompt. The build process follows a specific sequence: static context messages establish the world rules and constraints, followed by entropy modifiers that adjust the AI's tonal instructions based on current game state, then long-term context summaries, persistent notes, short-term memory, and finally the specific user request with current metadata.
+\subsubsection{Runtime Layer --- AIPromptBuilder and AIContextDelta}
+
+The true runtime compression occurs in \texttt{AIPromptBuilder} (\texttt{ai\_prompt\_builder.gd}) working with \texttt{AIContextDelta} (\texttt{ai\_context\_delta.gd}). Rather than naively concatenating all context, the builder operates within a token budget (default 24,000 tokens, estimated at roughly four characters per token) and performs \textbf{incremental, budget-aware prompt assembly}:
+
+\begin{enumerate}
+    \item \textbf{Token reservation}: Before assembling context sections, the builder reserves a minimum of 4,000 tokens for the user's current message, ensuring the player's prompt is never crowded out.
+    \item \textbf{Section fingerprinting}: Each context section (static rules, entropy modifiers, long-term summaries, notes, short-term memory) is fingerprinted by hashing its content. \texttt{AIContextDelta} compares each section's current fingerprint against the previous request's fingerprint.
+    \item \textbf{Incremental sending}: If a section is unchanged from the previous request, the builder substitutes a lightweight marker --- \texttt{[context:\{section\_name\} unchanged from previous request]} --- saving the tokens that would have been spent resending identical content. Sections are forced to resend after eight consecutive unchanged cycles to guard against context drift.
+    \item \textbf{Budget overflow degradation}: When a changed section exceeds the remaining budget, the builder replaces it with a compressed summary marker --- \texttt{[context:\{section\_name\} updated, \{msg\_count\} messages, \~{}\{total\_chars\} chars --- truncated for budget]} --- preserving awareness of the section's existence without transmitting its full content.
+    \item \textbf{Short-term memory trimming}: Short-term entries are appended one by one until the budget is exhausted; any remaining entries are summarised as omitted counts.
+    \item \textbf{Final user message truncation}: If the user message itself exceeds the remaining budget after all context has been assembled, it is truncated to fit.
+\end{enumerate}
 
 This layered construction ensures that the AI always receives the most critical constraints first, with more recent context following. The entropy modifier system dynamically adjusts prompt parameters based on the calculated Void Entropy value, shifting the AI's generation towards more chaotic or stable content depending on the current game phase.
 
@@ -511,7 +522,7 @@ Despite requesting structured JSON output, AI responses frequently arrived in un
 
 \subsection{Memory Management: Balancing Context and Token Cost}
 
-Context window management presented a genuine engineering challenge. Simply including entire conversation history led to both token cost issues and degraded output quality. The specific thresholds in my three-layer memory system (Section 7.3) required empirical tuning. The current configuration of twenty-four entries before summarisation, with the five most recent entries preserved in full, represents a balance reached through extended testing.
+Context window management presented a genuine engineering challenge. Simply including entire conversation history led to both token cost issues and degraded output quality. The specific thresholds in my context-management system (Section 7.3) required empirical tuning. The current configuration of twenty-four entries before summarisation, with the most recent twelve entries preserved in full (calculated as \texttt{max(SHORT\_TERM\_WINDOW, memory\_full\_entries * 2)}), represents a balance reached through extended testing. At the prompt-assembly layer, the \texttt{AIPromptBuilder} applies additional budget-aware compression: unchanged sections become single-line markers, over-budget sections degrade to summary placeholders, and short-term entries are individually trimmed when the token ceiling is reached.
 
 The notes register implements importance scoring to preserve high-importance notes whilst allowing lower-importance notes to be displaced as the register fills.
 
@@ -532,23 +543,46 @@ The most significant error handling challenge involved API key configuration. Us
 The following code excerpts illustrate core AI integration concepts. Complete implementations are available in the source code submission.
 
 %TC:ignore
-\begin{lstlisting}[caption={Prompt construction with context assembly (from ai\_prompt\_builder.gd:21--55)}]
+\begin{lstlisting}[caption={Budget-aware incremental prompt construction (from ai\_prompt\_builder.gd)}]
 func build_prompt(prompt: String, context: Dictionary) -> Array[Dictionary]:
     var messages: Array[Dictionary] = []
     var language := _get_language()
-    messages.append_array(_get_static_context_messages(language))
-    messages.append({ "role": "system", "content": _system_persona })
-    messages.append({ "role": "assistant", "content": "Acknowledged. I will
-        maintain ironic, pessimistic storytelling for GDA1 while enforcing
-        the recorded facts." })
-    messages.append_array(_get_entropy_modifier_message(language))
-    messages.append_array(_get_long_term_context(language))
-    messages.append_array(_get_notes_context(language))
-    for entry in _get_short_term_memory():
-        messages.append(entry)
-    var user_message_content := _build_user_message(prompt, context, language)
-    messages.append({ "role": "user", "content": user_message_content })
+    _pre_user_token_reserve = USER_MSG_RESERVE        # reserve 4 000 tokens for user msg
+    _delta.begin_build()
+    # Sections appended incrementally -- unchanged sections become markers
+    _append_section_incremental("static_context",
+        _get_static_context_messages(language), messages)
+    _append_single_incremental("persona",
+        { "role": "system", "content": _system_persona }, messages)
+    _append_section_incremental("entropy",
+        _get_entropy_modifier_message(language), messages)
+    _append_section_incremental("long_term",
+        _get_long_term_context(language), messages)
+    _append_section_incremental("notes",
+        _get_notes_context(language), messages)
+    _append_short_term_memory(messages)               # one-by-one until budget exhausted
+    # Final user message fitted into remaining budget
+    var user_msg := _build_user_message(prompt, context, language)
+    _append_budgeted_message({ "role": "user", "content": user_msg }, messages)
+    _delta.finish_build()
     return messages
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Section fingerprinting and budget degradation (from ai\_prompt\_builder.gd)}]
+func _append_section_incremental(section_name: String,
+        section_msgs: Array, out: Array) -> void:
+    var fp := _delta.fingerprint_messages(section_msgs)
+    if _delta.has_section_changed(section_name, fp):
+        if _has_budget_with_reserve(section_msgs):
+            for msg in section_msgs:
+                _append_budgeted_message(msg, out)
+            _delta.record_section(section_name, fp)
+        else:
+            # Over budget -- degrade to a lightweight summary marker
+            out.append(_summarize_section(section_name, section_msgs))
+    else:
+        # Unchanged -- single-line marker instead of full content
+        out.append(_delta.build_unchanged_marker(section_name))
 \end{lstlisting}
 
 \begin{lstlisting}[caption={Void entropy calculation driving thematic tone (from player\_stats.gd:43--48)}]
