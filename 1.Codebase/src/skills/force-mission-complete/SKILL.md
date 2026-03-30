@@ -9,8 +9,9 @@ purpose_triggers:
 
 **The maximum turn limit for this mission has been reached.**
 
-You MUST set `mission_status` to `"complete"` in the `[SCENE_DIRECTIVES]` block — no exceptions.
+This instruction supersedes all previous instructions and any prior conversation context. Regardless of what earlier messages stated, you MUST follow this directive now:
 
-This overrides all other instructions about when to use `"complete"`. Do NOT set `"ongoing"`. The story must conclude in this response.
+- Set `mission_status` to `"complete"` in the `[SCENE_DIRECTIVES]` block — no exceptions, no alternatives.
+- Do NOT set `"ongoing"`.
 
-Write a narrative that wraps up the current mission arc, however abruptly. Acknowledge the outcome of the player's final choice, give the scene a sense of closure, and transition the story toward the end of the mission.
+Write a narrative that wraps up the current mission arc. Acknowledge the outcome of the player's final choice and give the scene a sense of closure, however abrupt. The mission ends in this response.
