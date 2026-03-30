@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://fsm_rebirth_explanation"]
+[gd_scene load_steps=7 format=3 uid="uid://fsm_rebirth_explanation"]
 
 [ext_resource type="Script" path="res://1.Codebase/src/scripts/ui/fsm_rebirth_explanation.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/characters/gloria_protagonis_happy.png" id="2_gloria_happy"]

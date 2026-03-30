@@ -773,7 +773,7 @@ func _is_live_turn_complete(message: Dictionary) -> bool:
 			return bool(content_dict.get("turnComplete", false))
 		if content_dict.has("turn_complete"):
 			return bool(content_dict.get("turn_complete", false))
-	return true
+	return false
 func _sample_rate_from_mime(mime: String, fallback: int) -> int:
 	var fragments := mime.split(";")
 	for frag in fragments:

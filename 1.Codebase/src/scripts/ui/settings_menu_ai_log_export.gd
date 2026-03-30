@@ -29,18 +29,24 @@ static func export_csv(
 	log_entries: Array,
 	tr_callable: Callable,
 	notifier: Node,
+	save_path: String = "",
 ) -> void:
 	var analytics: Dictionary = SettingsMenuAIAnalytics.compute_analytics(log_entries)
 	var ts: String = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
-	var path: String = "user://ai_usage_charts_%s.csv" % ts
+	var path: String = save_path if not save_path.is_empty() else "user://ai_usage_charts_%s.csv" % ts
 	var lines: PackedStringArray = []
-	lines.append("section,timestamp,provider,model,status,input_tokens,output_tokens,response_time_sec,mode,purpose,error")
+	lines.append("section,timestamp,provider,model,status,input_tokens,output_tokens,response_time_sec,mode,purpose,error,prompt_text,prompt_modules_active,ai_response_text")
 	for entry in log_entries:
 		var status_text: String = "ERR"
 		if bool(entry.get("success", false)):
 			status_text = str(int(entry.get("status_code", 200)))
 		elif str(entry.get("mode", "")) in ["mock", "mock_fallback"]:
 			status_text = "MOCK"
+		var request_body := str(entry.get("request_body", ""))
+		var response_body := str(entry.get("response_body", ""))
+		var prompt_text := SettingsMenuAILogRenderer.extract_prompt_text(request_body)
+		var modules_active := SettingsMenuAILogRenderer.extract_active_modules_summary(request_body)
+		var ai_response_text := SettingsMenuAILogRenderer.extract_ai_response_text(response_body)
 		lines.append(SettingsMenuAIAnalytics.csv_row([
 			"call_log",
 			str(entry.get("timestamp", "")),
@@ -53,6 +59,9 @@ static func export_csv(
 			str(entry.get("mode", "")),
 			str(entry.get("purpose", "")),
 			str(entry.get("error", "")),
+			prompt_text,
+			modules_active,
+			ai_response_text,
 		]))
 	lines.append("")
 	lines.append("section,metric,label,value")

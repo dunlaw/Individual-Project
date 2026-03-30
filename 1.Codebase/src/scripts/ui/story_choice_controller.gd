@@ -108,9 +108,14 @@ func generate_choices() -> void:
 		force_prayer_only = false
 		if story_scene and story_scene.state_controller:
 			story_scene.state_controller.set_force_prayer_only(false)
+		print("[StoryChoiceCtrl] DEBUG: generate_choices() — force_prayer_only, showing prayer only")
 		_show_prayer_only(prayer_text)
 		return
 	current_choices = _build_choice_list(lang, prayer_text)
+	var choice_labels: Array[String] = []
+	for c in current_choices:
+		choice_labels.append(String(c.get("type", "?")))
+	print("[StoryChoiceCtrl] DEBUG: generate_choices() SET %d fallback choices: %s" % [current_choices.size(), ", ".join(choice_labels)])
 	_sync_current_choices_metadata()
 	_display_choices()
 func _build_choice_list(lang: String, prayer_text: String) -> Array[Dictionary]:
@@ -164,6 +169,7 @@ func apply_ai_choices(ai_choices: Array[Dictionary], lang: String) -> void:
 			if not built.is_empty():
 				normalized.append(built)
 	if normalized.is_empty():
+		print("[StoryChoiceCtrl] DEBUG: apply_ai_choices got 0 valid entries — falling back to generate_choices()")
 		generate_choices()
 		return
 	var prayer_text := _get_prayer_text(lang)
@@ -175,6 +181,10 @@ func apply_ai_choices(ai_choices: Array[Dictionary], lang: String) -> void:
 		"effect_type": "prayer"
 	})
 	current_choices = normalized
+	var choice_labels: Array[String] = []
+	for c in current_choices:
+		choice_labels.append(String(c.get("type", "?")))
+	print("[StoryChoiceCtrl] DEBUG: apply_ai_choices SET %d choices: %s" % [current_choices.size(), ", ".join(choice_labels)])
 	_sync_current_choices_metadata()
 	_display_choices()
 func _build_archetype_choice(entry: Dictionary, lang: String) -> Dictionary:

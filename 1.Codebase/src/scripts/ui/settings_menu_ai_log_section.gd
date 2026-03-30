@@ -203,13 +203,38 @@ static func build_log_page(
 	detail_copy_response_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	detail_copy_response_btn.pressed.connect(_get_handler(handlers, "copy_response"))
 	detail_actions.add_child(detail_copy_response_btn)
+	# Tabbed detail view: "AI Response" (default) + "Full Detail"
+	var detail_tabs := TabContainer.new()
+	detail_tabs.name = "AILogDetailTabs"
+	detail_tabs.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_tabs.custom_minimum_size = Vector2(1080, 600)
+	detail_vbox.add_child(detail_tabs)
+	# Tab 0 — AI Response (clean plain text)
+	var response_tab_root := VBoxContainer.new()
+	response_tab_root.name = tr_callable.call("SETTINGS_AI_LOG_DETAIL_TAB_RESPONSE", "AI Response")
+	response_tab_root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	response_tab_root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_tabs.add_child(response_tab_root)
+	var detail_response_text := TextEdit.new()
+	detail_response_text.name = "AILogDetailResponseText"
+	detail_response_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_response_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_response_text.editable = false
+	detail_response_text.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
+	response_tab_root.add_child(detail_response_text)
+	# Tab 1 — Full Detail (original combined view)
+	var full_tab_root := VBoxContainer.new()
+	full_tab_root.name = tr_callable.call("SETTINGS_AI_LOG_DETAIL_TAB_FULL", "Full Detail")
+	full_tab_root.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	full_tab_root.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	detail_tabs.add_child(full_tab_root)
 	var detail_text := TextEdit.new()
 	detail_text.name = "AILogDetailText"
 	detail_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	detail_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	detail_text.custom_minimum_size = Vector2(1080, 620)
 	detail_text.editable = false
-	detail_vbox.add_child(detail_text)
+	full_tab_root.add_child(detail_text)
 	var analytics_scroll := ScrollContainer.new()
 	analytics_scroll.name = "AIAnalyticsScroll"
 	analytics_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -228,7 +253,9 @@ static func build_log_page(
 		"analytics_view": analytics_scroll,
 		"save_details_check": save_details_check,
 		"detail_dialog": detail_dialog,
+		"detail_tabs": detail_tabs,
 		"detail_text": detail_text,
+		"detail_response_text": detail_response_text,
 		"detail_copy_all_btn": detail_copy_all_btn,
 		"detail_copy_request_btn": detail_copy_request_btn,
 		"detail_copy_response_btn": detail_copy_response_btn,

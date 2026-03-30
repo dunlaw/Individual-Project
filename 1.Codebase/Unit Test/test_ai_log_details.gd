@@ -1,9 +1,6 @@
 extends SceneTree
-
-
 class _StubDebugProvider:
 	extends RefCounted
-
 	func get_debug_snapshot() -> Dictionary:
 		return {
 			"request": {
@@ -16,23 +13,14 @@ class _StubDebugProvider:
 				"body": "{\"choices\":[{\"message\":{\"role\":\"assistant\",\"content\":\"world\"}}]}",
 			},
 		}
-
-
 class _StubDebugProviderManager:
 	extends RefCounted
-
 	var provider := _StubDebugProvider.new()
-
 	func get_current_provider_name() -> String:
 		return "AI_ROUTER"
-
 	func get_current_provider() -> RefCounted:
 		return provider
-
-
 var _failed: bool = false
-
-
 func _initialize() -> void:
 	print("[AILogDetailsTest] Starting targeted AI log detail checks...")
 	_run_capture_toggle_test()
@@ -43,16 +31,12 @@ func _initialize() -> void:
 		return
 	print("[AILogDetailsTest] PASSED")
 	quit()
-
-
 func _assert_test(condition: bool, label: String) -> void:
 	if condition:
 		print("  PASS: %s" % label)
 		return
 	_failed = true
 	print("  FAIL: %s" % label)
-
-
 func _run_capture_toggle_test() -> void:
 	var manager_script: GDScript = load("res://1.Codebase/src/scripts/core/ai/managers/ai_request_manager.gd")
 	var config_script: GDScript = load("res://1.Codebase/src/scripts/core/ai/managers/ai_config_manager.gd")
@@ -85,8 +69,6 @@ func _run_capture_toggle_test() -> void:
 	manager._record_call_log(true, "live", 200, 10, 12, 1.25)
 	var summary_entry: Dictionary = manager.get_call_log().back()
 	_assert_test(not bool(summary_entry.get("detail_available", false)), "Detailed bodies are omitted when toggle is off")
-
-
 func _run_renderer_format_test() -> void:
 	var renderer_script: GDScript = load("res://1.Codebase/src/scripts/ui/settings_menu_ai_log_renderer.gd")
 	_assert_test(renderer_script != null, "Renderer script loads")

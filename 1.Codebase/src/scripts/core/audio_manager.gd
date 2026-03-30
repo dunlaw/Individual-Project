@@ -81,6 +81,7 @@ const _PRELOADED_MUSIC_PATHS := {
 	"night_concert_guitar": "res://1.Codebase/src/assets/music/night_concert_guitar.mp3",
 	"night_concert_crowd": "res://1.Codebase/src/assets/music/night_concert_crowd.mp3",
 	"mountain_king": "res://1.Codebase/src/assets/music/Peer Gynt, Op. 23 - IV. In the Hall of the Mountain King.mp3",
+	"chopin_nocturne_op9_no2": "res://1.Codebase/src/assets/music/chopin_nocturne_op9_no2.mp3",
 }
 var music_player: AudioStreamPlayer
 var voice_player: AudioStreamPlayer
@@ -99,10 +100,11 @@ var latest_voice_pcm: PackedByteArray = PackedByteArray()
 var sounds: Dictionary = { }
 var sound_manifest: Dictionary = { }
 const PLAYLIST_EXCLUDED := [
-	"hidden_credits-backup",     
+	"hidden_credits-backup",
 	"trolley_problem_bgm",
-	"night_concert_guitar",    
-	"night_concert_crowd",     
+	"night_concert_guitar",
+	"night_concert_crowd",
+	"chopin_nocturne_op9_no2",
 ]
 var _playlist: Array[String] = []
 var _playlist_index: int = 0
