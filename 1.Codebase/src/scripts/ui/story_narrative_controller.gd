@@ -306,7 +306,6 @@ func _update_story_choices(ai_choices: Array[Dictionary], story_text: String, al
 			_debug_log("[Narrative] Triggering choice_followup fallback request")
 			_request_story_choice_followup(story_text, lang)
 			if not _pending_choice_followup:
-				print("[StoryNarrative] DEBUG: choice_followup resolved SYNC — skipping generate_choices() overwrite (FIX ACTIVE)")
 				_debug_log("[Narrative] choice_followup resolved synchronously (mock mode); skipping legacy fallback")
 				return
 		elif allow_followup:

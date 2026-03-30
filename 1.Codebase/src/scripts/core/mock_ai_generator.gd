@@ -273,7 +273,6 @@ static func _generate_consequence(context: Dictionary) -> String:
 	var story_text = "\n".join(story_lines)
 	var expressions = ["neutral", "happy", "sad", "angry", "confused", "shocked", "thinking", "embarrassed"]
 	var choices: Array[Dictionary] = _build_choice_followup_payload(lang)
-	print("[MockAI] DEBUG: _generate_consequence now includes %d choices (FIX ACTIVE)" % choices.size())
 	var response = {
 		"characters": {
 			"protagonist": { "expression": expressions[_rng.randi_range(0, expressions.size() - 1)] },
