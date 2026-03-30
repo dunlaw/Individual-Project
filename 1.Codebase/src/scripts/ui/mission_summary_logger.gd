@@ -38,17 +38,16 @@ func _generate_mission_summary(event_data: Dictionary) -> void:
 		String(event_details.get("outcome", _tr("STATUS_SUCCESS"))),
 	]
 	_report_info("Generating mission summary for mission #%d" % mission_number)
-	ai_manager.request_ai(
-		summary_prompt,
-		func(resp: Dictionary):
-			var ok := bool(resp.get("success", false))
-			if ok:
-				var text := String(resp.get("content", ""))
-				_on_summary_generated(mission_number, text)
-			else:
-				var err := String(resp.get("error", "Unknown error"))
-				_on_summary_failed(mission_number, err)
-	)
+	var context := {"purpose": "mission_summary"}
+	var callback := func(resp: Dictionary):
+		var ok := bool(resp.get("success", false))
+		if ok:
+			var text := String(resp.get("content", ""))
+			_on_summary_generated(mission_number, text)
+		else:
+			var err := String(resp.get("error", "Unknown error"))
+			_on_summary_failed(mission_number, err)
+	ai_manager.request_ai(summary_prompt, callback, context)
 func _on_summary_generated(mission_number: int, summary: String) -> void:
 	_report_info("Summary generated for mission #%d: %s" % [mission_number, summary])
 	_add_mission_summary_to_journal(mission_number, summary)
