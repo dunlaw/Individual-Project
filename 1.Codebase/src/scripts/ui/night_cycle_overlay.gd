@@ -539,7 +539,7 @@ func _on_skip_pressed() -> void:
 	_finish_concert()
 func _start_failsafe_timer() -> void:
 	_content_failsafe_timer = Timer.new()
-	_content_failsafe_timer.wait_time = 10.0
+	_content_failsafe_timer.wait_time = 35.0
 	_content_failsafe_timer.one_shot  = true
 	_content_failsafe_timer.timeout.connect(_on_failsafe_timeout)
 	add_child(_content_failsafe_timer)
@@ -554,12 +554,34 @@ func _on_failsafe_timeout() -> void:
 func _request_ai_lyrics(refl: String, concert: String, song: String,
 						honey: String, prompt: String) -> void:
 	_concert_song_label.text = _tr("NIGHT_GENERATING_LYRICS")
+	if is_instance_valid(_concert_text_label):
+		_concert_text_label.text = concert if not concert.strip_edges().is_empty() else _tr("NIGHT_CONCERT_FALLBACK")
+	_show_lyrics_loading_placeholder()
 	var ctx = { "purpose": "concert_lyrics", "song_title": song,
 				"reflection": refl, "concert_theme": concert }
 	AIManager.generate_story(
 		_build_lyrics_prompt(refl, song), ctx,
 		Callable(self, "_on_ai_lyrics").bind(refl, concert, song, honey, prompt)
 	)
+func _show_lyrics_loading_placeholder() -> void:
+	if not is_instance_valid(_concert_lyrics_container):
+		return
+	for c in _concert_lyrics_container.get_children():
+		c.queue_free()
+	var loading_lbl := RichTextLabel.new()
+	loading_lbl.bbcode_enabled = true
+	loading_lbl.fit_content = true
+	loading_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
+	loading_lbl.custom_minimum_size = Vector2(0, 60)
+	loading_lbl.text = "[center][color=#bbaaee]♪  ...  ♪[/color][/center]"
+	loading_lbl.add_theme_font_size_override("normal_font_size", 22)
+	_concert_lyrics_container.add_child(loading_lbl)
+	var t := create_tween()
+	t.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	t.set_loops()
+	t.tween_property(loading_lbl, "modulate:a", 0.2, 0.9)
+	t.tween_property(loading_lbl, "modulate:a", 1.0, 0.9)
+	_concert_tweens.append(t)
 func _on_ai_lyrics(resp: Dictionary, refl: String, concert: String,
 				   song: String, honey: String, prompt: String) -> void:
 	if not is_instance_valid(self) or not is_instance_valid(_concert_lyrics_container):
