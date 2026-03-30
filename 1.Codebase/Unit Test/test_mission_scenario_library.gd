@@ -8,6 +8,7 @@ func _ready() -> void:
 	_test_has_scenarios()
 	_test_get_random_scenario()
 	_test_scenario_structure()
+	_test_scenario_consequence_and_followup_data()
 	_test_helper_functions()
 	print("[MissionScenarioLibraryTest] All tests completed.")
 	queue_free()
@@ -37,6 +38,26 @@ func _test_scenario_structure() -> void:
 		_assert(fallback.has("choices") and fallback.choices is Array, "Fallback choices")
 		_assert(fallback.choices.size() >= 2, "Should have at least 2 choices")
 	print("[Test] Scenario structure validation PASSED")
+func _test_scenario_consequence_and_followup_data() -> void:
+	print("[Test] Scenario consequence and followup data...")
+	for scenario in Library.SCENARIOS:
+		var fallback = scenario.get("fallback", {})
+		var sid = scenario.get("id", "unknown")
+		_assert(fallback.has("consequence_success"), "%s should have consequence_success" % sid)
+		_assert(fallback.has("consequence_fail"), "%s should have consequence_fail" % sid)
+		_assert(fallback.has("followup_choices"), "%s should have followup_choices" % sid)
+		var cs = fallback.get("consequence_success", [])
+		var cf = fallback.get("consequence_fail", [])
+		var fc = fallback.get("followup_choices", [])
+		_assert(cs is Array and cs.size() >= 3, "%s consequence_success should have >= 3 entries" % sid)
+		_assert(cf is Array and cf.size() >= 3, "%s consequence_fail should have >= 3 entries" % sid)
+		_assert(fc is Array and fc.size() >= 5, "%s followup_choices should have >= 5 entries" % sid)
+		for entry in fc:
+			_assert(entry is Dictionary, "%s followup_choices entries should be dictionaries" % sid)
+			if entry is Dictionary:
+				_assert(entry.has("archetype"), "%s followup choice should have archetype" % sid)
+				_assert(entry.has("summary"), "%s followup choice should have summary" % sid)
+	print("[Test] Scenario consequence and followup data PASSED")
 func _test_helper_functions() -> void:
 	print("[Test] Helper functions...")
 	var context_en = {"language": "en"}

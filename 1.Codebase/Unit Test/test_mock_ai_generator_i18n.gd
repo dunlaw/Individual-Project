@@ -12,6 +12,10 @@ func _ready() -> void:
 	_test_generate_prayer_chinese()
 	_test_generate_interference_chinese()
 	_test_generate_gloria_intervention_chinese()
+	_test_scenario_memory_set_on_mission()
+	_test_scenario_memory_consequence_coherence()
+	_test_scenario_memory_followup_coherence()
+	_test_scenario_memory_cleared_on_night_cycle()
 	print("[MockAIGeneratorI18nTest] All tests completed.")
 	queue_free()
 func _test_resolve_language() -> void:
@@ -103,6 +107,77 @@ func _test_generate_gloria_intervention_chinese() -> void:
 	_assert(parsed.has("speech"), "Should have speech")
 	_assert(_contains_chinese_chars(parsed["speech"]), "Gloria intervention should contain Chinese characters")
 	print("[Test] Generate Gloria intervention (Chinese) PASSED")
+func _test_scenario_memory_set_on_mission() -> void:
+	print("[Test] Scenario memory set on mission generation...")
+	const Library = preload("res://1.Codebase/src/scripts/core/mission_scenario_library.gd")
+	Library.reset_scenario_tracking()
+	MockGen._current_scenario = {}
+	var context = {"purpose": "new_mission", "language": "en"}
+	var result = MockGen._generate_mission(context)
+	_assert(not MockGen._current_scenario.is_empty(), "Current scenario should be set after mission generation")
+	_assert(MockGen._current_scenario.has("id"), "Current scenario should have an id")
+	_assert(MockGen._current_scenario.get("id", "") == "neon_cacophony", "First scenario should be neon_cacophony")
+	print("[Test] Scenario memory set on mission generation PASSED")
+func _test_scenario_memory_consequence_coherence() -> void:
+	print("[Test] Scenario memory consequence coherence...")
+	const Library = preload("res://1.Codebase/src/scripts/core/mission_scenario_library.gd")
+	Library.reset_scenario_tracking()
+	MockGen._current_scenario = {}
+	# Generate a mission first to set the scenario
+	MockGen._generate_mission({"purpose": "new_mission", "language": "en"})
+	var scenario_id = MockGen._current_scenario.get("id", "")
+	_assert(not scenario_id.is_empty(), "Scenario should be set")
+	# Generate consequence - should use scenario-specific text
+	var consequence_json = MockGen._generate_consequence({"language": "en", "choice": {"text": "test choice"}, "success": true})
+	var parsed = JSON.parse_string(consequence_json)
+	_assert(parsed != null, "Consequence should parse as valid JSON")
+	_assert(parsed.has("story_text"), "Consequence should have story_text")
+	var story: String = parsed.get("story_text", "")
+	# Scenario-specific consequences should NOT contain the generic opening format
+	var fallback: Dictionary = MockGen._current_scenario.get("fallback", {})
+	var expected_pool: Array = fallback.get("consequence_success", [])
+	var found_scenario_text := false
+	for entry in expected_pool:
+		if str(entry) in story:
+			found_scenario_text = true
+			break
+	_assert(found_scenario_text, "Consequence story should contain scenario-specific text (scenario: %s)" % scenario_id)
+	print("[Test] Scenario memory consequence coherence PASSED")
+func _test_scenario_memory_followup_coherence() -> void:
+	print("[Test] Scenario memory followup coherence...")
+	const Library = preload("res://1.Codebase/src/scripts/core/mission_scenario_library.gd")
+	Library.reset_scenario_tracking()
+	MockGen._current_scenario = {}
+	# Generate a mission first to set the scenario
+	MockGen._generate_mission({"purpose": "new_mission", "language": "en"})
+	var scenario_id = MockGen._current_scenario.get("id", "")
+	# Generate choice followup
+	var followup_json = MockGen._generate_choice_followup({"language": "en"})
+	var parsed = JSON.parse_string(followup_json)
+	_assert(parsed != null, "Followup should parse as valid JSON")
+	_assert(parsed.has("choices"), "Followup should have choices")
+	var choices: Array = parsed.get("choices", [])
+	_assert(choices.size() >= 5, "Should have at least 5 choices")
+	# Check that choices come from scenario, not generic
+	var fallback: Dictionary = MockGen._current_scenario.get("fallback", {})
+	var expected_choices: Array = fallback.get("followup_choices", [])
+	if expected_choices.size() >= 5:
+		var first_expected: Dictionary = expected_choices[0] as Dictionary
+		var first_actual: Dictionary = choices[0] as Dictionary
+		_assert(first_actual.get("summary", "") == first_expected.get("summary", "NO_MATCH"), "First followup choice should match scenario-specific choice (scenario: %s)" % scenario_id)
+	print("[Test] Scenario memory followup coherence PASSED")
+func _test_scenario_memory_cleared_on_night_cycle() -> void:
+	print("[Test] Scenario memory cleared on night cycle...")
+	const Library = preload("res://1.Codebase/src/scripts/core/mission_scenario_library.gd")
+	Library.reset_scenario_tracking()
+	MockGen._current_scenario = {}
+	# Generate a mission to set scenario
+	MockGen._generate_mission({"purpose": "new_mission", "language": "en"})
+	_assert(not MockGen._current_scenario.is_empty(), "Scenario should be set before night cycle")
+	# Generate night cycle - should clear scenario
+	MockGen._generate_night_cycle({"language": "en", "last_text": "test"})
+	_assert(MockGen._current_scenario.is_empty(), "Scenario should be cleared after night cycle")
+	print("[Test] Scenario memory cleared on night cycle PASSED")
 func _contains_chinese_chars(text: String) -> bool:
 	for i in range(text.length()):
 		var char_code = text.unicode_at(i)

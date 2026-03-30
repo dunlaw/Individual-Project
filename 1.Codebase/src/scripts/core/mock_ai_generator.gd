@@ -6,6 +6,7 @@ static var _rng := RandomNumberGenerator.new()
 static var _seeded := false
 static var _consequence_call_count: int = 0
 static var _night_set_index: int = 0
+static var _current_scenario: Dictionary = {}
 static func _ensure_rng() -> void:
 	if not _seeded:
 		_rng.randomize()
@@ -76,12 +77,14 @@ static func _infer_purpose(prompt_lower: String) -> String:
 static func _generate_mission(context: Dictionary) -> String:
 	_ensure_rng()
 	var story_text := ""
+	_current_scenario = {}
 	if MissionScenarioLibrary.has_scenarios():
 		var cycles_before: int = MissionScenarioLibrary.get_cycles_completed()
 		var scenario := MissionScenarioLibrary.get_random_scenario()
 		if MissionScenarioLibrary.get_cycles_completed() > cycles_before:
 			_show_simulation_loop_notification(_resolve_language(context))
 		if scenario.size() > 0:
+			_current_scenario = scenario
 			story_text = _format_library_scenario(scenario, context)
 	if story_text.is_empty():
 		story_text = _build_random_story(context)
@@ -220,46 +223,61 @@ static func _generate_consequence(context: Dictionary) -> String:
 	var reality_score: int = _context_stat(context, "reality_score", 50)
 	var entropy_level: int = _context_stat(context, "entropy_level", 0)
 	var offset: int = _consequence_call_count % 100
-	var opening: String = _get_translation("MOCK_CONSEQUENCE_OPENING_SUCCESS", lang) if success else _get_translation("MOCK_CONSEQUENCE_OPENING_FAIL", lang)
-	var reactions_success: Array[String] = [
-		_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_1", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_2", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_3", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_4", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_5", lang),
-	]
-	var reactions_fail: Array[String] = [
-		_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_1", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_2", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_3", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_4", lang),
-		_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_5", lang),
-	]
-	var sabotage: Array[String] = [
-		_get_translation("MOCK_CONSEQUENCE_SABOTAGE_1", lang),
-		_get_translation("MOCK_CONSEQUENCE_SABOTAGE_2", lang),
-		_get_translation("MOCK_CONSEQUENCE_SABOTAGE_3", lang),
-		_get_translation("MOCK_CONSEQUENCE_SABOTAGE_4", lang),
-		_get_translation("MOCK_CONSEQUENCE_SABOTAGE_5", lang),
-		_get_translation("MOCK_CONSEQUENCE_SABOTAGE_6", lang),
-	]
-	var nudges: Array[String] = [
-		_get_translation("MOCK_CONSEQUENCE_NUDGE_1", lang),
-		_get_translation("MOCK_CONSEQUENCE_NUDGE_2", lang),
-		_get_translation("MOCK_CONSEQUENCE_NUDGE_3", lang),
-		_get_translation("MOCK_CONSEQUENCE_NUDGE_4", lang),
-		_get_translation("MOCK_CONSEQUENCE_NUDGE_5", lang),
-	]
-	var teammate_label: String = _get_translation("MOCK_CONSEQUENCE_TEAMMATE_LABEL", lang)
-	var reactions: Array[String] = reactions_success if success else reactions_fail
-	var reaction_idx: int = (offset) % reactions.size()
-	var sabotage_idx: int = (offset + 1) % sabotage.size()
-	var nudge_idx: int = (offset + 2) % nudges.size()
 	var story_lines: Array = []
-	story_lines.append("%s: %s" % [opening, choice_text])
-	story_lines.append(reactions[reaction_idx])
-	story_lines.append("%s %s" % [teammate_label, sabotage[sabotage_idx]])
-	story_lines.append(nudges[nudge_idx])
+	var scenario_consequence := _get_scenario_consequence(success, offset)
+	if not scenario_consequence.is_empty():
+		story_lines.append(scenario_consequence)
+		var teammate_label: String = _get_translation("MOCK_CONSEQUENCE_TEAMMATE_LABEL", lang)
+		var sabotage: Array[String] = [
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_1", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_2", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_3", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_4", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_5", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_6", lang),
+		]
+		var sabotage_idx: int = (offset + 1) % sabotage.size()
+		story_lines.append("%s %s" % [teammate_label, sabotage[sabotage_idx]])
+	else:
+		var opening: String = _get_translation("MOCK_CONSEQUENCE_OPENING_SUCCESS", lang) if success else _get_translation("MOCK_CONSEQUENCE_OPENING_FAIL", lang)
+		var reactions_success: Array[String] = [
+			_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_1", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_2", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_3", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_4", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_SUCCESS_5", lang),
+		]
+		var reactions_fail: Array[String] = [
+			_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_1", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_2", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_3", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_4", lang),
+			_get_translation("MOCK_CONSEQUENCE_REACT_FAIL_5", lang),
+		]
+		var sabotage: Array[String] = [
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_1", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_2", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_3", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_4", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_5", lang),
+			_get_translation("MOCK_CONSEQUENCE_SABOTAGE_6", lang),
+		]
+		var nudges: Array[String] = [
+			_get_translation("MOCK_CONSEQUENCE_NUDGE_1", lang),
+			_get_translation("MOCK_CONSEQUENCE_NUDGE_2", lang),
+			_get_translation("MOCK_CONSEQUENCE_NUDGE_3", lang),
+			_get_translation("MOCK_CONSEQUENCE_NUDGE_4", lang),
+			_get_translation("MOCK_CONSEQUENCE_NUDGE_5", lang),
+		]
+		var teammate_label: String = _get_translation("MOCK_CONSEQUENCE_TEAMMATE_LABEL", lang)
+		var reactions: Array[String] = reactions_success if success else reactions_fail
+		var reaction_idx: int = (offset) % reactions.size()
+		var sabotage_idx: int = (offset + 1) % sabotage.size()
+		var nudge_idx: int = (offset + 2) % nudges.size()
+		story_lines.append("%s: %s" % [opening, choice_text])
+		story_lines.append(reactions[reaction_idx])
+		story_lines.append("%s %s" % [teammate_label, sabotage[sabotage_idx]])
+		story_lines.append(nudges[nudge_idx])
 	if lang == "en":
 		if reality_score < 30:
 			story_lines.append("(Reality is fraying — this choice leaves deeper marks than expected.)")
@@ -285,6 +303,16 @@ static func _generate_consequence(context: Dictionary) -> String:
 		"choices": choices,
 	}
 	return JSON.stringify(response)
+static func _get_scenario_consequence(success: bool, offset: int) -> String:
+	if _current_scenario.is_empty():
+		return ""
+	var fallback: Dictionary = _current_scenario.get("fallback", {}) as Dictionary
+	var pool_key: String = "consequence_success" if success else "consequence_fail"
+	var pool: Array = fallback.get(pool_key, []) as Array
+	if pool.is_empty():
+		return ""
+	var idx: int = offset % pool.size()
+	return str(pool[idx])
 static func _generate_prayer(context: Dictionary) -> String:
 	var lang := _resolve_language(context)
 	var prayer_text: String = str(context.get("prayer_text", "We believe in sunshine."))
@@ -334,6 +362,7 @@ static func _generate_choice_followup(context: Dictionary) -> String:
 	}
 	return JSON.stringify(payload)
 static func _generate_night_cycle(context: Dictionary) -> String:
+	_current_scenario = {}
 	var lang := _resolve_language(context)
 	var last_text := String(context.get("last_text", "")).strip_edges()
 	if last_text.length() > 240:
@@ -384,6 +413,16 @@ static func _resolve_language(context: Dictionary) -> String:
 			return "en"
 	return _get_current_language()
 static func _build_choice_followup_payload(lang: String) -> Array[Dictionary]:
+	if not _current_scenario.is_empty():
+		var fallback: Dictionary = _current_scenario.get("fallback", {}) as Dictionary
+		var scenario_choices: Array = fallback.get("followup_choices", []) as Array
+		if scenario_choices.size() >= 5:
+			var result: Array[Dictionary] = []
+			for entry in scenario_choices:
+				if entry is Dictionary:
+					result.append(entry as Dictionary)
+			if result.size() >= 5:
+				return result
 	return [
 		{ "archetype": "cautious", "summary": _get_translation("MOCK_CHOICE_CAUTIOUS", lang) },
 		{ "archetype": "balanced", "summary": _get_translation("MOCK_CHOICE_BALANCED", lang) },
