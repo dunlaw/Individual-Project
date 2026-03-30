@@ -1,7 +1,7 @@
 const GEMINI_BASE = "https://generativelanguage.googleapis.com";
 const ALLOWED_ORIGINS = [
 	"https://localhost",
-	"https://dun4law.github.io",
+	"https://dunlaw.github.io",
 ];
 function corsHeaders(origin) {
 	const allowed = ALLOWED_ORIGINS.some(
