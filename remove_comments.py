@@ -69,6 +69,142 @@ def _remove_yaml_line_comment(line):
                 result.append(char)
                 i += 1
     return ''.join(result).rstrip()
+def remove_js_comments(content):
+    out = []
+    STATE_CODE = 0
+    STATE_LINE_COMMENT = 1
+    STATE_BLOCK_COMMENT = 2
+    STATE_STRING_SINGLE = 3
+    STATE_STRING_DOUBLE = 4
+    STATE_TEMPLATE = 5
+    state = STATE_CODE
+    line_has_code = False
+    current_line_buffer = []
+    i = 0
+    n = len(content)
+    while i < n:
+        char = content[i]
+        if state == STATE_CODE:
+            if char == '/' and i + 1 < n:
+                next_char = content[i + 1]
+                if next_char == '/':
+                    state = STATE_LINE_COMMENT
+                    i += 2
+                    continue
+                elif next_char == '*':
+                    state = STATE_BLOCK_COMMENT
+                    i += 2
+                    continue
+            if char == "'":
+                state = STATE_STRING_SINGLE
+                line_has_code = True
+                current_line_buffer.append(char)
+                i += 1
+            elif char == '"':
+                state = STATE_STRING_DOUBLE
+                line_has_code = True
+                current_line_buffer.append(char)
+                i += 1
+            elif char == '`':
+                state = STATE_TEMPLATE
+                line_has_code = True
+                current_line_buffer.append(char)
+                i += 1
+            elif char == '\n':
+                if line_has_code:
+                    out.append(''.join(current_line_buffer))
+                    out.append('\n')
+                current_line_buffer = []
+                line_has_code = False
+                i += 1
+            elif char.isspace():
+                current_line_buffer.append(char)
+                i += 1
+            else:
+                line_has_code = True
+                current_line_buffer.append(char)
+                i += 1
+        elif state == STATE_LINE_COMMENT:
+            if char == '\n':
+                state = STATE_CODE
+                if line_has_code:
+                    out.append(''.join(current_line_buffer))
+                    out.append('\n')
+                current_line_buffer = []
+                line_has_code = False
+                i += 1
+            else:
+                i += 1
+        elif state == STATE_BLOCK_COMMENT:
+            if char == '*' and i + 1 < n and content[i + 1] == '/':
+                state = STATE_CODE
+                i += 2
+            elif char == '\n':
+                if line_has_code:
+                    out.append(''.join(current_line_buffer))
+                    out.append('\n')
+                current_line_buffer = []
+                line_has_code = False
+                i += 1
+            else:
+                i += 1
+        elif state == STATE_STRING_SINGLE:
+            if char == '\\' and i + 1 < n:
+                current_line_buffer.append(char)
+                current_line_buffer.append(content[i + 1])
+                i += 2
+            elif char == "'":
+                current_line_buffer.append(char)
+                state = STATE_CODE
+                i += 1
+            elif char == '\n':
+                current_line_buffer.append(char)
+                out.append(''.join(current_line_buffer))
+                current_line_buffer = []
+                i += 1
+            else:
+                current_line_buffer.append(char)
+                i += 1
+        elif state == STATE_STRING_DOUBLE:
+            if char == '\\' and i + 1 < n:
+                current_line_buffer.append(char)
+                current_line_buffer.append(content[i + 1])
+                i += 2
+            elif char == '"':
+                current_line_buffer.append(char)
+                state = STATE_CODE
+                i += 1
+            elif char == '\n':
+                current_line_buffer.append(char)
+                out.append(''.join(current_line_buffer))
+                current_line_buffer = []
+                i += 1
+            else:
+                current_line_buffer.append(char)
+                i += 1
+        elif state == STATE_TEMPLATE:
+            if char == '\\' and i + 1 < n:
+                current_line_buffer.append(char)
+                current_line_buffer.append(content[i + 1])
+                i += 2
+            elif char == '`':
+                current_line_buffer.append(char)
+                state = STATE_CODE
+                i += 1
+            elif char == '\n':
+                current_line_buffer.append(char)
+                out.append(''.join(current_line_buffer))
+                current_line_buffer = []
+                i += 1
+            else:
+                current_line_buffer.append(char)
+                i += 1
+    if line_has_code:
+        out.append(''.join(current_line_buffer))
+    result = ''.join(out)
+    while '\n\n\n' in result:
+        result = result.replace('\n\n\n', '\n\n')
+    return result
 def remove_comments_and_docstrings(content, file_type="gd"):
     
     out = []
@@ -268,7 +404,7 @@ def _remove_spans(content, spans):
 def process_directory(root_dir, extensions=None):
     
     if extensions is None:
-        extensions = ['.gd', '.py', '.yml', '.yaml']
+        extensions = ['.gd', '.py', '.yml', '.yaml', '.js', '.toml']
     print(f"Scanning directory: {root_dir}")
     print(f"Processing extensions: {extensions}")
     count = 0
@@ -290,10 +426,12 @@ def process_directory(root_dir, extensions=None):
                 try:
                     with open(filepath, 'r', encoding='utf-8') as f:
                         content = f.read()
-                    if ext in ('.yml', '.yaml'):
+                    if ext in ('.yml', '.yaml', '.toml'):
                         new_content = remove_yaml_comments(content)
                     elif ext == '.py':
                         new_content = remove_python_comments_and_docstrings(content)
+                    elif ext == '.js':
+                        new_content = remove_js_comments(content)
                     else:
                         new_content = remove_comments_and_docstrings(content, "gd")
                     if new_content != content:
@@ -308,7 +446,7 @@ if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Remove comments and docstrings from source files")
     parser.add_argument("path", nargs="?", default=".", help="Directory to process")
-    parser.add_argument("--ext", nargs="+", default=[".gd", ".py", ".yml", ".yaml"],
-                        help="File extensions to process (default: .gd .py .yml .yaml)")
+    parser.add_argument("--ext", nargs="+", default=[".gd", ".py", ".yml", ".yaml", ".js", ".toml"],
+                        help="File extensions to process (default: .gd .py .yml .yaml .js .toml)")
     args = parser.parse_args()
     process_directory(args.path, args.ext)
