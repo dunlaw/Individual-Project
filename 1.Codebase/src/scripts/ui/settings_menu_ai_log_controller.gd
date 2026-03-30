@@ -8,7 +8,9 @@ var _ai_log_view_panel: Control = null
 var _ai_analytics_view: Control = null
 var _ai_save_details_check: CheckBox = null
 var _ai_detail_dialog: AcceptDialog = null
+var _ai_detail_tabs: TabContainer = null
 var _ai_detail_text: TextEdit = null
+var _ai_detail_response_text: TextEdit = null
 var _ai_detail_copy_all_btn: Button = null
 var _ai_detail_copy_request_btn: Button = null
 var _ai_detail_copy_response_btn: Button = null
@@ -53,7 +55,9 @@ func initialize(
 	_ai_analytics_view    = result["analytics_view"]     as Control
 	_ai_save_details_check = result.get("save_details_check") as CheckBox
 	_ai_detail_dialog = result.get("detail_dialog") as AcceptDialog
+	_ai_detail_tabs = result.get("detail_tabs") as TabContainer
 	_ai_detail_text = result.get("detail_text") as TextEdit
+	_ai_detail_response_text = result.get("detail_response_text") as TextEdit
 	_ai_detail_copy_all_btn = result.get("detail_copy_all_btn") as Button
 	_ai_detail_copy_request_btn = result.get("detail_copy_request_btn") as Button
 	_ai_detail_copy_response_btn = result.get("detail_copy_response_btn") as Button
@@ -217,17 +221,34 @@ func _on_ai_log_entry_selected(entry: Dictionary) -> void:
 			str(entry.get("status_code", "")),
 		]
 	)
-	if not is_instance_valid(_ai_detail_dialog) or not is_instance_valid(_ai_detail_text):
+	if not is_instance_valid(_ai_detail_dialog):
 		return
-	_ai_detail_text.text = SettingsMenuAILogRendererScript.format_detail_text(_selected_log_entry, _tr_fn)
+	# Populate "AI Response" tab (tab 0) with clean plain-text reply
+	if is_instance_valid(_ai_detail_response_text):
+		var ai_text := SettingsMenuAILogRendererScript.extract_ai_response_text(
+			str(_selected_log_entry.get("response_body", ""))
+		)
+		_ai_detail_response_text.text = ai_text if not ai_text.is_empty() \
+			else _tr_fn.call("SETTINGS_AI_LOG_DETAIL_NO_RESPONSE", "(no response text available)")
+	# Populate "Full Detail" tab (tab 1) with combined prompt + response view
+	if is_instance_valid(_ai_detail_text):
+		_ai_detail_text.text = SettingsMenuAILogRendererScript.format_detail_text(_selected_log_entry, _tr_fn)
+	# Always open on the "AI Response" tab so the reply is seen first
+	if is_instance_valid(_ai_detail_tabs):
+		_ai_detail_tabs.current_tab = 0
 	if is_instance_valid(_ai_detail_copy_request_btn):
 		_ai_detail_copy_request_btn.disabled = str(_selected_log_entry.get("request_body", "")).is_empty()
 	if is_instance_valid(_ai_detail_copy_response_btn):
 		_ai_detail_copy_response_btn.disabled = str(_selected_log_entry.get("response_body", "")).is_empty()
 	_ai_detail_dialog.popup_centered(Vector2i(1160, 760))
 func _on_ai_log_copy_all_pressed() -> void:
-	if is_instance_valid(_ai_detail_text):
-		print("[Godot-Cmd-Debug] AI Log UI - copy all detail text")
+	# Copy from whichever tab is currently active
+	var current_tab := _ai_detail_tabs.current_tab if is_instance_valid(_ai_detail_tabs) else 1
+	if current_tab == 0 and is_instance_valid(_ai_detail_response_text):
+		print("[Godot-Cmd-Debug] AI Log UI - copy response tab text")
+		DisplayServer.clipboard_set(_ai_detail_response_text.text)
+	elif is_instance_valid(_ai_detail_text):
+		print("[Godot-Cmd-Debug] AI Log UI - copy full detail text")
 		DisplayServer.clipboard_set(_ai_detail_text.text)
 func _on_ai_log_copy_request_pressed() -> void:
 	if not _selected_log_entry.is_empty():
@@ -236,7 +257,11 @@ func _on_ai_log_copy_request_pressed() -> void:
 func _on_ai_log_copy_response_pressed() -> void:
 	if not _selected_log_entry.is_empty():
 		print("[Godot-Cmd-Debug] AI Log UI - copy response body")
-		DisplayServer.clipboard_set(SettingsMenuAILogRendererScript.format_response_body(_selected_log_entry))
+		# Copy the clean plain-text response (same as what the AI Response tab shows)
+		var ai_text := SettingsMenuAILogRendererScript.extract_ai_response_text(
+			str(_selected_log_entry.get("response_body", ""))
+		)
+		DisplayServer.clipboard_set(ai_text)
 func _on_ai_log_save_details_toggled(button_pressed: bool) -> void:
 	var ai_manager: Node = ServiceLocator.get_ai_manager() if ServiceLocator else null
 	if ai_manager == null:
