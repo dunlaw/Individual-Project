@@ -342,27 +342,33 @@ func _request_story_choice_followup(story_text: String, lang: String) -> void:
 func _on_choice_followup_generated(response: Dictionary) -> void:
 	_pending_choice_followup = false
 	if not response.get("success", false):
+		_ensure_fallback_choices()
 		return
 	var content := String(response.get("content", response.get("text", "")))
 	if content.is_empty():
+		_ensure_fallback_choices()
 		return
 	var parser := JSON.new()
 	var parse_source := content
 	if parser.parse(parse_source) != OK or not (parser.data is Dictionary):
 		var json_block := _extract_primary_json_block(content)
 		if json_block.is_empty():
+			_ensure_fallback_choices()
 			return
 		parse_source = json_block
 		parser = JSON.new()
 		if parser.parse(parse_source) != OK or not (parser.data is Dictionary):
+			_ensure_fallback_choices()
 			return
 	var json_data: Dictionary = parser.data
 	if not json_data.has("choices"):
+		_ensure_fallback_choices()
 		return
 	var ai_choices := _normalize_ai_choice_payload(json_data.get("choices", []))
 	var validation_report := NarrativeResponseParser.get_ai_choice_validation_report(ai_choices, _get_current_language())
 	if not bool(validation_report.get("valid", false)):
 		_debug_log("[Narrative] Follow-up choices arrived but failed validation | details=%s" % [validation_report])
+		_ensure_fallback_choices()
 		return
 	if _choice_followup_story_id != _last_story_id:
 		return
@@ -371,6 +377,12 @@ func _on_choice_followup_generated(response: Dictionary) -> void:
 		return
 	_debug_log("[Narrative] Follow-up choices received and accepted: %d" % ai_choices.size())
 	_update_story_choices(ai_choices, _last_story_text, false)
+func _ensure_fallback_choices() -> void:
+	if not story_scene or not story_scene.choice_controller:
+		return
+	if story_scene.choice_controller.current_choices.is_empty():
+		print("[StoryNarrative] DEBUG: Choice followup failed — generating fallback choices")
+		story_scene.choice_controller.generate_choices()
 func _get_current_language() -> String:
 	var game_state = get_game_state()
 	if game_state:

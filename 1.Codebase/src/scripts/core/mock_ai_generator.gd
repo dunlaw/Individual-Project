@@ -117,8 +117,13 @@ static func _build_mission_response(story_text: String, context: Dictionary) -> 
 	var story_with_preview := story_text
 	if not preview_lines.is_empty():
 		story_with_preview += "\n\n" + "\n".join(preview_lines)
-	var response := {
-		"mission_title": _pick(
+	var mission_title := ""
+	if not _current_scenario.is_empty():
+		var scenario_fallback: Dictionary = _current_scenario.get("fallback", {}) as Dictionary
+		var keys: Dictionary = _current_scenario.get("translation_keys", {}) as Dictionary
+		mission_title = MissionScenarioLibrary._get_localized_text(keys.get("title", ""), scenario_fallback.get("title", ""), lang)
+	if mission_title.is_empty():
+		mission_title = _pick(
 			[
 				"Operation Mandatory Smile",
 				"Project Glitter Leak",
@@ -129,7 +134,9 @@ static func _build_mission_response(story_text: String, context: Dictionary) -> 
 				"Emergency Optimism Surge",
 				"Mandatory Wonder Deployment",
 			],
-		),
+		)
+	var response := {
+		"mission_title": mission_title,
 		"scene": {
 			"background": background,
 			"atmosphere": _pick(["tense", "calm", "mysterious", "chaotic"]),
@@ -417,12 +424,22 @@ static func _build_choice_followup_payload(lang: String) -> Array[Dictionary]:
 		var fallback: Dictionary = _current_scenario.get("fallback", {}) as Dictionary
 		var scenario_choices: Array = fallback.get("followup_choices", []) as Array
 		if scenario_choices.size() >= 5:
-			var result: Array[Dictionary] = []
+			var all_valid := true
 			for entry in scenario_choices:
 				if entry is Dictionary:
-					result.append(entry as Dictionary)
-			if result.size() >= 5:
-				return result
+					var summary := String((entry as Dictionary).get("summary", "")).strip_edges()
+					if not _is_summary_length_valid_for_lang(summary, lang):
+						all_valid = false
+						break
+			if all_valid:
+				var result: Array[Dictionary] = []
+				for entry in scenario_choices:
+					if entry is Dictionary:
+						result.append(entry as Dictionary)
+				if result.size() >= 5:
+					return result
+			else:
+				print("[MockAIGenerator] Scenario followup choices failed summary length check for lang=%s — using generic translated fallback" % lang)
 	return [
 		{ "archetype": "cautious", "summary": _get_translation("MOCK_CHOICE_CAUTIOUS", lang) },
 		{ "archetype": "balanced", "summary": _get_translation("MOCK_CHOICE_BALANCED", lang) },
@@ -430,6 +447,22 @@ static func _build_choice_followup_payload(lang: String) -> Array[Dictionary]:
 		{ "archetype": "positive", "summary": _get_translation("MOCK_CHOICE_POSITIVE", lang) },
 		{ "archetype": "complain", "summary": _get_translation("MOCK_CHOICE_COMPLAIN", lang) },
 	]
+static func _is_summary_length_valid_for_lang(summary: String, lang: String) -> bool:
+	var trimmed := summary.strip_edges()
+	if trimmed.is_empty():
+		return false
+	if lang == "zh":
+		var visible_chars := 0
+		for i in range(trimmed.length()):
+			var ch := trimmed.substr(i, 1)
+			if not ch.strip_edges().is_empty():
+				visible_chars += 1
+		return visible_chars >= 10 and visible_chars <= 25
+	var normalized := trimmed.replace("\n", " ").replace("\t", " ")
+	while normalized.find("  ") != -1:
+		normalized = normalized.replace("  ", " ")
+	var words := normalized.split(" ", false)
+	return words.size() >= 10 and words.size() <= 20
 static func _build_choice_preview_lines(choices: Array[Dictionary], lang: String) -> Array[String]:
 	var labels := {
 		"cautious": _get_translation("MOCK_LABEL_CAUTIOUS", lang),
