@@ -322,6 +322,12 @@ func _schedule_trolley_problem() -> void:
 			"recent_events": recent_events,
 		},
 	)
+	# Safety timeout: reset flag if callback never fires (e.g. generator freed)
+	if story_scene and story_scene.is_inside_tree():
+		await story_scene.get_tree().create_timer(30.0).timeout
+		if _trolley_generation_in_flight:
+			_log_info("Trolley generation safety timeout: resetting in-flight flag")
+			_trolley_generation_in_flight = false
 func _ensure_trolley_signal_hooks(trolley_gen: Node) -> void:
 	if _trolley_signal_hooks_ready:
 		return

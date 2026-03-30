@@ -133,8 +133,6 @@ func _on_file_selected(path: String) -> void:
 	var ok := _exporter.save_to_file(html_content, path)
 	if ok:
 		_set_status(_tr("EXPORT_STORY_SUCCESS") + "\n" + path.get_file(), false)
-		if export_button:
-			export_button.disabled = true
 	else:
 		_set_status(_tr("EXPORT_STORY_ERROR"), true)
 func _set_status(message: String, is_error: bool) -> void:

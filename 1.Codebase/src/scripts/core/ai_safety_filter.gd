@@ -17,6 +17,7 @@ const HALLUCINATION_PATTERNS := [
 	"(?i)\\bthis may not be accurate\\b",
 ]
 const BLOCK_MESSAGE := "The response was blocked because it may contain unsafe or disallowed content."
+const _MAX_REDACTION_BUFFER_SIZE := 500
 static var _redaction_buffer: Array[String] = []
 static var _compiled_sensitive_regexes: Dictionary = {}
 static var _compiled_hallucination_regexes: Array = []
@@ -90,6 +91,8 @@ static func _scrub_sensitive_sequences(text: String, track: bool) -> Dictionary:
 			redactions.append(label)
 	if redactions.size() > 0 and track:
 		_redaction_buffer.append_array(redactions)
+		if _redaction_buffer.size() > _MAX_REDACTION_BUFFER_SIZE:
+			_redaction_buffer = _redaction_buffer.slice(-_MAX_REDACTION_BUFFER_SIZE)
 	return {
 		"text": sanitized,
 		"redactions": redactions,

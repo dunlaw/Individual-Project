@@ -374,6 +374,9 @@ func process_choice(choice: Dictionary) -> void:
 			_process_balanced_choice(choice, lang)
 		"reckless":
 			_process_reckless_choice(choice, lang)
+		_:
+			_debug_log("[ChoiceController] Unknown effect_type: %s — treating as balanced" % effect_type)
+			_process_balanced_choice(choice, lang)
 	if choice_type != "prayer":
 		enable_choice_buttons()
 func _process_skill_choice(choice: Dictionary) -> void:
