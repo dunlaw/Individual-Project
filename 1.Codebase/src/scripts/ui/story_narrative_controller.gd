@@ -366,6 +366,9 @@ func _on_choice_followup_generated(response: Dictionary) -> void:
 		return
 	if _choice_followup_story_id != _last_story_id:
 		return
+	if _is_generating:
+		_debug_log("[Narrative] Follow-up choices discarded: consequence generation already in progress (player chose before AI finished)")
+		return
 	_debug_log("[Narrative] Follow-up choices received and accepted: %d" % ai_choices.size())
 	_update_story_choices(ai_choices, _last_story_text, false)
 func _get_current_language() -> String:
