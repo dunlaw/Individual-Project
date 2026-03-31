@@ -33,14 +33,12 @@ func _scan_skills() -> void:
 		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Skills directory does not exist", { "paths": SKILLS_BASE_PATHS })
 	else:
 		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "No skills could be loaded", { "paths": existing_paths })
-
 func _get_existing_skill_paths() -> Array[String]:
 	var existing_paths: Array[String] = []
 	for base_path in SKILLS_BASE_PATHS:
 		if DirAccess.dir_exists_absolute(base_path):
 			existing_paths.append(base_path)
 	return existing_paths
-
 func _scan_skills_from_paths(paths: Array[String]) -> bool:
 	for base_path in paths:
 		var loaded_count := _scan_skills_from_directory(base_path)
@@ -48,7 +46,6 @@ func _scan_skills_from_paths(paths: Array[String]) -> bool:
 			_debug_log("Loaded %d skills from %s" % [loaded_count, base_path])
 			return true
 	return false
-
 func _scan_skills_from_directory(base_path: String) -> int:
 	var dir := DirAccess.open(base_path)
 	if not dir:
@@ -68,7 +65,6 @@ func _scan_skills_from_directory(base_path: String) -> int:
 		folder_name = dir.get_next()
 	dir.list_dir_end()
 	return loaded_count
-
 func _load_embedded_skills() -> bool:
 	if not ResourceLoader.exists(EMBEDDED_REGISTRY_PATH):
 		return false
@@ -87,7 +83,6 @@ func _load_embedded_skills() -> bool:
 		return false
 	_initialized = true
 	return true
-
 func _register_skill(skill_name: String, metadata: Dictionary) -> void:
 	var normalized := metadata.duplicate(true)
 	normalized["name"] = skill_name
@@ -178,7 +173,6 @@ func load_skill(skill_name: String, language: String = "") -> String:
 		"path": skill.get("path", ""),
 	})
 	return ""
-
 func _load_embedded_skill_content(skill: Dictionary, language: String) -> String:
 	var content_variant: Variant = skill.get("content", {})
 	if not content_variant is Dictionary:
