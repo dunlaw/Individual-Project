@@ -91,6 +91,7 @@ def generate_registry():
 
         main_file = os.path.join(skill_path, "SKILL.md")
         if not os.path.exists(main_file):
+            print(f"  SKIP {skill_folder}/ — no SKILL.md found", file=sys.stderr)
             continue
 
         with open(main_file, "r", encoding="utf-8") as f:
@@ -98,6 +99,7 @@ def generate_registry():
 
         metadata, en_body = parse_frontmatter(content)
         if not metadata:
+            print(f"  SKIP {skill_folder}/ — no frontmatter in SKILL.md", file=sys.stderr)
             continue
 
         skill_name = metadata.get("name", skill_folder)
