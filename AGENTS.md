@@ -28,22 +28,6 @@
 - Use `@onready` for node bindings, `preload` for static resources, and keep scene-script pairs aligned (`notification_popup.tscn` ↔ `notification_popup.gd`).
 - Place helper utilities in `src/scripts/core` only if they must be autoloaded; otherwise keep them near their consuming scene.
 
-## Architecture Patterns (REQUIRED READING)
-
-**All contributors must follow these architectural patterns:**
-
-📘 **[ARCHITECTURE.md](1.Codebase/ARCHITECTURE.md)** - Core architectural patterns and best practices
-- Service Locator pattern for dependency injection
-- EventBus pattern for cross-module communication
-- Error handling with ErrorReporter
-- Direct access vs EventBus decision matrix
-- Controller pattern for UI organization
-
-📘 **[DEPRECATION_PLAN.md](1.Codebase/DEPRECATION_PLAN.md)** - Deprecated code and migration guide
-- Backward compatibility timeline
-- Code marked for removal
-- Migration examples
-
 ### Key Rules
 
 1. **Use ServiceLocator** for all global service access (NO hardcoded `/root/` paths)
