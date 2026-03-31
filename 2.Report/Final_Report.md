@@ -1283,6 +1283,119 @@ Integration testing has been implemented to verify that components work together
 
 Validation criteria verified by test suites include: no UI blocking during AI generation (async/await pattern tested), stats updating correctly after choices (signal emission verified), no memory leaks during extended test runs (50+ simulated missions), and complete data integrity through save/load cycles (deterministic state comparison).
 
+## 6. Expected Deliverables
+
+The following artefacts constitute the complete project deliverables:
+
+1. **Playable Game Build** — A self-contained Godot 4.6.1 project that runs on PC, supporting multiple AI provider backends (Gemini, Ollama, OpenRouter, OpenAI, Claude, LM Studio) and a fully functional mock mode for provider-independent operation.
+2. **Source Code Repository** — All GDScript source files organised under `1.Codebase/src/`, including automated unit and integration test suites under `1.Codebase/Unit Test/`, with GUT-compatible test scripts.
+3. **AI Usage Telemetry Artefacts** — A CSV export (`ai_usage_YYYY-MM-DD_HH-MM-SS.csv`) and JSON export (`ai_call_log_YYYY-MM-DD_HH-MM-SS.json`) collected during functional testing, demonstrating real provider performance data across the evaluation period.
+4. **Story Narrative HTML** — Sample exported story file (`GDA_Story_YYYY-MM-DD.html`) demonstrating the self-contained parchment-themed narrative archive feature.
+5. **Game Design Document** (this document) — Full specification of gameplay mechanics, narrative systems, technical architecture, and testing strategy.
+6. **Final Report** — Academic report documenting the project background, methodology, implementation, evaluation, and reflection.
+
+## 7. Architecture Design
+
+### 7.1 AI Subsystem Architecture (AIManager and Provider Layer)
+
+The AI subsystem is implemented as a singleton `AIManager` node that coordinates five specialised `RefCounted` manager classes, each encapsulating a single responsibility. This decomposition replaced an earlier monolithic `AIManager` implementation and was motivated by the need to test AI configuration logic independently of network I/O and to enable provider switching without disrupting context state.
+
+The manager classes, housed in `core/ai/managers/`, are:
+
+| Class | File | Responsibility |
+|---|---|---|
+| `AIConfigManager` | `ai_config_manager.gd` | Persists and exposes all provider configuration (API keys, model selections, safety settings, token limits) via `user://ai_settings.cfg` |
+| `AIContextManager` | `ai_context_manager.gd` | Owns the `AIMemoryStore` and `AIPromptBuilder`; assembles the full prompt for each generation request; applies safety filtering and blocked-sequence removal |
+| `AIProviderManager` | `ai_provider_manager.gd` | Instantiates and holds provider objects (Gemini, OpenRouter, Ollama, OpenAI, Claude, LM Studio, AIRouter); dispatches HTTP requests to the active provider |
+| `AIRequestManager` | `ai_request_manager.gd` | Manages the request lifecycle: rate limiting (`AIRequestRateLimiter`), request queuing (`AIRequestQueue`), retry logic, timeout enforcement, mock fallback, and per-call metadata capture delegated to `AIUsageStatsStore` |
+| `AIUsageStatsStore` | `ai_usage_stats_store.gd` | Provides thin file-IO helpers (`save`, `load`) for persisting the call log JSON to `user://ai_call_log.json` |
+| `AIVoiceManager` | `ai_voice_manager.gd` | Manages the Gemini Live API voice session lifecycle via `VoiceSessionManager` and `AIVoiceBridge`, including push-to-talk and continuous input modes |
+
+Provider implementations extend `AIProviderBase` (`ai_provider_base.gd`) and are selected at runtime by `AIProviderManager` based on the `AIProvider` enum value stored in `AIConfigManager`. The Strategy pattern ensures that the calling code (`AIRequestManager`) interacts with a uniform interface regardless of the active backend.
+
+### 7.2 Three-Layer Context Management
+
+The `AIContextManager` maintains narrative coherence across extended sessions using a three-tier memory model implemented in `AIMemoryStore`:
+
+- **Long-term memory**: Permanent story facts, character introductions, and world-state entries that persist for the entire session.
+- **Short-term memory**: The most recent twelve conversation exchanges, preserved verbatim to maintain immediate narrative continuity.
+- **Summarised memory**: When total entries exceed twenty-four, older entries are summarised into a compressed block (computed as `max(SHORT_TERM_WINDOW, memory_full_entries * 2)`) to remain within the model's context window.
+
+At prompt assembly time, `AIPromptBuilder` applies a budget-aware compression pass: unchanged sections are replaced with single-line markers, over-budget sections degrade to summary placeholders, and short-term entries are individually trimmed when the token ceiling is reached. The current default budget of 4096 tokens (capped at 8192) is configurable per provider via `AIConfigManager`.
+
+### 7.3 GameState Modular Decomposition
+
+The `GameState` singleton was refactored from a monolithic class into a coordinator that delegates to ten specialised `RefCounted` submodule instances. Each submodule owns a coherent slice of state and exposes it through `GameState` property proxies for backwards compatibility:
+
+| Submodule | File | Owned State |
+|---|---|---|
+| `PlayerStats` | `player_stats.gd` | `reality_score`, `positive_energy`, `entropy_level`, skill values, void entropy formula |
+| `MissionProgressModule` | `mission_progress_module.gd` | `current_mission`, `missions_completed`, `mission_turn_count`, `complaint_counter` |
+| `PhaseManagerModule` | `phase_manager_module.gd` | `game_phase`, `honeymoon_charges`, phase transition logic |
+| `MetadataStoreModule` | `metadata_store_module.gd` | Session metadata dictionary, arbitrary key-value game flags |
+| `ApplicationLifecycleModule` | `application_lifecycle_module.gd` | Session start/end lifecycle, `is_session_active` flag |
+| `AnalyticsModule` | `analytics_module.gd` | Session-scoped analytics counters (choices made, AI calls, etc.) |
+| `FSMChallengeModule` | `fsm_challenge_module.gd` | 30-Day Rebirth Challenge state: `challenge_start_date`, `current_day`, `days_completed`, `last_login_date` |
+| `SaveLoadSystem` | `save_load_system.gd` | JSON serialisation/deserialisation and file I/O for save slots |
+| `EventLogSystem` | `event_log_system.gd` | Append-only event log list; enforces max-entry cap with oldest-first eviction |
+| `DebuffSystem` | `debuff_system.gd` | Active debuff dictionary and expiry logic |
+
+This decomposition enables unit testing of each submodule in isolation, removes circular dependency risks between state management and UI concerns, and makes serialisation responsibilities explicit.
+
+### 7.4 Story Scene Decomposition
+
+The main gameplay scene's controller was decomposed from a single `StoryScene` class into fourteen coordinated files, all residing in `scripts/ui/`. The primary entry point `story_scene.gd` delegates immediately to `StorySceneCoordinator`, which owns references to the following controllers:
+
+| Controller | File | Responsibility |
+|---|---|---|
+| `StoryFlowController` | `story_flow_controller.gd` | Mission lifecycle: generation triggers, scene advancement, mission completion |
+| `StoryNarrativeController` | `story_narrative_controller.gd` | Narrative text display, typewriter animation, speaker attribution |
+| `StoryChoiceController` | `story_choice_controller.gd` | Choice button rendering, player selection handling, stat-delta display |
+| `StoryStateController` | `story_state_controller.gd` | UI state machine (loading, displaying, awaiting input, transitioning) |
+| `StoryAssetController` | `story_asset_controller.gd` | Background and character sprite management; AI directive application |
+| `StoryOverlayController` | `story_overlay_controller.gd` | Special overlay coordination (Prayer System, Gloria Intervention, Night Cycle, Trolley Problem) |
+| `StoryUIController` | `story_ui_controller.gd` | HUD element updates (stat bars, phase indicator, mission counter) |
+| `StorySceneStatDisplay` | `story_scene_stat_display.gd` | Animated stat value display and delta flash effects |
+| `StorySceneUIBindings` | `story_scene_ui_bindings.gd` | Signal connections between UI nodes and controller methods |
+| `StorySceneEventHandlers` | `story_scene_event_handlers.gd` | EventBus subscriber; routes game-state signals to appropriate controllers |
+| `StorySceneDirectiveApplier` | `story_scene_directive_applier.gd` | Applies `SceneDirective` structs from the AI response parser to the asset controller |
+| `StoryUIHelper` | `story_ui_helper.gd` | Shared formatting utilities (BBCode colour tags, severity labels, truncation) |
+
+### 7.5 CLI and Agent Subsystems
+
+Two supporting subsystems provide programmatic access to the game's state outside of normal gameplay:
+
+**CLI subsystem** (`core/cli/`): A command-line interface exposed during development via `CLIRunner`. Commands are organised into three command-set files — `cli_ai_commands.gd` (AI provider control, mock mode toggle), `cli_game_commands.gd` (state inspection and mutation), and `cli_save_commands.gd` (save-slot management) — parsed by `CLICommandParser`.
+
+**Agent subsystem** (`core/agent/`): An HTTP-based agent server (`GameAgentServer`) that exposes the game's state and action surface to external Claude agents via `AgentProtocol`. `GameStateExporter` serialises the complete game state to a JSON snapshot suitable for agent consumption, and `AgentActionExecutor` translates incoming action requests into `GameState` and `AIManager` method calls.
+
+## 8. Implementation Notes
+
+### 8.1 AI Usage Logging and CSV Export Implementation
+
+The telemetry pipeline is implemented across three layers. `AIRequestManager` captures a metadata dictionary for every API call immediately before dispatch, recording: `timestamp` (Unix milliseconds), `provider`, `model`, `status_code`, `input_tokens`, `output_tokens`, `response_time_sec`, `mode` (`live`/`mock`/`mock_fallback`), `purpose`, `error`, `prompt_text`, and `ai_response_text`. On response receipt, the HTTP status and token counts are filled in and the completed record is appended to an in-memory list held by `AIRequestManager`.
+
+`AIUsageStatsStore` provides stateless file I/O helpers; `AIRequestManager` calls `store.save(path, data)` to flush the call log to `user://ai_call_log.json` at the end of each session.
+
+The Settings menu's AI Log section (`SettingsMenuAILogSection`, `SettingsMenuAILogController`, `SettingsMenuAILogRenderer`) renders the call log as a collapsible, scrollable panel, with each entry displayed as a labelled card. Export is handled by `SettingsMenuAILogExport`:
+
+- **JSON export**: writes the raw call log array plus a pre-computed metrics summary (provider success rates, total tokens, average latency) to `ai_call_log_[timestamp].json`.
+- **CSV export**: invokes `SettingsMenuAIAnalytics` to compute derived series before writing the two-section CSV. The first section contains one row per call with fourteen columns; the second section appends pre-aggregated analytics series (provider breakdowns, hourly patterns, cumulative token curves, tokens-per-second throughput) for direct import into spreadsheet charting tools.
+
+Visualisation is provided by `AIChartCanvas` and `AIMetricsChart`, which render provider success-rate bar charts, hourly call-pattern histograms, and cumulative token-usage curves using Godot's `CanvasItem` drawing API.
+
+### 8.2 Story Narrative HTML Export Implementation
+
+`StoryExporter` (`story_exporter.gd`) generates the HTML document by building a string buffer through sequential appends rather than a DOM model, keeping the implementation dependency-free. The generation procedure is:
+
+1. **Cover section**: Queries `GameState` for mission count, choice count, scene count, and game phase; formats as a styled header block.
+2. **Stats grid**: Reads `PlayerStats` properties (Reality, Positive Energy, Entropy, the four skill values) and renders each as a CSS grid cell with a coloured value badge.
+3. **Choice chronicle**: Iterates `ButterflyEffectTracker.get_recorded_choices()`, which returns an array of dictionaries containing `scene_number`, `severity`, `choice_text`, `stats_snapshot`, and `consequences`. Each entry is rendered as a timeline card; severity maps to CSS classes `severity-minor`, `severity-major`, `severity-critical` which apply progressively deeper ink-tone borders.
+4. **Key events**: Reads up to fifty entries from the `EventLogSystem`, rendering each with its description text.
+5. **Closing page**: Derives a contextual ending quote by evaluating the player's final `reality_score` and `entropy_level` against a lookup table of closing messages.
+
+The HTML header embeds all CSS inline, using CSS custom properties (`--parchment: #f4e4c1`, `--ink: #2c1810`, `--gold: #8b6914`, `--gold-light: #c9a84c`) and a `@media print` block that hides navigation chrome and forces page breaks between sections. The completed document is written to `user://GDA_Story_[date].html` via `FileAccess` and the local path is returned to `ExportStoryDialog` for display in a confirmation popup.
+
 ---
 
 # Appendix D: Record of Meetings
