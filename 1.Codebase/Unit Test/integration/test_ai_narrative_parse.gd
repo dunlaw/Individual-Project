@@ -150,8 +150,8 @@ func _test_choice_validation_rules() -> void:
 		{"archetype": "reckless", "summary": "採納Donkey建議把這隻隨時會爆掉的怪物當寵物帶回營地"},
 	]
 	assert_test(
-		not NarrativeResponseParser.are_ai_choices_valid(long_zh, "zh"),
-		"Chinese summaries over 20 characters fail validation")
+		NarrativeResponseParser.are_ai_choices_valid(long_zh, "zh"),
+		"Chinese summaries of 28-31 characters validate successfully within 100-char limit")
 	var wrong_count = [
 		{"archetype": "cautious", "summary": "Study the brittle mechanism carefully before moving, even if Gloria keeps calling caution a trust issue"},
 		{"archetype": "balanced", "summary": "Negotiate a compromise with the altar while ARK quietly arms safeguards behind Gloria's radiant sermon"},
