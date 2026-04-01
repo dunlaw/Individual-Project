@@ -190,13 +190,61 @@ jobs:
         run: |
           ./godot_executable --headless --verbose --export-release 'Windows Desktop' 'build-artifacts/GDA1.exe' 2>&1
 
-      - name: Export for Linux
+      - name: Export for Linux x86_64
         run: |
           ./godot_executable --headless --verbose --export-release 'Linux' 'build-artifacts/GDA1.x86_64' 2>&1
+
+      - name: Package Linux x86_64 as .deb
+        run: |
+          PKG_DIR="build-artifacts/deb-x86_64"
+          mkdir -p "$PKG_DIR/DEBIAN"
+          mkdir -p "$PKG_DIR/usr/games"
+          mkdir -p "$PKG_DIR/usr/share/applications"
+          cp build-artifacts/GDA1.x86_64 "$PKG_DIR/usr/games/GDA1"
+          chmod 755 "$PKG_DIR/usr/games/GDA1"
+          cat > "$PKG_DIR/DEBIAN/control" <<EOF
+          Package: gda1
+          Version: 1.0.0
+          Architecture: amd64
+          Maintainer: DUN-dd
+          Description: GDA1 Individual Project Game (x86_64)
+          EOF
+          cat > "$PKG_DIR/usr/share/applications/gda1.desktop" <<EOF
+          [Desktop Entry]
+          Name=GDA1
+          Exec=/usr/games/GDA1
+          Type=Application
+          Categories=Game;
+          EOF
+          dpkg-deb --build "$PKG_DIR" "build-artifacts/GDA1-linux-amd64.deb"
 
       - name: Export for Linux ARM64
         run: |
           ./godot_executable --headless --verbose --export-release 'Linux ARM64' 'build-artifacts/GDA1.arm64' 2>&1
+
+      - name: Package Linux ARM64 as .deb
+        run: |
+          PKG_DIR="build-artifacts/deb-arm64"
+          mkdir -p "$PKG_DIR/DEBIAN"
+          mkdir -p "$PKG_DIR/usr/games"
+          mkdir -p "$PKG_DIR/usr/share/applications"
+          cp build-artifacts/GDA1.arm64 "$PKG_DIR/usr/games/GDA1"
+          chmod 755 "$PKG_DIR/usr/games/GDA1"
+          cat > "$PKG_DIR/DEBIAN/control" <<EOF
+          Package: gda1
+          Version: 1.0.0
+          Architecture: arm64
+          Maintainer: DUN-dd
+          Description: GDA1 Individual Project Game (ARM64)
+          EOF
+          cat > "$PKG_DIR/usr/share/applications/gda1.desktop" <<EOF
+          [Desktop Entry]
+          Name=GDA1
+          Exec=/usr/games/GDA1
+          Type=Application
+          Categories=Game;
+          EOF
+          dpkg-deb --build "$PKG_DIR" "build-artifacts/GDA1-linux-arm64.deb"
 
       - name: List build outputs
         run: |
@@ -244,7 +292,7 @@ jobs:
         with:
           name: linux-x64-build
           path: |
-            build-artifacts/GDA1.x86_64
+            build-artifacts/GDA1-linux-amd64.deb
           if-no-files-found: error
 
       - name: Upload Linux ARM64 Build
@@ -252,7 +300,7 @@ jobs:
         with:
           name: linux-arm64-build
           path: |
-            build-artifacts/GDA1.arm64
+            build-artifacts/GDA1-linux-arm64.deb
           if-no-files-found: error
 
   create-release:
@@ -313,11 +361,11 @@ jobs:
         run: |
           cd web-build && zip -r ../web-game.zip * && cd ..
           cd windows-build && zip -r ../windows-game.zip * && cd ..
-          cd linux-x64-build && zip -r ../linux-game.zip * && cd ..
-          cd linux-arm64-build && zip -r ../linux-arm64-game.zip * && cd ..
 
           echo "Created release packages:"
           ls -lh *.zip
+          echo "Linux deb packages:"
+          ls -lh linux-x64-build/*.deb linux-arm64-build/*.deb
 
       - name: Create and push tag
         run: |
@@ -339,14 +387,14 @@ jobs:
 
             - **Web (HTML5)**: `web-game.zip` - Extract and host on a web server
             - **Windows**: `windows-game.zip` - Extract and run `GDA1.exe`
-            - **Linux (x86_64)**: `linux-game.zip` - Extract and run `GDA1.x86_64`
-            - **Linux (ARM64)**: `linux-arm64-game.zip` - Extract and run `GDA1.arm64`
+            - **Linux (x86_64)**: `GDA1-linux-amd64.deb` - Install with `sudo dpkg -i GDA1-linux-amd64.deb`, then run `GDA1`
+            - **Linux (ARM64)**: `GDA1-linux-arm64.deb` - Install with `sudo dpkg -i GDA1-linux-arm64.deb`, then run `GDA1`
         run: |
           gh release create "$TAG_NAME" \
             web-game.zip \
             windows-game.zip \
-            linux-game.zip \
-            linux-arm64-game.zip \
+            linux-x64-build/GDA1-linux-amd64.deb \
+            linux-arm64-build/GDA1-linux-arm64.deb \
             --title "Release $TAG_NAME" \
             --generate-notes \
             --notes "$RELEASE_NOTES" \
