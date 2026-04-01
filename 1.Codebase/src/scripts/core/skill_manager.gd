@@ -1,5 +1,5 @@
 extends Node
-const EMBEDDED_REGISTRY_PATH := "res://1.Codebase/generated/embedded_skill_registry.gd"
+const EmbeddedSkillRegistry = preload("res://1.Codebase/generated/embedded_skill_registry.gd")
 const SKILLS_BASE_PATHS := [
 	"res://1.Codebase/src/skills",
 	"res://src/skills",
@@ -66,12 +66,7 @@ func _scan_skills_from_directory(base_path: String) -> int:
 	dir.list_dir_end()
 	return loaded_count
 func _load_embedded_skills() -> bool:
-	if not ResourceLoader.exists(EMBEDDED_REGISTRY_PATH):
-		return false
-	var registry_script = load(EMBEDDED_REGISTRY_PATH)
-	if not registry_script or not registry_script.has_method("get_skills"):
-		return false
-	var embedded_skills: Dictionary = registry_script.get_skills()
+	var embedded_skills: Dictionary = EmbeddedSkillRegistry.get_skills()
 	if embedded_skills.is_empty():
 		return false
 	for skill_name_variant in embedded_skills.keys():
