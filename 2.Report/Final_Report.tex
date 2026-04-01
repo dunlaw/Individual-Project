@@ -1,4 +1,4 @@
-%% Final Year Project Report Template
+ï»¿%% Final Year Project Report Template
 %% University of Sussex - School of Engineering and Informatics
 %% Based on standard UK academic report format
 
@@ -32,6 +32,8 @@
 \usepackage{amssymb}
 \usepackage{pdfpages}
 \usepackage{multicol}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,shapes.symbols,fit,calc,backgrounds}
 
 %% ============ CONFIGURATION ============
 \onehalfspacing
@@ -91,6 +93,23 @@
     showstringspaces=false,
 }
 \lstset{style=gdscript}
+
+% TikZ diagram styles for report-native figures
+\definecolor{ReportBlue}{HTML}{D7E8F7}
+\definecolor{ReportTeal}{HTML}{D7F1EA}
+\definecolor{ReportGold}{HTML}{F7E7C6}
+\definecolor{ReportRose}{HTML}{F7D9D9}
+\definecolor{ReportLavender}{HTML}{E6DFF7}
+\definecolor{ReportSlate}{HTML}{3A4A5A}
+\tikzset{
+    reportbox/.style={draw=ReportSlate, thick, rounded corners=4pt, align=center, fill=white, minimum height=10mm, text width=31mm, inner sep=6pt, font=\small},
+    reportwide/.style={draw=ReportSlate, thick, rounded corners=4pt, align=center, fill=white, minimum height=11mm, text width=42mm, inner sep=6pt, font=\small},
+    reportsmall/.style={draw=ReportSlate, thick, rounded corners=4pt, align=center, fill=white, minimum height=9mm, text width=25mm, inner sep=5pt, font=\small},
+    reportnote/.style={draw=ReportSlate, thick, rounded corners=4pt, align=left, fill=ReportGold!55, text width=95mm, inner sep=6pt, font=\small},
+    reportgroup/.style={draw=ReportSlate, dashed, rounded corners=6pt, inner sep=8pt},
+    reportarrow/.style={-Latex, thick, draw=ReportSlate},
+    reportflow/.style={-Latex, thick, draw=ReportSlate, rounded corners=3pt},
+}
 
 % Header and footer
 \setlength{\headheight}{14.5pt}
@@ -1068,7 +1087,7 @@ Overarching Aim: To investigate how far a bespoke, AI-driven 2D RPG narrative sy
 
 \begin{enumerate}
   \item To build a Foundational 2D RPG framework in Godot 4.6.1.
-  \item To implement an LLM integration \& runtime pipeline --- implement a request/response pipeline that translates game state ¡÷ structured prompt ¡÷ LLM reply ¡÷ in-game events/NPC lines. The initial provider will be Google Gemini, with a Settings page allowing users to supply their own API key and optionally select OpenRouter as an alternative provider. This pipeline will prioritise efficient token usage and responsive narrative generation.
+  \item To implement an LLM integration \& runtime pipeline --- implement a request/response pipeline that translates game state â†’ structured prompt â†’ LLM reply â†’ in-game events/NPC lines. The initial provider will be Google Gemini, with a Settings page allowing users to supply their own API key and optionally select OpenRouter as an alternative provider. This pipeline will prioritise efficient token usage and responsive narrative generation.
   \item To design and implement a multi-layer context management system for narrative coherence:
     \begin{itemize}
       \item Static Context (``world bible'' of immutable lore and themes)
@@ -1788,7 +1807,7 @@ Draft interim report delivered for review, continuing to integrate the project p
 
 \subsubsection*{Issues discussed at this meeting}
 \begin{itemize}
-  \item Document review process: Reviewed how to view tracked changes in Word (Review ¡÷ Show Comments and Track Changes). Discussed accepting/rejecting insertions and managing document revisions.
+  \item Document review process: Reviewed how to view tracked changes in Word (Review â†’ Show Comments and Track Changes). Discussed accepting/rejecting insertions and managing document revisions.
   \item Extensive discussion on ethics compliance for the project.
   \item Emphasis on functional testing as the methodology rather than user testing with external participants.
   \item Need to complete software testing with the user's compliance form.
@@ -1804,5 +1823,7 @@ Draft interim report delivered for review, continuing to integrate the project p
 
 %TC:endignore
 \end{document}
+
+
 
 
