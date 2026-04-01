@@ -80,25 +80,66 @@ func _load_embedded_skills() -> bool:
 	return true
 func _get_embedded_skills() -> Dictionary:
 	if not FileAccess.file_exists(EMBEDDED_REGISTRY_PATH):
-		return {}
+		return _build_embedded_skills_from_project_files()
 	var registry_script: Variant = load(EMBEDDED_REGISTRY_PATH)
 	if registry_script == null:
 		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Embedded skill registry could not be loaded", {
 			"path": EMBEDDED_REGISTRY_PATH,
 		})
-		return {}
+		return _build_embedded_skills_from_project_files()
 	if not registry_script.has_method("get_skills"):
 		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Embedded skill registry missing get_skills", {
 			"path": EMBEDDED_REGISTRY_PATH,
 		})
-		return {}
+		return _build_embedded_skills_from_project_files()
 	var skills_variant: Variant = registry_script.call("get_skills")
 	if skills_variant is Dictionary:
 		return skills_variant
 	ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Embedded skill registry returned invalid payload", {
 		"path": EMBEDDED_REGISTRY_PATH,
 	})
-	return {}
+	return _build_embedded_skills_from_project_files()
+func _build_embedded_skills_from_project_files() -> Dictionary:
+	var embedded_skills: Dictionary = {}
+	for base_path in _get_existing_skill_paths():
+		var dir := DirAccess.open(base_path)
+		if not dir:
+			continue
+		dir.list_dir_begin()
+		var folder_name := dir.get_next()
+		while folder_name != "":
+			if dir.current_is_dir() and not folder_name.begins_with("."):
+				var base_skill_path := "%s/%s/%s" % [base_path, folder_name, SKILL_FILE_NAME]
+				var metadata := _parse_skill_metadata(base_skill_path)
+				if not metadata.is_empty():
+					var skill_name := str(metadata.get("name", folder_name))
+					var localized_content := _build_localized_content_map(base_skill_path)
+					if not localized_content.is_empty():
+						metadata["content"] = localized_content
+					embedded_skills[skill_name] = metadata
+			folder_name = dir.get_next()
+		dir.list_dir_end()
+	return embedded_skills
+func _build_localized_content_map(base_skill_path: String) -> Dictionary:
+	var content_map: Dictionary = {}
+	var base_content := _read_skill_body(base_skill_path).strip_edges()
+	if not base_content.is_empty():
+		content_map["en"] = base_content
+	var extension_index := base_skill_path.rfind(".")
+	if extension_index == -1:
+		return content_map
+	for lang in ["zh", "de"]:
+		var localized_path := "%s.%s%s" % [
+			base_skill_path.substr(0, extension_index),
+			lang,
+			base_skill_path.substr(extension_index),
+		]
+		if not FileAccess.file_exists(localized_path):
+			continue
+		var localized_content := _read_skill_body(localized_path).strip_edges()
+		if not localized_content.is_empty():
+			content_map[lang] = localized_content
+	return content_map
 func _register_skill(skill_name: String, metadata: Dictionary) -> void:
 	var normalized := metadata.duplicate(true)
 	normalized["name"] = skill_name
