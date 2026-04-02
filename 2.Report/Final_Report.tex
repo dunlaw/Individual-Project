@@ -481,9 +481,19 @@ For simplifying AI integration, the AIManager presents a facade interface to the
 
 \subsection{Context Management Architecture}
 
-The context-management system operates at two complementary layers: storage-level retention in \texttt{AIMemoryStore} and runtime budget-aware assembly in \texttt{AIPromptBuilder} with \texttt{AIContextDelta}. Conceptually, the system still groups information into three categories, short-term history, longer-term continuity, and persistent notes, but at runtime these categories are filtered, compressed, and reordered according to token budget and request priority.
+The context-management system operates at two complementary layers: storage-level retention in \texttt{AIMemoryStore} and runtime budget-aware assembly in \texttt{AIPromptBuilder} with \texttt{AIContextDelta}. At the storage layer, older story history is compressed into representative continuity summaries rather than replayed in full, while persistent notes survive independently of the rolling conversation log. At the prompt-assembly layer, the builder reserves space for the player's current message, prioritises the most important control sections, reuses unchanged context through compact markers, and degrades oversized sections to summary placeholders when necessary.
 
-At the storage layer, older story history is compressed into representative continuity summaries rather than replayed in full, while persistent notes survive independently of the rolling conversation log. At the prompt-assembly layer, the builder reserves space for the player's current message, prioritises the most important control sections, reuses unchanged context through compact markers, and degrades oversized sections to summary placeholders when necessary. This approach reduced token waste whilst preserving enough continuity for the AI to maintain narrative tone and callback structure. Full implementation details are documented in Appendix C: GDD, Section 7.2.
+The memory system maintains three distinct tiers of context:
+
+\begin{itemize}
+    \item \textbf{Short-term memory} — The most recent 5 to 12 story exchanges from \texttt{story\_memory}, injected verbatim as Section 7 of the prompt. These provide the AI with immediate conversational continuity.
+    \item \textbf{Long-term summaries} — Algorithmically compressed representations of older history, stored in \texttt{long\_term\_summaries} (up to 16 entries) and injected as Section 5. These are generated locally without any additional AI call.
+    \item \textbf{Persistent notes} — Structured facts, character relationships, and narrative constraints stored in \texttt{notes\_register} (up to 32 entries, prioritised by importance score 1–5), injected as Section 6.
+\end{itemize}
+
+Compression is triggered automatically whenever \texttt{story\_memory} exceeds the \texttt{memory\_summary\_threshold} (default: 24 entries). The oldest entries are sampled at representative positions (first, quarter, midpoint, three-quarter, last) to produce a timestamped summary line; these sampled entries are then removed from the rolling log. This local-only approach avoids additional API latency and cost whilst preserving enough narrative continuity for the AI to maintain callback structure and thematic consistency.
+
+At the prompt-assembly layer, a three-layer length control mechanism prevents token budget overrun. First, an incremental delta system (\texttt{AIContextDelta}) replaces unchanged sections with single-line fingerprint markers, saving the majority of static-context tokens across repeated requests. Second, sections that have changed but are too large to transmit in full are degraded to algorithmic one-line summaries, and if even those are too large, to empty markers. Third, the player's own prompt text is hard-truncated at the character boundary corresponding to the remaining token allocation, with a truncation notice appended. This approach reduced token waste whilst preserving enough continuity for the AI to maintain narrative tone and callback structure. Full implementation details are documented in Appendix C: GDD, Section 7.2.
 
 \subsection{Response Parsing and Validation}
 
@@ -518,6 +528,36 @@ Game state must directly influence prompt parameters. The Void Entropy calculati
 
 For the Prayer System, I implemented templated prompt construction that explicitly instructs the AI to ``interpret the prayer's intent and twist it toward an ironic disaster.'' This explicit ironic inversion instruction proved far more reliable than implicit contextual cues.
 
+\subsubsection*{Why AI Output Length Control Matters for Gameplay}
+
+Controlling the AI's maximum output length has direct, measurable consequences for playable content. If the limit is set too low (e.g.\ below 500 tokens), the AI may return an incomplete narrative segment: sentences truncated mid-clause, \texttt{[SCENE\_DIRECTIVE]} JSON blocks partially written, or player-choice options reduced from three to two, causing the UI parser to fail or the story logic to break. At the design target of 4096 tokens, a single response can comfortably contain a full narrative paragraph, all three choice options, and a complete structured directive block. Raising the limit further (e.g.\ 8192 tokens) seldom changes observable content because the model naturally concludes before that ceiling, but it increases API cost per request. The 4096-token default therefore represents a deliberate balance between content completeness and operational cost.
+
+\subsubsection*{Eight-Section Prompt Assembly}
+
+Each AI request is assembled by \texttt{build\_prompt()} in eight prioritised sections. Table~\ref{tab:prompt_sections} lists these sections in insertion order; sections are added until the token budget is exhausted, at which point lower-priority sections degrade gracefully.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cll}
+\hline
+\textbf{Order} & \textbf{Section} & \textbf{Purpose} \\
+\hline
+1 & \texttt{static\_context}    & Game-world lore and rules (rarely changes) \\
+2 & \texttt{system\_persona}    & AI role and satirical personality \\
+3 & \texttt{acknowledgement}    & Assistant confirmation message \\
+4 & \texttt{entropy\_modifier}  & Tone instruction derived from Void Entropy \\
+5 & \texttt{long\_term\_context}& Compressed long-term story summaries \\
+6 & \texttt{notes\_context}     & Persistent facts, constraints, relationships \\
+7 & \texttt{short\_term\_memory}& Most recent conversation exchanges (5--12 entries) \\
+8 & \texttt{user\_message}      & Current player input and session metadata \\
+\hline
+\end{tabular}
+\caption{Eight sections assembled by \texttt{build\_prompt()} in priority order.}
+\label{tab:prompt_sections}
+\end{table}
+
+This ordering guarantees that the most important control information (system persona, tone instructions) is always transmitted, even when the available token budget is very small.
+
 \subsection{Response Parsing Challenges}
 
 Despite requesting structured JSON output, AI responses frequently arrived in unexpected formats. I developed the multi-stage \texttt{SceneDirectivesParser} that attempts extraction through progressively more permissive methods. This parser also normalises extracted values; for example, the AI might generate ``Crystal Cavern'' as a background identifier, but the game's asset system expects ``crystal\_cavern''. The canonicalisation logic handles these variations automatically.
@@ -526,7 +566,68 @@ Despite requesting structured JSON output, AI responses frequently arrived in un
 
 Context window management presented a genuine engineering challenge. Simply including entire conversation history led to both token cost issues and degraded output quality. The final implementation therefore combines stored continuity summaries with runtime budget-aware assembly rather than replaying full transcripts. This balance was reached through extended testing and is specified in Appendix C: GDD, Section 7.2.
 
-The notes register implements importance scoring to preserve high-importance notes whilst allowing lower-importance notes to be displaced as the register fills.
+\subsubsection*{Three-Layer Prompt Length Control}
+
+The most significant design decision in context management is the \emph{triple-layer} mechanism that prevents any single request from exceeding its token budget whilst still preserving as much narrative context as possible.
+
+\textbf{Layer 1 — Incremental Delta Fingerprinting (\texttt{AIContextDelta}).}
+Every section of the prompt is hashed to a fingerprint before insertion. If the fingerprint matches the one recorded in the previous request, the full section content is replaced by a single-line marker such as:
+\begin{verbatim}
+[context:long_term_context unchanged from previous request]
+\end{verbatim}
+This alone saves 60--80\% of static-context token usage across a multi-round session. A staleness counter forces full re-transmission after eight consecutive unchanged rounds so the model does not ``forget'' long-standing context.
+
+\textbf{Layer 2 — Budget-Aware Section Degradation (\texttt{\_append\_user\_context\_block}).}
+When a section has changed and must be transmitted, the builder attempts three strategies in sequence: (i) full content if it fits within the remaining budget, (ii) a one-line algorithmic summary if the full content is too large, and (iii) an unchanged marker if even the summary cannot fit. This ensures that the model always receives \emph{at least} an indication that a section exists, even under extreme budget pressure.
+
+\textbf{Layer 3 — Hard Character Truncation (\texttt{\_build\_prompt\_chunk}).}
+As a last resort, the player's own prompt text is truncated to the exact character count that fits within the remaining token allocation (computed as \texttt{available\_tokens $\times$ CHARS\_PER\_TOKEN = available\_tokens $\times$ 4}), and a \texttt{[prompt truncated for budget]} notice is appended so the model is aware that the input was cut short.
+
+Table~\ref{tab:three_layers} summarises the three layers:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{clll}
+\hline
+\textbf{Layer} & \textbf{Component} & \textbf{Mechanism} & \textbf{Scope} \\
+\hline
+1 & \texttt{AIContextDelta}               & Fingerprint diff $\rightarrow$ marker  & Whole section \\
+2 & \texttt{\_append\_user\_context\_block} & Full $\rightarrow$ summary $\rightarrow$ marker & Section content \\
+3 & \texttt{\_build\_prompt\_chunk}         & Character truncation + notice          & User prompt text \\
+\hline
+\end{tabular}
+\caption{Three-layer prompt length control applied during each \texttt{build\_prompt()} call.}
+\label{tab:three_layers}
+\end{table}
+
+\subsubsection*{Automatic Story Compression Without AI}
+
+When the story history grows beyond the configurable \texttt{memory\_summary\_threshold} (default: 24 entries), \texttt{AIMemoryStore} triggers \texttt{\_update\_long\_term\_memory()}, which compresses the oldest entries into a compact summary using a \emph{local algorithm} — no additional AI request is needed. The compression samples representative entries (first, quarter-point, midpoint, three-quarter-point, last) and formats them into a timestamped narrative timeline. The summary is appended to \texttt{long\_term\_summaries} and the compressed entries are removed from the rolling \texttt{story\_memory}.
+
+This design choice — local algorithmic compression rather than AI-assisted summarisation — eliminates latency and API cost, produces deterministic outputs that can be serialised into save files, and avoids the risk of an AI summariser over-interpreting or distorting the narrative history.
+
+Table~\ref{tab:memory_params} lists the key parameters governing memory behaviour:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrl}
+\hline
+\textbf{Parameter} & \textbf{Default} & \textbf{Effect} \\
+\hline
+\texttt{memory\_summary\_threshold} & 24    & Entry count that triggers compression \\
+\texttt{memory\_full\_entries}       & 6     & Newest entries kept at full length \\
+\texttt{SHORT\_TERM\_WINDOW}         & 5     & Minimum recent entries in short-term view \\
+\texttt{LONG\_TERM\_SUMMARY\_LIMIT}  & 16    & Maximum stored long-term summaries \\
+\texttt{max\_memory\_items}          & 120   & Hard cap on \texttt{story\_memory} size \\
+\texttt{MAX\_NOTES}                  & 32    & Maximum persistent notes \\
+\texttt{MAX\_NOTES\_PER\_PROMPT}     & 8     & Notes injected per request \\
+\hline
+\end{tabular}
+\caption{Memory management parameters in \texttt{AIMemoryStore}.}
+\label{tab:memory_params}
+\end{table}
+
+The notes register implements importance scoring (1--5) to preserve high-importance notes whilst allowing lower-importance notes to be displaced as the register fills.
 
 \subsection{The Butterfly Effect System}
 
