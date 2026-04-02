@@ -2215,7 +2215,6 @@ My ``Glorious Deliverance Agency 1'' prototype demonstrates that AI generated na
 University of Sussex, Engineering \& Informatics
 \end{center}
 
-\begin{multicols}{2}
 \subsection*{1. Aims and Objectives}
 
 \subsubsection*{1.1 Aims}
@@ -2284,7 +2283,6 @@ The project is structured into four main phases, spanning the Autumn and Spring 
   \item Recorded gameplay video showcasing key AI-driven narrative moments for presentation and demonstration.
 \end{itemize}
 
-\end{multicols}
 
 %% ============ APPENDIX C: GAME DESIGN DOCUMENT ============
 \clearpage
@@ -2300,7 +2298,6 @@ University of Sussex, Engineering \& Informatics\\[0.05cm]
 
 \textit{Creative Statement: All characters, events, and religious metaphors in this game are purely fictional and intended for satirical purposes. There is no intention to allude to any real life individuals, groups, or beliefs.}
 
-\begin{multicols}{2}
 \subsection*{1. Game Overview}
 
 \subsubsection*{1.1 Pitch}
@@ -2347,14 +2344,12 @@ The Reality versus Positive Energy mechanic forms the game's philosophical core,
 
 Beyond its mechanical innovations, the game aspires to thematic depth by functioning as a playable allegory. Every system and narrative beat works together to offer a satirical critique of real world social phenomena around toxic positivity, workplace dysfunction, and the dangers of refusing to acknowledge difficult truths.
 
-\end{multicols}
 
 \subsection*{2. Characters}
 
 \subsubsection*{2.1 Player Character: The Protagonist}
 The protagonist embodies pragmatic realism, reflecting anyone worn down by repeated disappointments and betrayals. At the story's beginning, they harbour deep mistrust toward divine intervention and blind faith, preferring rational thinking over magical solutions. This worldview crumbles when Saint Gloria deploys masterful psychological manipulation, convincing the protagonist that their negativity causes all personal and interpersonal failures. Pushed to the edge of mental breakdown, the protagonist desperately accepts Gloria's salvation and adopts her simplistic positive energy creed as a last resort to avoid harming others. This forced conversion sets the stage for their tragic journey as reluctant believers who know better but feel they have no choice.
 
-\begin{multicols}{2}
 \subsubsection*{2.2 Non Player Characters: The Team}
 The player's teammates function not as traditional allies but as the primary antagonists and obstacles. Each embodies a distinct, flawed ideology that systematically undermines every mission.
 
@@ -2368,9 +2363,7 @@ The player's teammates function not as traditional allies but as the primary ant
 
 \textbf{Teacher Chan} is the Soul Soothing Singer, the Apocalypse Idol, and the Harbinger of Doom. As a national level idol singer, her image radiates pure, white robed compassion, yet her songs about letting go, acceptance, and growth operate as a curse rather than a cure. She genuinely believes what she sings, which makes her more frightening, not less. Her performances rationalise failure as spiritual success, intensify cognitive dissonance, and function as large scale entropy rituals that accelerate the world's collapse. She is not a healer but a world destroyer wearing the voice of comfort.
 
-\end{multicols}
 
-\begin{multicols}{2}
 \subsection*{3. Narrative and Story}
 
 \subsubsection*{3.1 Backstory and Premise}
@@ -2431,7 +2424,6 @@ The asset libraries include:
 
 The system supports asset querying by tags and themes, allowing the AI to request dangerous outdoor locations or mystical indoor spaces without specifying exact file names.
 
-\end{multicols}
 
 \begin{figure}[H]
   \centering
@@ -2481,7 +2473,6 @@ The system supports asset querying by tags and themes, allowing the AI to reques
   \label{fig:gdd-icons}
 \end{figure}
 
-\begin{multicols}{2}
 \subsubsection*{4.8 Core Mechanics and Formulas}
 The game implements relationships between player actions and core metrics through the PlayerStats class, which is delegated from GameState.
 
@@ -2522,9 +2513,7 @@ The system records different types of choices (minor, major, critical) with comp
 
 Consequence seeds are stored as arrays of potential outcomes, each with a scheduled scene number (3--20 scenes ahead), description, triggered status flag, and severity rating. The system implements weighted selection algorithms to determine when consequences trigger, with higher severity consequences having priority. The \texttt{get\_context\_for\_ai()} function formats relevant past choices and pending consequences for inclusion in AI prompts, enabling the AI to reference earlier decisions and create narrative callbacks.
 
-\end{multicols}
 
-\begin{multicols}{2}
 \subsubsection*{4.10 The Trolley Problem Dilemma System}
 The TrolleyProblemGenerator component generates dynamic moral dilemmas where every choice leads to harm, forcing players to confront the game's central thesis that in broken systems saturated with toxic positivity, you cannot escape complicity. The dilemmas expose the hypocrisy of positive energy framing and institutional dysfunction.
 
@@ -2709,10 +2698,8 @@ Individual components are tested in isolation before integration. Core system su
 \subsubsection*{5.2 System and Integration Testing}
 Integration suites verify the architectural seams introduced by refactoring: EventBus driven UI refresh after choice selection, AI context assembly with correct game state injection and token budget trimming, complete save/load round trips including mid mission state and butterfly effect history, and corrupt file recovery. Telemetry evidence (latency, token counts, provider, prompt/response text) is captured by the AI usage logging pipeline during live functional testing, separating deterministic automated verification from empirical observation of model behaviour. Validation criteria include: no UI blocking during async generation, correct stat updates after choices, stable parsing of malformed directive payloads, and full data integrity through save/load cycles.
 
-\end{multicols}
 
 %% ============ GDD SECTION 6: EXPECTED DELIVERABLES ============
-\begin{multicols}{2}
 \subsection*{6. Expected Deliverables}
 The following artefacts constitute the complete project deliverables:
 
@@ -2726,19 +2713,15 @@ The following artefacts constitute the complete project deliverables:
   \item \textbf{Game Design Document} (this document: Full specification of gameplay mechanics, narrative systems, technical architecture, and testing strategy.
   \item \textbf{Final Report}: Academic report documenting the project background, methodology, implementation, evaluation, and reflection.
 \end{enumerate}
-\end{multicols}
 
 %% ============ GDD SECTION 7: ARCHITECTURE DESIGN ============
-\begin{multicols}{2}
 \subsection*{7. Architecture Design}
 
 \subsubsection*{7.1 AI Subsystem Architecture (AIManager and Provider Layer)}
 The AI subsystem is implemented as a singleton \texttt{AIManager} node that coordinates six specialised \texttt{RefCounted} manager classes, each encapsulating a single responsibility. This decomposition replaced an earlier monolithic \texttt{AIManager} implementation and was motivated by the need to test AI configuration logic independently of network I/O and to enable provider switching without disrupting context state.
 
 The six manager classes housed in \texttt{core/ai/managers/} are: \texttt{AIConfigManager} (provider configuration and API key persistence), \texttt{AIContextManager} (prompt assembly and safety filtering), \texttt{AIProviderManager} (Strategy-pattern dispatch to seven concrete backends), \texttt{AIRequestManager} (rate limiting, queuing, retry, and mock fallback), \texttt{AIUsageStatsStore} (call-log file I/O), and \texttt{AIVoiceManager} (Gemini Live voice session lifecycle).
-\end{multicols}
 
-\begin{multicols}{2}
 Provider implementations extend \texttt{AIProviderBase} (\texttt{ai\_provider\_base.gd}) and are selected at runtime by \texttt{AIProviderManager} based on the \texttt{AIProvider} enum value stored in \texttt{AIConfigManager}. The Strategy pattern ensures that the calling code (\texttt{AIRequestManager}) interacts with a uniform interface regardless of the active backend. Mock mode is represented explicitly in the enum, but its responses are generated by \texttt{MockAIGenerator} inside \texttt{AIRequestManager} rather than by a separate provider object.
 
 \subsubsection*{7.2 Budget Aware Context Management}
@@ -2797,14 +2780,12 @@ Visualisation is provided by \texttt{AIChartCanvas} and \texttt{AIMetricsChart},
 
 The HTML header embeds all CSS inline, using CSS custom properties (\texttt{--parchment: \#f4e4c1}, \texttt{--ink: \#2c1810}, \texttt{--gold: \#8b6914}, \texttt{--gold-light: \#c9a84c}) and a \texttt{@media print} block that hides navigation chrome and forces page breaks between sections. The completed document is written to \texttt{user://GDA\_Story\_[date].html} via \texttt{FileAccess} and the local path is returned to \texttt{ExportStoryDialog} for display in a confirmation popup.
 
-\end{multicols}
 
 %% ============ APPENDIX E: ANNOTATED AI GENERATION EXAMPLES ============
 \clearpage
 \section{Annotated AI Generation Examples}
 \addcontentsline{toc}{section}{Appendix E: Annotated AI Generation Examples}
 
-\begin{multicols}{2}
 
 This appendix presents three verbatim AI-generated outputs from the exported usage log (session of 2 April 2026, Gemini 3.1 Flash Lite). Each is assessed against the three-criteria manual review protocol used during functional testing: (1)~\textit{thematic alignment} -- does the output maintain the game's satirical, irony-first tone?; (2)~\textit{narrative coherence} -- does the output reference prior context meaningfully?; (3)~\textit{structural validity} -- is the returned JSON parseable with all required fields present?
 
@@ -2812,13 +2793,11 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Purpose:} \texttt{new\_mission} \quad \textbf{Call:}~25 \quad \textbf{Tokens:} 10{,}297 in / 789 out \quad \textbf{Latency:} 11.5\,s
 
-\end{multicols}
 
 \begin{quote}\small\itshape
 ``The laboratory is gone, yet here we stand in the `Safe Zone'---a pristine, aggressively cheerful garden floating in a void of fractured reality. Gloria is radiant, beaming as if the total annihilation of our project was merely a `cleansing of the lower frequencies.' She has tasked us with our next mission: `Planting the Seeds of Harmony.' Apparently, by sowing these glowing, crystalline flowers across the ruins of our previous work, we will generate enough positive energy to permanently seal the cracks in the universe. Donkey is already posing for a selfie with a trowel, trying to frame the yawning abyss of the end-times as a `dramatic backdrop.' ARK, meanwhile, is meticulously drafting a 400-page manual on the optimal soil pH for these flowers, ignoring the fact that the soil is literally weeping black ink. I pointed out that planting flowers in a dimension currently unraveling at the seams is, to put it mildly, an exercise in futility. Gloria's face hardened, her mask of tolerance slipping just enough to reveal the sharp, predatory gleam beneath\ldots\ To `succeed' here means to convince the void that everything is blooming perfectly, effectively accelerating the rot behind the curtain of our artificial paradise.''
 \end{quote}
 
-\begin{multicols}{2}
 
 \textbf{Assessment.}
 \textit{Thematic alignment}: \textbf{Pass.} The output exemplifies the game's core irony: ``success'' (planting flowers) explicitly ``accelerates the rot behind the curtain.'' Gloria's euphemistic rebranding of catastrophe as ``cleansing of the lower frequencies'' is precisely the satirical characterisation the prompt persona targets. Donkey and ARK maintain their established archetypes (performative heroism and useless bureaucratic precision). The entropy modifier for this session was at high band, and the output reflects ``absurdist chaos'' tone correctly.
@@ -2833,13 +2812,11 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Purpose:} \texttt{prayer} \quad \textbf{Call:}~24 \quad \textbf{Tokens:} 9{,}447 in / 464 out \quad \textbf{Latency:} 7.4\,s
 
-\end{multicols}
 
 \begin{quote}\small\itshape
 ``I whispered `iloveu' into the freezing, steam-choked void of the lab, a pathetic attempt at human connection amidst the wreckage of our ambition. Gloria tilted her head, her expression shifting from sanctimonious pride to a terrifying, pitying softness. `Oh, darling,' she cooed, reaching out to stroke my hair with a hand that felt like ice, `you're finally beginning to understand that true love is just the total surrender of the self to the collective harmony.' She leaned in close, whispering into my ear while ARK stood behind us, his eyes still vacant, his lips twitching as if he were trying to reboot his own reality. `You screamed about this being nonsense before, but now? Now that everything is destroyed, you finally have the space to love me properly. Don't worry about the cooling systems or the ruin; they were just barriers to this moment of absolute, unconditional submission.'\,''
 \end{quote}
 
-\begin{multicols}{2}
 
 \textbf{Assessment.}
 \textit{Thematic alignment}: \textbf{Pass (strong).} This is the Prayer System working as designed: the player's sincere expression (``iloveu'') is inverted into a manipulative control narrative. Gloria reframes the player's vulnerability as proof of successful submission. The prayer's positive intent (love/connection) is twisted into its satirical opposite (``total surrender of the self to the collective harmony''), executing the ironic inversion mandate faithfully. The cold physical description (``hand that felt like ice'') reinforces the sinister undertone.
@@ -2854,13 +2831,11 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Purpose:} \texttt{gloria\_intervention} \quad \textbf{Call:}~40 \quad \textbf{Tokens:} 11{,}105 in / 289 out \quad \textbf{Latency:} 3.3\,s
 
-\end{multicols}
 
 \begin{quote}\small\itshape
 ``Oh, you poor, dear soul. I heard that outburst, and it truly saddens me to see you struggling so much with your own internal shadows. Mocking the Arcane Interface? That is just your fear talking, isn't it? We are a family, and families lift each other up through unconditional support, not by tearing down the beautiful order ARK has worked so hard to create. Your negativity is hurting the team's frequency, and frankly, it is hurting me to see you choose this path. Why can't you just release these heavy, dark thoughts and embrace the gratitude that is all around us? Choose positivity, for your own sake.''
 \end{quote}
 
-\begin{multicols}{2}
 
 \textbf{Assessment.}
 \textit{Thematic alignment}: \textbf{Fail (notable deviation).} This is the failure mode the functional testing protocol was designed to detect. Gloria's intervention dialogue should be manipulative and coercive---she weaponises positivity as a control mechanism. However, this output reads as genuinely empathetic: ``it truly saddens me,'' ``it is hurting me to see you choose this path,'' and ``for your own sake'' present Gloria as sincerely caring rather than predatorily cheerful. The LLM defaulted to its trained behaviour of producing helpful, supportive dialogue, overriding the persona instruction.
@@ -2873,14 +2848,12 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Takeaway.} This example demonstrates why the three-criteria review protocol matters: structural and coherence criteria both pass, but the thematic criterion catches the deviation that an automated check would miss. It also confirms that the 8\% tonal inconsistency observed across wider testing is concentrated at low-entropy states and in intervention-type calls where the persona instruction competes with the LLM's default helpfulness.
 
-\end{multicols}
 
 %% ============ APPENDIX D: RECORD OF MEETINGS ============
 \clearpage
 \section{Record of Meetings}
 \addcontentsline{toc}{section}{Appendix D: Record of Meetings}
 
-\begin{multicols}{2}
 \subsection*{Meeting 1}
 \begin{tabular}{ll}
 \textbf{Meeting format:} & Physical \\
@@ -2967,7 +2940,6 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
   \item Report word count 3,000 words over limit; content reduction required.
 \end{itemize}
 
-\end{multicols}
 
 %TC:endignore
 \end{document}
