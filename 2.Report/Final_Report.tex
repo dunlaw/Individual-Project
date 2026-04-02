@@ -766,11 +766,77 @@ For cross-module communication, I implemented a publish-subscribe EventBus to de
 
 For simplifying AI integration, the AIManager presents a facade interface to the rest of the game, hiding the complexity of provider selection, prompt construction, context-management, and response parsing. Calling code simply invokes generation methods with context dictionaries, unaware of the underlying multi-layered prompt assembly process.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=6mm and 8mm,
+        prov/.style={reportsmall, fill=ReportGold!45, text width=19mm, minimum height=10mm, font=\scriptsize}]
+        % --- Config enum ---
+        \node[reportwide, fill=ReportBlue!55, text width=48mm]
+            (cfg) {\textbf{AIConfigManager}\\{\scriptsize\texttt{ai\_config\_manager.gd}}\\{\scriptsize \texttt{enum AIProvider \{ GEMINI=0 \ldots\ MOCK\_MODE=7 \}}}};
+        % --- Provider Manager ---
+        \node[reportwide, fill=ReportTeal!55, text width=48mm, below=10mm of cfg]
+            (mgr) {\textbf{AIProviderManager}\\{\scriptsize\texttt{get\_current\_provider()}}\\{\scriptsize \texttt{match} dispatches to concrete provider}};
+        % --- Providers ---
+        \node[prov, below left=12mm and 28mm of mgr] (p1) {\textbf{Gemini}\\{\scriptsize\texttt{gemini\_provider.gd}}};
+        \node[prov, right=3mm of p1] (p2) {\textbf{OpenRouter}\\{\scriptsize\texttt{openrouter\_provider.gd}}};
+        \node[prov, right=3mm of p2] (p3) {\textbf{Ollama}\\{\scriptsize\texttt{ollama\_provider.gd}}};
+        \node[prov, right=3mm of p3] (p4) {\textbf{OpenAI}\\{\scriptsize\texttt{openai\_provider.gd}}};
+        \node[prov, right=3mm of p4] (p5) {\textbf{Claude}\\{\scriptsize\texttt{claude\_provider.gd}}};
+        \node[prov, right=3mm of p5] (p6) {\textbf{LM Studio}\\{\scriptsize\texttt{lmstudio\_provider.gd}}};
+        \node[prov, right=3mm of p6] (p7) {\textbf{AI Router}\\{\scriptsize\texttt{ai\_router\_provider.gd}}};
+        % --- Base class ---
+        \node[reportbox, fill=ReportLavender!45, below=14mm of p4, text width=40mm]
+            (base) {\textbf{AIProviderBase}\\{\scriptsize\texttt{ai\_provider\_base.gd}}\\{\scriptsize Abstract: \texttt{generate()}, \texttt{cancel()}}};
+        % --- Arrows ---
+        \draw[reportarrow] (cfg) -- node[right, font=\scriptsize] {\texttt{current\_provider}} (mgr);
+        \foreach \p in {p1,p2,p3,p4,p5,p6,p7}
+            \draw[reportarrow] (mgr) -- (\p);
+        \foreach \p in {p1,p2,p3,p4,p5,p6,p7}
+            \draw[reportarrow, dashed] (\p) -- (base);
+    \end{tikzpicture}
+    \caption{Strategy Pattern for Provider Switching. \texttt{AIConfigManager} holds the active \texttt{AIProvider} enum value; \texttt{AIProviderManager.get\_current\_provider()} uses a \texttt{match} statement to dispatch to the concrete provider. All seven providers extend \texttt{AIProviderBase} (source: \texttt{ai\_provider\_manager.gd:75--96}, \texttt{ai\_config\_manager.gd:12--21}).}
+    \label{fig:strategy-pattern}
+\end{figure}
+
 \subsection{Context Management Architecture}
 
 The context-management system operates at two complementary layers: storage-level retention in \texttt{AIMemoryStore} and runtime budget-aware assembly in \texttt{AIPromptBuilder} with \texttt{AIContextDelta}. Conceptually, the system still groups information into three categories, short-term history, longer-term continuity, and persistent notes, but at runtime these categories are filtered, compressed, and reordered according to token budget and request priority.
 
 At the storage layer, older story history is compressed into representative continuity summaries rather than replayed in full, while persistent notes survive independently of the rolling conversation log. At the prompt-assembly layer, the builder reserves space for the player's current message, prioritises the most important control sections, reuses unchanged context through compact markers, and degrades oversized sections to summary placeholders when necessary. This approach reduced token waste whilst preserving enough continuity for the AI to maintain narrative tone and callback structure. Full implementation details are documented in Appendix C: GDD, Section 7.2.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=4mm and 6mm,
+        sect/.style={draw=ReportSlate, thick, rounded corners=2pt, minimum height=8mm,
+                     text width=16mm, align=center, inner sep=3pt, font=\scriptsize}]
+        % --- Budget bar at top ---
+        \node[reportwide, fill=ReportGold!55, text width=130mm, minimum height=10mm]
+            (budget) {\textbf{Token Budget: 24\,000} {\scriptsize (\texttt{AIContextDelta.DEFAULT\_TOKEN\_BUDGET})} --- chars $\div$ 4 estimation};
+        % --- Sections in order ---
+        \node[sect, fill=ReportBlue!45, below left=10mm and 48mm of budget] (s1) {\textbf{1. Static}\\Context};
+        \node[sect, fill=ReportBlue!35, right=3mm of s1] (s2) {\textbf{2. System}\\Persona};
+        \node[sect, fill=ReportTeal!40, right=3mm of s2] (s3) {\textbf{3. Ack}\\Message};
+        \node[sect, fill=ReportGold!45, right=3mm of s3] (s4) {\textbf{4. Entropy}\\Modifier};
+        \node[sect, fill=ReportTeal!35, right=3mm of s4] (s5) {\textbf{5. Long-Term}\\Context};
+        \node[sect, fill=ReportTeal!35, right=3mm of s5] (s6) {\textbf{6. Notes}\\Context};
+        \node[sect, fill=ReportLavender!45, right=3mm of s6] (s7) {\textbf{7. Short-Term}\\Memory};
+        \node[sect, fill=ReportRose!50, right=3mm of s7] (s8) {\textbf{8. User}\\Message};
+        % --- Delta logic ---
+        \node[reportnote, text width=130mm, below=10mm of s4.south east, anchor=north]
+            (logic) {\scriptsize\textbf{Incremental Assembly Rules} {\tiny(\texttt{\_append\_section\_incremental})}\\[2pt]
+            \textbullet~\textbf{Changed section}: full content added, fingerprint recorded\\
+            \textbullet~\textbf{Unchanged section}: single-line marker \texttt{[context:<name> unchanged]}\\
+            \textbullet~\textbf{Over budget}: degrade to lightweight summary placeholder\\
+            \textbullet~\textbf{User message}: reserved space; truncated if exceeding remaining budget};
+        % --- Arrows ---
+        \draw[reportarrow] (budget.south) -- ++(0,-3mm) -| (s1.north);
+        \draw[reportarrow] (budget.south) -- ++(0,-3mm) -| (s8.north);
+        \foreach \s in {s1,s2,s3,s4,s5,s6,s7,s8}
+            \draw[reportarrow, thin] (\s.south) -- ++(0,-3mm);
+    \end{tikzpicture}
+    \caption{Prompt Assembly Pipeline. \texttt{AIPromptBuilder.build\_prompt()} assembles eight sections incrementally under a 24\,000-token budget managed by \texttt{AIContextDelta}. Each section is fingerprinted; unchanged sections are replaced by compact markers, and oversized sections degrade to summaries (source: \texttt{ai\_prompt\_builder.gd:30--75}, \texttt{ai\_context\_delta.gd}).}
+    \label{fig:prompt-assembly}
+\end{figure}
 
 \subsection{Response Parsing and Validation}
 
@@ -778,11 +844,83 @@ AI responses require careful parsing because LLMs do not always produce structur
 
 The parser also implements canonicalisation for extracted values, normalising background identifiers and asset references to match the game's internal catalogues. This addresses a practical problem I encountered: the AI frequently generated semantically correct but syntactically different identifiers, such as ``Crystal Cavern'' instead of the expected ``crystal\_cavern''.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=7mm and 10mm,
+        stage/.style={reportbox, fill=ReportBlue!40, text width=34mm, minimum height=12mm}]
+        % --- Raw response ---
+        \node[reportbox, fill=ReportGold!55, text width=38mm]
+            (raw) {\textbf{Raw AI Response}\\{\scriptsize Non-deterministic text from LLM}};
+        % --- Stage 1 ---
+        \node[stage, below=10mm of raw]
+            (s1) {\textbf{Stage 1: Markers}\\{\scriptsize \texttt{[SCENE\_DIRECTIVES]}\\extraction via regex}};
+        % --- Stage 2 ---
+        \node[stage, below=8mm of s1]
+            (s2) {\textbf{Stage 2: Code Blocks}\\{\scriptsize \texttt{```json```} extraction}\\{\scriptsize from markdown fences}};
+        % --- Stage 3 ---
+        \node[stage, below=8mm of s2]
+            (s3) {\textbf{Stage 3: Raw JSON}\\{\scriptsize Whole response starts\\with \texttt{\{} or \texttt{[}}};
+        % --- Canonicalise ---
+        \node[reportwide, fill=ReportTeal!50, below=10mm of s3, text width=40mm]
+            (canon) {\textbf{Canonicalise}\\{\scriptsize Normalise identifiers}\\{\scriptsize ``Crystal Cavern'' $\to$ \texttt{crystal\_cavern}}};
+        % --- Output ---
+        \node[reportbox, fill=ReportLavender!45, below=8mm of canon, text width=38mm]
+            (out) {\textbf{Parsed Directives}\\{\scriptsize \texttt{Dictionary} for game engine}};
+        % --- Fallback arrows ---
+        \draw[reportarrow] (raw) -- node[right, font=\scriptsize] {try} (s1);
+        \draw[reportarrow] (s1) -- node[right, font=\scriptsize] {fallback} (s2);
+        \draw[reportarrow] (s2) -- node[right, font=\scriptsize] {fallback} (s3);
+        \draw[reportarrow] (s3) -- (canon);
+        \draw[reportarrow] (canon) -- (out);
+        % --- Success shortcuts ---
+        \draw[reportflow, dashed, green!60!black] (s1.east) -- ++(16mm,0) |- node[right, font=\scriptsize, pos=0.25] {success} (canon.east);
+        \draw[reportflow, dashed, green!60!black] (s2.east) -- ++(10mm,0) |- (canon.east);
+    \end{tikzpicture}
+    \caption{Multi-Stage Response Parsing Pipeline. \texttt{SceneDirectivesParser} attempts extraction in three stages: explicit \texttt{[SCENE\_DIRECTIVES]} markers, markdown \texttt{```json} code blocks, and raw JSON parsing. Successful extraction at any stage proceeds directly to canonicalisation. All values are normalised to match \texttt{AssetRegistry} identifiers (source: \texttt{scene\_directives\_parser.gd:27--63}).}
+    \label{fig:parsing-pipeline}
+\end{figure}
+
 \subsection{Safety and Content Filtering}
 
 The \texttt{AISafetyFilter} class (\texttt{ai\_safety\_filter.gd}) implements pattern-based content filtering for both user inputs and model outputs. The filter scrubs sensitive data patterns such as API keys, email addresses, and credit card numbers using regex matching. It also detects harmful content using keyword groups for categories including self-harm, violence, and hate speech. When harmful content is detected, the filter blocks the response and substitutes a generic message rather than displaying potentially inappropriate content.
 
 This design reflects my ethical framework discussed in Section 3: rather than relying solely on the AI provider's content filtering, I implemented an additional application-level filter that I can tune specifically to my game's thematic requirements.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=7mm and 12mm]
+        % --- Input ---
+        \node[reportbox, fill=ReportRose!50, text width=30mm]
+            (input) {\textbf{User Input}\\{\scriptsize Player text / prayer}};
+        % --- Scrub user ---
+        \node[reportwide, fill=ReportBlue!45, right=of input, text width=36mm]
+            (scrub1) {\textbf{scrub\_user\_text()}\\{\scriptsize Redact API keys, emails,\\credit cards, credentials}};
+        % --- AI ---
+        \node[reportbox, fill=ReportTeal!50, right=of scrub1, text width=28mm]
+            (ai) {\textbf{LLM Provider}\\{\scriptsize Generate response}};
+        % --- Scrub model ---
+        \node[reportwide, fill=ReportBlue!45, below=12mm of ai, text width=36mm]
+            (scrub2) {\textbf{scrub\_model\_output()}\\{\scriptsize Redact leaked PII\\from AI response}};
+        % --- Review ---
+        \node[reportwide, fill=ReportGold!55, left=of scrub2, text width=36mm]
+            (review) {\textbf{review\_response\_content()}\\{\scriptsize Harmful keyword groups:\\self-harm, violence, hate speech\\Hallucination pattern detection}};
+        % --- Decision ---
+        \node[reportsmall, fill=ReportLavender!50, left=of review, text width=24mm]
+            (decision) {\textbf{Flagged?}\\{\scriptsize Yes $\to$ block\\No $\to$ display}};
+        % --- Output ---
+        \node[reportbox, fill=ReportTeal!35, below=10mm of decision, text width=28mm]
+            (display) {\textbf{UI Display}\\{\scriptsize Safe content only}};
+        % --- Arrows ---
+        \draw[reportarrow] (input) -- (scrub1);
+        \draw[reportarrow] (scrub1) -- (ai);
+        \draw[reportarrow] (ai) -- (scrub2);
+        \draw[reportarrow] (scrub2) -- (review);
+        \draw[reportarrow] (review) -- (decision);
+        \draw[reportarrow] (decision) -- (display);
+    \end{tikzpicture}
+    \caption{Safety Filter Pipeline. \texttt{AISafetyFilter} applies three processing stages: \texttt{scrub\_user\_text()} redacts sensitive data from player input before it reaches the LLM; \texttt{scrub\_model\_output()} removes any leaked PII from AI responses; \texttt{review\_response\_content()} checks for harmful keywords and hallucination patterns, blocking flagged content with a generic substitute (source: \texttt{ai\_safety\_filter.gd}).}
+    \label{fig:safety-filter}
+\end{figure}
 
 These architectural decisions translate the specifications of Section 4 into workable structures; Section 8 describes how they were built in practice.
 
@@ -820,6 +958,43 @@ The notes register implements importance scoring to preserve high-importance not
 The \texttt{ButterflyEffectTracker} (\texttt{butterfly\_effect\_tracker.gd}) implements delayed consequence tracking, recording player choices with predicted future consequences. When the player advances scenes, the tracker checks for pending consequences and notifies the AI context system to incorporate relevant callbacks.
 
 Implementing this system taught me about the challenges of managing temporal narrative state. The AI must be informed about past choices in a way that enables natural integration without forced callbacks. I addressed this through the \texttt{get\_context\_for\_ai()} method, which formats recent choices with their pending consequence counts, and the \texttt{suggest\_choice\_for\_callback()} method, which uses weighted random selection biased toward more recent choices to suggest natural callback opportunities.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=7mm and 10mm]
+        % --- Player choice ---
+        \node[reportbox, fill=ReportRose!50, text width=30mm]
+            (choice) {\textbf{Player Choice}\\{\scriptsize minor / major / critical}};
+        % --- Record ---
+        \node[reportwide, fill=ReportBlue!45, right=of choice, text width=38mm]
+            (record) {\textbf{record\_choice()}\\{\scriptsize Store: scene, entropy,\\stats snapshot, tags, text}};
+        % --- Consequences ---
+        \node[reportwide, fill=ReportGold!55, right=of record, text width=38mm]
+            (seeds) {\textbf{Consequence Seeds}\\{\scriptsize Schedule 3--20 scenes ahead\\severity, description, triggered flag}};
+        % --- Scene advance ---
+        \node[reportbox, fill=ReportTeal!45, below=14mm of record, text width=30mm]
+            (advance) {\textbf{advance\_scene()}\\{\scriptsize Check pending}};
+        % --- Weighted select ---
+        \node[reportwide, fill=ReportLavender!50, right=of advance, text width=38mm]
+            (suggest) {\textbf{suggest\_choice\_for\_callback()}\\{\scriptsize Weighted random: recent\\choices have higher priority}};
+        % --- AI context ---
+        \node[reportwide, fill=ReportTeal!45, below=14mm of advance, text width=38mm]
+            (ctx) {\textbf{get\_context\_for\_ai()}\\{\scriptsize Format past choices +\\pending consequence counts}};
+        % --- Prompt ---
+        \node[reportbox, fill=ReportGold!35, right=of ctx, text width=30mm]
+            (prompt) {\textbf{AI Prompt}\\{\scriptsize Callback integration}};
+        % --- Arrows ---
+        \draw[reportarrow] (choice) -- (record);
+        \draw[reportarrow] (record) -- (seeds);
+        \draw[reportarrow] (seeds.south) -- ++(0,-5mm) -| (advance.east);
+        \draw[reportarrow] (advance) -- (suggest);
+        \draw[reportarrow] (advance) -- (ctx);
+        \draw[reportarrow] (ctx) -- (prompt);
+        \draw[reportarrow] (suggest.south) -- ++(0,-5mm) -| (prompt.north);
+    \end{tikzpicture}
+    \caption{Butterfly Effect Data Flow. Player choices are recorded with full metadata (scene, entropy, stats, tags). Consequence seeds schedule future triggers 3--20 scenes ahead. On each scene advance, \texttt{suggest\_choice\_for\_callback()} selects a recent choice using weighted random, and \texttt{get\_context\_for\_ai()} formats all pending consequences for the AI prompt (source: \texttt{butterfly\_effect\_tracker.gd}).}
+    \label{fig:butterfly-effect-flow}
+\end{figure}
 
 \subsection{Error Handling and Graceful Degradation}
 
