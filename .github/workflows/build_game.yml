@@ -190,7 +190,7 @@ jobs:
         run: |
           ./godot_executable --headless --verbose --export-release 'Windows Desktop' 'build-artifacts/GDA1.exe' 2>&1
 
-      - name: Export for Linux
+      - name: Export for Linux x86_64
         run: |
           ./godot_executable --headless --verbose --export-release 'Linux' 'build-artifacts/GDA1.x86_64' 2>&1
 
