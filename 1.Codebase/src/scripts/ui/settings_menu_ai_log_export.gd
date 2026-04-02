@@ -35,7 +35,7 @@ static func export_csv(
 	var ts: String = Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
 	var path: String = save_path if not save_path.is_empty() else "user://ai_usage_charts_%s.csv" % ts
 	var lines: PackedStringArray = []
-	lines.append("section,timestamp,provider,model,status,input_tokens,output_tokens,response_time_sec,mode,purpose,error,prompt_text,prompt_modules_active,ai_response_text")
+	lines.append("section,timestamp,provider,model,actual_model,status,input_tokens,output_tokens,response_time_sec,mode,purpose,error,prompt_text,prompt_modules_active,ai_response_text")
 	for entry in log_entries:
 		var status_text: String = "ERR"
 		if bool(entry.get("success", false)):
@@ -52,6 +52,7 @@ static func export_csv(
 			str(entry.get("timestamp", "")),
 			str(entry.get("provider", "")),
 			str(entry.get("model", "")),
+			str(entry.get("actual_model", "")),
 			status_text,
 			str(int(entry.get("input_tokens", 0))),
 			str(int(entry.get("output_tokens", 0))),
