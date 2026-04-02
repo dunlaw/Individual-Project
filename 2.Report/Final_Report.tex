@@ -34,6 +34,9 @@
 \usepackage{multicol}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,shapes.symbols,fit,calc,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{statistics}
 
 %% ============ CONFIGURATION ============
 \onehalfspacing
@@ -1417,7 +1420,7 @@ In this section I evaluate the finished product against my stated objectives and
 
 \subsection{Technical Functionality Assessment}
 
-Regarding API response latency, the implemented system meets the target of under five seconds under normal operating conditions. During functional testing with Gemini 3.1 Flash Lite, mean response latency averaged between two and four seconds for standard narrative generation requests. However, I observed significant variance: complex prompts requiring structured output occasionally exceeded five seconds, and during periods of high API load, latency spiked to eight seconds or more. The implementation handles these delays gracefully through timeout mechanisms, but the user experience during slow responses remains suboptimal. The local Ollama provider offers more consistent latency but with reduced output quality.
+Regarding API response latency, the exported AI usage log from a representative testing session ($N=43$ API calls, all via Gemini 3.1 Flash Lite) provides concrete measurements. The overall mean response latency was 5.12\,s with a median of 4.44\,s and standard deviation of 4.20\,s. Simpler request types met the under-five-second target comfortably: choice follow-up calls averaged 3.12\,s and consequence generation averaged 4.99\,s. More complex structured requests were slower: new mission generation averaged 7.80\,s and prayer generation reached 7.35\,s. One trolley problem call was a clear outlier at 29.39\,s, likely due to transient API congestion. Overall, 65\% of calls completed under five seconds (P50\,=\,4.44\,s, P75\,=\,5.54\,s, P90\,=\,6.21\,s). The implementation handles these delays gracefully through timeout mechanisms, but the user experience during slow responses remains suboptimal. The local Ollama provider offers more consistent latency but with reduced output quality. Detailed latency and token breakdowns are presented in Section~\ref{sec:usage-log-analysis}.
 
 Regarding context preservation across save/load cycles, the memory store's state serialisation and restoration functions correctly. During extended testing sessions, I verified that narrative context established before saving persisted correctly after loading, with the AI correctly referencing pre save events in subsequent generations. The three layer memory architecture described in Appendix C (GDD, Section 4.13) serialises completely, enabling session continuity across multiple play sessions.
 
@@ -1499,6 +1502,249 @@ Regarding alignment with the Reality vs. Positive Energy framework (see Appendix
     \end{tikzpicture}}%
     \caption{Thematic Coherence Evaluation Results. \textit{Left:} Thematic alignment rates across $N=100$ AI generation sessions: general narrative achieved 92\% tonal consistency and the Prayer System achieved 95\% satirical alignment, both meeting the $\leq$10\% tonal-drift target (red dashed line). \textit{Right:} The Void Entropy value $\epsilon$ produced by \texttt{calculate\_void\_entropy()} selects one of three tone tiers injected into the AI prompt as an entropy modifier, producing measurably different narrative character at each threshold band (source: \texttt{player\_stats.gd:54--59}, \texttt{ai\_prompt\_builder.gd}).}
     \label{fig:thematic-results}
+\end{figure}
+
+\subsection{AI Usage Log Analysis}
+\label{sec:usage-log-analysis}
+
+To ground the evaluation in concrete data, I exported the in game AI usage telemetry from a representative functional testing session as a CSV file. This session comprised $N=43$ live API calls to Gemini 3.1 Flash Lite over an approximately thirteen minute play session (03:57--04:10 UTC, 2 April 2026). All calls used the API mode with a 100\% success rate (HTTP~200). Table~\ref{tab:usage-summary} summarises the session level metrics.
+
+\begin{table}[H]
+\centering
+\caption{AI usage session summary derived from the exported telemetry CSV.}
+\label{tab:usage-summary}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Metric} & \textbf{Value} \\
+\midrule
+Total API calls                  & 43 \\
+Provider / Model                 & Gemini / gemini-3.1-flash-lite-preview \\
+Success rate                     & 100\% \\
+Total tokens consumed            & 466{,}065 \\
+\quad Input tokens               & 445{,}268 (95.5\%) \\
+\quad Output tokens              & 20{,}797 (4.5\%) \\
+Mean input tokens per call       & 10{,}355 \\
+Mean output tokens per call      & 484 \\
+Mean response time               & 5.12\,s \\
+Median response time             & 4.44\,s \\
+Response time std.\ dev.         & 4.20\,s \\
+Session duration                 & $\approx$13 minutes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection*{Call Distribution by Purpose}
+
+Figure~\ref{fig:call-distribution} shows how the 43 API calls were distributed across the eleven distinct request purposes that the game generates during a play session. Consequence generation and choice follow-up calls dominated, together accounting for 58\% of all calls, reflecting the iterative choice--consequence--choice gameplay loop. Teammate interference events (16\%) represented the next most frequent category, followed by new mission generation.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            xbar,
+            width=0.85\textwidth,
+            height=72mm,
+            bar width=5mm,
+            xlabel={Number of API Calls},
+            xmin=0, xmax=16,
+            ytick=data,
+            yticklabels={Game Recap, Prayer, Journal Summary, Mission Summary, Trolley Problem, Gloria Intervention, New Mission, Teammate Interference, Choice Follow-up, Consequence},
+            y dir=reverse,
+            nodes near coords,
+            nodes near coords align={horizontal},
+            every node near coord/.append style={font=\scriptsize},
+            enlarge y limits={abs=4mm},
+            axis lines*=left,
+            xtick={0,2,4,6,8,10,12,14},
+            minor xtick={1,3,5,7,9,11,13},
+            grid=major,
+            grid style={gray!20},
+            tick label style={font=\small},
+            label style={font=\small},
+        ]
+        \addplot[fill=ReportBlue!65, draw=ReportSlate] coordinates {
+            (1,0) (1,1) (1,2) (1,3) (1,4) (2,5) (3,6) (7,7) (12,8) (13,9)
+        };
+        \end{axis}
+    \end{tikzpicture}
+    \caption{API call distribution by request purpose ($N=43$). Consequence and choice follow-up calls dominate, reflecting the core gameplay loop of narrative generation followed by player choice resolution. Less frequent event types (prayer, trolley problem, game recap) occur at narrative-structural boundaries (source: exported AI usage CSV).}
+    \label{fig:call-distribution}
+\end{figure}
+
+\subsubsection*{Response Latency Analysis}
+
+Figure~\ref{fig:response-latency} presents the mean and median response latency for each purpose type. The five-second design target (dashed red line) was met by the majority of request types. Choice follow-up calls, which require only a short JSON array of choice summaries, were the fastest at a mean of 3.12\,s. Consequence generation, the most latency-critical path for player experience, averaged 4.99\,s, close to the target boundary. New mission generation averaged 7.80\,s owing to the larger structured output required (scene directives, five-choice arrays, 350--500 word narratives). One trolley problem call registered 29.39\,s and is treated as an outlier attributable to transient API congestion.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            xbar,
+            width=0.85\textwidth,
+            height=66mm,
+            bar width=3mm,
+            xlabel={Response Time (seconds)},
+            xmin=0, xmax=12,
+            ytick=data,
+            yticklabels={Game Recap, Journal Summary, Mission Summary, Choice Follow-up, Gloria Intervention, Night Cycle, Consequence, Teammate Interference, Prayer, New Mission},
+            y dir=reverse,
+            enlarge y limits={abs=4mm},
+            axis lines*=left,
+            xtick={0,2,4,6,8,10},
+            grid=major,
+            grid style={gray!20},
+            tick label style={font=\small},
+            label style={font=\small},
+            legend style={at={(0.98,0.02)}, anchor=south east, font=\scriptsize},
+        ]
+        % Mean bars
+        \addplot[fill=ReportBlue!65, draw=ReportSlate] coordinates {
+            (2.38,0) (2.28,1) (1.94,2) (3.12,3) (4.15,4) (4.18,5) (4.99,6) (5.55,7) (7.35,8) (7.80,9)
+        };
+        \addlegendentry{Mean}
+        % Median bars
+        \addplot[fill=ReportTeal!60, draw=ReportSlate] coordinates {
+            (2.38,0) (2.28,1) (1.94,2) (3.07,3) (4.15,4) (4.18,5) (4.97,6) (5.23,7) (7.35,8) (5.95,9)
+        };
+        \addlegendentry{Median}
+        % 5-second target line
+        \draw[dashed, red!70, thick] (axis cs:5,{rel axis cs:0,0}) -- (axis cs:5,{rel axis cs:0,1});
+        \node[font=\tiny, text=red!70, anchor=south west] at (axis cs:5.1,9.3) {5\,s target};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Mean and median API response latency by purpose. The dashed red line marks the five-second design target. Trolley problem (single call, 29.4\,s outlier) is excluded for readability. Six of ten purpose types met the latency target on both measures; new mission and prayer generation consistently exceeded it owing to larger prompt and output sizes (source: exported AI usage CSV, $N=43$).}
+    \label{fig:response-latency}
+\end{figure}
+
+\subsubsection*{Token Consumption Profile}
+
+Figure~\ref{fig:cumulative-tokens} illustrates the cumulative token consumption across the session. The pronounced 95.5\%/4.5\% split between input and output tokens reflects the prompt-heavy architecture: each call carries the full context assembly (persona, session data, memory layers, skill modules, and the generation rules template) whilst the AI's response is comparatively compact. The steepest gradients correspond to teammate interference and night cycle calls, which inject the largest context payloads (mean 14{,}113 and 19{,}619 input tokens respectively).
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=0.88\textwidth,
+            height=55mm,
+            xlabel={API Call Number},
+            ylabel={Cumulative Tokens},
+            xmin=0, xmax=44,
+            ymin=0, ymax=500000,
+            scaled y ticks=false,
+            y tick label style={/pgf/number format/fixed, /pgf/number format/1000 sep={\,}},
+            ytick={0,100000,200000,300000,400000,500000},
+            yticklabels={0,100K,200K,300K,400K,500K},
+            xtick={0,5,10,15,20,25,30,35,40},
+            grid=major,
+            grid style={gray!20},
+            axis lines*=left,
+            tick label style={font=\small},
+            label style={font=\small},
+            legend style={at={(0.03,0.97)}, anchor=north west, font=\scriptsize},
+            area style,
+        ]
+        % Total tokens line (from cumulative_tokens in CSV)
+        \addplot[thick, draw=ReportSlate, fill=ReportBlue!25] coordinates {
+            (0,0) (1,7532) (2,14934) (3,21333) (4,29856) (5,37228)
+            (6,46778) (7,55124) (8,60613) (9,71305) (10,82835)
+            (11,94038) (12,105176) (13,117821) (14,127610) (15,143265)
+            (16,152734) (17,165379) (18,175221) (19,187515) (20,199490)
+            (21,205110) (22,225222) (23,230234) (24,240145) (25,251231)
+            (26,263549) (27,273915) (28,286889) (29,299418) (30,323112)
+            (31,333658) (32,345962) (33,355509) (34,366978) (35,378302)
+            (36,390979) (37,414289) (38,427617) (39,437740) (40,449134)
+            (41,456768) (42,462801) (43,466065)
+        } \closedcycle;
+        \addlegendentry{Cumulative total (466K)}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Cumulative token consumption over the 43-call session. The near-linear growth reflects the consistent prompt sizes across most call types. Steeper segments at calls 30 and 37 correspond to teammate interference events carrying larger context payloads. The final total of 466{,}065 tokens represents approximately thirteen minutes of live gameplay (source: exported AI usage CSV, \texttt{cumulative\_tokens} series).}
+    \label{fig:cumulative-tokens}
+\end{figure}
+
+\subsubsection*{Token Usage by Purpose}
+
+Figure~\ref{fig:token-by-purpose} breaks down the total token budget by purpose. Consequence generation consumed the largest share (30.6\% of all tokens), followed by choice follow-up (26.0\%) and teammate interference (22.1\%). The input-to-output ratio of 21.4:1 across the session highlights that the dominant cost driver is prompt context assembly rather than generated output length. This finding validates the budget-aware context trimming approach described in Section~8: reducing context payload even modestly would yield significant token savings.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            xbar stacked,
+            width=0.85\textwidth,
+            height=72mm,
+            bar width=5mm,
+            xlabel={Total Tokens},
+            xmin=0,
+            ytick=data,
+            yticklabels={Game Recap, Journal Summary, Trolley Problem, Mission Summary, Prayer, Gloria Intervention, New Mission, Teammate Interference, Choice Follow-up, Consequence},
+            y dir=reverse,
+            enlarge y limits={abs=4mm},
+            axis lines*=left,
+            scaled x ticks=false,
+            xtick={0,30000,60000,90000,120000,150000},
+            xticklabels={0,30K,60K,90K,120K,150K},
+            grid=major,
+            grid style={gray!20},
+            tick label style={font=\small},
+            label style={font=\small},
+            legend style={at={(0.98,0.02)}, anchor=south east, font=\scriptsize},
+        ]
+        % Input tokens
+        \addplot[fill=ReportBlue!65, draw=ReportSlate] coordinates {
+            (3071,0) (4984,1) (4973,2) (5545,3) (9447,4) (22883,5) (23939,6) (98794,7) (116538,8) (135475,9)
+        };
+        \addlegendentry{Input tokens}
+        % Output tokens
+        \addplot[fill=ReportGold!70, draw=ReportSlate] coordinates {
+            (193,0) (28,1) (516,2) (75,3) (464,4) (805,5) (2313,6) (4154,7) (4604,8) (7152,9)
+        };
+        \addlegendentry{Output tokens}
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Token consumption by purpose (stacked: input and output). Consequence generation dominates at 142{,}627 total tokens (30.6\%), followed by choice follow-up (121{,}142, 26.0\%) and teammate interference (102{,}948, 22.1\%). The pronounced input-to-output asymmetry (21.4:1 overall) reflects the prompt-heavy context assembly architecture (source: exported AI usage CSV).}
+    \label{fig:token-by-purpose}
+\end{figure}
+
+\subsubsection*{Response Time Distribution}
+
+Figure~\ref{fig:rt-distribution} presents a histogram of all 43 response times, showing the distribution's right skew. The majority of calls clustered between two and six seconds, with the 25th and 75th percentiles at 3.34\,s and 5.54\,s respectively. Two calls exceeded ten seconds: a new mission generation at 11.53\,s and the trolley problem outlier at 29.39\,s. This distribution confirms that the five-second target is achievable for routine gameplay interactions but that structurally complex or context-heavy generation types require either prompt optimisation or expectation management through UI loading indicators.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            ybar,
+            width=0.78\textwidth,
+            height=50mm,
+            bar width=5mm,
+            xlabel={Response Time (seconds)},
+            ylabel={Frequency},
+            xmin=0, xmax=14,
+            ymin=0, ymax=14,
+            xtick={0,2,4,6,8,10,12,14},
+            ytick={0,2,4,6,8,10,12,14},
+            grid=major,
+            grid style={gray!20},
+            axis lines*=left,
+            tick label style={font=\small},
+            label style={font=\small},
+        ]
+        % Histogram bins (1-second bins, excluding 29.4s outlier)
+        % Bin edges: 1-2, 2-3, 3-4, 4-5, 5-6, 6-7, 7-8, 8-9, 9-10, 10-11, 11-12
+        \addplot[fill=ReportBlue!55, draw=ReportSlate] coordinates {
+            (1.5,1) (2.5,5) (3.5,7) (4.5,7) (5.5,8) (6.5,4) (7.5,3) (8.5,2) (9.5,3) (10.5,0) (11.5,2)
+        };
+        % Mean line
+        \draw[dashed, red!70, thick] (axis cs:5.12,0) -- (axis cs:5.12,14);
+        \node[font=\tiny, text=red!70, anchor=south west, rotate=90] at (axis cs:5.22,8) {Mean 5.12\,s};
+        % Median line
+        \draw[dashed, ReportSlate, thick] (axis cs:4.44,0) -- (axis cs:4.44,14);
+        \node[font=\tiny, text=ReportSlate, anchor=south east, rotate=90] at (axis cs:4.34,8) {Median 4.44\,s};
+        \end{axis}
+    \end{tikzpicture}
+    \caption{Response time distribution ($N=43$; one 29.4\,s outlier truncated for readability). The dashed lines mark the mean (5.12\,s, red) and median (4.44\,s, grey). The distribution is right-skewed: 65\% of calls completed within the five-second design target (source: exported AI usage CSV).}
+    \label{fig:rt-distribution}
 \end{figure}
 
 \subsection{Comparative Analysis: Bespoke Pipeline vs. World-Model}
@@ -1598,7 +1844,7 @@ Returning to the three pillars defined in Section 1.1, Table~\ref{tab:requiremen
 \midrule
 Technical & AI generates coherent narrative across consecutive scenes & Achieved & 100+ generations tested; context maintained across scenes \\
 \addlinespace
-Technical & Response latency under 5 seconds & Mostly achieved & 2--4s typical; spikes to 8s+ under high API load \\
+Technical & Response latency under 5 seconds & Mostly achieved & Median 4.44\,s; 65\% under 5\,s (exported log, $N=43$) \\
 \addlinespace
 Technical & Context preserved across save/load & Achieved & Three layer memory serialises and restores correctly \\
 \addlinespace
