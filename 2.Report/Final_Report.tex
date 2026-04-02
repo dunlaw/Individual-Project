@@ -1031,6 +1031,45 @@ Context window management presented a genuine engineering challenge. Simply incl
 
 The notes register implements importance scoring to preserve high-importance notes whilst allowing lower-importance notes to be displaced as the register fills.
 
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}[node distance=7mm and 14mm,
+        store/.style={reportwide, text width=46mm, minimum height=14mm},
+        query/.style={reportwide, fill=ReportTeal!45, text width=44mm, minimum height=14mm}]
+        % --- Storage column (left) ---
+        \node[store, fill=ReportBlue!50]
+            (sm) {\textbf{story\_memory}\\{\scriptsize Rolling array $\cdot$ max 120 entries}\\{\scriptsize Newest appended; oldest pruned}};
+        \node[store, fill=ReportLavender!55, below=10mm of sm]
+            (lt) {\textbf{long\_term\_summaries}\\{\scriptsize Auto-compressed older-entry digest}\\{\scriptsize Up to 16 summaries retained}};
+        \node[store, fill=ReportRose!45, below=10mm of lt]
+            (notes) {\textbf{notes\_register}\\{\scriptsize Importance 1--5 $\cdot$ max 32 stored}\\{\scriptsize Merged on duplicate detection}};
+        % --- Compression arrow (sm to lt) ---
+        \draw[reportflow, dashed]
+            (sm.south) -- node[right, font=\scriptsize] {compress when $>$24 entries} (lt.north);
+        % --- Query methods column (centre) ---
+        \node[query, right=16mm of sm]
+            (short) {\textbf{get\_short\_term\_memory()}\\{\scriptsize Last 5--12 full entries}\\{\scriptsize returned verbatim to builder}};
+        \node[query, right=16mm of lt]
+            (ltq) {\textbf{get\_long\_term\_context()}\\{\scriptsize Summaries + full-entry tail}\\{\scriptsize language-aware headers}};
+        \node[query, right=16mm of notes]
+            (nq) {\textbf{get\_notes\_context()}\\{\scriptsize Top 8 by importance score}\\{\scriptsize injected as system messages}};
+        % --- AIPromptBuilder target (right) ---
+        \node[reportbox, fill=ReportGold!60, text width=30mm, right=14mm of ltq]
+            (pb) {\textbf{AIPromptBuilder}\\{\scriptsize Token-budgeted}\\{\scriptsize 8-section assembly}};
+        % --- Storage to Query arrows ---
+        \draw[reportarrow] (sm.east) -- (short.west);
+        \draw[reportarrow] (lt.east) -- (ltq.west);
+        \draw[reportarrow] (notes.east) -- (nq.west);
+        % --- Query to Builder arrows ---
+        \draw[reportarrow] (short.east) -| (pb.north);
+        \draw[reportarrow] (ltq.east) -- (pb.west);
+        \draw[reportarrow] (nq.east) -| (pb.south);
+    \end{tikzpicture}}%
+    \caption{\texttt{AIMemoryStore} Architecture. Story events are appended to the rolling \texttt{story\_memory} array; when the entry count exceeds the 24-entry threshold, older entries are distilled into \texttt{long\_term\_summaries}. A separate \texttt{notes\_register} holds importance-scored persistent facts (scale 1--5, max 32 stored; duplicates are merged). At prompt-build time the three query methods feed their outputs to \texttt{AIPromptBuilder}: the most recent 5--12 full entries as short-term context, compressed summaries as long-term context, and the top 8 importance-ranked notes as system messages (source: \texttt{ai\_memory\_store.gd}).}
+    \label{fig:memory-store}
+\end{figure}
+
 \subsection{The Butterfly Effect System}
 
 The \texttt{ButterflyEffectTracker} (\texttt{butterfly\_effect\_tracker.gd}) implements delayed consequence tracking, recording player choices with predicted future consequences. When the player advances scenes, the tracker checks for pending consequences and notifies the AI context system to incorporate relevant callbacks.
@@ -1079,6 +1118,59 @@ Implementing this system taught me about the challenges of managing temporal nar
 Throughout implementation, I developed a philosophy of graceful degradation for AI-dependent features. Every AI request includes a timeout (currently twenty-four seconds), and timeout handling returns the player to a stable state rather than leaving the game frozen. The \texttt{ErrorReporter} class provides centralised error tracking with severity levels, enabling me to distinguish between recoverable warnings and critical failures requiring intervention.
 
 The most significant error handling challenge involved API key configuration. Users might misconfigure their API keys in various ways: leaving them empty, pasting a URL instead of a key, or using an expired key. The \texttt{GeminiProvider} now validates key format before attempting requests (\texttt{gemini\_provider.gd:425--444}), providing specific error messages for common misconfiguration patterns rather than generic failure notifications.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{0.88\textwidth}{!}{%
+    \begin{tikzpicture}[node distance=6mm and 10mm,
+        proc/.style={reportbox, fill=ReportBlue!40, text width=32mm, minimum height=11mm},
+        dec/.style={reportsmall, fill=ReportGold!55, text width=28mm, minimum height=10mm}]
+        % --- Main vertical flow ---
+        \node[proc, fill=ReportRose!50] (req)
+            {\textbf{AI Request}\\{\scriptsize \texttt{request\_ai(prompt, ctx)}}};
+        \node[dec, below=of req] (rl)
+            {\textbf{Rate Limiter}\\{\scriptsize 1.5s min-interval}\\{\scriptsize 10 req/min ceiling}};
+        \node[dec, below=8mm of rl] (mock)
+            {\textbf{Mock Mode?}\\{\scriptsize \texttt{AIProvider.MOCK\_MODE}}};
+        \node[proc, fill=ReportBlue!45, text width=34mm, below=8mm of mock] (http)
+            {\textbf{HTTP Request}\\{\scriptsize + 24s Timeout Timer}\\{\scriptsize \texttt{HTTPRequest + Timer}}};
+        \node[dec, below=8mm of http] (resp)
+            {\textbf{Success?}};
+        \node[proc, fill=ReportTeal!40, below=8mm of resp] (ui)
+            {\textbf{Parse \& Deliver}\\{\scriptsize \texttt{response\_received} signal}};
+        % --- Right-side branches ---
+        \node[proc, fill=ReportLavender!50, right=20mm of rl] (queue)
+            {\textbf{Request Queue}\\{\scriptsize Enqueue; retry}\\{\scriptsize after cooldown}};
+        \node[proc, fill=ReportTeal!40, right=20mm of mock] (mgen)
+            {\textbf{MockAIGenerator}\\{\scriptsize Instant response}\\{\scriptsize no network call}};
+        \node[dec, right=20mm of resp, text width=26mm] (retry)
+            {\textbf{Retry?}\\{\scriptsize n $<$ max\_retries}};
+        \node[proc, fill=ReportRose!60, text width=36mm, below=8mm of retry] (emock)
+            {\textbf{Emergency Mock Fallback}\\{\scriptsize \texttt{\_attempt\_emergency}\\{\scriptsize\texttt{\_mock\_fallback()}}}};
+        % --- Main flow arrows ---
+        \draw[reportarrow] (req) -- (rl);
+        \draw[reportarrow] (rl) -- node[right, font=\scriptsize] {allowed} (mock);
+        \draw[reportarrow] (mock) -- node[right, font=\scriptsize] {no} (http);
+        \draw[reportarrow] (http) -- (resp);
+        \draw[reportarrow] (resp) -- node[right, font=\scriptsize] {success} (ui);
+        % --- Branch arrows ---
+        \draw[reportarrow] (rl.east) -- node[above, font=\scriptsize] {blocked} (queue.west);
+        \draw[reportarrow] (mock.east) -- node[above, font=\scriptsize] {yes} (mgen.west);
+        \draw[reportarrow] (resp.east) -- node[above, font=\scriptsize] {fail} (retry.west);
+        % retry loop back to HTTP request
+        \draw[reportflow, dashed] (retry.north) -- ++(0,8mm) -|
+            node[above, font=\scriptsize, pos=0.2] {re-send} (http.east);
+        % exhausted -> emergency mock
+        \draw[reportarrow] (retry.south) --
+            node[right, font=\scriptsize] {exhausted} (emock.north);
+        % emergency mock -> UI
+        \draw[reportarrow] (emock.west) -| (ui.east);
+        % mock generator -> UI
+        \draw[reportarrow] (mgen.south) -- ++(0,-5mm) -| (ui.north east);
+    \end{tikzpicture}}%
+    \caption{Error Handling and Graceful Degradation Flow. Every \texttt{request\_ai()} call passes through \texttt{AIRequestRateLimiter} (1.5s minimum interval, 10 req/min); blocked requests are enqueued for deferred retry. Mock mode short-circuits directly to \texttt{MockAIGenerator} without a network call. Live requests carry a 24-second timeout: on timeout or HTTP error the request is retried up to \texttt{max\_retries}; once retries are exhausted, \texttt{\_attempt\_emergency\_mock\_fallback()} guarantees the player always receives a response rather than a frozen screen (source: \texttt{ai\_request\_manager.gd}, \texttt{request\_rate\_limiter.gd}, \texttt{mock\_ai\_generator.gd}).}
+    \label{fig:error-handling}
+\end{figure}
 
 \subsection{Key Code Examples}
 
@@ -1232,6 +1324,36 @@ Testing AI-integrated systems presents unique challenges that traditional testin
 
 The automated layer is substantially larger and more structured than the early project proposal implied. Rather than using GUT, the project now relies on custom headless runners and dedicated suites for core systems, AI integration, prompt handling, persistence, and UI behaviour. This infrastructure is what made repeated refactoring practical late in development; full suite organisation is documented in Appendix C: GDD, Section 5.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[x=1mm, y=1mm]
+        % Bottom tier: Unit Tests (widest)
+        \fill[ReportBlue!40, draw=ReportSlate, thick, rounded corners=2pt]
+            (0,0) rectangle (128,22);
+        \node[align=center, text width=122mm, font=\small] at (64,11)
+            {\textbf{Layer 1 --- Unit Tests} {\scriptsize (automated $\cdot$ deterministic $\cdot$ fast)}\\
+            {\scriptsize Suites: \texttt{PlayerStats} $\cdot$ \texttt{EventBus} $\cdot$ \texttt{SaveLoad} $\cdot$ prompt assembly $\cdot$ parsing $\cdot$ audio $\cdot$ markdown $\cdot$ provider config}\\
+            {\scriptsize Tooling: custom headless GDScript runners with \texttt{async/await} for signals, timers, and save/load cycles}};
+        % Middle tier: Integration Tests
+        \fill[ReportTeal!40, draw=ReportSlate, thick, rounded corners=2pt]
+            (14,26) rectangle (114,44);
+        \node[align=center, text width=96mm, font=\small] at (64,35)
+            {\textbf{Layer 2 --- Integration Tests} {\scriptsize (architectural seams)}\\
+            {\scriptsize EventBus state propagation $\cdot$ save/load round-trips $\cdot$ story-scene controller decomposition $\cdot$ live voice path}};
+        % Top tier: Functional AI Tests
+        \fill[ReportGold!55, draw=ReportSlate, thick, rounded corners=2pt]
+            (28,48) rectangle (100,64);
+        \node[align=center, text width=68mm, font=\small] at (64,56)
+            {\textbf{Layer 3 --- Functional AI Tests} {\scriptsize (manual $\cdot$ non-deterministic)}\\
+            {\scriptsize 100+ sessions $\cdot$ AI log export $\cdot$ 3-criteria manual review $\cdot$ CLI state manipulation}};
+        % Connecting arrows between tiers
+        \draw[reportarrow] (64,22) -- (64,26);
+        \draw[reportarrow] (64,44) -- (64,48);
+    \end{tikzpicture}
+    \caption{Three-Layer Testing Strategy. The base layer of automated unit tests covers isolated components (\texttt{PlayerStats}, prompt assembly, parsing, audio, markdown) using custom headless GDScript runners with \texttt{async/await} for signal and timer waits. The integration layer validates key architectural seams (EventBus propagation, save/load round-trips, story-scene decomposition). The top functional layer addresses non-deterministic AI behaviour through extended play sessions, exported AI request logs with three-criteria manual review (thematic alignment, narrative coherence, structural validity), and in-game CLI commands (\texttt{set-stat}, \texttt{toggle-mock}) to force precise preconditions without replaying the full narrative (source: \texttt{Unit Test/}, \texttt{src/scenes/tests/}).}
+    \label{fig:testing-layers}
+\end{figure}
+
 \subsection{Unit Testing Approach}
 
 I implemented these tests as standalone GDScript suites instantiated by custom runners, with small scene wrappers used only where headless scene execution is convenient. The async/await structure is deliberate because many cases require frame or timer waits to test signals, save/load cycles, audio state changes, and UI refresh behaviour without race conditions.
@@ -1286,6 +1408,76 @@ Regarding tonal consistency, the criterion of fewer than one in ten generations 
 The Prayer System (see Appendix C: GDD, Section 4.3) achieved stronger thematic consistency than general narrative generation. The explicit ironic inversion instruction in the prayer prompt template produced appropriately satirical outcomes in 95\% of cases. The templated structure constrains the AI's interpretive latitude, resulting in more predictable thematic alignment.
 
 Regarding alignment with the Reality vs. Positive Energy framework (see Appendix C: GDD, Section 4.2), the implementation successfully embeds the core thematic framework into AI generation. The Void Entropy calculation (see Appendix C: GDD, Section 4.8) correctly influences prompt parameters, producing noticeably different narrative tones at low versus high entropy states as defined by the threshold bands in the game design. This dynamic thematic modulation represents one of the project's strongest achievements.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{%
+    \begin{tikzpicture}
+        %% ===== Left panel: Thematic alignment bar chart =====
+        \begin{scope}
+            % Axes
+            \draw[thick] (0,0) -- (0,52mm);
+            \draw[thick] (0,0) -- (58mm,0);
+            % Y-axis tick marks and labels
+            \foreach \y/\lab in {0mm/0, 10mm/20, 20mm/40, 30mm/60, 40mm/80, 50mm/100}
+            {
+                \draw (-1.5mm,\y) -- (0,\y);
+                \node[left, font=\tiny] at (-1.5mm,\y) {\lab\%};
+            }
+            % Horizontal grid lines
+            \foreach \y in {10mm,20mm,30mm,40mm,50mm}
+                \draw[thin, gray!25] (0,\y) -- (58mm,\y);
+            % Bar 1: General narrative (92% = 46mm of 50mm scale)
+            \fill[ReportBlue!55] (7mm,0) rectangle (24mm,46mm);
+            \fill[ReportRose!55] (7mm,46mm) rectangle (24mm,50mm);
+            \node[font=\tiny\bfseries, above] at (15.5mm,50mm) {\textbf{92\%}};
+            \node[font=\tiny, align=center] at (15.5mm,-5mm) {\textbf{General}\\Narrative};
+            % Bar 2: Prayer System (95% = 47.5mm)
+            \fill[ReportTeal!50] (34mm,0) rectangle (51mm,47.5mm);
+            \fill[ReportRose!40] (34mm,47.5mm) rectangle (51mm,50mm);
+            \node[font=\tiny\bfseries, above] at (42.5mm,50mm) {\textbf{95\%}};
+            \node[font=\tiny, align=center] at (42.5mm,-5mm) {\textbf{Prayer}\\System};
+            % Target line at 90% (= 45mm)
+            \draw[dashed, red!70, thin] (0,45mm) -- (58mm,45mm);
+            \node[font=\tiny, anchor=south east, text=red!70] at (58mm,45mm) {$<$10\% drift target};
+            % Legend
+            \fill[ReportBlue!55] (1mm,55mm) rectangle (5mm,58mm);
+            \node[font=\tiny, right] at (5.5mm,56.5mm) {Aligned};
+            \fill[ReportRose!55] (22mm,55mm) rectangle (26mm,58mm);
+            \node[font=\tiny, right] at (26.5mm,56.5mm) {Drift};
+            % Panel title
+            \node[font=\small\bfseries] at (29mm,63mm) {Thematic Alignment ($N=100$)};
+        \end{scope}
+        %% ===== Right panel: Void Entropy tone tiers =====
+        \begin{scope}[xshift=76mm]
+            % Panel title
+            \node[font=\small\bfseries] at (33mm,63mm) {Void Entropy Tone Tiers};
+            % Low entropy
+            \node[reportwide, fill=ReportBlue!30, text width=58mm, minimum height=14mm, align=left]
+                (low) at (33mm,46mm)
+                {\textbf{Low} $\epsilon < 0.3$ \quad ``subtle irony''\\
+                {\scriptsize entropy modifier: mild hints of ironic inversion}};
+            % Medium entropy
+            \node[reportwide, fill=ReportGold!50, text width=58mm, minimum height=14mm, align=left]
+                (med) at (33mm,29mm)
+                {\textbf{Medium} $\epsilon \in [0.3,\,0.7]$ \quad ``sardonic commentary''\\
+                {\scriptsize entropy modifier: explicit tonal shift instruction}};
+            % High entropy
+            \node[reportwide, fill=ReportRose!60, text width=58mm, minimum height=14mm, align=left]
+                (high) at (33mm,12mm)
+                {\textbf{High} $\epsilon > 0.7$ \quad ``absurdist chaos''\\
+                {\scriptsize entropy modifier: surreal, darkly humorous, deeply ironic}};
+            % Progression arrows
+            \draw[reportarrow] (low.south) -- (med.north);
+            \draw[reportarrow] (med.south) -- (high.north);
+            % Entropy-increasing label on the right
+            \node[font=\scriptsize, rotate=-90, text=ReportSlate] at (64mm,29mm)
+                {entropy $\uparrow$};
+        \end{scope}
+    \end{tikzpicture}}%
+    \caption{Thematic Coherence Evaluation Results. \textit{Left:} Thematic alignment rates across $N=100$ AI generation sessions: general narrative achieved 92\% tonal consistency and the Prayer System achieved 95\% satirical alignment, both meeting the $\leq$10\% tonal-drift target (red dashed line). \textit{Right:} The Void Entropy value $\epsilon$ produced by \texttt{calculate\_void\_entropy()} selects one of three tone tiers injected into the AI prompt as an entropy modifier, producing measurably different narrative character at each threshold band (source: \texttt{player\_stats.gd:54--59}, \texttt{ai\_prompt\_builder.gd}).}
+    \label{fig:thematic-results}
+\end{figure}
 
 \subsection{Comparative Analysis: Bespoke Pipeline vs. World-Model}
 
