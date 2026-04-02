@@ -1713,51 +1713,51 @@ The project is structured into four main phases, spanning the Autumn and Spring 
 \addcontentsline{toc}{section}{Appendix C: Game Design Document}
 
 \begin{center}
-{\large\textbf{G5038: Final Year Project --- Game Design Document}}\\[0.05cm]
+{\large\textbf{G5038: Final Year Project, Game Design Document}}\\[0.05cm]
 {\large\textbf{Game Title: Glorious Deliverance Agency 1}}\\[0.05cm]
 University of Sussex, Engineering \& Informatics\\[0.05cm]
 \textbf{Date:} 26 October 2025
 \end{center}
 
-\textit{Creative Statement: All characters, events, and religious metaphors in this game are purely fictional and intended for satirical purposes. There is no intention to allude to any real-life individuals, groups, or beliefs.}
+\textit{Creative Statement: All characters, events, and religious metaphors in this game are purely fictional and intended for satirical purposes. There is no intention to allude to any real life individuals, groups, or beliefs.}
 
 \begin{multicols}{2}
 \subsection*{1. Game Overview}
 
 \subsubsection*{1.1 Pitch}
-An AI native 2D role-playing game where you are a reluctant hero in a dysfunctional team, whose attempts to save the world with ``positive energy'' only accelerate its destruction in a dark, toxic positivity.
+An AI native 2D role playing game where you are a reluctant hero in a dysfunctional team, whose attempts to save the world with ``positive energy'' only accelerate its destruction in a dark, toxic positivity.
 
 \subsubsection*{1.2 Format and Platforms}
-The game is designed for PC platforms using Godot 4.7-dev3, targeting players who have access to desktop computing environments. The current executable flow boots into \texttt{splash\_sequence.tscn}, transitions to the main menu, and from there enters the story scene and optional side modes. The technical foundation supports integration with multiple AI language models and a built-in mock mode, which together define the core gameplay experience.
+The game is designed for PC platforms using Godot 4.7-dev3, targeting players who have access to desktop computing environments. The current executable flow boots into \texttt{splash\_sequence.tscn}, transitions to the main menu, and from there enters the story scene and optional side modes. The technical foundation supports integration with multiple AI language models and a built in mock mode, which together define the core gameplay experience.
 
 \subsubsection*{1.3 Genre and Theme}
-The game blends RPG mechanics with narrative-driven gameplay, wrapped in layers of dark comedy and satire. At its thematic heart lies a critique of toxic positivity and modern hustle culture, exploring how good intentions can spiral into catastrophic consequences. The narrative weaves together concepts of entropy, determinism, and the psychological damage caused by forced optimism, all delivered through black humour that encourages players to question the systems they participate in.
+The game blends RPG mechanics with narrative driven gameplay, wrapped in layers of dark comedy and satire. At its thematic heart lies a critique of toxic positivity and modern hustle culture, exploring how good intentions can spiral into catastrophic consequences. The narrative weaves together concepts of entropy, determinism, and the psychological damage caused by forced optimism, all delivered through black humour that encourages players to question the systems they participate in.
 
 \subsubsection*{1.4 Graphical Perspective}
-The visual presentation adopts a scene-based approach reminiscent of visual novels and stage plays. The game screen features a prominent central view, with character sprites, dynamic backgrounds, and interactive objects that create a theatrical experience. An AI director orchestrates both the narrative delivery through dialogue boxes and the visual composition of each scene, creating a synthesis where story and visuals respond dynamically to player choices.
+The visual presentation adopts a scene based approach reminiscent of visual novels and stage plays. The game screen features a prominent central view, with character sprites, dynamic backgrounds, and interactive objects that create a theatrical experience. An AI director orchestrates both the narrative delivery through dialogue boxes and the visual composition of each scene, creating a synthesis where story and visuals respond dynamically to player choices.
 
 \subsubsection*{1.5 Target Audience}
-Primary: University students and young adults who can relate to the themes of academic pressure, project frustrations, and the often absurd clash between idealism and reality. Secondary: Players interested in experimental and AI-driven narratives, fans of dark humour and satirical storytelling, and those intrigued by the technical implementation of LLMs in games.
+Primary: University students and young adults who can relate to the themes of academic pressure, project frustrations, and the often absurd clash between idealism and reality. Secondary: Players interested in experimental and AI driven narratives, fans of dark humour and satirical storytelling, and those intrigued by the technical implementation of LLMs in games.
 
 \subsubsection*{1.6 Game Influences}
-Technological: Google's ``Genie'' AI world model, which inspired the core concept of an AI-generated game world. The project also aims to be a critical reflection on such technology. Literary: The story draws on satirical and absurdist traditions, with a narrative that subverts classic ``hero's journey'' tropes.
+Technological: Google's ``Genie'' AI world model, which inspired the core concept of an AI generated game world. The project also aims to be a critical reflection on such technology. Literary: The story draws on satirical and absurdist traditions, with a narrative that subverts classic ``hero's journey'' tropes.
 
 \subsubsection*{1.7 Player Objectives}
 Victory in the traditional sense does not exist in this game. Instead, players navigate an endless, looping tragedy orchestrated by the Glorious Deliverance Agency. The experience focuses on:
 \begin{itemize}
-  \item Influencing the AI-generated narrative as it unfolds
+  \item Influencing the AI generated narrative as it unfolds
   \item Managing the tension between Reality and Positive Energy statistics while witnessing their impact on the world's stability
   \item Surviving the social and psychological challenges posed by dysfunctional teammates
   \item Ultimately uncovering the dark, ironic truth behind what the game calls the Positive Energy Curse
 \end{itemize}
 
 \subsubsection*{1.8 Distinctive Features}
-The game's most distinctive element is its AI-native narrative engine, where core story beats, NPC dialogue, and player choices emerge dynamically through real-time generation by language models such as Google Gemini, OpenRouter, or local Ollama instances. This creates genuinely unique playthroughs where no two experiences follow identical paths.
+The game's most distinctive element is its AI native narrative engine, where core story beats, NPC dialogue, and player choices emerge dynamically through real time generation by language models such as Google Gemini, OpenRouter, or local Ollama instances. This creates genuinely unique playthroughs where no two experiences follow identical paths.
 
-Supporting this narrative foundation is an AI-driven visual scene system featuring a comprehensive library of two-dimensional assets:
+Supporting this narrative foundation is an AI driven visual scene system featuring a comprehensive library of two dimensional assets:
 \begin{itemize}
   \item Twenty-two environmental backgrounds establish locations and moods
-  \item Sixty-nine character sprites: 40 expression sprites across five standard characters (eight each), 16 performance poses for Teacher Chan (eight standard expressions plus eight specialty concert poses), 6 full-body turnaround sheets, 6 portrait busts, and 1 utility effect sprite
+  \item Sixty-nine character sprites: 40 expression sprites across five standard characters (eight each), 16 performance poses for Teacher Chan (eight standard expressions plus eight specialty concert poses), 6 full body turnaround sheets, 6 portrait busts, and 1 utility effect sprite
   \item Twenty-nine symbolic gameplay objects add interactive elements, each tagged for AI querying by theme
   \item Generic creature and NPC types (beast, guardian, spirit, wandering soul) allow the AI to populate scenes with supporting characters
 \end{itemize}
@@ -1766,7 +1766,7 @@ The AI selects and combines these visual elements through structured directives 
 
 The Reality versus Positive Energy mechanic forms the game's philosophical core, creating a unique statistical system where traditionally positive actions directly accelerate the world's decay, making players complicit in the disaster they witness. The Prayer System functions as an ironic prompt engineering tool where players input hopeful prayers that the AI transforms into disastrous outcomes.
 
-Beyond its mechanical innovations, the game aspires to thematic depth by functioning as a playable allegory. Every system and narrative beat works together to offer a satirical critique of real-world social phenomena around toxic positivity, workplace dysfunction, and the dangers of refusing to acknowledge difficult truths.
+Beyond its mechanical innovations, the game aspires to thematic depth by functioning as a playable allegory. Every system and narrative beat works together to offer a satirical critique of real world social phenomena around toxic positivity, workplace dysfunction, and the dangers of refusing to acknowledge difficult truths.
 
 \end{multicols}
 
@@ -1776,18 +1776,18 @@ Beyond its mechanical innovations, the game aspires to thematic depth by functio
 The protagonist embodies pragmatic realism, reflecting anyone worn down by repeated disappointments and betrayals. At the story's beginning, they harbour deep mistrust toward divine intervention and blind faith, preferring rational thinking over magical solutions. This worldview crumbles when Saint Gloria deploys masterful psychological manipulation, convincing the protagonist that their negativity causes all personal and interpersonal failures. Pushed to the edge of mental breakdown, the protagonist desperately accepts Gloria's salvation and adopts her simplistic positive energy creed as a last resort to avoid harming others. This forced conversion sets the stage for their tragic journey as reluctant believers who know better but feel they have no choice.
 
 \begin{multicols}{2}
-\subsubsection*{2.2 Non-Player Characters: The Team}
+\subsubsection*{2.2 Non Player Characters: The Team}
 The player's teammates function not as traditional allies but as the primary antagonists and obstacles. Each embodies a distinct, flawed ideology that systematically undermines every mission.
 
 \textbf{Saint Gloria} is the Guardian of the Greenhouse and the embodiment of weaponised innocence. She has built a sterile bubble of love and tolerance around herself and classifies dissent, logic, and discomfort as negative energy requiring purification. She believes the Flying Spaghetti Monster will solve every problem without effort on her part, so when confronted with concrete failures she reframes them as emotional harm, pivots to guilt, and claims that the player's attitude has hurt her. Her tolerance is selective: she accepts teammates' incompetence and prejudice, but cannot accept principled anger or rational critique. She represents refined selfishness that protects personal emotional comfort by redefining reality itself.
 
-\textbf{Cosplayer Donkey, the Glory Knight} is the Self-Proclaimed Hero and a conceptual bankrupt who lives inside a stale heroic fantasy. He believes that striking heroic poses should automatically summon applause, glory, and princesses, despite possessing none of the skills needed for genuine heroism. He disappears during real work but becomes hyperactive on social media and in performative flirtation, and nearly every idea he offers is another hero-saves-the-girl trope shaped by objectifying patriarchal thinking. When challenged, Gloria demands tolerance on his behalf. He also reinforces the team's exclusionary clique by using broken German with Gloria and Cosplayer ARK to lock One out of the conversation. He symbolises immature fantasy, blame-shifting, and performative masculinity detached from reality.
+\textbf{Cosplayer Donkey, the Glory Knight} is the Self Proclaimed Hero and a conceptual bankrupt who lives inside a stale heroic fantasy. He believes that striking heroic poses should automatically summon applause, glory, and princesses, despite possessing none of the skills needed for genuine heroism. He disappears during real work but becomes hyperactive on social media and in performative flirtation, and nearly every idea he offers is another hero saves the girl trope shaped by objectifying patriarchal thinking. When challenged, Gloria demands tolerance on his behalf. He also reinforces the team's exclusionary clique by using broken German with Gloria and Cosplayer ARK to lock One out of the conversation. He symbolises immature fantasy, blame shifting, and performative masculinity detached from reality.
 
-\textbf{Cosplayer ARK, the Order Apostle} is the Diligent Saboteur and the Architect of the Black Box. He functions as the team's de-facto lead through sheer effort, but his compulsive need for control and inability to communicate openly make him a destroyer of trust. He assigns work through private messages, asks for opinions only after making up his mind, issues vague instructions with no clear completion standards, and then demands full rewrites when results fail to match his undisclosed expectations. He collaborates with Cosplayer Donkey in broken German, further isolating One, and his obsession with process turns coordination itself into a source of collapse. He represents bureaucratic control, information asymmetry, and the damage caused by leadership without transparent communication.
+\textbf{Cosplayer ARK, the Order Apostle} is the Diligent Saboteur and the Architect of the Black Box. He functions as the team's de facto lead through sheer effort, but his compulsive need for control and inability to communicate openly make him a destroyer of trust. He assigns work through private messages, asks for opinions only after making up his mind, issues vague instructions with no clear completion standards, and then demands full rewrites when results fail to match his undisclosed expectations. He collaborates with Cosplayer Donkey in broken German, further isolating One, and his obsession with process turns coordination itself into a source of collapse. He represents bureaucratic control, information asymmetry, and the damage caused by leadership without transparent communication.
 
-\textbf{One, the Isolated Old Friend} is the Silent Witness and the Voiceless Accomplice. He is the player's earliest ally and the only genuinely capable and principled member of the team, but his aversion to conflict turns him into a passive witness to repeated injustice. He is marginalised by the German-speaking trio of Gloria, Cosplayer Donkey, and Cosplayer ARK, reduced to a passive recipient of instructions, and excluded from decisions that affect him directly. In public he says he is fine to preserve harmony; in private he honestly expresses his frustration and pain to the protagonist. He symbolises how kindness without courage becomes complicity inside a toxic system.
+\textbf{One, the Isolated Old Friend} is the Silent Witness and the Voiceless Accomplice. He is the player's earliest ally and the only genuinely capable and principled member of the team, but his aversion to conflict turns him into a passive witness to repeated injustice. He is marginalised by the German speaking trio of Gloria, Cosplayer Donkey, and Cosplayer ARK, reduced to a passive recipient of instructions, and excluded from decisions that affect him directly. In public he says he is fine to preserve harmony; in private he honestly expresses his frustration and pain to the protagonist. He symbolises how kindness without courage becomes complicity inside a toxic system.
 
-\textbf{Teacher Chan} is the Soul-Soothing Singer, the Apocalypse Idol, and the Harbinger of Doom. As a national-level idol singer, her image radiates pure, white-robed compassion, yet her songs about letting go, acceptance, and growth operate as a curse rather than a cure. She genuinely believes what she sings, which makes her more frightening, not less. Her performances rationalise failure as spiritual success, intensify cognitive dissonance, and function as large-scale entropy rituals that accelerate the world's collapse. She is not a healer but a world destroyer wearing the voice of comfort.
+\textbf{Teacher Chan} is the Soul Soothing Singer, the Apocalypse Idol, and the Harbinger of Doom. As a national level idol singer, her image radiates pure, white robed compassion, yet her songs about letting go, acceptance, and growth operate as a curse rather than a cure. She genuinely believes what she sings, which makes her more frightening, not less. Her performances rationalise failure as spiritual success, intensify cognitive dissonance, and function as large scale entropy rituals that accelerate the world's collapse. She is not a healer but a world destroyer wearing the voice of comfort.
 
 \end{multicols}
 
@@ -1797,17 +1797,17 @@ The player's teammates function not as traditional allies but as the primary ant
 \subsubsection*{3.1 Backstory and Premise}
 The universe operates according to a fundamental law called Void Entropy, where all things naturally and slowly decay toward chaos and eventual oblivion. This represents a peaceful, albeit melancholic, fate. However, when scientists discovered this truth, humanity refused to accept it. A global spiritual movement called the Flying Spaghetti Monster Gospel emerged, preaching a lie that the universe's decay could be reversed by broadcasting pure positive energy through the Law of Attraction. The terrible truth is that this forced, manufactured positivity born from suppressing all negative emotion serves as the ultimate catalyst for Void Entropy. Every prayer for miracles, every act of blind faith, every instance of tolerating injustice for love's sake accelerates the world's natural demise by a factor of ten thousand. The world is not dying naturally but being actively poisoned by hope itself.
 
-\subsubsection*{3.2 In-Game Narrative and Game Loop}
-The game operates on a cyclical, endlessly darkening loop with no victory condition. The Glorious Deliverance Agency receives a hopeful, world-saving quest generated by the AI. Players are forced to use the Prayer System, inputting positive words that act as prompts for the AI to engineer disastrous scenarios. During mission attempts, teammates with their unique brands of incompetence systematically sabotage every step through AI-generated actions and dialogue.
+\subsubsection*{3.2 In Game Narrative and Game Loop}
+The game operates on a cyclical, endlessly darkening loop with no victory condition. The Glorious Deliverance Agency receives a hopeful, world saving quest generated by the AI. Players are forced to use the Prayer System, inputting positive words that act as prompts for the AI to engineer disastrous scenarios. During mission attempts, teammates with their unique brands of incompetence systematically sabotage every step through AI generated actions and dialogue.
 
-Missions fail in spirit but succeed on surface levels, with net results being massive increases in world Entropy. These successful outcomes trigger mandatory events where Teacher Chan appears in holographic concerts, singing soothing songs that brainwash the team into believing they accomplished good things. Players receive Cognitive Dissonance debuffs. Brief AI-triggered honeymoon phases follow, where teammates act unusually cooperative and kind, giving false hope before new missions begin, and the cycle repeats, plunging the world into deeper despair.
+Missions fail in spirit but succeed on surface levels, with net results being massive increases in world Entropy. These successful outcomes trigger mandatory events where Teacher Chan appears in holographic concerts, singing soothing songs that brainwash the team into believing they accomplished good things. Players receive Cognitive Dissonance debuffs. Brief AI triggered honeymoon phases follow, where teammates act unusually cooperative and kind, giving false hope before new missions begin, and the cycle repeats, plunging the world into deeper despair.
 
 The story has no end. The protagonist and team grow stronger in statistics, but their fate only darkens. They meet new people only to lose them to the team's folly, forever trapped with the GDA as they personally escort the world to its doom.
 
 \subsubsection*{3.3 Intro Story Sequence}
-Before the main game loop begins, the player is presented with a 41-page visual-novel-style prologue implemented across \texttt{intro\_story.gd}, \texttt{intro\_story\_data.gd}, and \texttt{intro\_page.gd}, with illustrated panels stored in \texttt{src/assets/ui/intro/}. The sequence is paginated and fully localised via \texttt{intro\_story\_pages.csv} (English, Chinese, and German).
+Before the main game loop begins, the player is presented with a 41-page visual novel style prologue implemented across \texttt{intro\_story.gd}, \texttt{intro\_story\_data.gd}, and \texttt{intro\_page.gd}, with illustrated panels stored in \texttt{src/assets/ui/intro/}. The sequence is paginated and fully localised via \texttt{intro\_story\_pages.csv} (English, Chinese, and German).
 
-The primary design purpose of the intro story is to establish the player's first impression of the team before any gameplay decisions are made. By the time the first mission begins, the player has already witnessed how each teammate communicates, reasons, and responds under pressure in a low-stakes context, making the sabotage mechanics and AI-driven teammate behaviour immediately legible rather than confusing. The prologue also provides the narrative backstory required for the game's satirical premise to land: the player learns how GDA1 was formed, who the members are, what the FSM movement is, and crucially, why the protagonist --- despite clear warning signs --- chose to join.
+The primary design purpose of the intro story is to establish the player's first impression of the team before any gameplay decisions are made. By the time the first mission begins, the player has already witnessed how each teammate communicates, reasons, and responds under pressure in a low stakes context, making the sabotage mechanics and AI driven teammate behaviour immediately legible rather than confusing. The prologue also provides the narrative backstory required for the game's satirical premise to land: the player learns how GDA1 was formed, who the members are, what the FSM movement is, and crucially, why the protagonist, despite clear warning signs, chose to join.
 
 This onboarding function is intentional. The protagonist's initial resistance, followed by their decision to suppress rational judgment in exchange for belonging, is the exact psychological pattern the player will be asked to navigate and resist throughout the game. Presenting it as a fait accompli in the prologue sets the contract: the world's dysfunction did not begin with the player's choices, it was already underway.
 
@@ -1825,16 +1825,16 @@ Positive Energy Score increases through agreeing with teammates' foolish plans, 
 This system functions as a direct interface for players to prompt them to engineer their own doom. Before missions, a user interface appears where players must type prayers to the Flying Spaghetti Monster. The more positive and hopeful the text about cooperation and mission success, the more heavily the AI is instructed to generate ironic, disastrous outcomes that subvert those prayers. Players actively write scripts for their own failures.
 
 \subsubsection*{4.4 Teacher Chan's Apocalypse Concert}
-Mandatory cutscene events trigger after mission successes. Pre-rendered video of Teacher Chan plays with AI-generated lyrics appearing as subtitles. The lyrics consist of generic, feel-good platitudes that reframe preceding disasters as triumphs of spirit. After concerts, players are afflicted with Cognitive Dissonance debuffs that temporarily lower Logic and critical thinking skills, and may force positive keywords into next prayers, ensuring downward spirals continue.
+Mandatory cutscene events trigger after mission successes. Pre rendered video of Teacher Chan plays with AI generated lyrics appearing as subtitles. The lyrics consist of generic, feel good platitudes that reframe preceding disasters as triumphs of spirit. After concerts, players are afflicted with Cognitive Dissonance debuffs that temporarily lower Logic and critical thinking skills, and may force positive keywords into next prayers, ensuring downward spirals continue.
 
 \subsubsection*{4.5 Gloria's Intervention Event}
 Special triggered events occur when player complaints or negative choices reach certain thresholds. The game transitions to dedicated screens featuring Gloria's portrait, where she delivers monologues starting with lines about how player negativity has dragged her into the first emotional low of her life. The AI generates the rest of the text, personally attacking recent player choices. These events inflict massive emotional and statistical damage. To exit, players must click Continue, after which their only available action is Pray, forcing them back into toxic positivity cycles.
 
 \subsubsection*{4.6 The Diary System}
-This system provides players' only true outlet and serves as a key feature for mitigating frustration. After each mission, players can open journals where the AI provides several options for recording events. Entries might be factual, emotional, or sarcastic in tone. The diary does not affect main plot outcomes but functions as a spiritual guide for players. Entries influence the protagonist's internal monologue and can unlock special, fantasy-only resistance scenes, such as dream sequences where players beat up teammates, providing crucial emotional catharsis.
+This system provides players' only true outlet and serves as a key feature for mitigating frustration. After each mission, players can open journals where the AI provides several options for recording events. Entries might be factual, emotional, or sarcastic in tone. The diary does not affect main plot outcomes but functions as a spiritual guide for players. Entries influence the protagonist's internal monologue and can unlock special, fantasy only resistance scenes, such as dream sequences where players beat up teammates, providing crucial emotional catharsis.
 
-\subsubsection*{4.7 AI-Driven Visual Scene and Asset System}
-This system bridges AI-generated narratives with finite art asset sets through intelligent asset selection and contextual arrangement. The AI receives detailed asset manifests as part of its system prompt, enabling the selection of appropriate visual elements that match the narrative context. The AI generates structured scene directives specifying:
+\subsubsection*{4.7 AI Driven Visual Scene and Asset System}
+This system bridges AI generated narratives with finite art asset sets through intelligent asset selection and contextual arrangement. The AI receives detailed asset manifests as part of its system prompt, enabling the selection of appropriate visual elements that match the narrative context. The AI generates structured scene directives specifying:
 \begin{itemize}
   \item Scene configuration: background type, atmospheric mood, and lighting conditions
   \item Character composition: determining which characters appear with which expressions
@@ -1844,10 +1844,10 @@ This system bridges AI-generated narratives with finite art asset sets through i
 
 The asset libraries include:
 \begin{itemize}
-  \item Twenty-two environmental backgrounds (14 in-game scene locations plus 8 UI/utility backgrounds) organised by setting type
-  \item Sixty-nine character sprites: 40 expression sprites (8 per character across 5 standard characters), 16 performance poses for Teacher Chan (8 standard expressions plus 8 specialty concert poses), 6 full-body turnaround sheets, 6 portrait busts, and 1 utility effect sprite
+  \item Twenty-two environmental backgrounds (14 in game scene locations plus 8 UI/utility backgrounds) organised by setting type
+  \item Sixty-nine character sprites: 40 expression sprites (8 per character across 5 standard characters), 16 performance poses for Teacher Chan (8 standard expressions plus 8 specialty concert poses), 6 full body turnaround sheets, 6 portrait busts, and 1 utility effect sprite
   \item Twenty-nine symbolic assets of gameplay objects, each registered in \texttt{AssetRegistry} with tags and descriptive summaries for AI filtering
-  \item 43 audio assets: 13 background music tracks (entropy-scaled by narrative stage) and 30 dedicated sound effects
+  \item 43 audio assets: 13 background music tracks (entropy scaled by narrative stage) and 30 dedicated sound effects
 \end{itemize}
 
 The system supports asset querying by tags and themes, allowing the AI to request dangerous outdoor locations or mystical indoor spaces without specifying exact file names.
@@ -1898,7 +1898,7 @@ The system supports asset querying by tags and themes, allowing the AI to reques
   \begin{subfigure}[b]{0.11\linewidth}\centering
     \includegraphics[width=\linewidth]{../1.Codebase/src/assets/icons/fire.png}
     \caption*{Fire}\end{subfigure}
-  \caption{Sample symbolic gameplay objects from the 29-icon library (AI-selectable per scene)}
+  \caption{Sample symbolic gameplay objects from the 29-icon library (AI selectable per scene)}
   \label{fig:gdd-icons}
 \end{figure}
 
@@ -1910,7 +1910,7 @@ The game implements relationships between player actions and core metrics throug
 
 \textbf{Positive Energy} represents attempts to impose cheerful, optimistic outlooks on the world with ironic consequences, starting at 50 with a range from 0 to 100. Every increase in Positive Energy immediately adds twice that amount to the cumulative \texttt{entropy\_level} integer (``Positive Energy curse''), directly destabilising the world. Gloria's interference triggers when a complaint counter reaches a threshold AND Reality is $\leq 65$ AND Positive Energy is $\geq 35$ (base 35\% chance per scene), or when Reality climbs $\geq 80$, at which point fewer complaints are needed to trigger her. Increased Positive Energy also makes Empathy checks easier and raises teammate ``friendliness,'' though their help remains actively destructive.
 
-\textbf{Void Entropy} combines two values. The floating-point \texttt{void\_entropy} (0.0--1.0) drives AI prompt tone, calculated as:
+\textbf{Void Entropy} combines two values. The floating point \texttt{void\_entropy} (0.0--1.0) drives AI prompt tone, calculated as:
 
 $$\text{void\_entropy} = \frac{\text{positive\_energy}}{100.0} \times 0.7 + \left(1.0 - \frac{\text{reality\_score}}{200.0}\right) \times 0.3$$
 
@@ -1936,7 +1936,7 @@ The system records different types of choices (minor, major, critical) with comp
   \item Choice metadata, including exact text and categorical tags for filtering
 \end{itemize}
 
-Consequence seeds are stored as arrays of potential outcomes, each with a scheduled scene number (3--20 scenes ahead), description, triggered status flag, and severity rating. The system implements weighted selection algorithms to determine when consequences trigger, with higher-severity consequences having priority. The \texttt{get\_context\_for\_ai()} function formats relevant past choices and pending consequences for inclusion in AI prompts, enabling the AI to reference earlier decisions and create narrative callbacks.
+Consequence seeds are stored as arrays of potential outcomes, each with a scheduled scene number (3--20 scenes ahead), description, triggered status flag, and severity rating. The system implements weighted selection algorithms to determine when consequences trigger, with higher severity consequences having priority. The \texttt{get\_context\_for\_ai()} function formats relevant past choices and pending consequences for inclusion in AI prompts, enabling the AI to reference earlier decisions and create narrative callbacks.
 
 \end{multicols}
 
@@ -1946,20 +1946,20 @@ The TrolleyProblemGenerator component generates dynamic moral dilemmas where eve
 
 The system implements five core template types stored as constants:
 \begin{itemize}
-  \item classic --- direct trolley choices
-  \item sacrifice --- choose who suffers
-  \item complicity --- action vs.\ inaction
-  \item lesser evil --- all options catastrophically bad
-  \item positive\_energy\_trap --- toxic positivity framing vs.\ honest approaches
+  \item classic: direct trolley choices
+  \item sacrifice: choose who suffers
+  \item complicity: action vs.\ inaction
+  \item lesser evil: all options catastrophically bad
+  \item positive\_energy\_trap: toxic positivity framing vs.\ honest approaches
 \end{itemize}
 
 For each template, the system maintains fallback presets in both English and Chinese to ensure gameplay continues if AI generation fails.
 
 Trigger conditions are calculated dynamically: base 30\% chance per mission after mission 3, with bonuses (+10\% for high entropy $\geq 0.7$, +15\% for saturated Positive Energy $\geq 80$, +10\% for low Reality $< 30$), capped at maximum 85\% in crisis phases.
 
-The \texttt{generate\_dilemma()} function builds prompts via the \texttt{SkillManager}, loading the \texttt{trolley-problem} skill template from a structured markdown file with YAML frontmatter. This approach externalises prompt engineering from the game code, allowing templates to be refined without recompilation. Prompts include current stats and recent mission summaries, then request the AIManager to generate a structured JSON response (enforced via \texttt{response\_schema} and \texttt{response\_mime\_type = ``application/json''}) containing: scenario setup; distinct choices with framing labels (positive/honest/neutral); immediate stat changes; long-term consequence descriptions; thematic commentary. Language is selected at runtime (English or Chinese) based on \texttt{GameState.current\_language}.
+The \texttt{generate\_dilemma()} function builds prompts via the \texttt{SkillManager}, loading the \texttt{trolley-problem} skill template from a structured markdown file with YAML frontmatter. This approach externalises prompt engineering from the game code, allowing templates to be refined without recompilation. Prompts include current stats and recent mission summaries, then request the AIManager to generate a structured JSON response (enforced via \texttt{response\_schema} and \texttt{response\_mime\_type = ``application/json''}) containing: scenario setup; distinct choices with framing labels (positive/honest/neutral); immediate stat changes; long term consequence descriptions; thematic commentary. Language is selected at runtime (English or Chinese) based on \texttt{GameState.current\_language}.
 
-Generated dilemmas are parsed from JSON responses with robust error handling and fallback to presets. Presentation is handled through dedicated UI overlays with dramatic visual effects: screen darkening and fade-in transitions; full-screen scenario text with typewriter effects; colour-coded choice buttons (pink/warm for positive framing, blue/cool for honest, grey for neutral); post-choice resolution screens.
+Generated dilemmas are parsed from JSON responses with robust error handling and fallback to presets. Presentation is handled through dedicated UI overlays with dramatic visual effects: screen darkening and fade in transitions; full screen scenario text with typewriter effects; colour coded choice buttons (pink/warm for positive framing, blue/cool for honest, grey for neutral); post choice resolution screens.
 
 All dilemma outcomes are automatically logged to the journal system with timestamps and butterfly effect trackers for future narrative callbacks.
 
@@ -1974,9 +1974,9 @@ The Achievement System contains exactly 20 named achievements and one hidden ach
 Implemented achievements include:
 \begin{itemize}
   \item \textbf{Mission milestones:} \texttt{first\_mission} (complete 1 mission), \texttt{survivor} (complete 10 missions), \texttt{veteran} (complete 50 missions)
-  \item \textbf{Stat-based:} \texttt{reality\_seeker} (reach high Reality), \texttt{reality\_crisis} (reach low Reality), \texttt{positive\_resistance} (maintain low Positive Energy), \texttt{positive\_victim} (reach high Positive Energy), \texttt{entropy\_witness} (witness critical Entropy)
-  \item \textbf{Skill-based:} \texttt{logic\_master} (10 Logic successes), \texttt{perception\_expert} (10 Perception successes), \texttt{skill\_master}, \texttt{balanced\_mind}
-  \item \textbf{System-use:} \texttt{diary\_keeper} (10 journal entries), \texttt{master\_complainer} (3 Gloria triggers), \texttt{faithful\_noodler} (10 prayers)
+  \item \textbf{Stat based:} \texttt{reality\_seeker} (reach high Reality), \texttt{reality\_crisis} (reach low Reality), \texttt{positive\_resistance} (maintain low Positive Energy), \texttt{positive\_victim} (reach high Positive Energy), \texttt{entropy\_witness} (witness critical Entropy)
+  \item \textbf{Skill based:} \texttt{logic\_master} (10 Logic successes), \texttt{perception\_expert} (10 Perception successes), \texttt{skill\_master}, \texttt{balanced\_mind}
+  \item \textbf{System use:} \texttt{diary\_keeper} (10 journal entries), \texttt{master\_complainer} (3 Gloria triggers), \texttt{faithful\_noodler} (10 prayers)
   \item \textbf{Moral:} \texttt{moral\_philosopher} and \texttt{trolley\_conductor} (dilemma milestones), \texttt{complicit}
   \item \textbf{Meta:} \texttt{tutorial\_master}; hidden: \texttt{one\_s\_voice}
 \end{itemize}
@@ -1993,36 +1993,36 @@ The \texttt{TeammateSystem} uses a structured \texttt{BEHAVIOR\_LIBRARY} contain
   \item \textbf{One's repertoire:} \texttt{silent\_agreement} ($-2/+3/+1$), \texttt{reliable\_execution} ($-1/+4/+2$), \texttt{private\_confession} ($-3/+2/+1$)
 \end{itemize}
 
-Each teammate entry also defines a base interference probability (Gloria: 35\%, Donkey: 40\%), keyword triggers, stat-based trigger rules, signature phrases, and personalised AI prompt parameters (tone, length, interference goal). Teammate interference text is generated at runtime by the AI using the teammate's persona definition from the \texttt{TEAMMATES} dictionary. All labels and persona strings are localisation-keyed for English/Chinese support via \texttt{LocalizationManager}.
+Each teammate entry also defines a base interference probability (Gloria: 35\%, Donkey: 40\%), keyword triggers, stat based trigger rules, signature phrases, and personalised AI prompt parameters (tone, length, interference goal). Teammate interference text is generated at runtime by the AI using the teammate's persona definition from the \texttt{TEAMMATES} dictionary. All labels and persona strings are localisation keyed for English/Chinese support via \texttt{LocalizationManager}.
 
-\subsubsection*{4.13 AI-Driven Narrative Generation and Output Structure}
-All dialogue and narrative content is generated dynamically through integration with large language models. The system constructs context-rich prompts incorporating dynamic context, including:
+\subsubsection*{4.13 AI Driven Narrative Generation and Output Structure}
+All dialogue and narrative content is generated dynamically through integration with large language models. The system constructs context rich prompts incorporating dynamic context, including:
 \begin{itemize}
   \item Current game state, such as Reality Score, Positive Energy, and Entropy Level
   \item Recent player choices and their consequences
   \item Character relationships and trust values
   \item Mission parameters and visible symbolic assets
-  \item Long-term memory from player journal entries
+  \item Long term memory from player journal entries
 \end{itemize}
 
 The AI interface supports eight LLM backends:
 \begin{itemize}
-  \item \textbf{Google Gemini} (primary) for fast cloud-based generation
+  \item \textbf{Google Gemini} (primary) for fast cloud based generation
   \item \textbf{Ollama} for local inference, offline play, and unlimited development testing
-  \item \textbf{OpenRouter} for multi-model routing
+  \item \textbf{OpenRouter} for multi model routing
   \item \textbf{OpenAI}, \textbf{Claude}, and \textbf{LM Studio} for alternative cloud providers
-  \item \textbf{AI Router} for automatic load-balancing across providers
-  \item \textbf{Mock Generator} for deterministic, cost-free UI and logic testing
+  \item \textbf{AI Router} for automatic load balancing across providers
+  \item \textbf{Mock Generator} for deterministic, cost free UI and logic testing
 \end{itemize}
 
 Prompts are assembled by the \texttt{NarrativePromptBuilder} and \texttt{AIPromptBuilder} from structured templates managed by the \texttt{SkillManager}. The SkillManager scans the \texttt{src/skills/} directory, parses each \texttt{SKILL.md} file's YAML frontmatter for metadata including \texttt{purpose\_triggers}, and loads 15 skill folders: \texttt{mission-generation}, \texttt{teammate-interference}, \texttt{gloria-intervention}, \texttt{prayer-system}, \texttt{trolley-problem}, \texttt{scene-directives}, \texttt{character-profiles}, \texttt{choice-followup}, \texttt{consequence-generation}, \texttt{entropy-effects}, \texttt{game-recap}, \texttt{honeymoon-phase}, \texttt{intro-story}, \texttt{night-cycle}, and \texttt{force-mission-complete}. This externalises all prompt engineering from GDScript, enabling prompt iteration without recompilation.
 
-All prompts and persona strings support trilingual generation: language selection (English, Chinese, or German) is passed through the AI call chain and resolved in \texttt{AIPromptsI18n}. Each skill folder ships three language variants --- \texttt{SKILL.md} (English base), \texttt{SKILL.zh.md} (Simplified Chinese), and \texttt{SKILL.de.md} (German) --- allowing the SkillManager to load the appropriate template without any code changes.
+All prompts and persona strings support trilingual generation: language selection (English, Chinese, or German) is passed through the AI call chain and resolved in \texttt{AIPromptsI18n}. Each skill folder ships three language variants: \texttt{SKILL.md} (English base), \texttt{SKILL.zh.md} (Simplified Chinese), and \texttt{SKILL.de.md} (German), allowing the SkillManager to load the appropriate template without any code changes.
 
 Output is requested as structured JSON (\texttt{response\_mime\_type = ``application/json''} with \texttt{response\_schema} enforcement where the provider supports it) and parsed by the \texttt{NarrativeResponseParser}. Generated responses contain:
 \begin{itemize}
   \item Narrative text: story beats, descriptions, and scene atmosphere
-  \item Character-attributed dialogue with assigned speaker identifiers
+  \item Character attributed dialogue with assigned speaker identifiers
   \item Scene directives for visual composition (background, character expressions, objects)
   \item Player choice options with skill requirements, stat impacts, and categorical tags
   \item Butterfly effect seeds for future narrative callbacks
@@ -2031,64 +2031,64 @@ Output is requested as structured JSON (\texttt{response\_mime\_type = ``applica
 Voice output is supported via \texttt{VoiceBridge} and \texttt{VoiceSessionManager} (wrapping the Gemini Live API), delivering spoken narrative delivery as an optional immersion layer.
 
 \subsubsection*{4.14 The FSM 30-Day Rebirth Challenge}
-\texttt{FSMChallengeModule} tracks \texttt{is\_challenge\_active}, \texttt{challenge\_start\_date}, \texttt{last\_login\_date}, \texttt{current\_day}, \texttt{days\_completed}, \texttt{challenge\_completed}, and \texttt{challenge\_crashed}. The art set includes explicit day-card assets for days 1--8, matching the intentional scripted crash point of the mode.
+\texttt{FSMChallengeModule} tracks \texttt{is\_challenge\_active}, \texttt{challenge\_start\_date}, \texttt{last\_login\_date}, \texttt{current\_day}, \texttt{days\_completed}, \texttt{challenge\_completed}, and \texttt{challenge\_crashed}. The art set includes explicit day card assets for days 1--8, matching the intentional scripted crash point of the mode.
 
-The FSM 30-Day Rebirth Challenge is a standalone game mode, accessible from the main menu, that reframes the core loop as a structured 30-day self-improvement programme endorsed by the Flying Spaghetti Monster. Players commit to completing one daily mission for 30 consecutive days, each day presenting a themed content card (backed by per-day pixel-art assets in \texttt{src/assets/rebirth\_challenge/}, with days 1--8 illustrated). The mode is managed by the \texttt{FSMChallengeModule} class, which tracks \texttt{challenge\_start\_date}, \texttt{current\_day}, \texttt{days\_completed}, and \texttt{last\_login\_date} for continuity enforcement.
+The FSM 30-Day Rebirth Challenge is a standalone game mode, accessible from the main menu, that reframes the core loop as a structured 30-day self improvement programme endorsed by the Flying Spaghetti Monster. Players commit to completing one daily mission for 30 consecutive days, each day presenting a themed content card (backed by per day pixel art assets in \texttt{src/assets/rebirth\_challenge/}, with days 1--8 illustrated). The mode is managed by the \texttt{FSMChallengeModule} class, which tracks \texttt{challenge\_start\_date}, \texttt{current\_day}, \texttt{days\_completed}, and \texttt{last\_login\_date} for continuity enforcement.
 
-Progress is gated by real calendar time: the \texttt{can\_advance\_day()} method compares the current system date against the stored \texttt{challenge\_start\_date} to determine whether the player is genuinely eligible to advance. If the player misses a day, the \texttt{check\_and\_reset\_if\_missed()} method detects a gap of more than one calendar day since \texttt{last\_login\_date} and resets the challenge to day one, forcing the player to restart --- a mechanic that satirises the fragility of ``streak-based'' self-improvement apps. Daily content (theme, motivational text, and sublimation commentary) is keyed in \texttt{FSMDailyContentData} and resolved through the \texttt{LocalizationManager} at runtime, supporting English, Chinese, and German.
+Progress is gated by real calendar time: the \texttt{can\_advance\_day()} method compares the current system date against the stored \texttt{challenge\_start\_date} to determine whether the player is genuinely eligible to advance. If the player misses a day, the \texttt{check\_and\_reset\_if\_missed()} method detects a gap of more than one calendar day since \texttt{last\_login\_date} and resets the challenge to day one, forcing the player to restart, a mechanic that satirises the fragility of ``streak based'' self improvement apps. Daily content (theme, motivational text, and sublimation commentary) is keyed in \texttt{FSMDailyContentData} and resolved through the \texttt{LocalizationManager} at runtime, supporting English, Chinese, and German.
 
-The central satirical mechanic is an inevitable, scripted crash: the module enforces \texttt{DAYS\_BEFORE\_CRASH = 8}, meaning the challenge always catastrophically collapses on day 8 regardless of the player's consistency or positivity. Daily themes (Days 1--8) escalate in toxic-positivity intensity before the crash triggers the \texttt{challenge\_crash\_triggered} signal and locks further progress. The \texttt{FSMRebirthExplanation} scene then presents an ironic post-mortem blaming the player's residual negativity. This design deliberately subverts the real-world ``30-day challenge'' genre, embodying the game's central thesis that manufactured positivity is structurally self-defeating. The constant \texttt{TOTAL\_DAYS = 30} is defined but permanently inaccessible by design --- a silent joke visible only in the source code.
+The central satirical mechanic is an inevitable, scripted crash: the module enforces \texttt{DAYS\_BEFORE\_CRASH = 8}, meaning the challenge always catastrophically collapses on day 8 regardless of the player's consistency or positivity. Daily themes (Days 1--8) escalate in toxic positivity intensity before the crash triggers the \texttt{challenge\_crash\_triggered} signal and locks further progress. The \texttt{FSMRebirthExplanation} scene then presents an ironic post mortem blaming the player's residual negativity. This design deliberately subverts the real world ``30-day challenge'' genre, embodying the game's central thesis that manufactured positivity is structurally self defeating. The constant \texttt{TOTAL\_DAYS = 30} is defined but permanently inaccessible by design, a silent joke visible only in the source code.
 
 \subsubsection*{4.15 Localisation and Language Support}
-The game supports three full languages --- \textbf{English} (\texttt{en}), \textbf{Simplified Chinese} (\texttt{zh}), and \textbf{German} (\texttt{de}) --- managed by the \texttt{LocalizationManager} singleton. Translation data is stored in \texttt{localization/gda1\_translations.csv} and compiled to three Godot \texttt{.translation} binary resources (\texttt{.en}, \texttt{.zh}, \texttt{.de}). A second CSV, \texttt{intro\_story\_pages.csv}, provides the multilingual intro story with separate \texttt{.chapter}, \texttt{.text}, \texttt{.title}, and \texttt{.image} translation resources. Language selection is persisted via \texttt{GameState.current\_language} and propagates through all text UI, AI prompt construction (\texttt{AIPromptsI18n}), achievement display (\texttt{AchievementSystem}), teammate behaviour labels (\texttt{TeammateSystem}), and the butterfly effect context passed to the LLM. Gloria's voiced lines (\texttt{accept}, \texttt{guilt}, \texttt{open}, \texttt{pua} groups) are recorded in both English and Chinese.
+The game supports three full languages: \textbf{English} (\texttt{en}), \textbf{Simplified Chinese} (\texttt{zh}), and \textbf{German} (\texttt{de}: managed by the \texttt{LocalizationManager} singleton. Translation data is stored in \texttt{localization/gda1\_translations.csv} and compiled to three Godot \texttt{.translation} binary resources (\texttt{.en}, \texttt{.zh}, \texttt{.de}). A second CSV, \texttt{intro\_story\_pages.csv}, provides the multilingual intro story with separate \texttt{.chapter}, \texttt{.text}, \texttt{.title}, and \texttt{.image} translation resources. Language selection is persisted via \texttt{GameState.current\_language} and propagates through all text UI, AI prompt construction (\texttt{AIPromptsI18n}), achievement display (\texttt{AchievementSystem}), teammate behaviour labels (\texttt{TeammateSystem}), and the butterfly effect context passed to the LLM. Gloria's voiced lines (\texttt{accept}, \texttt{guilt}, \texttt{open}, \texttt{pua} groups) are recorded in both English and Chinese.
 
 Each supported language is assigned a dedicated default font by \texttt{FontManager}:
 \begin{itemize}
-  \item \textbf{English:} Trajan Pro (\texttt{TrajanPro-Bold.otf} / \texttt{TrajanPro-Regular.ttf}) --- primary; Libre Baskerville as fallback. Additional selectable fonts: Play, Ticketing, Britannic Bold.
-  \item \textbf{Simplified Chinese:} Noto Sans CJK SC (\texttt{NotoSansCJKsc-Regular.otf}) --- primary; Chiron Go Round TC (\texttt{ChironGoRoundTCVF.ttf}) as alternative. CJK font is also registered as a system fallback for any English-language UI that renders CJK characters.
-  \item \textbf{German:} Berlin Type Bold (\texttt{BerlinType-Bold.otf}) --- primary.
+  \item \textbf{English:} Trajan Pro (\texttt{TrajanPro-Bold.otf} / \texttt{TrajanPro-Regular.ttf}), primary; Libre Baskerville as fallback. Additional selectable fonts: Play, Ticketing, Britannic Bold.
+  \item \textbf{Simplified Chinese:} Noto Sans CJK SC (\texttt{NotoSansCJKsc-Regular.otf}), primary; Chiron Go Round TC (\texttt{ChironGoRoundTCVF.ttf}) as alternative. CJK font is also registered as a system fallback for any English language UI that renders CJK characters.
+  \item \textbf{German:} Berlin Type Bold (\texttt{BerlinType-Bold.otf}), primary.
 \end{itemize}
 
-Five font size scales are user-selectable at runtime (Tiny 0.75$\times$, Small 0.85$\times$, Normal 1.0$\times$, Large 1.25$\times$, Huge 1.5$\times$) via \texttt{FontManager.set\_font\_size()}. The language-switch command is also exposed through the in-game CLI (\texttt{cli\_command\_parser.gd}: \texttt{set-language}).
+Five font size scales are user selectable at runtime (Tiny 0.75$\times$, Small 0.85$\times$, Normal 1.0$\times$, Large 1.25$\times$, Huge 1.5$\times$) via \texttt{FontManager.set\_font\_size()}. The language switch command is also exposed through the in game CLI (\texttt{cli\_command\_parser.gd}: \texttt{set-language}).
 
 \subsubsection*{4.16 Font Credits}
 \begin{itemize}
-  \item \textbf{Trajan Pro} --- Adobe Inc. Proprietary typeface used for English primary display text.
-  \item \textbf{Libre Baskerville} --- Impallari Type. Licensed under the SIL Open Font License 1.1.
-  \item \textbf{Play} --- Jonas Hecksher / Google Fonts. Licensed under the SIL Open Font License 1.1 (\texttt{Play-Regular OFL.txt} included in \texttt{src/assets/font/}).
-  \item \textbf{Ticketing} --- Nathan Rasmussen. Freeware, included per \texttt{Ticketing\_ReadMe.pdf}.
-  \item \textbf{Britannic Bold} (\texttt{britrdn\_.ttf}) --- Monotype / URW. Freeware distribution.
-  \item \textbf{Noto Sans CJK SC (Noto Sans SC)} --- Google / Adobe. Licensed under the SIL Open Font License 1.1. Used as the primary font and CJK fallback for Simplified Chinese.
-  \item \textbf{Chiron Go Round TC} --- Tamcy (\url{https://github.com/chiron-fonts/chiron-go-round-tc}), built on Adobe Source Han Sans and Nunito Sans. Licensed under the SIL Open Font License 1.1 (license included in \texttt{ChironGoRoundTC\_LICENSE.md}).
-  \item \textbf{Berlin Type Bold} --- URW Type Foundry. Used as the primary font for German.
+  \item \textbf{Trajan Pro}: Adobe Inc. Proprietary typeface used for English primary display text.
+  \item \textbf{Libre Baskerville}: Impallari Type. Licensed under the SIL Open Font License 1.1.
+  \item \textbf{Play}: Jonas Hecksher / Google Fonts. Licensed under the SIL Open Font License 1.1 (\texttt{Play-Regular OFL.txt} included in \texttt{src/assets/font/}).
+  \item \textbf{Ticketing}: Nathan Rasmussen. Freeware, included per \texttt{Ticketing\_ReadMe.pdf}.
+  \item \textbf{Britannic Bold} (\texttt{britrdn\_.ttf}: Monotype / URW. Freeware distribution.
+  \item \textbf{Noto Sans CJK SC (Noto Sans SC)}: Google / Adobe. Licensed under the SIL Open Font License 1.1. Used as the primary font and CJK fallback for Simplified Chinese.
+  \item \textbf{Chiron Go Round TC}: Tamcy (\url{https://github.com/chiron-fonts/chiron-go-round-tc}), built on Adobe Source Han Sans and Nunito Sans. Licensed under the SIL Open Font License 1.1 (license included in \texttt{ChironGoRoundTC\_LICENSE.md}).
+  \item \textbf{Berlin Type Bold}: URW Type Foundry. Used as the primary font for German.
 \end{itemize}
 
 \subsubsection*{4.17 Music Credits}
 \textbf{Public Domain Classical Works:}
 \begin{itemize}
-  \item \textbf{Chopin --- Nocturne in E-flat major, Op.\,9 No.\,2} (\texttt{chopin\_nocturne\_op9\_no2.mp3}). Frederic Chopin (1810--1849). Published 1833. Public domain.
-  \item \textbf{Grieg --- Peer Gynt Suite No.\,1, Op.\,23: IV. ``In the Hall of the Mountain King''} (\texttt{Peer Gynt, Op. 23 - IV. In the Hall of the Mountain King.mp3}). Edvard Grieg (1843--1907). Published 1876. Public domain.
+  \item \textbf{Chopin: Nocturne in E flat major, Op.\,9 No.\,2} (\texttt{chopin\_nocturne\_op9\_no2.mp3}). Frederic Chopin (1810--1849). Published 1833. Public domain.
+  \item \textbf{Grieg: Peer Gynt Suite No.\,1, Op.\,23: IV. ``In the Hall of the Mountain King''} (\texttt{Peer Gynt, Op. 23 - IV. In the Hall of the Mountain King.mp3}). Edvard Grieg (1843--1907). Published 1876. Public domain.
 \end{itemize}
 
 \textbf{Original Compositions:}
 \begin{itemize}
-  \item \texttt{story\_bgm\_0\_10.mp3}, \texttt{story\_bgm\_11\_20.mp3}, \texttt{story\_bgm\_20\_30.mp3}, \texttt{story\_bgm\_30\_41.mp3} --- four phase-adaptive background music tracks that shift in tone as \texttt{entropy\_level} rises through missions 0--41.
-  \item \texttt{gloria\_intervention\_bgm.mp3} --- played during Gloria's guilt-induction events.
-  \item \texttt{prayer\_music.mp3} --- played during the Prayer System UI.
-  \item \texttt{trolley\_problem\_bgm.mp3} --- played during moral dilemma screens.
-  \item \texttt{settings\_bgm.mp3} --- ambient music for the settings screen.
-  \item \texttt{night\_concert\_crowd.mp3}, \texttt{night\_concert\_guitar.mp3} --- atmosphere layers for Teacher Chan's concert cutscene.
-  \item \texttt{hidden\_credits-backup.mp3} --- plays during the hidden credits sequence.
-  \item \texttt{background\_music.mp3} --- general main-menu and fallback background track.
+  \item \texttt{story\_bgm\_0\_10.mp3}, \texttt{story\_bgm\_11\_20.mp3}, \texttt{story\_bgm\_20\_30.mp3}, \texttt{story\_bgm\_30\_41.mp3}: four phase adaptive background music tracks that shift in tone as \texttt{entropy\_level} rises through missions 0--41.
+  \item \texttt{gloria\_intervention\_bgm.mp3}: played during Gloria's guilt induction events.
+  \item \texttt{prayer\_music.mp3}: played during the Prayer System UI.
+  \item \texttt{trolley\_problem\_bgm.mp3}: played during moral dilemma screens.
+  \item \texttt{settings\_bgm.mp3}: ambient music for the settings screen.
+  \item \texttt{night\_concert\_crowd.mp3}, \texttt{night\_concert\_guitar.mp3}: atmosphere layers for Teacher Chan's concert cutscene.
+  \item \texttt{hidden\_credits-backup.mp3}: plays during the hidden credits sequence.
+  \item \texttt{background\_music.mp3}: general main menu and fallback background track.
 \end{itemize}
 
 \subsubsection*{4.18 AI Usage Logging and Analytics Export}
 The game records AI usage telemetry to support evaluation, auditing, and provider comparison during development. \texttt{AIRequestManager} stores one record per API call, including the selected provider and model, token usage, latency, request mode, request purpose, and the associated prompt and response payloads. \texttt{AIUsageStatsStore} persists this log to \texttt{user://ai\_call\_log.json}, allowing completed play sessions to be reviewed after runtime.
 
-The Settings menu exposes both JSON and CSV export through \texttt{SettingsMenuAILogExport}, while the AI Log interface presents the same data in a browsable in-game view. JSON export preserves the full call history together with summary metrics, and CSV export restructures the records into spreadsheet-friendly tables for later analysis. Supporting charts rendered by \texttt{AIChartCanvas} and \texttt{AIMetricsChart} provide a visual summary of provider performance, call distribution, and aggregate token usage across a session.
+The Settings menu exposes both JSON and CSV export through \texttt{SettingsMenuAILogExport}, while the AI Log interface presents the same data in a browsable in game view. JSON export preserves the full call history together with summary metrics, and CSV export restructures the records into spreadsheet friendly tables for later analysis. Supporting charts rendered by \texttt{AIChartCanvas} and \texttt{AIMetricsChart} provide a visual summary of provider performance, call distribution, and aggregate token usage across a session.
 
 \subsubsection*{4.19 Story Narrative HTML Export}
-The \texttt{StoryExporter} class (\texttt{story\_exporter.gd}) generates a self-contained HTML document that captures the player's complete narrative journey as a shareable artefact, independent of the game executable. The export is triggered from the in-game journal or settings menu and produces a file named \texttt{GDA\_Story\_YYYY-MM-DD.html} using the export date.
+The \texttt{StoryExporter} class (\texttt{story\_exporter.gd}) generates a self contained HTML document that captures the player's complete narrative journey as a shareable artefact, independent of the game executable. The export is triggered from the in game journal or settings menu and produces a file named \texttt{GDA\_Story\_YYYY-MM-DD.html} using the export date.
 
 The exported HTML document is structured in five sections:
 
@@ -2100,25 +2100,25 @@ The exported HTML document is structured in five sections:
   \item \textbf{Closing Page}: a contextual ending quote derived from the player's final Reality and Entropy scores, providing a narrative coda appropriate to their playstyle.
 \end{enumerate}
 
-The HTML is fully self-contained with embedded CSS, using a custom parchment theme (CSS variables \texttt{--parchment}, \texttt{--ink}, \texttt{--gold}, \texttt{--gold-light}) with responsive grid layout, colour-coded choice severity indicators (minor/major/critical use progressively deeper ink tones), and print-friendly media queries. This feature transforms the ephemeral AI-generated narrative into a persistent, archivable document, allowing players to preserve and share their unique story outside the game.
+The HTML is fully self contained with embedded CSS, using a custom parchment theme (CSS variables \texttt{--parchment}, \texttt{--ink}, \texttt{--gold}, \texttt{--gold-light}) with responsive grid layout, colour coded choice severity indicators (minor/major/critical use progressively deeper ink tones), and print friendly media queries. This feature transforms the ephemeral AI generated narrative into a persistent, archivable document, allowing players to preserve and share their unique story outside the game.
 
 \subsubsection*{4.20 Night Cycle Transition}
-After each mission the Night Cycle overlay (\texttt{night\_cycle\_overlay.gd}, \texttt{night-cycle} skill) plays a three-stage end-of-mission sequence. First, an AI-generated reflection panel recaps the mission outcome in the game's sardonic voice. Second, Teacher Chan's holographic concert stage activates with animated portrait cycling and AI-authored song lyrics rendered line-by-line. Third, if a Honeymoon Phase is pending, a brief Honeymoon panel follows before the overlay closes with a prayer prompt seeding the next mission's Prayer System. All three panels are returned in a single structured JSON response from the AI and displayed sequentially before the UI returns to the story scene.
+After each mission the Night Cycle overlay (\texttt{night\_cycle\_overlay.gd}, \texttt{night-cycle} skill) plays a three stage end of mission sequence. First, an AI generated reflection panel recaps the mission outcome in the game's sardonic voice. Second, Teacher Chan's holographic concert stage activates with animated portrait cycling and AI authored song lyrics rendered line by line. Third, if a Honeymoon Phase is pending, a brief Honeymoon panel follows before the overlay closes with a prayer prompt seeding the next mission's Prayer System. All three panels are returned in a single structured JSON response from the AI and displayed sequentially before the UI returns to the story scene.
 
 \subsubsection*{4.21 The Honeymoon Phase}
 The Honeymoon Phase (\texttt{PhaseManagerModule}: \texttt{honeymoon\_charges}, \texttt{honeymoon-phase} skill) is a temporary cooldown state triggered automatically after a Gloria Intervention or when the Reality Score falls below a threshold. While active, all four teammates behave with unsettling cooperative competence: Gloria becomes genuinely supportive, Donkey executes orders correctly, ARK communicates in plain language, and One nods with quiet approval. The AI is instructed via the \texttt{honeymoon-phase} skill to withhold sabotage and to let success arrive too easily, creating an eerie calm. This is a deliberate structural tell: the false peace heightens player paranoia precisely because it contradicts the characters' established personalities, establishing the cycle of false hope that defines the game loop.
 
 \subsubsection*{4.22 Session Game Recap}
-When a player loads a saved session, \texttt{GameRecapOverlay} (\texttt{game\_recap\_overlay.gd}, \texttt{game-recap} skill) fades in full-screen and requests a narrative summary from the AI. In the style of a TV show's ``Previously on GDA1\ldots'' segment, the AI generates an 80--180 word sardonic recap covering completed missions, key choices, entropy trajectory, and team relationship states. Text renders via a typewriter animation; a skip button and a 16-second failsafe handle the case where the AI is unavailable. This feature recontextualises the player's accumulated history at the start of each session, reinforcing narrative continuity without requiring the player to replay events.
+When a player loads a saved session, \texttt{GameRecapOverlay} (\texttt{game\_recap\_overlay.gd}, \texttt{game-recap} skill) fades in full screen and requests a narrative summary from the AI. In the style of a TV show's ``Previously on GDA1\ldots'' segment, the AI generates an 80--180 word sardonic recap covering completed missions, key choices, entropy trajectory, and team relationship states. Text renders via a typewriter animation; a skip button and a 16-second failsafe handle the case where the AI is unavailable. This feature recontextualises the player's accumulated history at the start of each session, reinforcing narrative continuity without requiring the player to replay events.
 
 \subsection*{5. Testing Strategy and Evidence Plan}
-The project uses an extensive testing infrastructure. The repository contains 63 \texttt{test\_*.gd} files across three discovery roots: \texttt{1.Codebase/Unit Test/} (which also has an \texttt{integration/} sub-folder), \texttt{1.Codebase/src/scripts/tests/}, and \texttt{1.Codebase/src/scripts/ui/}. The project does not rely on GUT; instead it uses custom headless runners, principally \texttt{all\_tests\_runner.gd}, plus specialist runners such as \texttt{ui\_tests\_runner.gd} and \texttt{prompt\_tests\_runner.gd}. The main runner recursively discovers every \texttt{test\_*.gd} file under its three roots, skipping five files that are either runner scripts themselves or require standalone execution (\texttt{all\_tests\_runner.gd}, \texttt{ui\_tests\_runner.gd}, \texttt{quick\_verify.gd}, \texttt{test\_achievement\_system\_api.gd}, \texttt{test\_providers\_mock.gd}). Before the discovered suites, the runner executes a built-in \emph{Quick Sanity Checks} inline suite that verifies the four most critical autoloads: \texttt{ServiceLocator}, \texttt{ErrorReporter}, \texttt{GameState}, and \texttt{AIManager}. Each discovered suite runs with a 60-second watchdog timeout to prevent stalled runs. After the main runner completes, two standalone scripts (\texttt{test\_achievement\_system\_api.gd} and \texttt{test\_providers\_mock.gd}) are executed as independent headless processes, giving approximately 61 suites in a complete CI run. Per-suite pass/fail counts are recorded and aggregated into a final summary with pass rate.
+The project uses an extensive testing infrastructure. The repository contains 63 \texttt{test\_*.gd} files across three discovery roots: \texttt{1.Codebase/Unit Test/} (which also has an \texttt{integration/} sub folder), \texttt{1.Codebase/src/scripts/tests/}, and \texttt{1.Codebase/src/scripts/ui/}. The project does not rely on GUT; instead it uses custom headless runners, principally \texttt{all\_tests\_runner.gd}, plus specialist runners such as \texttt{ui\_tests\_runner.gd} and \texttt{prompt\_tests\_runner.gd}. The main runner recursively discovers every \texttt{test\_*.gd} file under its three roots, skipping five files that are either runner scripts themselves or require standalone execution (\texttt{all\_tests\_runner.gd}, \texttt{ui\_tests\_runner.gd}, \texttt{quick\_verify.gd}, \texttt{test\_achievement\_system\_api.gd}, \texttt{test\_providers\_mock.gd}). Before the discovered suites, the runner executes a built in \emph{Quick Sanity Checks} inline suite that verifies the four most critical autoloads: \texttt{ServiceLocator}, \texttt{ErrorReporter}, \texttt{GameState}, and \texttt{AIManager}. Each discovered suite runs with a 60-second watchdog timeout to prevent stalled runs. After the main runner completes, two standalone scripts (\texttt{test\_achievement\_system\_api.gd} and \texttt{test\_providers\_mock.gd}) are executed as independent headless processes, giving approximately 61 suites in a complete CI run. Per suite pass/fail counts are recorded and aggregated into a final summary with pass rate.
 
 \subsubsection*{5.1 Unit and Component Testing}
-Individual components are tested in isolation before integration. Core system suites cover game state, save/load, player stats, EventBus, and localisation. AI/voice/UI suites cover prompt construction, context compression, provider switching, live API sessions, story scene controllers, voice capture, narrative parsing, markdown rendering, and late-stage regressions. All suites use lightweight \texttt{\_assert} helpers, async frame/timer awaits, and mock data injection to run deterministically without network dependencies.
+Individual components are tested in isolation before integration. Core system suites cover game state, save/load, player stats, EventBus, and localisation. AI/voice/UI suites cover prompt construction, context compression, provider switching, live API sessions, story scene controllers, voice capture, narrative parsing, markdown rendering, and late stage regressions. All suites use lightweight \texttt{\_assert} helpers, async frame/timer awaits, and mock data injection to run deterministically without network dependencies.
 
 \subsubsection*{5.2 System and Integration Testing}
-Integration suites verify the architectural seams introduced by refactoring: EventBus-driven UI refresh after choice selection, AI context assembly with correct game-state injection and token-budget trimming, complete save/load round-trips including mid-mission state and butterfly-effect history, and corrupt-file recovery. Telemetry evidence (latency, token counts, provider, prompt/response text) is captured by the AI usage logging pipeline during live functional testing, separating deterministic automated verification from empirical observation of model behaviour. Validation criteria include: no UI blocking during async generation, correct stat updates after choices, stable parsing of malformed directive payloads, and full data integrity through save/load cycles.
+Integration suites verify the architectural seams introduced by refactoring: EventBus driven UI refresh after choice selection, AI context assembly with correct game state injection and token budget trimming, complete save/load round trips including mid mission state and butterfly effect history, and corrupt file recovery. Telemetry evidence (latency, token counts, provider, prompt/response text) is captured by the AI usage logging pipeline during live functional testing, separating deterministic automated verification from empirical observation of model behaviour. Validation criteria include: no UI blocking during async generation, correct stat updates after choices, stable parsing of malformed directive payloads, and full data integrity through save/load cycles.
 
 \end{multicols}
 
@@ -2130,12 +2130,12 @@ The following artefacts constitute the complete project deliverables:
 \textit{Current implementation note: the playable build now targets Godot 4.7-dev3, starts from \texttt{splash\_sequence.tscn}, and supports Gemini, OpenRouter, Ollama, OpenAI, Claude, LM Studio, AI Router, and mock mode. The repository also contains both \texttt{1.Codebase/Unit Test/} suites and additional smoke tests under \texttt{1.Codebase/src/scripts/tests/}.}
 
 \begin{enumerate}
-  \item \textbf{Playable Game Build} --- A self-contained Godot 4.7-dev3 project for desktop, booting through \texttt{splash\_sequence.tscn} into the menu and story scenes, supporting Gemini, OpenRouter, Ollama, OpenAI, Claude, LM Studio, AI Router, and a fully functional mock mode for provider-independent operation.
-  \item \textbf{Source Code Repository} --- All GDScript source files organised under \texttt{1.Codebase/src/}, including automated unit and integration test suites under \texttt{1.Codebase/Unit Test/} plus additional smoke tests under \texttt{1.Codebase/src/scripts/tests/}.
-  \item \textbf{AI Usage Telemetry Artefacts} --- A CSV export (\texttt{ai\_usage\_YYYY-MM-DD\_HH-MM-SS.csv}) and JSON export (\texttt{ai\_call\_log\_YYYY-MM-DD\_HH-MM-SS.json}) collected during functional testing, demonstrating real provider performance data across the evaluation period.
-  \item \textbf{Story Narrative HTML} --- Sample exported story file (\texttt{GDA\_Story\_YYYY-MM-DD.html}) demonstrating the self-contained parchment-themed narrative archive feature.
-  \item \textbf{Game Design Document} (this document) --- Full specification of gameplay mechanics, narrative systems, technical architecture, and testing strategy.
-  \item \textbf{Final Report} --- Academic report documenting the project background, methodology, implementation, evaluation, and reflection.
+  \item \textbf{Playable Game Build}: A self contained Godot 4.7-dev3 project for desktop, booting through \texttt{splash\_sequence.tscn} into the menu and story scenes, supporting Gemini, OpenRouter, Ollama, OpenAI, Claude, LM Studio, AI Router, and a fully functional mock mode for provider independent operation.
+  \item \textbf{Source Code Repository}: All GDScript source files organised under \texttt{1.Codebase/src/}, including automated unit and integration test suites under \texttt{1.Codebase/Unit Test/} plus additional smoke tests under \texttt{1.Codebase/src/scripts/tests/}.
+  \item \textbf{AI Usage Telemetry Artefacts}: A CSV export (\texttt{ai\_usage\_YYYY-MM-DD\_HH-MM-SS.csv}) and JSON export (\texttt{ai\_call\_log\_YYYY-MM-DD\_HH-MM-SS.json}) collected during functional testing, demonstrating real provider performance data across the evaluation period.
+  \item \textbf{Story Narrative HTML}: Sample exported story file (\texttt{GDA\_Story\_YYYY-MM-DD.html}) demonstrating the self contained parchment themed narrative archive feature.
+  \item \textbf{Game Design Document} (this document: Full specification of gameplay mechanics, narrative systems, technical architecture, and testing strategy.
+  \item \textbf{Final Report}: Academic report documenting the project background, methodology, implementation, evaluation, and reflection.
 \end{enumerate}
 \end{multicols}
 
@@ -2159,15 +2159,15 @@ The manager classes, housed in \texttt{core/ai/managers/}, are listed in Table~\
 \midrule
 \texttt{AIConfigManager} & \texttt{ai\_config\_manager.gd} & Persists and exposes all provider configuration (API keys, model selections, safety settings, token limits) via \texttt{user://ai\_settings.cfg} \\
 \addlinespace
-\texttt{AIContextManager} & \texttt{ai\_context\_manager.gd} & Owns the \texttt{AIMemoryStore} and \texttt{AIPromptBuilder}; assembles the full prompt for each generation request; applies safety filtering and blocked-sequence removal \\
+\texttt{AIContextManager} & \texttt{ai\_context\_manager.gd} & Owns the \texttt{AIMemoryStore} and \texttt{AIPromptBuilder}; assembles the full prompt for each generation request; applies safety filtering and blocked sequence removal \\
 \addlinespace
 \texttt{AIProviderManager} & \texttt{ai\_provider\_manager.gd} & Instantiates and holds the seven concrete provider objects (Gemini, OpenRouter, Ollama, OpenAI, Claude, LM Studio, AIRouter); dispatches requests to the active backend while mock mode is handled at the request layer \\
 \addlinespace
-\texttt{AIRequestManager} & \texttt{ai\_request\_manager.gd} & Manages the request lifecycle: rate limiting (\texttt{AIRequestRateLimiter}), request queuing (\texttt{AIRequestQueue}), retry logic, timeout enforcement, mock fallback, and per-call metadata capture delegated to \texttt{AIUsageStatsStore} \\
+\texttt{AIRequestManager} & \texttt{ai\_request\_manager.gd} & Manages the request lifecycle: rate limiting (\texttt{AIRequestRateLimiter}), request queuing (\texttt{AIRequestQueue}), retry logic, timeout enforcement, mock fallback, and per call metadata capture delegated to \texttt{AIUsageStatsStore} \\
 \addlinespace
-\texttt{AIUsageStatsStore} & \texttt{ai\_usage\_stats\_store.gd} & Provides thin file-IO helpers (\texttt{save}, \texttt{load}) for persisting the call log JSON to \texttt{user://ai\_call\_log.json} \\
+\texttt{AIUsageStatsStore} & \texttt{ai\_usage\_stats\_store.gd} & Provides thin file IO helpers (\texttt{save}, \texttt{load}) for persisting the call log JSON to \texttt{user://ai\_call\_log.json} \\
 \addlinespace
-\texttt{AIVoiceManager} & \texttt{ai\_voice\_manager.gd} & Manages the Gemini Live voice session lifecycle via \texttt{VoiceSessionManager} and \texttt{VoiceBridge}, including push-to-talk and continuous input modes \\
+\texttt{AIVoiceManager} & \texttt{ai\_voice\_manager.gd} & Manages the Gemini Live voice session lifecycle via \texttt{VoiceSessionManager} and \texttt{VoiceBridge}, including push to talk and continuous input modes \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2175,16 +2175,16 @@ The manager classes, housed in \texttt{core/ai/managers/}, are listed in Table~\
 \begin{multicols}{2}
 Provider implementations extend \texttt{AIProviderBase} (\texttt{ai\_provider\_base.gd}) and are selected at runtime by \texttt{AIProviderManager} based on the \texttt{AIProvider} enum value stored in \texttt{AIConfigManager}. The Strategy pattern ensures that the calling code (\texttt{AIRequestManager}) interacts with a uniform interface regardless of the active backend. Mock mode is represented explicitly in the enum, but its responses are generated by \texttt{MockAIGenerator} inside \texttt{AIRequestManager} rather than by a separate provider object.
 
-\subsubsection*{7.2 Budget-Aware Context Management}
-The original three-layer context concept remains useful as a conceptual model for how information is grouped, but it no longer fully describes the runtime implementation by itself. In the current codebase, \texttt{AIMemoryStore} maintains three persisted context stores:
+\subsubsection*{7.2 Budget Aware Context Management}
+The original three layer context concept remains useful as a conceptual model for how information is grouped, but it no longer fully describes the runtime implementation by itself. In the current codebase, \texttt{AIMemoryStore} maintains three persisted context stores:
 
 \begin{itemize}
-  \item \textbf{Rolling story memory}: a capped event log (\texttt{story\_memory}) whose short-term prompt window is derived from \texttt{max(SHORT\_TERM\_WINDOW, memory\_full\_entries * 2)}.
-  \item \textbf{Long-term continuity summaries}: compressed historical notes (\texttt{long\_term\_summaries}) promoted out of the rolling log to preserve narrative continuity without replaying the full transcript.
+  \item \textbf{Rolling story memory}: a capped event log (\texttt{story\_memory}) whose short term prompt window is derived from \texttt{max(SHORT\_TERM\_WINDOW, memory\_full\_entries * 2)}.
+  \item \textbf{Long term continuity summaries}: compressed historical notes (\texttt{long\_term\_summaries}) promoted out of the rolling log to preserve narrative continuity without replaying the full transcript.
   \item \textbf{Persistent notes and restrictions}: prioritised facts/constraints (\texttt{notes\_register}) that survive independently of the rolling conversation history.
 \end{itemize}
 
-At prompt assembly time, \texttt{AIPromptBuilder} layers static context, system persona, acknowledgement state, entropy modifiers, long-term notes, persistent notes, short-term exchanges, and the current user prompt. In other words, the three context categories describe the content structure, while the budget-aware pipeline is the actual mechanism that decides how those categories enter the final prompt. \texttt{AIContextDelta} then applies budget-aware compression: unchanged sections become compact markers, oversized sections degrade to summaries, and the final user message is truncated only as a last resort. The default budget remains 4096 tokens (capped at 8192) via \texttt{AIConfigManager}, and inline voice data can also be attached when Gemini Live input is enabled.
+At prompt assembly time, \texttt{AIPromptBuilder} layers static context, system persona, acknowledgement state, entropy modifiers, long term notes, persistent notes, short term exchanges, and the current user prompt. In other words, the three context categories describe the content structure, while the budget aware pipeline is the actual mechanism that decides how those categories enter the final prompt. \texttt{AIContextDelta} then applies budget aware compression: unchanged sections become compact markers, oversized sections degrade to summaries, and the final user message is truncated only as a last resort. The default budget remains 4096 tokens (capped at 8192) via \texttt{AIConfigManager}, and inline voice data can also be attached when Gemini Live input is enabled.
 
 \subsubsection*{7.3 GameState Modular Decomposition}
 The \texttt{GameState} singleton was refactored from a monolithic class into a coordinator that delegates to ten specialised \texttt{RefCounted} submodule instances. Each submodule owns a coherent slice of state and exposes it through \texttt{GameState} property proxies for backwards compatibility.
@@ -2204,17 +2204,17 @@ The \texttt{GameState} singleton was refactored from a monolithic class into a c
 \addlinespace
 \texttt{PhaseManagerModule} & \texttt{phase\_manager\_module.gd} & \texttt{game\_phase}, \texttt{honeymoon\_charges}, phase transition logic \\
 \addlinespace
-\texttt{MetadataStoreModule} & \texttt{metadata\_store\_module.gd} & Session metadata dictionary, arbitrary key-value game flags \\
+\texttt{MetadataStoreModule} & \texttt{metadata\_store\_module.gd} & Session metadata dictionary, arbitrary key value game flags \\
 \addlinespace
 \texttt{ApplicationLifecycleModule} & \texttt{application\_lifecycle\_module.gd} & Session start/end lifecycle, \texttt{is\_session\_active} flag \\
 \addlinespace
-\texttt{AnalyticsModule} & \texttt{analytics\_module.gd} & Session-scoped analytics counters (choices made, AI calls, etc.) \\
+\texttt{AnalyticsModule} & \texttt{analytics\_module.gd} & Session scoped analytics counters (choices made, AI calls, etc.) \\
 \addlinespace
 \texttt{FSMChallengeModule} & \texttt{fsm\_challenge\_module.gd} & Rebirth challenge state: \texttt{is\_challenge\_active}, \texttt{challenge\_start\_date}, \texttt{last\_login\_date}, \texttt{current\_day}, \texttt{days\_completed}, \texttt{challenge\_completed}, \texttt{challenge\_crashed} \\
 \addlinespace
-\texttt{SaveLoadSystem} & \texttt{save\_load\_system.gd} & Variant-based save/load, autosave and backup slots, corrupt-save recovery, and version-migration rewrites \\
+\texttt{SaveLoadSystem} & \texttt{save\_load\_system.gd} & Variant based save/load, autosave and backup slots, corrupt save recovery, and version migration rewrites \\
 \addlinespace
-\texttt{EventLogSystem} & \texttt{event\_log\_system.gd} & Append-only event log list; enforces max-entry cap with oldest-first eviction \\
+\texttt{EventLogSystem} & \texttt{event\_log\_system.gd} & Append only event log list; enforces max entry cap with oldest first eviction \\
 \addlinespace
 \texttt{DebuffSystem} & \texttt{debuff\_system.gd} & Active debuff dictionary and expiry logic \\
 \bottomrule
@@ -2240,7 +2240,7 @@ The main gameplay scene has been decomposed across multiple controller files in 
 \addlinespace
 \texttt{StoryNarrativeController} & \texttt{story\_narrative\_controller.gd} & Narrative text display, typewriter animation, speaker attribution \\
 \addlinespace
-\texttt{StoryChoiceController} & \texttt{story\_choice\_controller.gd} & Choice button rendering, player selection handling, stat-delta display \\
+\texttt{StoryChoiceController} & \texttt{story\_choice\_controller.gd} & Choice button rendering, player selection handling, stat delta display \\
 \addlinespace
 \texttt{StoryStateController} & \texttt{story\_state\_controller.gd} & UI state machine (loading, displaying, awaiting input, transitioning) \\
 \addlinespace
@@ -2254,7 +2254,7 @@ The main gameplay scene has been decomposed across multiple controller files in 
 \addlinespace
 \texttt{StorySceneUIBindings} & \texttt{story\_scene\_ui\_bindings.gd} & Signal connections between UI nodes and controller methods \\
 \addlinespace
-\texttt{StorySceneEventHandlers} & \texttt{story\_scene\_event\_handlers.gd} & EventBus subscriber; routes game-state signals to appropriate controllers \\
+\texttt{StorySceneEventHandlers} & \texttt{story\_scene\_event\_handlers.gd} & EventBus subscriber; routes game state signals to appropriate controllers \\
 \addlinespace
 \texttt{StorySceneDirectiveApplier} & \texttt{story\_scene\_directive\_applier.gd} & Applies \texttt{SceneDirective} structs from the AI response parser to the asset controller \\
 \addlinespace
@@ -2267,34 +2267,34 @@ The main gameplay scene has been decomposed across multiple controller files in 
 \subsubsection*{7.5 CLI and Agent Subsystems}
 Two supporting subsystems provide programmatic access to the game's state outside of normal gameplay:
 
-\textbf{CLI subsystem} (\texttt{core/cli/}): A command-line interface exposed during development via \texttt{CLIRunner}. Commands are organised into three command-set files --- \texttt{cli\_ai\_commands.gd} (AI provider control, mock mode toggle), \texttt{cli\_game\_commands.gd} (state inspection and mutation), and \texttt{cli\_save\_commands.gd} (save-slot management) --- parsed by \texttt{CLICommandParser}.
+\textbf{CLI subsystem} (\texttt{core/cli/}): A command line interface exposed during development via \texttt{CLIRunner}. Commands are organised into three command set files: \texttt{cli\_ai\_commands.gd} (AI provider control, mock mode toggle), \texttt{cli\_game\_commands.gd} (state inspection and mutation), and \texttt{cli\_save\_commands.gd} (save slot management), parsed by \texttt{CLICommandParser}.
 
-\textbf{Agent subsystem} (\texttt{core/agent/}): An HTTP-based agent server (\texttt{GameAgentServer}) that exposes the game's state and action surface to external Claude agents via \texttt{AgentProtocol}. \texttt{GameStateExporter} serialises the complete game state to a JSON snapshot suitable for agent consumption, and \texttt{AgentActionExecutor} translates incoming action requests into \texttt{GameState} and \texttt{AIManager} method calls.
+\textbf{Agent subsystem} (\texttt{core/agent/}): An HTTP based agent server (\texttt{GameAgentServer}) that exposes the game's state and action surface to external Claude agents via \texttt{AgentProtocol}. \texttt{GameStateExporter} serialises the complete game state to a JSON snapshot suitable for agent consumption, and \texttt{AgentActionExecutor} translates incoming action requests into \texttt{GameState} and \texttt{AIManager} method calls.
 
 %% ============ GDD SECTION 8: IMPLEMENTATION NOTES ============
 \subsection*{8. Implementation Notes}
 
 \subsubsection*{8.1 AI Usage Logging and CSV Export Implementation}
-The telemetry pipeline is implemented across three layers. \texttt{AIRequestManager} captures a metadata dictionary for every API call immediately before dispatch, recording: \texttt{timestamp} (Unix milliseconds), \texttt{provider}, \texttt{model}, \texttt{status\_code}, \texttt{input\_tokens}, \texttt{output\_tokens}, \texttt{response\_time\_sec}, \texttt{mode} (\texttt{live}/\texttt{mock}/\texttt{mock\_fallback}), \texttt{purpose}, \texttt{error}, \texttt{prompt\_text}, and \texttt{ai\_response\_text}. On response receipt, the HTTP status and token counts are filled in and the completed record is appended to an in-memory list held by \texttt{AIRequestManager}.
+The telemetry pipeline is implemented across three layers. \texttt{AIRequestManager} captures a metadata dictionary for every API call immediately before dispatch, recording: \texttt{timestamp} (Unix milliseconds), \texttt{provider}, \texttt{model}, \texttt{status\_code}, \texttt{input\_tokens}, \texttt{output\_tokens}, \texttt{response\_time\_sec}, \texttt{mode} (\texttt{live}/\texttt{mock}/\texttt{mock\_fallback}), \texttt{purpose}, \texttt{error}, \texttt{prompt\_text}, and \texttt{ai\_response\_text}. On response receipt, the HTTP status and token counts are filled in and the completed record is appended to an in memory list held by \texttt{AIRequestManager}.
 
 \texttt{AIUsageStatsStore} provides stateless file I/O helpers; \texttt{AIRequestManager} calls \texttt{store.save(path, data)} to flush the call log to \texttt{user://ai\_call\_log.json} at the end of each session.
 
 The Settings menu's AI Log section (\texttt{SettingsMenuAILogSection}, \texttt{SettingsMenuAILogController}, \texttt{SettingsMenuAILogRenderer}) renders the call log as a collapsible, scrollable panel, with each entry displayed as a labelled card. Export is handled by \texttt{SettingsMenuAILogExport}:
 
 \begin{itemize}
-  \item \textbf{JSON export}: writes the raw call log array plus a pre-computed metrics summary (provider success rates, total tokens, average latency) to \texttt{ai\_call\_log\_[timestamp].json}.
-  \item \textbf{CSV export}: invokes \texttt{SettingsMenuAIAnalytics} to compute derived series before writing the two-section CSV. The first section contains one row per call with fourteen columns; the second section appends pre-aggregated analytics series (provider breakdowns, hourly patterns, cumulative token curves, tokens-per-second throughput) for direct import into spreadsheet charting tools.
+  \item \textbf{JSON export}: writes the raw call log array plus a precomputed metrics summary (provider success rates, total tokens, average latency) to \texttt{ai\_call\_log\_[timestamp].json}.
+  \item \textbf{CSV export}: invokes \texttt{SettingsMenuAIAnalytics} to compute derived series before writing the two section CSV. The first section contains one row per call with fourteen columns; the second section appends preaggregated analytics series (provider breakdowns, hourly patterns, cumulative token curves, tokens per second throughput) for direct import into spreadsheet charting tools.
 \end{itemize}
 
-Visualisation is provided by \texttt{AIChartCanvas} and \texttt{AIMetricsChart}, which render provider success-rate bar charts, hourly call-pattern histograms, and cumulative token-usage curves using Godot's \texttt{CanvasItem} drawing API.
+Visualisation is provided by \texttt{AIChartCanvas} and \texttt{AIMetricsChart}, which render provider success rate bar charts, hourly call pattern histograms, and cumulative token usage curves using Godot's \texttt{CanvasItem} drawing API.
 
 \subsubsection*{8.2 Story Narrative HTML Export Implementation}
-\texttt{StoryExporter} (\texttt{story\_exporter.gd}) generates the HTML document by building a string buffer through sequential appends rather than a DOM model, keeping the implementation dependency-free. The generation procedure is:
+\texttt{StoryExporter} (\texttt{story\_exporter.gd}) generates the HTML document by building a string buffer through sequential appends rather than a DOM model, keeping the implementation dependency free. The generation procedure is:
 
 \begin{enumerate}
   \item \textbf{Cover section}: Queries \texttt{GameState} for mission count, choice count, scene count, and game phase; formats as a styled header block.
   \item \textbf{Stats grid}: Reads \texttt{PlayerStats} properties (Reality, Positive Energy, Entropy, the four skill values) and renders each as a CSS grid cell with a coloured value badge.
-  \item \textbf{Choice chronicle}: Iterates \texttt{ButterflyEffectTracker.get\_recorded\_choices()}, which returns an array of dictionaries containing \texttt{scene\_number}, \texttt{severity}, \texttt{choice\_text}, \texttt{stats\_snapshot}, and \texttt{consequences}. Each entry is rendered as a timeline card; severity maps to CSS classes \texttt{severity-minor}, \texttt{severity-major}, \texttt{severity-critical} which apply progressively deeper ink-tone borders.
+  \item \textbf{Choice chronicle}: Iterates \texttt{ButterflyEffectTracker.get\_recorded\_choices()}, which returns an array of dictionaries containing \texttt{scene\_number}, \texttt{severity}, \texttt{choice\_text}, \texttt{stats\_snapshot}, and \texttt{consequences}. Each entry is rendered as a timeline card; severity maps to CSS classes \texttt{severity-minor}, \texttt{severity-major}, \texttt{severity-critical} which apply progressively deeper ink tone borders.
   \item \textbf{Key events}: Reads up to fifty entries from the \texttt{EventLogSystem}, rendering each with its description text.
   \item \textbf{Closing page}: Derives a contextual ending quote by evaluating the player's final \texttt{reality\_score} and \texttt{entropy\_level} against a lookup table of closing messages.
 \end{enumerate}
