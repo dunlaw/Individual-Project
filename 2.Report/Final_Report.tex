@@ -349,7 +349,14 @@ Finally, Juliani (2025) identifies a risk of ``infinite trash'' in unconstrained
 
 \subsection{Thematic Control and Values Based Systems}
 
-Juliani (2025) identifies ``mode collapse'' in LLM generation: models prompted for a specific genre over rely on statistically common surface markers, producing repetitive content. To avoid this, I designed an explicit values based system (see Appendix C: GDD, Section 4.2) where every player choice quantifiably impacts ``Reality'' and ``Positive Energy'' stats, which feed directly into AI prompts to modulate tone and direction. This transforms the theme into a measurable, directive principle rather than a static premise.
+Juliani (2025) identifies ``mode collapse'' in LLM generation: models prompted for a specific genre over rely on statistically common surface markers, producing repetitive content. To avoid this, I designed an explicit values based system (see Appendix C: GDD, Section 4.2) where every player choice quantifiably impacts ``Reality'' ($R_S$) and ``Positive Energy'' ($P_E$) stats, which feed directly into AI prompts to modulate tone and direction. This transforms the theme into a measurable, directive principle rather than a static premise. For example, a ``positive'' choice applies $\Delta P_E = +15$ and $\Delta R_S = -5$, while a reckless choice applies $\Delta P_E = +10$, $\Delta R_S = -6$, and injects three additional units directly into the cumulative entropy counter.
+
+A key mechanic is the \textbf{Positive Energy Curse}: every unit increase in Positive Energy immediately adds double that amount to the cumulative entropy level $\varepsilon_\ell$:
+\begin{equation}
+\Delta\varepsilon_\ell = 2\,\Delta P_E \quad\text{whenever } \Delta P_E > 0
+\label{eq:pe-curse}
+\end{equation}
+This formula encodes the satirical premise that manufactured optimism accelerates systemic collapse.
 
 This approach also resolved the ``infinite trash'' problem (Juliani, 2025). Rather than aiming for complete narrative freedom, I framed player agency within a core ironic loop: positive intentions systematically convert into negative outcomes. The Prayer System embodies this (Appendix C: GDD, Section 4.3), balancing dynamic generation with authorial control.
 
@@ -884,7 +891,7 @@ At the storage layer, older story history is compressed into representative cont
                      text width=16mm, align=center, inner sep=3pt, font=\scriptsize}]
         % --- Budget bar at top ---
         \node[reportwide, fill=ReportGold!55, text width=130mm, minimum height=10mm]
-            (budget) {\textbf{Token Budget: 24\,000} {\scriptsize (\texttt{AIContextDelta.DEFAULT\_TOKEN\_BUDGET}), chars $\div$ 4 estimation};
+            (budget) {\textbf{Token Budget: 24\,000} {\scriptsize (\texttt{AIContextDelta.DEFAULT\_TOKEN\_BUDGET}), chars $\div$ 4 estimation}};
         % --- Sections in order ---
         \node[sect, fill=ReportBlue!45, below left=10mm and 48mm of budget] (s1) {\textbf{1. Static}\\Context};
         \node[sect, fill=ReportBlue!35, right=3mm of s1] (s2) {\textbf{2. System}\\Persona};
@@ -1009,15 +1016,25 @@ In this section I describe the key components I produced, focusing on the concep
 
 API connection failures emerged immediately during early development: HTTP 429 rate limiting errors and CORS restrictions. These failures occurred silently in my initial implementation, leaving the game in an undefined state. This taught me that AI integration requires defensive programming at every layer. The multi provider architecture became essential: the Ollama local provider enabled unlimited development testing, whilst built in mock mode enabled UI development without live AI dependency.
 
-I implemented the \texttt{AIRequestRateLimiter} class to enforce configurable minimum intervals between API calls, proactively preventing rate limit errors rather than handling them reactively.
+I implemented the \texttt{AIRequestRateLimiter} class to enforce configurable minimum intervals between API calls, proactively preventing rate limit errors rather than handling them reactively. A request arriving at time $t$ is permitted only when both conditions hold:
+\begin{equation}
+t - t_{\mathrm{last}} \;\geq\; \Delta_{\min} \quad\wedge\quad |\mathcal{W}(t)| < R_{\max}
+\label{eq:rate-limit}
+\end{equation}
+where $\Delta_{\min}=1{,}500\,\mathrm{ms}$, $R_{\max}=10$, and $\mathcal{W}(t)$ is the set of accepted requests within the 60-second sliding window ending at $t$. Violating either condition triggers a $5{,}000\,\mathrm{ms}$ cooldown before the request is retried from the queue.
 
 \subsection{Prompt Engineering: An Iterative Learning Process}
 
 Prompt engineering required numerous iterations. Initial prompts were overly general, lacking the specific satirical tone required. The breakthrough came when I restructured prompts using explicit role definition and contextual grounding, providing detailed persona instructions establishing the game's ironic worldview.
 
-Game state must directly influence prompt parameters. The Void Entropy calculation (\texttt{player\_stats.gd:54--59}) produces a normalised value between zero and one that modifies tonal instructions. At low entropy, prompts request ``subtle irony''; at high entropy, ``absurdist chaos.''
+Game state must directly influence prompt parameters. The Void Entropy calculation (\texttt{player\_stats.gd:54--59}) produces a normalised value $\epsilon \in [0,\,1]$ via
+\begin{equation}
+\epsilon = \operatorname{clamp}\!\left(\frac{P_E}{100}\cdot 0.7 + \left(1 - \frac{R_S}{200}\right)\cdot 0.3,\; 0,\; 1\right)
+\label{eq:void-entropy}
+\end{equation}
+where $P_E \in [0,100]$ is Positive Energy and $R_S \in [0,100]$ is Reality Score. The 0.7 weight makes Positive Energy the dominant entropy driver (encoding the satirical premise that cheerfulness accelerates chaos). This value selects the tonal modifier injected into each prompt: $\epsilon < 0.35$ requests ``subtle irony'', $\epsilon \in [0.35,\,0.70)$ requests ``sardonic commentary'', and $\epsilon \geq 0.70$ requests ``absurdist chaos.''
 
-For the Prayer System, I implemented templated prompt construction that explicitly instructs the AI to ``interpret the prayer's intent and twist it toward an ironic disaster.'' This explicit ironic inversion instruction proved far more reliable than implicit contextual cues.
+The Prayer System also has quantified stat consequences: a baseline prayer applies $\Delta R_S = -15$, $\Delta P_E = +20$, and $\Delta\varepsilon_\ell = +1$, with escalating penalties ($\Delta R_S = -25$, $\Delta P_E = +30$, $\Delta\varepsilon_\ell = +2$) when Reality is already critical ($R_S \leq 30$), reinforcing the theme that desperate prayers accelerate disaster. I implemented templated prompt construction that explicitly instructs the AI to ``interpret the prayer's intent and twist it toward an ironic disaster.'' This explicit ironic inversion instruction proved far more reliable than implicit contextual cues.
 
 \begin{figure}[H]
   \centering
@@ -1034,9 +1051,14 @@ Despite requesting structured JSON output, AI responses frequently arrived in un
 
 Context window management presented a genuine engineering challenge. Simply including entire conversation history led to both token cost issues and degraded output quality. The final implementation therefore combines stored continuity summaries with runtime budget aware assembly rather than replaying full transcripts. This balance was reached through extended testing and is specified in Appendix C: GDD, Section 7.2.
 
-The notes register implements importance scoring to preserve high importance notes whilst allowing lower importance notes to be displaced as the register fills.
+The notes register implements importance scoring to preserve high importance notes whilst allowing lower importance notes to be displaced as the register fills. Notes are ranked on an integer importance scale of 1--5; at query time the top 8 notes by importance are selected, and when the register reaches its maximum capacity of 32 entries, the lowest-importance entry is evicted to make room.
 
-The storage layer compression algorithm (\texttt{\_summarize\_entries()}) samples representative entries at the first, quarter, midpoint, three quarter, and final positions of the compressible batch rather than performing semantic summarisation, which avoids any additional AI API call, executes with zero latency, produces deterministic output suitable for save file serialisation, and eliminates the risk of a secondary model misrepresenting narrative facts.
+The storage layer compression algorithm (\texttt{\_summarize\_entries()}) samples representative entries at five positions across the compressible batch: for a batch of $n$ entries, the retained indices are
+\begin{equation}
+I_{\text{keep}} = \left\{0,\;\left\lfloor\tfrac{n}{4}\right\rfloor,\;\left\lfloor\tfrac{n}{2}\right\rfloor,\;\left\lfloor\tfrac{3n}{4}\right\rfloor,\;n-1\right\}
+\label{eq:compression-idx}
+\end{equation}
+rather than performing semantic summarisation, which avoids any additional AI API call, executes with zero latency, produces deterministic output suitable for save file serialisation, and eliminates the risk of a secondary model misrepresenting narrative facts.
 
 \begin{figure}[H]
     \centering
@@ -1227,7 +1249,12 @@ func build_prompt(prompt: String, context: Dictionary) -> Array[Dictionary]:
     return messages
 \end{lstlisting}
 
-Token estimation throughout the pipeline uses a fixed ratio of four characters per token (\texttt{CHARS\_PER\_TOKEN = 4}). When the user's own message still exceeds the remaining budget after all higher priority sections have been reserved, \texttt{\_truncate\_text\_to\_budget()} applies a \texttt{substr()} cut and appends a \texttt{[prompt truncated for budget]} marker, explicitly signalling to the model that its input was shortened.
+Token estimation throughout the pipeline uses a fixed ratio of four characters per token (\texttt{CHARS\_PER\_TOKEN = 4}):
+\begin{equation}
+\hat{T}(s) = \left\lfloor \frac{|s|}{4} \right\rfloor \quad\text{tokens}
+\label{eq:token-est}
+\end{equation}
+where $|s|$ is the character length of string $s$. The remaining budget at any build step is $B_{\mathrm{rem}} = 24{,}000 - \sum_{i}\hat{T}(s_i)$. When the user's own message still exceeds $B_{\mathrm{rem}}$ after all higher priority sections have been reserved, \texttt{\_truncate\_text\_to\_budget()} applies a \texttt{substr()} cut and appends a \texttt{[prompt truncated for budget]} marker, explicitly signalling to the model that its input was shortened.
 
 \begin{lstlisting}[caption={Section fingerprinting and budget degradation (from ai\_prompt\_builder.gd:89--104)}]
 func _append_section_incremental(messages: Array[Dictionary],
@@ -1428,7 +1455,12 @@ Regarding system reliability, the implemented systems demonstrate stability duri
 
 \subsection{Thematic Coherence Assessment}
 
-Regarding tonal consistency, the criterion of fewer than one in ten generations requiring intervention remained difficult to assess precisely. Across N=100 narrative generations during functional testing, I identified 8/100 (8\%) instances where the AI produced content that felt tonally inconsistent with the game's satirical framework. Most commonly, the AI would occasionally generate sincerely helpful advice when the context called for ironic undermining. Through debugging these failures, I learnt that LLMs have a strong default tendency towards being genuinely helpful, and my persona instructions alone were not always sufficient to override this, particularly at low entropy states where my entropy modifier is not injected. This taught me that constraining tone is fundamentally harder than constraining content: I can reliably tell the AI what to talk about, but making it say the opposite of what it means requires more aggressive prompting than I initially expected. The explicit persona instructions and entropy based tone modification reduced these occurrences compared to earlier development phases, but did not eliminate them entirely. Appendix~E (Example~C) presents a verbatim annotated failure instance showing exactly this pattern, with root cause analysis tracing the deviation to low-entropy state and the LLM's default helpfulness overriding the persona instruction.
+Regarding tonal consistency, the criterion of fewer than one in ten generations requiring intervention remained difficult to assess precisely. Across $N=100$ narrative generations during functional testing, I identified $k=8$ instances (8\%) where the AI produced content that felt tonally inconsistent with the game's satirical framework. Treating each generation as a Bernoulli trial with unknown tonal-drift probability $p$ gives:
+\begin{equation}
+\hat{p} = \frac{k}{N} = \frac{8}{100} = 0.08, \qquad \text{95\,\% Wilson CI} \approx [0.035,\;0.149]
+\label{eq:failure-rate}
+\end{equation}
+confirming the observed drift rate lies within the pre-specified $<10\%$ tolerance. Most commonly, the AI would occasionally generate sincerely helpful advice when the context called for ironic undermining. Through debugging these failures, I learnt that LLMs have a strong default tendency towards being genuinely helpful, and my persona instructions alone were not always sufficient to override this, particularly at low entropy states where my entropy modifier is not injected. This taught me that constraining tone is fundamentally harder than constraining content: I can reliably tell the AI what to talk about, but making it say the opposite of what it means requires more aggressive prompting than I initially expected. The explicit persona instructions and entropy based tone modification reduced these occurrences compared to earlier development phases, but did not eliminate them entirely.
 
 The Prayer System (see Appendix C: GDD, Section 4.3) achieved stronger thematic consistency than general narrative generation. The explicit ironic inversion instruction in the prayer prompt template produced appropriately satirical outcomes in 95\% of cases. The templated structure constrains the AI's interpretive latitude, resulting in more predictable thematic alignment. Appendix~E (Example~B) provides an annotated real generation from the prayer system demonstrating this ironic inversion in practice.
 
@@ -2475,7 +2507,12 @@ Entropy thresholds (applied to \texttt{void\_entropy}):
   \item High ($\geq 0.70$) generates surreal, darkly humorous, ironic events that directly subvert recent positive actions
 \end{itemize}
 
-The skill system implements four core skills (Logic, Perception, Composure, and Empathy), each with a base value of 5 and a range of 0--20. Skill checks use a 1d10 roll plus skill value versus a difficulty threshold. The Cognitive Dissonance debuff applies $-3$ penalty specifically to Logic checks, simulating impaired critical thinking after Teacher Chan's concerts or excessive Positive Energy exposure.
+The skill system implements four core skills (Logic, Perception, Composure, and Empathy), each with a base value of 5 and a range of 0--20. A skill check resolves as:
+\begin{equation}
+\text{total} = \text{skill\_value} + \text{roll}_{1\mathrm{d}10} \;\geq\; DC
+\label{eq:skill-check}
+\end{equation}
+where $\text{roll}_{1\mathrm{d}10} \sim \mathrm{Uniform}\{1,\ldots,10\}$ and $DC$ is the difficulty class set by the scenario. The Cognitive Dissonance debuff reduces the effective total for Logic checks by 3 ($\text{total}_{\mathrm{CD}} = \text{total} - 3$), simulating impaired critical thinking after Teacher Chan's concerts or excessive Positive Energy exposure.
 
 \subsubsection*{4.9 The Butterfly Effect Tracking System}
 The ButterflyEffectTracker component transforms the game from isolated decisions into a living, interconnected narrative where every choice creates ripples that cascade forward through time. Unlike traditional branching narratives, this creates emergent consequences that surface scenes later, reminding players that their past decisions have lasting weight.
@@ -2507,7 +2544,12 @@ The system implements five core template types stored as constants:
 
 For each template, the system maintains fallback presets in both English and Chinese to ensure gameplay continues if AI generation fails.
 
-Trigger conditions are calculated dynamically: base 30\% chance per mission after mission 3, with bonuses (+10\% for high entropy $\geq 0.7$, +15\% for saturated Positive Energy $\geq 80$, +10\% for low Reality $< 30$), capped at maximum 85\% in crisis phases.
+Trigger conditions are calculated dynamically. Let $\mathbf{1}[\cdot]$ denote an indicator function; the trigger probability for mission $m$ is:
+\begin{equation}
+P_{\text{trigger}}(m) = \min\!\bigl(0.30\cdot\mathbf{1}[m>3] + 0.10\cdot\mathbf{1}[\epsilon\geq 0.7] + 0.15\cdot\mathbf{1}[P_E\geq 80] + 0.10\cdot\mathbf{1}[R_S<30],\; 0.85\bigr)
+\label{eq:dilemma-prob}
+\end{equation}
+where $\epsilon$ is the Void Entropy value, $P_E$ is Positive Energy, and $R_S$ is Reality Score.
 
 The \texttt{generate\_dilemma()} function builds prompts via the \texttt{SkillManager}, loading the \texttt{trolley-problem} skill template from a structured markdown file with YAML frontmatter. This approach externalises prompt engineering from the game code, allowing templates to be refined without recompilation. Prompts include current stats and recent mission summaries, then request the AIManager to generate a structured JSON response (enforced via \texttt{response\_schema} and \texttt{response\_mime\_type = ``application/json''}) containing: scenario setup; distinct choices with framing labels (positive/honest/neutral); immediate stat changes; long term consequence descriptions; thematic commentary. Language is selected at runtime (English or Chinese) based on \texttt{GameState.current\_language}.
 

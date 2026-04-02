@@ -27,6 +27,12 @@ func load_current_settings() -> void:
 			"BLOCK_MEDIUM_AND_ABOVE": _menu.safety_level_option.selected = 2
 			"BLOCK_LOW_AND_ABOVE": _menu.safety_level_option.selected = 3
 			_: _menu.safety_level_option.selected = 0
+	var or_option = _menu.openrouter_model_option
+	if or_option:
+		or_option.clear()
+		for model_name in _menu.OPENROUTER_MODEL_OPTIONS:
+			or_option.add_item(model_name)
+		or_option.add_item("Custom Model (enter below)")
 	_menu.openrouter_model_input.text = ai_manager.openrouter_model
 	sync_openrouter_model_selection(ai_manager.openrouter_model)
 	if _menu.openrouter_auto_router_check:

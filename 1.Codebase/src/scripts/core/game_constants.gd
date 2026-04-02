@@ -110,7 +110,7 @@ class AI:
 	const MEMORY_SUMMARY_THRESHOLD := 10
 	const MAX_MEMORY_ITEMS := 20
 	const PROMPT_MIN_LENGTH := 1
-	const PROMPT_MAX_LENGTH := 16000
+	const PROMPT_MAX_LENGTH := 65536  # Safety guard before token-budget truncation in ai_prompt_builder.gd
 	const PROMPT_FORBIDDEN_PATTERN := "[\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F]"
 class Choice:
 	const SKILL_SUCCESS_REALITY_BONUS := 5

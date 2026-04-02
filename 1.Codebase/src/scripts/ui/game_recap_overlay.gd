@@ -155,8 +155,12 @@ func _build_recap_prompt() -> String:
 		var summaries: Array = memory_store.get_long_term_lines(_language, 8)
 		if not summaries.is_empty():
 			lines.append("\nStory so far (condensed memory):")
+			const MAX_SUMMARY_LINE_CHARS := 600
 			for s in summaries:
-				lines.append("- " + str(s))
+				var summary_text := str(s)
+				if summary_text.length() > MAX_SUMMARY_LINE_CHARS:
+					summary_text = summary_text.left(MAX_SUMMARY_LINE_CHARS) + "..."
+				lines.append("- " + summary_text)
 	if _game_state != null and "recent_events" in _game_state:
 		var events: Array = _game_state.recent_events
 		if events.size() > 0:

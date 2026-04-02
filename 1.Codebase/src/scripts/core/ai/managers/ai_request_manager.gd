@@ -61,6 +61,7 @@ class RequestParameters extends RefCounted:
 	var force_mock: bool = false
 	var bypass_rate_limit: bool = false
 var _call_log: Array[Dictionary] = []
+var _last_actual_model: String = ""
 var _prompt_guard_regex: RegEx = null
 var _config_manager: AIConfigManager = null
 var _provider_manager: RefCounted = null
@@ -561,6 +562,10 @@ func _handle_provider_response(response: Dictionary) -> void:
 			)
 	if response.has("metadata") and response["metadata"] is Dictionary:
 		final_response["metadata"] = (response["metadata"] as Dictionary).duplicate(true)
+	if response.has("actual_model") and not str(response["actual_model"]).is_empty():
+		_last_actual_model = str(response["actual_model"])
+	else:
+		_last_actual_model = ""
 	_record_call_log(true, str(last_prompt_metrics.get("mode", "live")), int(response.get("status_code", 200)), input_tokens, output_tokens, _last_response_time)
 	_retry_count = 0
 	_clear_active_request_payload()
@@ -1230,6 +1235,7 @@ func _record_call_log(
 		"request_timestamp": request_timestamp,
 		"provider": provider_name,
 		"model": model_name,
+		"actual_model": _last_actual_model,
 		"status_code": status_code,
 		"input_tokens": input_tokens,
 		"output_tokens": output_tokens,
@@ -1240,6 +1246,7 @@ func _record_call_log(
 		"success": success,
 		"error": error_msg,
 	}
+	_last_actual_model = ""
 	var detail: Dictionary = _build_call_log_detail()
 	for key in detail.keys():
 		entry[key] = detail[key]

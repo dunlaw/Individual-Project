@@ -169,10 +169,15 @@ static func refresh_table(
 		if timestamp_str.length() > 19:
 			timestamp_str = timestamp_str.substr(0, 19)
 		timestamp_str = timestamp_str.replace("T", " ")
+		var requested_model: String = str(entry.get("model", ""))
+		var actual_model: String = str(entry.get("actual_model", ""))
+		var model_display: String = requested_model
+		if not actual_model.is_empty() and actual_model != requested_model:
+			model_display = requested_model + " (" + actual_model + ")"
 		var cell_values: Array = [
 			timestamp_str,
 			str(entry.get("provider", "")),
-			str(entry.get("model", "")),
+			model_display,
 			status_text,
 			str(int(entry.get("input_tokens", 0))),
 			str(int(entry.get("output_tokens", 0))),
@@ -235,7 +240,12 @@ static func format_detail_text(entry: Dictionary, tr_callable: Callable) -> Stri
 	lines.append(str(entry.get("provider", "")))
 	lines.append("")
 	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_MODEL", "Model"))
-	lines.append(str(entry.get("model", "")))
+	var requested_model: String = str(entry.get("model", ""))
+	var actual_model_str: String = str(entry.get("actual_model", ""))
+	var model_str: String = requested_model
+	if not actual_model_str.is_empty() and actual_model_str != requested_model:
+		model_str = requested_model + " (actual: " + actual_model_str + ")"
+	lines.append(model_str)
 	lines.append("")
 	lines.append(tr_callable.call("SETTINGS_AI_LOG_DETAIL_ACCOUNT", "Account"))
 	lines.append(str(entry.get("account", "-")) if not str(entry.get("account", "")).is_empty() else "-")
