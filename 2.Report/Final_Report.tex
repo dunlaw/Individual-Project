@@ -871,7 +871,7 @@ For simplifying AI integration, the AIManager presents a facade interface to the
 
 The context-management system operates at two complementary layers: storage-level retention in \texttt{AIMemoryStore} and runtime budget-aware assembly in \texttt{AIPromptBuilder} with \texttt{AIContextDelta}. Conceptually, the system still groups information into three categories, short-term history, longer-term continuity, and persistent notes, but at runtime these categories are filtered, compressed, and reordered according to token budget and request priority.
 
-At the storage layer, older story history is compressed into representative continuity summaries rather than replayed in full, while persistent notes survive independently of the rolling conversation log. At the prompt-assembly layer, the builder reserves space for the player's current message, prioritises the most important control sections, reuses unchanged context through compact markers, and degrades oversized sections to summary placeholders when necessary. This approach reduced token waste whilst preserving enough continuity for the AI to maintain narrative tone and callback structure. Full implementation details are documented in Appendix C: GDD, Section 7.2.
+At the storage layer, older story history is compressed into representative continuity summaries rather than replayed in full, while persistent notes survive independently of the rolling conversation log. At the prompt-assembly layer, the builder reserves space for the player's current message, prioritises the most important control sections, reuses unchanged context through compact markers, and degrades oversized sections to summary placeholders when necessary. This approach reduced static-section token consumption by up to 60--80\% across multi-turn exchanges whilst preserving enough continuity for the AI to maintain narrative tone and callback structure. Full implementation details are documented in Appendix C: GDD, Section 7.2.
 
 \begin{figure}[H]
     \centering
@@ -907,6 +907,8 @@ At the storage layer, older story history is compressed into representative cont
     \caption{Prompt Assembly Pipeline. \texttt{AIPromptBuilder.build\_prompt()} assembles eight sections incrementally under a 24\,000-token budget managed by \texttt{AIContextDelta}. Each section is fingerprinted; unchanged sections are replaced by compact markers, and oversized sections degrade to summaries (source: \texttt{ai\_prompt\_builder.gd:30--75}, \texttt{ai\_context\_delta.gd}).}
     \label{fig:prompt-assembly}
 \end{figure}
+
+The configured maximum output length is equally consequential for game functionality. Setting the response token ceiling too low (for example, 200 tokens) risks truncated narratives, incomplete \texttt{[SCENE\_DIRECTIVE]} JSON blocks, and choice lists with fewer than the expected three options, all of which cause downstream UI parse failures. The default ceiling of 4\,096 tokens was chosen as a balance that reliably accommodates a full narrative passage, all player choices, and the structured directive block within a single response without incurring unnecessary API cost; a higher ceiling (up to 8\,192) is available for complex scenes requiring more elaborate output.
 
 \subsection{Response Parsing and Validation}
 
@@ -1031,6 +1033,8 @@ Context window management presented a genuine engineering challenge. Simply incl
 
 The notes register implements importance scoring to preserve high-importance notes whilst allowing lower-importance notes to be displaced as the register fills.
 
+The storage-layer compression algorithm (\texttt{\_summarize\_entries()}) samples representative entries at the first, quarter, midpoint, three-quarter, and final positions of the compressible batch rather than performing semantic summarisation, which avoids any additional AI API call, executes with zero latency, produces deterministic output suitable for save-file serialisation, and eliminates the risk of a secondary model misrepresenting narrative facts.
+
 \subsection{The Butterfly Effect System}
 
 The \texttt{ButterflyEffectTracker} (\texttt{butterfly\_effect\_tracker.gd}) implements delayed consequence tracking, recording player choices with predicted future consequences. When the player advances scenes, the tracker checks for pending consequences and notifies the AI context system to incorporate relevant callbacks.
@@ -1127,6 +1131,8 @@ func build_prompt(prompt: String, context: Dictionary) -> Array[Dictionary]:
     _delta.finish_build()
     return messages
 \end{lstlisting}
+
+Token estimation throughout the pipeline uses a fixed ratio of four characters per token (\texttt{CHARS\_PER\_TOKEN = 4}). When the user's own message still exceeds the remaining budget after all higher-priority sections have been reserved, \texttt{\_truncate\_text\_to\_budget()} applies a \texttt{substr()} cut and appends a \texttt{[prompt truncated for budget]} marker, explicitly signalling to the model that its input was shortened.
 
 \begin{lstlisting}[caption={Section fingerprinting and budget degradation (from ai\_prompt\_builder.gd:89--104)}]
 func _append_section_incremental(messages: Array[Dictionary],
