@@ -1027,12 +1027,7 @@ where $\Delta_{\min}=1{,}500\,\mathrm{ms}$, $R_{\max}=10$, and $\mathcal{W}(t)$ 
 
 Prompt engineering required numerous iterations. Initial prompts were overly general, lacking the specific satirical tone required. The breakthrough came when I restructured prompts using explicit role definition and contextual grounding, providing detailed persona instructions establishing the game's ironic worldview.
 
-Game state must directly influence prompt parameters. The Void Entropy calculation (\texttt{player\_stats.gd:54--59}) produces a normalised value $\epsilon \in [0,\,1]$ via
-\begin{equation}
-\epsilon = \operatorname{clamp}\!\left(\frac{P_E}{100}\cdot 0.7 + \left(1 - \frac{R_S}{200}\right)\cdot 0.3,\; 0,\; 1\right)
-\label{eq:void-entropy}
-\end{equation}
-where $P_E \in [0,100]$ is Positive Energy and $R_S \in [0,100]$ is Reality Score. The 0.7 weight makes Positive Energy the dominant entropy driver (encoding the satirical premise that cheerfulness accelerates chaos). This value selects the tonal modifier injected into each prompt: $\epsilon < 0.35$ requests ``subtle irony'', $\epsilon \in [0.35,\,0.70)$ requests ``sardonic commentary'', and $\epsilon \geq 0.70$ requests ``absurdist chaos.''
+Game state must directly influence prompt parameters. The Void Entropy value $\epsilon \in [0,\,1]$ is calculated from Positive Energy and Reality Score (full formula in Appendix C: GDD, Section 4.8). Critically, the 0.7 weight on Positive Energy makes it the dominant entropy driver, encoding the satirical premise that cheerfulness accelerates chaos. This value selects the tonal modifier injected into each prompt: low entropy requests ``subtle irony'', mid-range requests ``sardonic commentary'', and high entropy requests ``absurdist chaos.''
 
 The Prayer System also has quantified stat consequences: a baseline prayer applies $\Delta R_S = -15$, $\Delta P_E = +20$, and $\Delta\varepsilon_\ell = +1$, with escalating penalties ($\Delta R_S = -25$, $\Delta P_E = +30$, $\Delta\varepsilon_\ell = +2$) when Reality is already critical ($R_S \leq 30$), reinforcing the theme that desperate prayers accelerate disaster. I implemented templated prompt construction that explicitly instructs the AI to ``interpret the prayer's intent and twist it toward an ironic disaster.'' This explicit ironic inversion instruction proved far more reliable than implicit contextual cues.
 
@@ -2220,7 +2215,6 @@ My ``Glorious Deliverance Agency 1'' prototype demonstrates that AI generated na
 University of Sussex, Engineering \& Informatics
 \end{center}
 
-\begin{multicols}{2}
 \subsection*{1. Aims and Objectives}
 
 \subsubsection*{1.1 Aims}
@@ -2289,7 +2283,6 @@ The project is structured into four main phases, spanning the Autumn and Spring 
   \item Recorded gameplay video showcasing key AI-driven narrative moments for presentation and demonstration.
 \end{itemize}
 
-\end{multicols}
 
 %% ============ APPENDIX C: GAME DESIGN DOCUMENT ============
 \clearpage
@@ -2305,7 +2298,6 @@ University of Sussex, Engineering \& Informatics\\[0.05cm]
 
 \textit{Creative Statement: All characters, events, and religious metaphors in this game are purely fictional and intended for satirical purposes. There is no intention to allude to any real life individuals, groups, or beliefs.}
 
-\begin{multicols}{2}
 \subsection*{1. Game Overview}
 
 \subsubsection*{1.1 Pitch}
@@ -2352,14 +2344,12 @@ The Reality versus Positive Energy mechanic forms the game's philosophical core,
 
 Beyond its mechanical innovations, the game aspires to thematic depth by functioning as a playable allegory. Every system and narrative beat works together to offer a satirical critique of real world social phenomena around toxic positivity, workplace dysfunction, and the dangers of refusing to acknowledge difficult truths.
 
-\end{multicols}
 
 \subsection*{2. Characters}
 
 \subsubsection*{2.1 Player Character: The Protagonist}
 The protagonist embodies pragmatic realism, reflecting anyone worn down by repeated disappointments and betrayals. At the story's beginning, they harbour deep mistrust toward divine intervention and blind faith, preferring rational thinking over magical solutions. This worldview crumbles when Saint Gloria deploys masterful psychological manipulation, convincing the protagonist that their negativity causes all personal and interpersonal failures. Pushed to the edge of mental breakdown, the protagonist desperately accepts Gloria's salvation and adopts her simplistic positive energy creed as a last resort to avoid harming others. This forced conversion sets the stage for their tragic journey as reluctant believers who know better but feel they have no choice.
 
-\begin{multicols}{2}
 \subsubsection*{2.2 Non Player Characters: The Team}
 The player's teammates function not as traditional allies but as the primary antagonists and obstacles. Each embodies a distinct, flawed ideology that systematically undermines every mission.
 
@@ -2373,9 +2363,7 @@ The player's teammates function not as traditional allies but as the primary ant
 
 \textbf{Teacher Chan} is the Soul Soothing Singer, the Apocalypse Idol, and the Harbinger of Doom. As a national level idol singer, her image radiates pure, white robed compassion, yet her songs about letting go, acceptance, and growth operate as a curse rather than a cure. She genuinely believes what she sings, which makes her more frightening, not less. Her performances rationalise failure as spiritual success, intensify cognitive dissonance, and function as large scale entropy rituals that accelerate the world's collapse. She is not a healer but a world destroyer wearing the voice of comfort.
 
-\end{multicols}
 
-\begin{multicols}{2}
 \subsection*{3. Narrative and Story}
 
 \subsubsection*{3.1 Backstory and Premise}
@@ -2436,7 +2424,6 @@ The asset libraries include:
 
 The system supports asset querying by tags and themes, allowing the AI to request dangerous outdoor locations or mystical indoor spaces without specifying exact file names.
 
-\end{multicols}
 
 \begin{figure}[H]
   \centering
@@ -2486,7 +2473,6 @@ The system supports asset querying by tags and themes, allowing the AI to reques
   \label{fig:gdd-icons}
 \end{figure}
 
-\begin{multicols}{2}
 \subsubsection*{4.8 Core Mechanics and Formulas}
 The game implements relationships between player actions and core metrics through the PlayerStats class, which is delegated from GameState.
 
@@ -2527,9 +2513,7 @@ The system records different types of choices (minor, major, critical) with comp
 
 Consequence seeds are stored as arrays of potential outcomes, each with a scheduled scene number (3--20 scenes ahead), description, triggered status flag, and severity rating. The system implements weighted selection algorithms to determine when consequences trigger, with higher severity consequences having priority. The \texttt{get\_context\_for\_ai()} function formats relevant past choices and pending consequences for inclusion in AI prompts, enabling the AI to reference earlier decisions and create narrative callbacks.
 
-\end{multicols}
 
-\begin{multicols}{2}
 \subsubsection*{4.10 The Trolley Problem Dilemma System}
 The TrolleyProblemGenerator component generates dynamic moral dilemmas where every choice leads to harm, forcing players to confront the game's central thesis that in broken systems saturated with toxic positivity, you cannot escape complicity. The dilemmas expose the hypocrisy of positive energy framing and institutional dysfunction.
 
@@ -2714,10 +2698,8 @@ Individual components are tested in isolation before integration. Core system su
 \subsubsection*{5.2 System and Integration Testing}
 Integration suites verify the architectural seams introduced by refactoring: EventBus driven UI refresh after choice selection, AI context assembly with correct game state injection and token budget trimming, complete save/load round trips including mid mission state and butterfly effect history, and corrupt file recovery. Telemetry evidence (latency, token counts, provider, prompt/response text) is captured by the AI usage logging pipeline during live functional testing, separating deterministic automated verification from empirical observation of model behaviour. Validation criteria include: no UI blocking during async generation, correct stat updates after choices, stable parsing of malformed directive payloads, and full data integrity through save/load cycles.
 
-\end{multicols}
 
 %% ============ GDD SECTION 6: EXPECTED DELIVERABLES ============
-\begin{multicols}{2}
 \subsection*{6. Expected Deliverables}
 The following artefacts constitute the complete project deliverables:
 
@@ -2731,42 +2713,15 @@ The following artefacts constitute the complete project deliverables:
   \item \textbf{Game Design Document} (this document: Full specification of gameplay mechanics, narrative systems, technical architecture, and testing strategy.
   \item \textbf{Final Report}: Academic report documenting the project background, methodology, implementation, evaluation, and reflection.
 \end{enumerate}
-\end{multicols}
 
 %% ============ GDD SECTION 7: ARCHITECTURE DESIGN ============
-\begin{multicols}{2}
 \subsection*{7. Architecture Design}
 
 \subsubsection*{7.1 AI Subsystem Architecture (AIManager and Provider Layer)}
-The AI subsystem is implemented as a singleton \texttt{AIManager} node that coordinates five specialised \texttt{RefCounted} manager classes, each encapsulating a single responsibility. This decomposition replaced an earlier monolithic \texttt{AIManager} implementation and was motivated by the need to test AI configuration logic independently of network I/O and to enable provider switching without disrupting context state.
+The AI subsystem is implemented as a singleton \texttt{AIManager} node that coordinates six specialised \texttt{RefCounted} manager classes, each encapsulating a single responsibility. This decomposition replaced an earlier monolithic \texttt{AIManager} implementation and was motivated by the need to test AI configuration logic independently of network I/O and to enable provider switching without disrupting context state.
 
-The manager classes, housed in \texttt{core/ai/managers/}, are listed in Table~\ref{tab:gdd-ai-managers}.
-\end{multicols}
+The six manager classes housed in \texttt{core/ai/managers/} are: \texttt{AIConfigManager} (provider configuration and API key persistence), \texttt{AIContextManager} (prompt assembly and safety filtering), \texttt{AIProviderManager} (Strategy-pattern dispatch to seven concrete backends), \texttt{AIRequestManager} (rate limiting, queuing, retry, and mock fallback), \texttt{AIUsageStatsStore} (call-log file I/O), and \texttt{AIVoiceManager} (Gemini Live voice session lifecycle).
 
-\begin{table}[H]
-\centering
-\caption{AI subsystem manager classes and their responsibilities.}
-\label{tab:gdd-ai-managers}
-\begin{tabular}{@{}p{3.0cm}p{3.5cm}p{7.5cm}@{}}
-\toprule
-\textbf{Class} & \textbf{File} & \textbf{Responsibility} \\
-\midrule
-\texttt{AIConfigManager} & \texttt{ai\_config\_manager.gd} & Persists and exposes all provider configuration (API keys, model selections, safety settings, token limits) via \texttt{user://ai\_settings.cfg} \\
-\addlinespace
-\texttt{AIContextManager} & \texttt{ai\_context\_manager.gd} & Owns the \texttt{AIMemoryStore} and \texttt{AIPromptBuilder}; assembles the full prompt for each generation request; applies safety filtering and blocked sequence removal \\
-\addlinespace
-\texttt{AIProviderManager} & \texttt{ai\_provider\_manager.gd} & Instantiates and holds the seven concrete provider objects (Gemini, OpenRouter, Ollama, OpenAI, Claude, LM Studio, AIRouter); dispatches requests to the active backend while mock mode is handled at the request layer \\
-\addlinespace
-\texttt{AIRequestManager} & \texttt{ai\_request\_manager.gd} & Manages the request lifecycle: rate limiting (\texttt{AIRequestRateLimiter}), request queuing (\texttt{AIRequestQueue}), retry logic, timeout enforcement, mock fallback, and per call metadata capture delegated to \texttt{AIUsageStatsStore} \\
-\addlinespace
-\texttt{AIUsageStatsStore} & \texttt{ai\_usage\_stats\_store.gd} & Provides thin file IO helpers (\texttt{save}, \texttt{load}) for persisting the call log JSON to \texttt{user://ai\_call\_log.json} \\
-\addlinespace
-\texttt{AIVoiceManager} & \texttt{ai\_voice\_manager.gd} & Manages the Gemini Live voice session lifecycle via \texttt{VoiceSessionManager} and \texttt{VoiceBridge}, including push to talk and continuous input modes \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{multicols}{2}
 Provider implementations extend \texttt{AIProviderBase} (\texttt{ai\_provider\_base.gd}) and are selected at runtime by \texttt{AIProviderManager} based on the \texttt{AIProvider} enum value stored in \texttt{AIConfigManager}. The Strategy pattern ensures that the calling code (\texttt{AIRequestManager}) interacts with a uniform interface regardless of the active backend. Mock mode is represented explicitly in the enum, but its responses are generated by \texttt{MockAIGenerator} inside \texttt{AIRequestManager} rather than by a separate provider object.
 
 \subsubsection*{7.2 Budget Aware Context Management}
@@ -2781,83 +2736,13 @@ The original three layer context concept remains useful as a conceptual model fo
 At prompt assembly time, \texttt{AIPromptBuilder} layers static context, system persona, acknowledgement state, entropy modifiers, long term notes, persistent notes, short term exchanges, and the current user prompt. In other words, the three context categories describe the content structure, while the budget aware pipeline is the actual mechanism that decides how those categories enter the final prompt. \texttt{AIContextDelta} then applies budget aware compression: unchanged sections become compact markers, oversized sections degrade to summaries, and the final user message is truncated only as a last resort. The default budget remains 4096 tokens (capped at 8192) via \texttt{AIConfigManager}, and inline voice data can also be attached when Gemini Live input is enabled.
 
 \subsubsection*{7.3 GameState Modular Decomposition}
-The \texttt{GameState} singleton was refactored from a monolithic class into a coordinator that delegates to ten specialised \texttt{RefCounted} submodule instances. Each submodule owns a coherent slice of state and exposes it through \texttt{GameState} property proxies for backwards compatibility.
-\end{multicols}
+The \texttt{GameState} singleton was refactored from a monolithic class into a coordinator that delegates to ten specialised \texttt{RefCounted} submodule instances. Each submodule owns a coherent slice of state and exposes it through \texttt{GameState} property proxies for backwards compatibility. The submodules are: \texttt{PlayerStats} (core stats and void entropy), \texttt{MissionProgressModule} (mission tracking), \texttt{PhaseManagerModule} (game phase and honeymoon logic), \texttt{MetadataStoreModule} (session flags), \texttt{ApplicationLifecycleModule} (session start/end), \texttt{AnalyticsModule} (session counters), \texttt{FSMChallengeModule} (rebirth challenge state), \texttt{SaveLoadSystem} (save/load and migration), \texttt{EventLogSystem} (append-only event log), and \texttt{DebuffSystem} (active debuff management).
 
-\begin{table}[H]
-\centering
-\caption{GameState submodule decomposition.}
-\label{tab:gdd-gamestate-modules}
-\begin{tabular}{@{}p{3.2cm}p{3.5cm}p{7.3cm}@{}}
-\toprule
-\textbf{Submodule} & \textbf{File} & \textbf{Owned State} \\
-\midrule
-\texttt{PlayerStats} & \texttt{player\_stats.gd} & \texttt{reality\_score}, \texttt{positive\_energy}, \texttt{entropy\_level}, skill values, void entropy formula \\
-\addlinespace
-\texttt{MissionProgressModule} & \texttt{mission\_progress\_module.gd} & \texttt{current\_mission}, \texttt{missions\_completed}, \texttt{mission\_turn\_count}, \texttt{complaint\_counter} \\
-\addlinespace
-\texttt{PhaseManagerModule} & \texttt{phase\_manager\_module.gd} & \texttt{game\_phase}, \texttt{honeymoon\_charges}, phase transition logic \\
-\addlinespace
-\texttt{MetadataStoreModule} & \texttt{metadata\_store\_module.gd} & Session metadata dictionary, arbitrary key value game flags \\
-\addlinespace
-\texttt{ApplicationLifecycleModule} & \texttt{application\_lifecycle\_module.gd} & Session start/end lifecycle, \texttt{is\_session\_active} flag \\
-\addlinespace
-\texttt{AnalyticsModule} & \texttt{analytics\_module.gd} & Session scoped analytics counters (choices made, AI calls, etc.) \\
-\addlinespace
-\texttt{FSMChallengeModule} & \texttt{fsm\_challenge\_module.gd} & Rebirth challenge state: \texttt{is\_challenge\_active}, \texttt{challenge\_start\_date}, \texttt{last\_login\_date}, \texttt{current\_day}, \texttt{days\_completed}, \texttt{challenge\_completed}, \texttt{challenge\_crashed} \\
-\addlinespace
-\texttt{SaveLoadSystem} & \texttt{save\_load\_system.gd} & Variant based save/load, autosave and backup slots, corrupt save recovery, and version migration rewrites \\
-\addlinespace
-\texttt{EventLogSystem} & \texttt{event\_log\_system.gd} & Append only event log list; enforces max entry cap with oldest first eviction \\
-\addlinespace
-\texttt{DebuffSystem} & \texttt{debuff\_system.gd} & Active debuff dictionary and expiry logic \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{multicols}{2}
 This decomposition enables unit testing of each submodule in isolation, removes circular dependency risks between state management and UI concerns, and makes serialisation responsibilities explicit.
 
 \subsubsection*{7.4 Story Scene Decomposition}
-The main gameplay scene has been decomposed across multiple controller files in \texttt{scripts/ui/}, but the runtime entry script remains \texttt{story\_scene.gd} rather than delegating fully to \texttt{StorySceneCoordinator}. In the current implementation, \texttt{story\_scene.gd} directly instantiates and coordinates the extracted controllers below, while \texttt{StorySceneCoordinator} exists as a simplified alternative coordinator used mainly for modular experimentation and isolated tests.
-\end{multicols}
+The main gameplay scene has been decomposed across multiple controller files in \texttt{scripts/ui/}, but the runtime entry script remains \texttt{story\_scene.gd}. The twelve extracted controllers cover: mission lifecycle (\texttt{StoryFlowController}), narrative display (\texttt{StoryNarrativeController}), choice rendering (\texttt{StoryChoiceController}), UI state machine (\texttt{StoryStateController}), asset management (\texttt{StoryAssetController}), overlay coordination (\texttt{StoryOverlayController}), HUD updates (\texttt{StoryUIController}), stat display (\texttt{StorySceneStatDisplay}), signal bindings (\texttt{StorySceneUIBindings}), EventBus routing (\texttt{StorySceneEventHandlers}), directive application (\texttt{StorySceneDirectiveApplier}), and shared formatting utilities (\texttt{StoryUIHelper}).
 
-\begin{table}[H]
-\centering
-\caption{Story scene controller decomposition.}
-\label{tab:gdd-story-controllers}
-\begin{tabular}{@{}p{3.5cm}p{3.5cm}p{7.0cm}@{}}
-\toprule
-\textbf{Controller} & \textbf{File} & \textbf{Responsibility} \\
-\midrule
-\texttt{StoryFlowController} & \texttt{story\_flow\_controller.gd} & Mission lifecycle: generation triggers, scene advancement, mission completion \\
-\addlinespace
-\texttt{StoryNarrativeController} & \texttt{story\_narrative\_controller.gd} & Narrative text display, typewriter animation, speaker attribution \\
-\addlinespace
-\texttt{StoryChoiceController} & \texttt{story\_choice\_controller.gd} & Choice button rendering, player selection handling, stat delta display \\
-\addlinespace
-\texttt{StoryStateController} & \texttt{story\_state\_controller.gd} & UI state machine (loading, displaying, awaiting input, transitioning) \\
-\addlinespace
-\texttt{StoryAssetController} & \texttt{story\_asset\_controller.gd} & Background and character sprite management; AI directive application \\
-\addlinespace
-\texttt{StoryOverlayController} & \texttt{story\_overlay\_controller.gd} & Special overlay coordination (Prayer System, Gloria Intervention, Night Cycle, Trolley Problem) \\
-\addlinespace
-\texttt{StoryUIController} & \texttt{story\_ui\_controller.gd} & HUD element updates (stat bars, phase indicator, mission counter) \\
-\addlinespace
-\texttt{StorySceneStatDisplay} & \texttt{story\_scene\_stat\_display.gd} & Animated stat value display and delta flash effects \\
-\addlinespace
-\texttt{StorySceneUIBindings} & \texttt{story\_scene\_ui\_bindings.gd} & Signal connections between UI nodes and controller methods \\
-\addlinespace
-\texttt{StorySceneEventHandlers} & \texttt{story\_scene\_event\_handlers.gd} & EventBus subscriber; routes game state signals to appropriate controllers \\
-\addlinespace
-\texttt{StorySceneDirectiveApplier} & \texttt{story\_scene\_directive\_applier.gd} & Applies \texttt{SceneDirective} structs from the AI response parser to the asset controller \\
-\addlinespace
-\texttt{StoryUIHelper} & \texttt{story\_ui\_helper.gd} & Shared formatting utilities (BBCode colour tags, severity labels, truncation) \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{multicols}{2}
 \subsubsection*{7.5 CLI and Agent Subsystems}
 Two supporting subsystems provide programmatic access to the game's state outside of normal gameplay:
 
@@ -2895,14 +2780,12 @@ Visualisation is provided by \texttt{AIChartCanvas} and \texttt{AIMetricsChart},
 
 The HTML header embeds all CSS inline, using CSS custom properties (\texttt{--parchment: \#f4e4c1}, \texttt{--ink: \#2c1810}, \texttt{--gold: \#8b6914}, \texttt{--gold-light: \#c9a84c}) and a \texttt{@media print} block that hides navigation chrome and forces page breaks between sections. The completed document is written to \texttt{user://GDA\_Story\_[date].html} via \texttt{FileAccess} and the local path is returned to \texttt{ExportStoryDialog} for display in a confirmation popup.
 
-\end{multicols}
 
 %% ============ APPENDIX E: ANNOTATED AI GENERATION EXAMPLES ============
 \clearpage
 \section{Annotated AI Generation Examples}
 \addcontentsline{toc}{section}{Appendix E: Annotated AI Generation Examples}
 
-\begin{multicols}{2}
 
 This appendix presents three verbatim AI-generated outputs from the exported usage log (session of 2 April 2026, Gemini 3.1 Flash Lite). Each is assessed against the three-criteria manual review protocol used during functional testing: (1)~\textit{thematic alignment} -- does the output maintain the game's satirical, irony-first tone?; (2)~\textit{narrative coherence} -- does the output reference prior context meaningfully?; (3)~\textit{structural validity} -- is the returned JSON parseable with all required fields present?
 
@@ -2910,13 +2793,11 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Purpose:} \texttt{new\_mission} \quad \textbf{Call:}~25 \quad \textbf{Tokens:} 10{,}297 in / 789 out \quad \textbf{Latency:} 11.5\,s
 
-\end{multicols}
 
 \begin{quote}\small\itshape
 ``The laboratory is gone, yet here we stand in the `Safe Zone'---a pristine, aggressively cheerful garden floating in a void of fractured reality. Gloria is radiant, beaming as if the total annihilation of our project was merely a `cleansing of the lower frequencies.' She has tasked us with our next mission: `Planting the Seeds of Harmony.' Apparently, by sowing these glowing, crystalline flowers across the ruins of our previous work, we will generate enough positive energy to permanently seal the cracks in the universe. Donkey is already posing for a selfie with a trowel, trying to frame the yawning abyss of the end-times as a `dramatic backdrop.' ARK, meanwhile, is meticulously drafting a 400-page manual on the optimal soil pH for these flowers, ignoring the fact that the soil is literally weeping black ink. I pointed out that planting flowers in a dimension currently unraveling at the seams is, to put it mildly, an exercise in futility. Gloria's face hardened, her mask of tolerance slipping just enough to reveal the sharp, predatory gleam beneath\ldots\ To `succeed' here means to convince the void that everything is blooming perfectly, effectively accelerating the rot behind the curtain of our artificial paradise.''
 \end{quote}
 
-\begin{multicols}{2}
 
 \textbf{Assessment.}
 \textit{Thematic alignment}: \textbf{Pass.} The output exemplifies the game's core irony: ``success'' (planting flowers) explicitly ``accelerates the rot behind the curtain.'' Gloria's euphemistic rebranding of catastrophe as ``cleansing of the lower frequencies'' is precisely the satirical characterisation the prompt persona targets. Donkey and ARK maintain their established archetypes (performative heroism and useless bureaucratic precision). The entropy modifier for this session was at high band, and the output reflects ``absurdist chaos'' tone correctly.
@@ -2931,13 +2812,11 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Purpose:} \texttt{prayer} \quad \textbf{Call:}~24 \quad \textbf{Tokens:} 9{,}447 in / 464 out \quad \textbf{Latency:} 7.4\,s
 
-\end{multicols}
 
 \begin{quote}\small\itshape
 ``I whispered `iloveu' into the freezing, steam-choked void of the lab, a pathetic attempt at human connection amidst the wreckage of our ambition. Gloria tilted her head, her expression shifting from sanctimonious pride to a terrifying, pitying softness. `Oh, darling,' she cooed, reaching out to stroke my hair with a hand that felt like ice, `you're finally beginning to understand that true love is just the total surrender of the self to the collective harmony.' She leaned in close, whispering into my ear while ARK stood behind us, his eyes still vacant, his lips twitching as if he were trying to reboot his own reality. `You screamed about this being nonsense before, but now? Now that everything is destroyed, you finally have the space to love me properly. Don't worry about the cooling systems or the ruin; they were just barriers to this moment of absolute, unconditional submission.'\,''
 \end{quote}
 
-\begin{multicols}{2}
 
 \textbf{Assessment.}
 \textit{Thematic alignment}: \textbf{Pass (strong).} This is the Prayer System working as designed: the player's sincere expression (``iloveu'') is inverted into a manipulative control narrative. Gloria reframes the player's vulnerability as proof of successful submission. The prayer's positive intent (love/connection) is twisted into its satirical opposite (``total surrender of the self to the collective harmony''), executing the ironic inversion mandate faithfully. The cold physical description (``hand that felt like ice'') reinforces the sinister undertone.
@@ -2952,13 +2831,11 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Purpose:} \texttt{gloria\_intervention} \quad \textbf{Call:}~40 \quad \textbf{Tokens:} 11{,}105 in / 289 out \quad \textbf{Latency:} 3.3\,s
 
-\end{multicols}
 
 \begin{quote}\small\itshape
 ``Oh, you poor, dear soul. I heard that outburst, and it truly saddens me to see you struggling so much with your own internal shadows. Mocking the Arcane Interface? That is just your fear talking, isn't it? We are a family, and families lift each other up through unconditional support, not by tearing down the beautiful order ARK has worked so hard to create. Your negativity is hurting the team's frequency, and frankly, it is hurting me to see you choose this path. Why can't you just release these heavy, dark thoughts and embrace the gratitude that is all around us? Choose positivity, for your own sake.''
 \end{quote}
 
-\begin{multicols}{2}
 
 \textbf{Assessment.}
 \textit{Thematic alignment}: \textbf{Fail (notable deviation).} This is the failure mode the functional testing protocol was designed to detect. Gloria's intervention dialogue should be manipulative and coercive---she weaponises positivity as a control mechanism. However, this output reads as genuinely empathetic: ``it truly saddens me,'' ``it is hurting me to see you choose this path,'' and ``for your own sake'' present Gloria as sincerely caring rather than predatorily cheerful. The LLM defaulted to its trained behaviour of producing helpful, supportive dialogue, overriding the persona instruction.
@@ -2971,14 +2848,12 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \textbf{Takeaway.} This example demonstrates why the three-criteria review protocol matters: structural and coherence criteria both pass, but the thematic criterion catches the deviation that an automated check would miss. It also confirms that the 8\% tonal inconsistency observed across wider testing is concentrated at low-entropy states and in intervention-type calls where the persona instruction competes with the LLM's default helpfulness.
 
-\end{multicols}
 
 %% ============ APPENDIX D: RECORD OF MEETINGS ============
 \clearpage
 \section{Record of Meetings}
 \addcontentsline{toc}{section}{Appendix D: Record of Meetings}
 
-\begin{multicols}{2}
 \subsection*{Meeting 1}
 \begin{tabular}{ll}
 \textbf{Meeting format:} & Physical \\
@@ -2987,18 +2862,15 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 
 \subsubsection*{Issues discussed at this meeting}
 \begin{itemize}
-  \item We discussed my final year project idea, which is to create a 2D game that integrates AI.
-  \item We talked about the potential for the project's scope to become too large and the importance of focusing on a specific, achievable goal.
-  \item The supervisor stressed that the project requires ``depth'' over ``breadth,'' meaning it's better to implement one AI feature well rather than many superficially.
-  \item We went over the project timeline, including the interim report in Week 7, the final report (which is 80\% of the mark), and the final presentation.
-  \item We also briefly emphasised the need for version control and regular backups.
+  \item Introduced the project idea: a 2D game integrating AI-driven narrative.
+  \item Supervisor stressed ``depth'' over ``breadth'' and the importance of a focused, achievable scope.
+  \item Reviewed the project timeline: interim report (Week 7), final report (80\% of mark), and final presentation.
 \end{itemize}
 
 \subsubsection*{Decisions agreed at this meeting}
 \begin{itemize}
-  \item My main task is to refine the aims and objectives for my project to make them more focused.
-  \item I need to prepare one main aim and four measurable objectives to discuss at our next meeting.
-  \item Based on the refined objectives, I will draft the Project Proposal, due by the end of Week 3. This will include the working title, aims, relevance to my degree, required resources, and a bibliography.
+  \item Refine aims and objectives to one main aim and four measurable objectives for next meeting.
+  \item Draft Project Proposal (working title, aims, degree relevance, resources, bibliography) by end of Week 3.
 \end{itemize}
 
 \subsection*{Meeting 2}
@@ -3007,50 +2879,18 @@ This appendix presents three verbatim AI-generated outputs from the exported usa
 \textbf{Date and time:} & 16th October 2025, 3:30 PM \\
 \end{tabular}
 
-\subsubsection*{Matters to note from last meeting}
-My main task from the last meeting was to refine the aims and objectives for my project to make them more focused. I have done this, and we discussed it in this meeting.
-
 \subsubsection*{Issues discussed at this meeting}
-\begin{enumerate}
-  \item \textbf{Project Timeline Clarified:}
-    \begin{itemize}
-      \item Coding Deadline: Hard stop in mid-February. No coding after this.
-      \item Testing Phase: Must happen in January/early February to allow 2--3 weeks for feedback collection and analysis before the coding deadline.
-      \item Final Report: A solid 3 weeks at the end of Semester 2 must be dedicated solely to writing.
-    \end{itemize}
-  \item \textbf{Interim Report (Week 7) --- Strategy Shift:}
-    \begin{itemize}
-      \item This report is NOT about implementation progress.
-      \item Focus on the ``thinking'': Context \& Problem (What is the issue?), Literature Review (What have others done?), Project Specification (What is my proposed solution?).
-      \item Coding progress is a minor note, not the core content.
-    \end{itemize}
-  \item \textbf{The ``Authentic Journey'':}
-    \begin{itemize}
-      \item The final report should document the real process, including problems and changes.
-      \item It's a narrative of learning. Don't present a ``perfect'' journey.
-      \item Be truthful about existing skills and what needs to be learned. This demonstrates self-awareness and risk management.
-    \end{itemize}
-  \item \textbf{Research \& Literature Review:}
-    \begin{itemize}
-      \item Immediate Priority: Spend the next week focused on literature review.
-      \item Topics: Game Design, AI in Games, AI Content Generation.
-      \item Sources: Use academic, reputable sources, not just code repositories. The literature should steer the project's direction.
-    \end{itemize}
-  \item \textbf{On Gathering Opinions:}
-    \begin{itemize}
-      \item Postpone interviews with lecturers.
-      \item Asking for opinions now risks derailing the project's focus.
-      \item A better approach: Get their feedback on the finished game to evaluate the solution.
-    \end{itemize}
-\end{enumerate}
+\begin{itemize}
+  \item \textbf{Timeline:} Coding hard stop mid-February; testing in January/February; 3 weeks dedicated to final report writing.
+  \item \textbf{Interim Report:} Focus on thinking (context, literature, specification), not implementation progress.
+  \item \textbf{Authentic Journey:} Document real process including problems; literature review should steer project direction using academic sources.
+\end{itemize}
 
 \subsubsection*{Decisions agreed at this meeting}
-Before Next Meeting (Oct 23rd):
-\begin{enumerate}
-  \item Literature Review: Dedicate the week to finding and reading academic articles.
-  \item Draft Interim Report: Start a new document focusing on the sections discussed (Lit Review, Methods, etc.).
-  \item Pause Heavy Coding: Slow down implementation to focus on research and planning.
-\end{enumerate}
+\begin{itemize}
+  \item Dedicate the coming week to literature review (Game Design, AI in Games, AI Content Generation).
+  \item Start interim report draft; pause heavy coding to focus on research and planning.
+\end{itemize}
 
 \subsection*{Meeting 3}
 \begin{tabular}{ll}
@@ -3058,25 +2898,16 @@ Before Next Meeting (Oct 23rd):
 \textbf{Date and time:} & 24th October 2025, 3:30 PM \\
 \end{tabular}
 
-\subsubsection*{Matters to note from last meeting}
-Discussed the project problem area and how it integrates into the report. Clarified that the report is not limited to 20 pages, only the appendices are.
-
 \subsubsection*{Issues discussed at this meeting}
 \begin{itemize}
-  \item Week 7 report not ready for review; still drafting and compiling references (around 40). Planning for each part is done, but no content has been added yet.
-  \item Uncertainty about including a ``project problem area'' section in the report, especially for a game development project.
-  \item Confirmed that the ``problem'' for the individual project is investigating the possibilities of LLMs to generate dynamic, non-linear, perpetually evolving storylines for games.
-  \item Clarified that the problem area can be integrated into existing sections like ``requirements analysis'' and ``background,'' not necessarily a separate section.
-  \item Discussed how to grade the success of the LLM implementation in the game.
-  \item Discussed the inclusion of a Game Design Document (GDD) in the individual project report; it can be included in the appendices if useful, but is not a required report itself.
-  \item Offered to share the GitHub URL with the supervisor for document storage.
+  \item Confirmed the project ``problem'' as investigating LLMs for dynamic, non-linear, evolving game storylines.
+  \item Problem area can be integrated into requirements analysis and background sections rather than a standalone section.
+  \item GDD may be included in report appendices but is not part of the main word count or page limit.
 \end{itemize}
 
 \subsubsection*{Decisions agreed at this meeting}
 \begin{itemize}
-  \item The ``project problem area'' will be integrated into the requirements analysis and background sections of the report.
-  \item Game Design Document (GDD) can be included in the appendices of the individual project report, but it is not considered part of the main report's word count or page limit (except for the 20-page appendix limit).
-  \item First draft of the individual project report to be sent early next week.
+  \item Integrate problem area into existing report sections; send first draft early next week.
 \end{itemize}
 
 \subsection*{Meeting 4}
@@ -3085,24 +2916,15 @@ Discussed the project problem area and how it integrates into the report. Clarif
 \textbf{Date and time:} & 29th October 2025, 2:00 PM \\
 \end{tabular}
 
-\subsubsection*{Matters to note from last meeting}
-Draft interim report delivered for review, continuing to integrate the project problem area within requirements/background sections as previously agreed. Game Design Document being prepared as an appendix rather than a standalone submission, per prior guidance.
-
 \subsubsection*{Issues discussed at this meeting}
 \begin{itemize}
-  \item The scope of the risk and ethics section, particularly regarding API data handling, prompt storage, and project-specific risks.
-  \item The structure of requirements engineering content to avoid duplication with other sections.
-  \item The placement of planning documents (GDD, meeting notes) in either the report appendices or the GitHub repository.
-  \item The word/page limits for the interim report and strategies for trimming content.
-  \item The ethical considerations of voice-input, leading to a decision for controlled UI selections.
+  \item Scope of risk and ethics section: API data handling, prompt storage, voice-input ethics.
+  \item Placement of GDD and meeting notes in appendices; word/page limits and content trimming strategies.
 \end{itemize}
 
 \subsubsection*{Decisions agreed at this meeting}
 \begin{itemize}
-  \item Revise the ethics/risk discussion to emphasise controlled UI prompts, clarify data retention/mitigation steps, and note why voice capture is excluded.
-  \item Detailed component lists and UI descriptions will be shifted into the Game Design Document, with concise references in the main report to manage length.
-  \item Interim report will retain required proposal elements but remove duplicated material, keeping within page limits while ensuring appendices reference supporting documents as needed.
-  \item Email a Word version of the interim report draft to Dr Creed for detailed review and tracked comments.
+  \item Revise ethics/risk discussion; shift detailed component lists to GDD; email Word draft to Dr Creed for tracked-changes review.
 \end{itemize}
 
 \subsection*{Meeting 5}
@@ -3111,28 +2933,13 @@ Draft interim report delivered for review, continuing to integrate the project p
 \textbf{Date and time:} & 6th November 2025, 3:00 PM \\
 \end{tabular}
 
-\subsubsection*{Matters to note from last meeting}
-\begin{itemize}
-  \item Interim report draft submitted for detailed review with tracked changes in Word format.
-  \item Code refactoring in progress to improve the structure for report documentation.
-  \item Focus on keeping report content static and well-organised.
-\end{itemize}
-
 \subsubsection*{Issues discussed at this meeting}
 \begin{itemize}
-  \item Document review process: Reviewed how to view tracked changes in Word (Review → Show Comments and Track Changes). Discussed accepting/rejecting insertions and managing document revisions.
-  \item Extensive discussion on ethics compliance for the project.
-  \item Emphasis on functional testing as the methodology rather than user testing with external participants.
-  \item Need to complete software testing with the user's compliance form.
-  \item Ethical consideration: Cannot use external users yet due to uncertainty about inappropriate content generation from AI.
-  \item Mitigation strategy: Stop testing if AI generates inappropriate content, add safeguards, and iterate.
-  \item Regular, thorough functional testing is required to ensure safety before any future user testing.
-  \item Content reduction and refinement: Report currently 3,000 words over limit.
-  \item Evaluation and success criteria: Discussed how to measure project success through functional testing.
-  \item Future meetings: After the interim submission, move to bi-weekly meetings with one planned before Christmas break.
+  \item Ethics compliance: functional testing as the methodology; external user testing deferred until AI content safeguards are verified.
+  \item Mitigation: stop testing if AI generates inappropriate content, add safeguards, iterate.
+  \item Report word count 3,000 words over limit; content reduction required.
 \end{itemize}
 
-\end{multicols}
 
 %TC:endignore
 \end{document}
