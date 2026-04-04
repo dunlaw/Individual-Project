@@ -7,6 +7,8 @@ const CHAO_EASTER_EGG_URL := "https://music.apple.com/tw/song/%E5%98%88/58936235
 const CHAO_EASTER_EGG_TRIGGER_TARGET := 5
 const CHAO_EASTER_EGG_POPUP_CLICK_TARGET := 5
 const CHAO_EASTER_EGG_CLICK_TIMEOUT := 4.0
+const CHAO_EASTER_EGG_OVERLAY_Z_INDEX := 210
+const CHAO_EASTER_EGG_PANEL_SIZE := Vector2(560, 400)
 const VOICE_OPEN_IDS: Array[String] = [
 	"gloria_open_01",
 	"gloria_open_02",
@@ -266,7 +268,7 @@ func _on_subtitle_gui_input(event: InputEvent) -> void:
 	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
 		return
 	var now := Time.get_ticks_msec()
-	if _last_chao_click_time > 0 and float(now - _last_chao_click_time) / 1000.0 > CHAO_EASTER_EGG_CLICK_TIMEOUT:
+	if _last_chao_click_time > 0 and (now - _last_chao_click_time) > int(CHAO_EASTER_EGG_CLICK_TIMEOUT * 1000.0):
 		_chao_click_count = 0
 	_last_chao_click_time = now
 	_chao_click_count += 1
@@ -285,7 +287,7 @@ func _show_chao_easter_egg() -> void:
 	var overlay := Control.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	overlay.z_index = 210
+	overlay.z_index = CHAO_EASTER_EGG_OVERLAY_Z_INDEX
 	var bg := ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.color = Color(0.02, 0.0, 0.04, 0.94)
@@ -294,8 +296,8 @@ func _show_chao_easter_egg() -> void:
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(center)
 	var panel := Panel.new()
-	panel.custom_minimum_size = Vector2(560, 400)
-	panel.pivot_offset = Vector2(280, 200)
+	panel.custom_minimum_size = CHAO_EASTER_EGG_PANEL_SIZE
+	panel.pivot_offset = CHAO_EASTER_EGG_PANEL_SIZE / 2.0
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.08, 0.03, 0.08, 0.98)
 	sb.corner_radius_top_left = 20
