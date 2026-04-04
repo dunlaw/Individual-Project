@@ -4,11 +4,6 @@ const ErrorReporterBridge = preload("res://1.Codebase/src/scripts/core/error_rep
 const ERROR_CONTEXT := "GloriaInterventionOverlay"
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
 const CHAO_EASTER_EGG_URL := "https://music.apple.com/tw/song/%E5%98%88/589362359"
-const CHAO_EASTER_EGG_TRIGGER_TARGET := 5
-const CHAO_EASTER_EGG_POPUP_CLICK_TARGET := 5
-const CHAO_EASTER_EGG_CLICK_TIMEOUT_MS := 4000
-const CHAO_EASTER_EGG_OVERLAY_Z_INDEX := 210
-const CHAO_EASTER_EGG_PANEL_SIZE := Vector2(560, 400)
 const VOICE_OPEN_IDS: Array[String] = [
 	"gloria_open_01",
 	"gloria_open_02",
@@ -268,12 +263,12 @@ func _on_subtitle_gui_input(event: InputEvent) -> void:
 	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
 		return
 	var now := Time.get_ticks_msec()
-	if _last_chao_click_time > 0 and (now - _last_chao_click_time) > CHAO_EASTER_EGG_CLICK_TIMEOUT_MS:
+	if _last_chao_click_time > 0 and (now - _last_chao_click_time) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
 		_chao_click_count = 0
 	_last_chao_click_time = now
 	_chao_click_count += 1
 	_pulse_hidden_trigger()
-	if _chao_click_count < CHAO_EASTER_EGG_TRIGGER_TARGET:
+	if _chao_click_count < GameConstants.EasterEgg.HIDDEN_TRIGGER_CLICKS:
 		return
 	_chao_click_count = 0
 	_show_chao_easter_egg()
@@ -287,7 +282,7 @@ func _show_chao_easter_egg() -> void:
 	var overlay := Control.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	overlay.z_index = CHAO_EASTER_EGG_OVERLAY_Z_INDEX
+	overlay.z_index = GameConstants.EasterEgg.POPUP_OVERLAY_Z_INDEX
 	var bg := ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.color = Color(0.02, 0.0, 0.04, 0.94)
@@ -296,8 +291,8 @@ func _show_chao_easter_egg() -> void:
 	center.set_anchors_preset(Control.PRESET_FULL_RECT)
 	overlay.add_child(center)
 	var panel := Panel.new()
-	panel.custom_minimum_size = CHAO_EASTER_EGG_PANEL_SIZE
-	panel.pivot_offset = CHAO_EASTER_EGG_PANEL_SIZE / 2.0
+	panel.custom_minimum_size = GameConstants.EasterEgg.CHAO_POPUP_SIZE
+	panel.pivot_offset = GameConstants.EasterEgg.CHAO_POPUP_SIZE / 2.0
 	panel.set_meta("chao_click_count", 0)
 	panel.set_meta("chao_scale_tween", null)
 	var sb := StyleBoxFlat.new()
@@ -350,7 +345,7 @@ func _show_chao_easter_egg() -> void:
 	body_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(body_lbl)
 	var hint_lbl := Label.new()
-	hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": CHAO_EASTER_EGG_POPUP_CLICK_TARGET})
+	hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": GameConstants.EasterEgg.POPUP_UNLOCK_CLICKS})
 	hint_lbl.add_theme_font_size_override("font_size", 15)
 	hint_lbl.add_theme_color_override("font_color", Color(0.95, 0.72, 0.76))
 	hint_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -382,7 +377,7 @@ func _show_chao_easter_egg() -> void:
 			return
 		var click_count := int(panel.get_meta("chao_click_count", 0)) + 1
 		panel.set_meta("chao_click_count", click_count)
-		var remaining: int = CHAO_EASTER_EGG_POPUP_CLICK_TARGET - click_count
+		var remaining: int = GameConstants.EasterEgg.POPUP_UNLOCK_CLICKS - click_count
 		if remaining > 0:
 			hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": remaining})
 			if is_instance_valid(panel):

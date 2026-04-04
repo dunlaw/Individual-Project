@@ -81,6 +81,12 @@ class UI:
 	const COLOR_STAT_HIGH := Color(0.2, 0.8, 0.2)
 	const COLOR_STAT_MEDIUM := Color(0.8, 0.8, 0.2)
 	const COLOR_STAT_LOW := Color(0.8, 0.2, 0.2)
+class EasterEgg:
+	const HIDDEN_TRIGGER_CLICKS := 5
+	const POPUP_UNLOCK_CLICKS := 5
+	const CLICK_TIMEOUT_MS := 4000
+	const POPUP_OVERLAY_Z_INDEX := 210
+	const CHAO_POPUP_SIZE := Vector2(560, 400)
 class Achievements:
 	const SKILL_CHECK_SUCCESS_THRESHOLD := 10
 	const MISSION_COMPLETION_THRESHOLD := 5
