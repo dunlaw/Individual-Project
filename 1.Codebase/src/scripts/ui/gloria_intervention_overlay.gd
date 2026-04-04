@@ -56,7 +56,7 @@ var _playlist_was_active: bool = false
 var _is_diary_judgment: bool = false
 var _current_voice_key: String = ""
 var _chao_click_count: int = 0
-var _last_chao_click_time: int = 0
+var _last_chao_click_time_ms: float = 0.0
 func _report_info(message: String, details: Dictionary = {}) -> void:
 	ErrorReporterBridge.report_info(ERROR_CONTEXT, message, details)
 func _report_warning(message: String, details: Dictionary = {}) -> void:
@@ -262,10 +262,10 @@ func _on_subtitle_gui_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
 	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
 		return
-	var now := Time.get_ticks_usec() / 1000
-	if _last_chao_click_time > 0 and (now - _last_chao_click_time) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
+	var now_ms := Time.get_ticks_usec() / 1000.0
+	if _last_chao_click_time_ms > 0.0 and (now_ms - _last_chao_click_time_ms) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
 		_chao_click_count = 0
-	_last_chao_click_time = now
+	_last_chao_click_time_ms = now_ms
 	_chao_click_count += 1
 	_pulse_hidden_trigger()
 	if _chao_click_count < GameConstants.EasterEgg.HIDDEN_TRIGGER_CLICKS:
@@ -381,7 +381,7 @@ func _show_chao_easter_egg() -> void:
 		if remaining > 0:
 			hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": remaining})
 			if is_instance_valid(panel):
-				var existing_scale_tween = panel.get_meta("chao_scale_tween", null)
+				var existing_scale_tween: Variant = panel.get_meta("chao_scale_tween", null)
 				if existing_scale_tween is Tween and is_instance_valid(existing_scale_tween):
 					existing_scale_tween.kill()
 				var scale_tween := create_tween()
