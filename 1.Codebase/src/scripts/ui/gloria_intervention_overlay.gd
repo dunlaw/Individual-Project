@@ -262,10 +262,10 @@ func _on_subtitle_gui_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
 	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
 		return
-	var now_ms := Time.get_ticks_usec() / 1000.0
-	if _last_chao_click_time_ms > 0.0 and (now_ms - _last_chao_click_time_ms) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
+	var now_ticks_ms := Time.get_ticks_usec() / 1000.0
+	if _last_chao_click_time_ms > 0.0 and (now_ticks_ms - _last_chao_click_time_ms) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
 		_chao_click_count = 0
-	_last_chao_click_time_ms = now_ms
+	_last_chao_click_time_ms = now_ticks_ms
 	_chao_click_count += 1
 	_pulse_hidden_trigger()
 	if _chao_click_count < GameConstants.EasterEgg.HIDDEN_TRIGGER_CLICKS:
@@ -345,7 +345,8 @@ func _show_chao_easter_egg() -> void:
 	body_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(body_lbl)
 	var hint_lbl := Label.new()
-	hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": GameConstants.EasterEgg.POPUP_UNLOCK_CLICKS})
+	var initial_remaining: int = GameConstants.EasterEgg.POPUP_UNLOCK_CLICKS - int(panel.get_meta("chao_click_count", 0))
+	hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": initial_remaining})
 	hint_lbl.add_theme_font_size_override("font_size", 15)
 	hint_lbl.add_theme_color_override("font_color", Color(0.95, 0.72, 0.76))
 	hint_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -361,13 +362,19 @@ func _show_chao_easter_egg() -> void:
 	btn_row.add_theme_constant_override("separation", 12)
 	btn_row.mouse_filter = Control.MOUSE_FILTER_PASS
 	vbox.add_child(btn_row)
+	var cleanup_overlay := func() -> void:
+		var existing_scale_tween: Variant = panel.get_meta("chao_scale_tween", null)
+		if existing_scale_tween is Tween and is_instance_valid(existing_scale_tween):
+			existing_scale_tween.kill()
+		panel.set_meta("chao_scale_tween", null)
+		overlay.queue_free()
 	var close_btn := Button.new()
 	close_btn.text = _tr("EASTER_EGG_CLOSE")
 	close_btn.custom_minimum_size = Vector2(150, 44)
 	UIStyleManager.apply_button_style(close_btn, "danger", "medium")
 	UIStyleManager.add_hover_scale_effect(close_btn, 1.06)
 	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	close_btn.pressed.connect(overlay.queue_free)
+	close_btn.pressed.connect(cleanup_overlay)
 	btn_row.add_child(close_btn)
 	panel.gui_input.connect(func(event: InputEvent) -> void:
 		if not (event is InputEventMouseButton):
@@ -390,7 +397,7 @@ func _show_chao_easter_egg() -> void:
 				scale_tween.tween_property(panel, "scale", Vector2.ONE, 0.07)
 			return
 		OS.shell_open(CHAO_EASTER_EGG_URL)
-		overlay.queue_free()
+		cleanup_overlay.call()
 	)
 	overlay.modulate.a = 0.0
 	add_child(overlay)
