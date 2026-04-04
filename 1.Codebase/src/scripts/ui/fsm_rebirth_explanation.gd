@@ -2,6 +2,10 @@ extends Control
 signal close_requested
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
 const ERROR_CONTEXT := "FSMRebirthExplanation"
+const LYRICS_EASTER_EGG_URL := "https://www.youtube.com/watch?v=O7-81uAmgIw"
+const LYRICS_EASTER_EGG_TEXT := "仿佛似是真實 仿佛也是美夢\n世事何曾是絕對"
+const LYRICS_CLICK_TARGET := 5
+const LYRICS_CLICK_TIMEOUT := 5.0
 @onready var title_label: Label = $Root/ContentPanel/Margin/VBox/Header/Title
 @onready var header_icon: TextureRect = $Root/ContentPanel/Margin/VBox/Header/HeaderIcon
 @onready var close_button: Button = $Root/ContentPanel/Margin/VBox/Header/CloseButton
@@ -58,10 +62,14 @@ const ERROR_CONTEXT := "FSMRebirthExplanation"
 @onready var conc_gloria: TextureRect = $Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox/ConcHBox/ConcGloria
 @onready var conc_fsm: TextureRect = $Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox/ConcHBox/ConcFSM
 @onready var conc_teacher: TextureRect = $Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox/ConcHBox/ConcTeacher
+@onready var conc_vbox: VBoxContainer = $Root/ContentPanel/Margin/VBox/ScrollContainer/ContentVBox/PhilosophySection/ConclusionCard/ConcMargin/ConcVBox
 var audio_manager: Node = null
 var _current_tab: int = 0 
 var _card_tweens: Array = []
 var _bg_tween: Tween = null
+var _lyrics_click_count: int = 0
+var _lyrics_click_timer: float = 0.0
+var _lyrics_label: Label = null
 const DAY_ACCENT_COLORS: Array = [
 	Color(1.0, 0.84, 0.0),
 	Color(0.31, 0.76, 0.97),
@@ -78,6 +86,7 @@ func _ready() -> void:
 	_setup_ui()
 	_connect_signals()
 	_populate_all_content()
+	_setup_lyrics_easter_egg()
 	_switch_tab(0)
 	UIStyleManager.fade_in(self, 0.5)
 	_update_layout()
@@ -94,6 +103,12 @@ func _exit_tree() -> void:
 	if _bg_tween and _bg_tween.is_valid():
 		_bg_tween.kill()
 	_bg_tween = null
+func _process(delta: float) -> void:
+	if _lyrics_click_count <= 0:
+		return
+	_lyrics_click_timer -= delta
+	if _lyrics_click_timer <= 0.0:
+		_lyrics_click_count = 0
 func _refresh_services() -> void:
 	if ServiceLocator:
 		audio_manager = ServiceLocator.get_audio_manager()
@@ -123,6 +138,37 @@ func _setup_ui() -> void:
 		close_button.text = _tr("UI_CLOSE_BUTTON")
 	_style_tab_buttons()
 	_style_all_cards()
+func _setup_lyrics_easter_egg() -> void:
+	if not conc_vbox or _lyrics_label:
+		return
+	_lyrics_label = Label.new()
+	_lyrics_label.text = LYRICS_EASTER_EGG_TEXT
+	_lyrics_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_lyrics_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_lyrics_label.add_theme_font_size_override("font_size", 15)
+	_lyrics_label.add_theme_color_override("font_color", Color(0.86, 0.79, 0.55, 0.48))
+	_lyrics_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	_lyrics_label.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_lyrics_label.gui_input.connect(_on_lyrics_label_gui_input)
+	conc_vbox.add_child(_lyrics_label)
+func _on_lyrics_label_gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT or not mouse_event.pressed:
+		return
+	_lyrics_click_count += 1
+	_lyrics_click_timer = LYRICS_CLICK_TIMEOUT
+	if _lyrics_label and is_instance_valid(_lyrics_label):
+		_lyrics_label.pivot_offset = _lyrics_label.size * 0.5
+		var tween := create_tween()
+		tween.tween_property(_lyrics_label, "scale", Vector2(1.03, 1.03), 0.10)
+		tween.tween_property(_lyrics_label, "scale", Vector2.ONE, 0.10)
+	if _lyrics_click_count < LYRICS_CLICK_TARGET:
+		return
+	_lyrics_click_count = 0
+	_lyrics_click_timer = 0.0
+	OS.shell_open(LYRICS_EASTER_EGG_URL)
 func _style_tab_buttons() -> void:
 	var tabs: Array = [tab_mechanism, tab_comparison, tab_philosophy]
 	var tab_texts: Array = [

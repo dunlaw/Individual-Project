@@ -17,7 +17,6 @@ const ICON_GITHUB = preload("res://1.Codebase/src/assets/ui/icon_github.svg")
 const ICON_REBIRTH = preload("res://1.Codebase/src/assets/ui/icon_refresh.svg")
 const GITHUB_URL = "https://github.com/dun4law/Final-Year-Project"
 const YOUTUBE_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ/"
-const LYRICS_EASTER_EGG_URL := "https://www.youtube.com/watch?v=O7-81uAmgIw"
 const GAME_VERSION = "V1.0 Alpha"
 const _GEMINI_KEY_MISSING_MESSAGE := "Gemini is selected, but no Gemini API key is configured. Open Settings > AI Settings to enter your key, or switch to OpenRouter/Ollama."
 const VERBOSE_LOGS := GameConstants.Debug.ENABLE_VERBOSE_LOGS
@@ -71,11 +70,6 @@ var _youtube_click_timer: float = 0.0
 const _YOUTUBE_CLICK_TIMEOUT := 2.5
 var _fsm_inbox_prayer_index: int = 0
 var _fsm_inbox_popup: Control = null
-var _lyrics_click_count: int = 0
-var _lyrics_click_timer: float = 0.0
-const _LYRICS_CLICK_TIMEOUT := 5.0
-const _LYRICS_CLICK_TARGET := 5
-var _lyrics_label: Label = null
 @onready var all_buttons: Array = [
 	start_button,
 	continue_button,
@@ -136,7 +130,6 @@ func _ready():
 		audio.play_music("background_music", true)
 	_connect_button_sounds()
 	_setup_logo_easter_egg()
-	_setup_lyrics_easter_egg()
 func _setup_logo_easter_egg() -> void:
 	if not logo_texture:
 		return
@@ -151,30 +144,6 @@ func _on_logo_gui_input(event: InputEvent) -> void:
 			_logo_click_count = 0
 			_logo_click_timer = 0.0
 			_show_gloria_diary_easter_egg()
-func _setup_lyrics_easter_egg() -> void:
-	_lyrics_label = Label.new()
-	_lyrics_label.text = "仿佛似是歡樂 仿佛也是冷漠 · 世事何曾是絕對"
-	_lyrics_label.add_theme_font_size_override("font_size", 10)
-	_lyrics_label.add_theme_color_override("font_color", Color(0.55, 0.50, 0.65, 0.35))
-	_lyrics_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_lyrics_label.mouse_filter = Control.MOUSE_FILTER_STOP
-	_lyrics_label.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	_lyrics_label.gui_input.connect(_on_lyrics_gui_input)
-	content_container.add_child(_lyrics_label)
-func _on_lyrics_gui_input(event: InputEvent) -> void:
-	if not (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed):
-		return
-	_lyrics_click_count += 1
-	_lyrics_click_timer = _LYRICS_CLICK_TIMEOUT
-	if _lyrics_label and is_instance_valid(_lyrics_label):
-		var tw := create_tween()
-		tw.tween_property(_lyrics_label, "modulate", Color(0.85, 0.75, 1.0, 1.0), 0.12)
-		tw.tween_property(_lyrics_label, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.12)
-	if _lyrics_click_count >= _LYRICS_CLICK_TARGET:
-		_lyrics_click_count = 0
-		_lyrics_click_timer = 0.0
-		OS.shell_open(LYRICS_EASTER_EGG_URL)
-		_debug_log("[StartMenu] Easter egg triggered: 世事何曾是絕對")
 func _process(delta: float) -> void:
 	if _gloria_seq_index > 0:
 		_gloria_seq_timer -= delta
@@ -192,10 +161,6 @@ func _process(delta: float) -> void:
 		_super_seq_timer -= delta
 		if _super_seq_timer <= 0.0:
 			_super_seq_index = 0
-	if _lyrics_click_count > 0:
-		_lyrics_click_timer -= delta
-		if _lyrics_click_timer <= 0.0:
-			_lyrics_click_count = 0
 func _exit_tree() -> void:
 	if get_tree():
 		get_tree().set_auto_accept_quit(true)
