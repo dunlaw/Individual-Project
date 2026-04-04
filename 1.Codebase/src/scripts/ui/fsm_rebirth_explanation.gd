@@ -3,7 +3,7 @@ signal close_requested
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
 const ERROR_CONTEXT := "FSMRebirthExplanation"
 const LYRICS_EASTER_EGG_URL := "https://www.youtube.com/watch?v=O7-81uAmgIw"
-const LYRICS_EASTER_EGG_TEXT := "仿佛似是真實 仿佛也是美夢\n世事何曾是絕對"
+const LYRICS_EASTER_EGG_KEY := "EASTER_EGG_LYRICS_TEXT"
 const LYRICS_CLICK_TARGET := 5
 const LYRICS_CLICK_TIMEOUT := 5.0
 @onready var title_label: Label = $Root/ContentPanel/Margin/VBox/Header/Title
@@ -142,7 +142,7 @@ func _setup_lyrics_easter_egg() -> void:
 	if not conc_vbox or _lyrics_label:
 		return
 	_lyrics_label = Label.new()
-	_lyrics_label.text = LYRICS_EASTER_EGG_TEXT
+	_lyrics_label.text = _tr(LYRICS_EASTER_EGG_KEY)
 	_lyrics_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_lyrics_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_lyrics_label.add_theme_font_size_override("font_size", 15)
