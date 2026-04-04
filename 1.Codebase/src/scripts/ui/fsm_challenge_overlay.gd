@@ -8,6 +8,8 @@ const ICON_REFRESH = preload("res://1.Codebase/src/assets/ui/icon_refresh.svg")
 const ICON_CHECK = preload("res://1.Codebase/src/assets/ui/icon_check.svg")
 const FSMRebirthExplanationScene = preload("res://1.Codebase/src/scenes/ui/fsm_rebirth_explanation.tscn")
 const INVITE_METADATA_KEY := "fsm_challenge_invite_seen"
+const PIG_SNAKE_PIGEON_URL := "https://en.wikipedia.org/wiki/The_Pig,_the_Snake_and_the_Pigeon"
+const PIG_SNAKE_PIGEON_CLICKS_NEEDED := 5
 const TIMER_FONT_SIZE_DEFAULT := 16
 const TIMER_FONT_SIZE_LARGE := 26
 @onready var background_dim: ColorRect = $BackgroundDim
@@ -68,6 +70,8 @@ var _calendar_grid: ScrollContainer = null
 var _floating_glorias: Array = []
 var _gloria_velocities: Array = []
 var _gloria_rot_speeds: Array = []
+var _fsm_image_click_count: int = 0
+var _fsm_image_easter_egg_unlocked: bool = false
 func _ready() -> void:
 	_refresh_services()
 	_setup_ui()
@@ -259,6 +263,7 @@ func _connect_signals() -> void:
 		invitation_accept.pressed.connect(_on_invitation_accept)
 	if invitation_decline:
 		invitation_decline.pressed.connect(_on_invitation_decline)
+	_setup_fsm_image_easter_egg()
 func show_challenge(day: int, show_invitation: bool = false) -> void:
 	if is_showing_crash:
 		return
@@ -1100,3 +1105,127 @@ func _apply_sublimation_panel_style(panel: Panel) -> void:
 	style.corner_radius_bottom_left = 10
 	style.corner_radius_bottom_right = 10
 	panel.add_theme_stylebox_override("panel", style)
+func _setup_fsm_image_easter_egg() -> void:
+	for img in [invitation_fsm_image, completion_fsm_image]:
+		if img:
+			img.mouse_filter = Control.MOUSE_FILTER_STOP
+			img.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+			img.tooltip_text = _tr("EASTER_EGG_PIG_SNAKE_PIGEON_HINT").format({"remaining": PIG_SNAKE_PIGEON_CLICKS_NEEDED})
+			if not img.gui_input.is_connected(_on_fsm_image_gui_input):
+				img.gui_input.connect(_on_fsm_image_gui_input)
+func _on_fsm_image_gui_input(event: InputEvent) -> void:
+	if _fsm_image_easter_egg_unlocked:
+		return
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
+		return
+	_fsm_image_click_count += 1
+	_pulse_fsm_image(event)
+	if _fsm_image_click_count >= PIG_SNAKE_PIGEON_CLICKS_NEEDED:
+		_fsm_image_easter_egg_unlocked = true
+		if audio_manager:
+			audio_manager.play_sfx("group_present", 0.9)
+		OS.shell_open(PIG_SNAKE_PIGEON_URL)
+		_show_pig_snake_pigeon_easter_egg()
+		return
+	var remaining := PIG_SNAKE_PIGEON_CLICKS_NEEDED - _fsm_image_click_count
+	for img in [invitation_fsm_image, completion_fsm_image]:
+		if img:
+			img.tooltip_text = _tr("EASTER_EGG_PIG_SNAKE_PIGEON_CLICK").format({"remaining": remaining})
+func _pulse_fsm_image(event: InputEvent) -> void:
+	var source_node: Control = null
+	if event is InputEventMouseButton:
+		for img in [invitation_fsm_image, completion_fsm_image]:
+			if img and img.get_global_rect().has_point(event.global_position):
+				source_node = img
+				break
+	if source_node and is_instance_valid(source_node):
+		var tween := create_tween()
+		tween.tween_property(source_node, "scale", Vector2(1.06, 1.06), 0.08)
+		tween.tween_property(source_node, "scale", Vector2.ONE, 0.08)
+func _show_pig_snake_pigeon_easter_egg() -> void:
+	var overlay := Control.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.z_index = 20
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.0, 0.0, 0.02, 0.95)
+	overlay.add_child(bg)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var popup_panel := Panel.new()
+	popup_panel.custom_minimum_size = Vector2(600, 360)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.03, 0.05, 0.09, 0.985)
+	sb.border_color = Color(0.36, 0.5, 0.7, 0.82)
+	sb.border_width_left = 2
+	sb.border_width_top = 2
+	sb.border_width_right = 2
+	sb.border_width_bottom = 2
+	sb.corner_radius_top_left = 18
+	sb.corner_radius_top_right = 18
+	sb.corner_radius_bottom_left = 18
+	sb.corner_radius_bottom_right = 18
+	sb.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
+	sb.shadow_size = 26
+	popup_panel.add_theme_stylebox_override("panel", sb)
+	center.add_child(popup_panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 36)
+	margin.add_theme_constant_override("margin_top", 28)
+	margin.add_theme_constant_override("margin_right", 36)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	popup_panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 18)
+	margin.add_child(vbox)
+	var title_lbl := Label.new()
+	title_lbl.text = _tr("EASTER_EGG_PIG_SNAKE_PIGEON_TITLE")
+	title_lbl.add_theme_font_size_override("font_size", 26)
+	title_lbl.add_theme_color_override("font_color", Color(0.88, 0.93, 0.98))
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title_lbl)
+	var sep := HSeparator.new()
+	sep.modulate = Color(0.36, 0.5, 0.7, 0.45)
+	vbox.add_child(sep)
+	var body_lbl := RichTextLabel.new()
+	body_lbl.bbcode_enabled = true
+	body_lbl.fit_content = true
+	body_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_lbl.add_theme_font_size_override("normal_font_size", 22)
+	body_lbl.add_theme_color_override("default_color", Color(0.9, 0.92, 0.96))
+	body_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	body_lbl.text = _tr("EASTER_EGG_PIG_SNAKE_PIGEON_BODY")
+	vbox.add_child(body_lbl)
+	var button_row := HBoxContainer.new()
+	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	button_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(button_row)
+	var open_btn := Button.new()
+	open_btn.text = _tr("EASTER_EGG_PIG_SNAKE_PIGEON_OPEN")
+	open_btn.custom_minimum_size = Vector2(190, 44)
+	UIStyleManager.apply_button_style(open_btn, "accent", "medium")
+	UIStyleManager.add_hover_scale_effect(open_btn, 1.04)
+	open_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	open_btn.pressed.connect(func() -> void:
+		OS.shell_open(PIG_SNAKE_PIGEON_URL)
+	)
+	button_row.add_child(open_btn)
+	var close_btn := Button.new()
+	close_btn.text = _tr("EASTER_EGG_CLOSE")
+	close_btn.custom_minimum_size = Vector2(150, 44)
+	UIStyleManager.apply_button_style(close_btn, "normal", "medium")
+	UIStyleManager.add_hover_scale_effect(close_btn, 1.04)
+	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	close_btn.pressed.connect(overlay.queue_free)
+	button_row.add_child(close_btn)
+	overlay.modulate.a = 0.0
+	add_child(overlay)
+	UIStyleManager.fade_in(overlay, 0.25)
