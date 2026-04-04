@@ -262,7 +262,7 @@ func _on_subtitle_gui_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
 	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
 		return
-	var now := Time.get_ticks_msec()
+	var now := Time.get_ticks_usec() / 1000
 	if _last_chao_click_time > 0 and (now - _last_chao_click_time) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
 		_chao_click_count = 0
 	_last_chao_click_time = now
@@ -381,9 +381,9 @@ func _show_chao_easter_egg() -> void:
 		if remaining > 0:
 			hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": remaining})
 			if is_instance_valid(panel):
-				var existing_tween = panel.get_meta("chao_scale_tween", null)
-				if existing_tween is Tween and is_instance_valid(existing_tween):
-					existing_tween.kill()
+				var existing_scale_tween = panel.get_meta("chao_scale_tween", null)
+				if existing_scale_tween is Tween and is_instance_valid(existing_scale_tween):
+					existing_scale_tween.kill()
 				var scale_tween := create_tween()
 				panel.set_meta("chao_scale_tween", scale_tween)
 				scale_tween.tween_property(panel, "scale", Vector2(1.05, 1.05), 0.07)
