@@ -3,7 +3,7 @@ signal continue_requested
 const ErrorReporterBridge = preload("res://1.Codebase/src/scripts/core/error_reporter_bridge.gd")
 const ERROR_CONTEXT := "GloriaInterventionOverlay"
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
-const CHA0_EASTER_EGG_URL := "https://music.apple.com/tw/song/%E5%98%88/589362359"
+const CHAO_EASTER_EGG_URL := "https://music.apple.com/tw/song/%E5%98%88/589362359"
 const CHAO_EASTER_EGG_TRIGGER_TARGET := 5
 const CHAO_EASTER_EGG_POPUP_CLICK_TARGET := 5
 const CHAO_EASTER_EGG_CLICK_TIMEOUT := 4.0
@@ -359,19 +359,9 @@ func _show_chao_easter_egg() -> void:
 	vbox.add_child(spacer)
 	var btn_row := HBoxContainer.new()
 	btn_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	btn_row.add_theme_constant_override("separation", 16)
+	btn_row.add_theme_constant_override("separation", 12)
 	btn_row.mouse_filter = Control.MOUSE_FILTER_PASS
 	vbox.add_child(btn_row)
-	var listen_btn := Button.new()
-	listen_btn.text = _tr("EASTER_EGG_GLORIA_CHAO_LISTEN")
-	listen_btn.custom_minimum_size = Vector2(150, 44)
-	UIStyleManager.apply_button_style(listen_btn, "primary", "medium")
-	UIStyleManager.add_hover_scale_effect(listen_btn, 1.06)
-	listen_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	listen_btn.pressed.connect(func() -> void:
-		OS.shell_open(CHA0_EASTER_EGG_URL)
-	)
-	btn_row.add_child(listen_btn)
 	var close_btn := Button.new()
 	close_btn.text = _tr("EASTER_EGG_CLOSE")
 	close_btn.custom_minimum_size = Vector2(150, 44)
@@ -399,7 +389,7 @@ func _show_chao_easter_egg() -> void:
 				panel_tween.tween_property(panel, "scale", Vector2(1.05, 1.05), 0.07)
 				panel_tween.tween_property(panel, "scale", Vector2.ONE, 0.07)
 			return
-		OS.shell_open(CHA0_EASTER_EGG_URL)
+		OS.shell_open(CHAO_EASTER_EGG_URL)
 		overlay.queue_free()
 	)
 	overlay.modulate.a = 0.0
