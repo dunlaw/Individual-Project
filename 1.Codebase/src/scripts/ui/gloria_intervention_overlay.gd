@@ -262,16 +262,18 @@ func _on_subtitle_gui_input(event: InputEvent) -> void:
 	var mb := event as InputEventMouseButton
 	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
 		return
-	var now_ms := Time.get_ticks_usec() / 1000.0
-	if _last_chao_click_time_millis > 0.0 and (now_ms - _last_chao_click_time_millis) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
+	var now_millis := Time.get_ticks_usec() / 1000.0
+	if _last_chao_click_time_millis > 0.0 and (now_millis - _last_chao_click_time_millis) > GameConstants.EasterEgg.CLICK_TIMEOUT_MS:
 		_chao_click_count = 0
-	_last_chao_click_time_millis = now_ms
+	_last_chao_click_time_millis = now_millis
 	_chao_click_count += 1
 	_pulse_hidden_trigger()
 	if _chao_click_count < GameConstants.EasterEgg.HIDDEN_TRIGGER_CLICKS:
 		return
 	_chao_click_count = 0
 	_show_chao_easter_egg()
+func _get_chao_popup_remaining_clicks(click_count: int) -> int:
+	return GameConstants.EasterEgg.POPUP_UNLOCK_CLICKS - click_count
 func _pulse_hidden_trigger() -> void:
 	if not is_instance_valid(subtitle_label):
 		return
@@ -345,7 +347,7 @@ func _show_chao_easter_egg() -> void:
 	body_lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(body_lbl)
 	var hint_lbl := Label.new()
-	var initial_remaining: int = GameConstants.EasterEgg.POPUP_UNLOCK_CLICKS - int(panel.get_meta("chao_click_count", 0))
+	var initial_remaining: int = _get_chao_popup_remaining_clicks(int(panel.get_meta("chao_click_count", 0)))
 	hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": initial_remaining})
 	hint_lbl.add_theme_font_size_override("font_size", 15)
 	hint_lbl.add_theme_color_override("font_color", Color(0.95, 0.72, 0.76))
@@ -384,7 +386,7 @@ func _show_chao_easter_egg() -> void:
 			return
 		var click_count := int(panel.get_meta("chao_click_count", 0)) + 1
 		panel.set_meta("chao_click_count", click_count)
-		var remaining: int = GameConstants.EasterEgg.POPUP_UNLOCK_CLICKS - click_count
+		var remaining: int = _get_chao_popup_remaining_clicks(click_count)
 		if remaining > 0:
 			hint_lbl.text = _tr("EASTER_EGG_GLORIA_CHAO_HINT").format({"remaining": remaining})
 			if is_instance_valid(panel):
