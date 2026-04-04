@@ -23,7 +23,7 @@ var backgrounds: Dictionary = {
 		"tags": ["ritual", "mystical", "indoor"],
 	},
 	"forest": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Forest.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/forest.png",
 		"name": "Forest",
 		"tags": ["nature", "outdoor", "green"],
 	},
@@ -33,17 +33,17 @@ var backgrounds: Dictionary = {
 		"tags": ["dark", "underground", "stone"],
 	},
 	"temple": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Temple.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/temple.png",
 		"name": "Temple",
 		"tags": ["mystical", "religious", "indoor"],
 	},
 	"ruins": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Ruins.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/ruins.png",
 		"name": "Ruins",
 		"tags": ["ancient", "outdoor", "stone"],
 	},
 	"laboratory": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Laboratory.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/laboratory.png",
 		"name": "Laboratory",
 		"tags": ["tech", "indoor", "science"],
 	},
@@ -53,7 +53,7 @@ var backgrounds: Dictionary = {
 		"tags": ["royal", "indoor", "grand"],
 	},
 	"bridge": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Bridge.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/bridge.png",
 		"name": "Bridge",
 		"tags": ["outdoor", "crossing", "danger"],
 	},
@@ -68,12 +68,12 @@ var backgrounds: Dictionary = {
 		"tags": ["nature", "water", "outdoor"],
 	},
 	"fire": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Fire Area.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/fire_area.png",
 		"name": "Fire Area",
 		"tags": ["danger", "hot", "hazard"],
 	},
 	"garden": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Garden.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/garden.png",
 		"name": "Garden",
 		"tags": ["nature", "peaceful", "outdoor"],
 	},
@@ -88,7 +88,7 @@ var backgrounds: Dictionary = {
 		"tags": ["mystical", "underground", "bright"],
 	},
 	"library": {
-		"path": "res://1.Codebase/src/assets/backgrounds/Library.png",
+		"path": "res://1.Codebase/src/assets/backgrounds/library.png",
 		"name": "Library",
 		"tags": ["indoor", "knowledge", "books"],
 	},

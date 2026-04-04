@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://cq03mdrg084b8"]
 
 [ext_resource type="Script" uid="uid://brwqomxvhqtnh" path="res://1.Codebase/src/scripts/ui/start_menu.gd" id="1"]
-[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/game name.png" id="2"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/game_name.png" id="2"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/home.png" id="3"]
 [ext_resource type="FontFile" path="res://1.Codebase/src/assets/font/LibreBaskerville-Bold.ttf" id="4"]
 [ext_resource type="FontFile" path="res://1.Codebase/src/assets/font/Play-Regular.ttf" id="5"]

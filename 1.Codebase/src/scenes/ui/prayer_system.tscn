@@ -1,7 +1,7 @@
 [gd_scene load_steps=2 format=3 uid="uid://b5ksiay3x8n4g"]
 
 [ext_resource type="Script" path="res://1.Codebase/src/scripts/ui/prayer_system.gd" id="1_prayer"]
-[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/ui/praytoMonster.png" id="2_monster"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/ui/pray_to_monster.png" id="2_monster"]
 
 [node name="PrayerSystem" type="Control"]
 layout_mode = 3

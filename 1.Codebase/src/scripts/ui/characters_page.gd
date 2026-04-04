@@ -82,7 +82,7 @@ func _init_character_data():
 		"fsm": {
 			"name_key": "CHAR_FSM_NAME",
 			"title_key": "CHAR_FSM_TITLE",
-			"icon_path": "res://1.Codebase/src/assets/ui/praytoMonster.png",
+			"icon_path": "res://1.Codebase/src/assets/ui/pray_to_monster.png",
 			"desc_key": "CHAR_FSM_DESC"
 		}
 	}
