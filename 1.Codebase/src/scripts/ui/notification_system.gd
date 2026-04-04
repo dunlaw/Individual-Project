@@ -8,6 +8,21 @@ var notification_queue: Array = []
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 100
+func show_notification(message: String, notification_type: String = "info", description: String = "") -> void:
+	var normalized_type: String = notification_type.strip_edges().to_lower()
+	match normalized_type:
+		"error":
+			show_error(message, description)
+		"warning":
+			show_warning(message, description)
+		"success":
+			show_success(message, description)
+		"achievement":
+			show_achievement(message, description)
+		"info", "tutorial", "":
+			show_info(message, description)
+		_:
+			show_info(message, description)
 func show_error(title: String, description: String = ""):
 	_add_notification(title, description, UIConstants.COLOR_ERROR)
 func show_warning(title: String, description: String = ""):
