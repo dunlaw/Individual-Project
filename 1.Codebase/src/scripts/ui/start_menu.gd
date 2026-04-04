@@ -17,7 +17,7 @@ const ICON_GITHUB = preload("res://1.Codebase/src/assets/ui/icon_github.svg")
 const ICON_REBIRTH = preload("res://1.Codebase/src/assets/ui/icon_refresh.svg")
 const GITHUB_URL = "https://github.com/dun4law/Final-Year-Project"
 const YOUTUBE_URL = "https://www.youtube.com/watch?v=dQw4w9WgXcQ/"
-const GAME_VERSION = "V1.0 Alpha"
+const GAME_VERSION = "V1.0 Beta"
 const _GEMINI_KEY_MISSING_MESSAGE := "Gemini is selected, but no Gemini API key is configured. Open Settings > AI Settings to enter your key, or switch to OpenRouter/Ollama."
 const VERBOSE_LOGS := GameConstants.Debug.ENABLE_VERBOSE_LOGS
 var current_language: String = "en"
