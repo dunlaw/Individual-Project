@@ -2,9 +2,7 @@ extends Control
 signal prayer_requested
 const ERROR_CONTEXT := "NightCycleOverlay"
 const UIStyleManager  = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
-const NIGHT_BG        = preload("res://1.Codebase/src/assets/ui/night_cycle_background.png")
 const STAGE_BG        = preload("res://1.Codebase/src/assets/ui/miss_chan_stage_background.png")
-const REFLECT_HDR     = preload("res://1.Codebase/src/assets/ui/night_reflection_header.png")
 const CHAN_HAPPY    = preload("res://1.Codebase/src/assets/characters/teacher_chan_happy.png")
 const CHAN_NEUTRAL  = preload("res://1.Codebase/src/assets/characters/teacher_chan_neutral.png")
 const CHAN_RAISED   = preload("res://1.Codebase/src/assets/characters/teacher_chan_arms_raised.png")
@@ -92,12 +90,9 @@ func _exit_tree() -> void:
 	var audio = _get_audio()
 	if audio and audio.has_method("stop_music"): audio.stop_music(0.5)
 func _build_ui() -> void:
-	var bg = TextureRect.new()
-	bg.texture = NIGHT_BG
-	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	var bg = ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.modulate = Color(0.50, 0.50, 0.72, 1.0)
+	bg.color = Color(0.09, 0.07, 0.18, 1.0)
 	add_child(bg)
 	var overlay = ColorRect.new()
 	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)

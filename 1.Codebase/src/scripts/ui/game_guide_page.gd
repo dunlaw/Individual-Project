@@ -6,10 +6,7 @@ const ErrorReporterBridge = preload("res://1.Codebase/src/scripts/core/error_rep
 const SETTINGS_FILE := "user://settings.cfg"
 const PAGE_MARGIN := 20
 const IMAGE_PATHS := {
-	"read_story": "res://1.Codebase/src/assets/ui/guide_read_story.jpg",
-	"make_choices": "res://1.Codebase/src/assets/ui/guide_make_choices.jpg",
 	"journal": "res://1.Codebase/src/assets/ui/guide_journal.jpg",
-	"watch_stats": "res://1.Codebase/src/assets/ui/guide_watch_stats.jpg",
 	"fsm": "res://1.Codebase/src/assets/ui/guide_fsm.png",
 }
 const GUIDE_STEP_IMAGES := ["read_story", "make_choices", "journal", "watch_stats", "fsm"]
