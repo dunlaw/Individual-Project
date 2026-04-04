@@ -366,6 +366,7 @@ func _create_hidden_credits_popup() -> Control:
 	content.add_theme_color_override("default_color", Color(0.9, 0.9, 0.9, 1.0))
 	content.add_theme_font_size_override("normal_font_size", 15)
 	content.text = CreditsContent.get_hidden_credits_text()
+	content.meta_clicked.connect(_on_credits_meta_clicked)
 	scroll.add_child(content)
 	var sep2 = HSeparator.new()
 	sep2.modulate = Color(1.0, 0.85, 0.3, 0.5)
@@ -383,6 +384,10 @@ func _create_hidden_credits_popup() -> Control:
 	)
 	vbox.add_child(close_btn)
 	return overlay
+func _on_credits_meta_clicked(meta: Variant) -> void:
+	var url := str(meta)
+	if url.begins_with("http://") or url.begins_with("https://"):
+		OS.shell_open(url)
 func _play_hidden_credits_music() -> void:
 	var audio := _get_audio_manager()
 	if not audio:
