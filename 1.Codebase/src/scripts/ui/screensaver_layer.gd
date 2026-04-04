@@ -9,7 +9,7 @@ const CHARACTER_TEXTURES = [
 	preload("res://1.Codebase/src/assets/characters/ark_sad.png"),
 	preload("res://1.Codebase/src/assets/characters/donkey_happy.png"),
 ]
-const EXPLOSION_TEXTURE = preload("res://1.Codebase/src/assets/characters/Explosion Effect.png")
+const EXPLOSION_TEXTURE = preload("res://1.Codebase/src/assets/characters/explosion_effect.png")
 const MIN_ICONS = 10
 const MAX_ICONS = 15
 const SPEED_MIN = 100.0

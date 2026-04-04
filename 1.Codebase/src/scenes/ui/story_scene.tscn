@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dsgmuffl6ogry" path="res://1.Codebase/src/scripts/ui/story_scene.gd" id="1_story"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/backgrounds/menu_background_dark.png" id="2_bg"]
-[ext_resource type="Texture2D" uid="uid://bx0mvdpffmoea" path="res://1.Codebase/src/assets/backgrounds/Loading BG.png" id="loading_bg"]
+[ext_resource type="Texture2D" uid="uid://bx0mvdpffmoea" path="res://1.Codebase/src/assets/backgrounds/loading_bg.png" id="loading_bg"]
 
 [sub_resource type="StyleBoxFlat" id="SBTopBar"]
 bg_color = Color(0.07, 0.1, 0.15, 0.96)

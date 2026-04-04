@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://trolley_problem_overlay"]
 
 [ext_resource type="Script" path="res://1.Codebase/src/scripts/ui/trolley_problem_overlay.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/backgrounds/trolley problem BG.png" id="2_bg"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/backgrounds/trolley_problem_bg.png" id="2_bg"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/achievements/ach_trolley_conductor.png" id="3_icon"]
 
 [node name="TrolleyProblemOverlay" type="Control"]

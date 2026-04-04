@@ -1,10 +1,10 @@
 [gd_scene load_steps=5 format=3 uid="uid://splashsequence01"]
 
 [ext_resource type="Script" path="res://1.Codebase/src/scripts/ui/splash_sequence.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/US_logo-1.png" id="2_logo"]
-[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/Engine Logo.png" id="4_engine_logo"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/us_logo_1.png" id="2_logo"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/engine_logo.png" id="4_engine_logo"]
 [ext_resource type="FontFile" path="res://1.Codebase/src/assets/font/Ticketing.ttf" id="3_font"]
-[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/Artificial Smiles.png" id="5_as_logo"]
+[ext_resource type="Texture2D" path="res://1.Codebase/src/assets/artificial_smiles.png" id="5_as_logo"]
 [ext_resource type="Texture2D" path="res://1.Codebase/src/assets/logo.png" id="6_game_logo"]
 
 [node name="SplashSequence" type="Control"]

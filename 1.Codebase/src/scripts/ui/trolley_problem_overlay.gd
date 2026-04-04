@@ -1,8 +1,8 @@
 extends Control
 signal choice_selected(choice_id: String)
 const ERROR_CONTEXT := "TrolleyProblemOverlay"
-const TROLLEY_ON_SOUND := "trolley problem ON"
-const TROLLEY_OFF_SOUND := "trolley problem OFF"
+const TROLLEY_ON_SOUND := "trolley_problem_on"
+const TROLLEY_OFF_SOUND := "trolley_problem_off"
 const TROLLEY_BGM := "trolley_problem_bgm"
 @onready var scenario_label: RichTextLabel = $Root/ContentPanel/Margin/VBox/ScenarioText
 @onready var choices_container: VBoxContainer = $Root/ContentPanel/Margin/VBox/ChoicesScroll/ChoicesContainer
@@ -133,8 +133,8 @@ func _restore_normal_audio(audio: Node) -> void:
 	):
 		audio.play_music(_previous_music_name, true)
 const _SOUND_FALLBACK_DURATIONS := {
-	"trolley problem ON": 3.5,
-	"trolley problem OFF": 4.2,
+	"trolley_problem_on": 3.5,
+	"trolley_problem_off": 4.2,
 }
 func _play_sound_and_wait(audio: Node, sound_name: String, volume_multiplier: float = 1.0) -> void:
 	if not audio or not audio.has_method("has_sound") or not audio.has_method("play_sfx"):
@@ -368,8 +368,8 @@ func _resolve_choice(choice_id: String) -> void:
 		return
 	_is_resolving = true
 	var audio := _get_audio_manager()
-	if audio and audio.has_method("play_sfx") and audio.has_method("has_sound") and audio.has_sound("Zuruckbleiben bitte"):
-		audio.play_sfx("Zuruckbleiben bitte")
+	if audio and audio.has_method("play_sfx") and audio.has_method("has_sound") and audio.has_sound("zuruckbleiben_bitte"):
+		audio.play_sfx("zuruckbleiben_bitte")
 	for child in choices_container.get_children():
 		if child is PanelContainer:
 			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
