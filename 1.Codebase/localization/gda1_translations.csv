@@ -2673,6 +2673,6 @@ EASTER_EGG_PIG_SNAKE_PIGEON_BODY,你心地唔好咋嘛,你心地唔好咋嘛,你
 EASTER_EGG_PIG_SNAKE_PIGEON_OPEN,Open Wiki,打開維基,Wiki öffnen
 EASTER_EGG_PIG_SNAKE_PIGEON_HINT,"Hmm... ({remaining} clicks remaining)","嗯……（還有 {remaining} 下）","Hmm... ({remaining} Klicks verbleibend)"
 EASTER_EGG_PIG_SNAKE_PIGEON_CLICK,"Almost revealed... ({remaining} more)","快揭曉了……（還差 {remaining} 下）","Fast enthüllt... (noch {remaining} mal)"
-EASTER_EGG_GLORIA_CHAO_TITLE,嘈,嘈,嘈
-EASTER_EGG_GLORIA_CHAO_BODY,"[center]聽得到身邊風扇持續轉嗎\n蟬鳴亦太近圍住耳邊轟炸\n聽得到呼吸心跳還在嗎\n可知愛隨著寧靜在退化\n\n[i]All the best, Sita.[/i][/center]","[center]聽得到身邊風扇持續轉嗎\n蟬鳴亦太近圍住耳邊轟炸\n聽得到呼吸心跳還在嗎\n可知愛隨著寧靜在退化\n\n[i]All the best, Sita.[/i][/center]","[center]聽得到身邊風扇持續轉嗎\n蟬鳴亦太近圍住耳邊轟炸\n聽得到呼吸心跳還在嗎\n可知愛隨著寧靜在退化\n\n[i]All the best, Sita.[/i][/center]"
-EASTER_EGG_GLORIA_CHAO_HINT,再聽清楚一點……（還有 {remaining} 下）,再聽清楚一點……（還有 {remaining} 下）,再聽清楚一點……（還有 {remaining} 下）
+EASTER_EGG_GLORIA_CHAO_TITLE,Clamor,嘈,Lärm
+EASTER_EGG_GLORIA_CHAO_BODY,"[center]Ah, learning is like our very first quarrel\nWords turn dull and exaggerated, actions just like fools\nShout — there is no need to fear\nSecond by second we laugh and talk, raising our voices,\nalways cutting each other off[/center]","[center]啊　學習像最初吵架\n言談無聊浮誇　行為如同傻瓜\n喊　也不必怕\n秒秒也說說笑笑用力發聲　不斷打岔[/center]","[center]Ah, lernen ist wie unser allererster Streit\nWorte werden langweilig und übertrieben, Taten wie die von Narren\nSchrei — du musst keine Angst haben\nSekunde für Sekunde lachen und reden wir laut drauflos,\nfallen uns ständig ins Wort[/center]"
+EASTER_EGG_GLORIA_CHAO_HINT,"Listen a little more closely… ({remaining} clicks remaining)",再聽清楚一點……（還有 {remaining} 下）,"Hör noch ein wenig genauer hin… ({remaining} Klicks verbleibend)"
