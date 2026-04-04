@@ -1,8 +1,15 @@
 extends Control
 signal close_requested
+const ERROR_CONTEXT := "ButterflyEffectPanel"
 const UIStyleManager = preload("res://1.Codebase/src/scripts/ui/ui_style_manager.gd")
 const UIConstants = preload("res://1.Codebase/src/scripts/ui/ui_constants.gd")
+const ErrorReporterBridge = preload("res://1.Codebase/src/scripts/core/error_reporter_bridge.gd")
+const SECRET_BUTTERFLY_TEXTURE_PATH := "res://1.Codebase/src/assets/ui/butterfly_effect.png"
+const LEGAL_MAVERICKS_URL := "https://en.wikipedia.org/wiki/Legal_Mavericks"
+const LEGAL_MAVERICKS_CLICKS_NEEDED := 5
 @onready var _panel: Panel = $MainMargin/Panel
+@onready var _header_bar: HBoxContainer = $MainMargin/Panel/VBoxMain/HeaderBar
+@onready var _title_block: VBoxContainer = $MainMargin/Panel/VBoxMain/HeaderBar/TitleBlock
 @onready var _title_label: Label = $MainMargin/Panel/VBoxMain/HeaderBar/TitleBlock/TitleLabel
 @onready var _subtitle_label: Label = $MainMargin/Panel/VBoxMain/HeaderBar/TitleBlock/SubtitleLabel
 @onready var _close_button: Button = $MainMargin/Panel/VBoxMain/HeaderBar/CloseButton
@@ -32,6 +39,11 @@ var _lang: String = "en"
 var _is_ready: bool = false
 var _game_state: Variant = null
 var _audio_manager: Variant = null
+var _secret_click_count: int = 0
+var _secret_easter_egg_unlocked: bool = false
+var _background_image_rect: TextureRect = null
+var _secret_image_container: CenterContainer = null
+var _secret_image_rect: TextureRect = null
 func _tr(key: String) -> String:
 	if LocalizationManager:
 		return LocalizationManager.get_translation(key)
@@ -42,6 +54,8 @@ func _ready() -> void:
 	_lang = _game_state.current_language if _game_state else "en"
 	_is_ready = true
 	_apply_styles()
+	_setup_background_image()
+	_setup_secret_butterfly_image()
 	_connect_signals()
 	_refresh_ui()
 	if _panel:
@@ -88,6 +102,80 @@ func _apply_styles() -> void:
 	]
 	for i in range(_stat_cards.size()):
 		_style_stat_card(_stat_cards[i], card_colors[i % card_colors.size()])
+func _setup_background_image() -> void:
+	if not _panel or is_instance_valid(_background_image_rect):
+		return
+	var texture := _load_texture_safe(SECRET_BUTTERFLY_TEXTURE_PATH)
+	if texture == null:
+		return
+	_background_image_rect = TextureRect.new()
+	_background_image_rect.name = "ButterflyBackgroundImage"
+	_background_image_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_background_image_rect.offset_left = 2.0
+	_background_image_rect.offset_top = 2.0
+	_background_image_rect.offset_right = -2.0
+	_background_image_rect.offset_bottom = -2.0
+	_background_image_rect.texture = texture
+	_background_image_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_background_image_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_background_image_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_background_image_rect.modulate = Color(1.0, 1.0, 1.0, 0.12)
+	_panel.add_child(_background_image_rect)
+	_panel.move_child(_background_image_rect, 0)
+func _setup_secret_butterfly_image() -> void:
+	if not _header_bar or is_instance_valid(_secret_image_container):
+		return
+	var texture := _load_texture_safe(SECRET_BUTTERFLY_TEXTURE_PATH)
+	if texture == null:
+		return
+	var icon_size := Vector2(52, 52)
+	_secret_image_container = CenterContainer.new()
+	_secret_image_container.name = "SecretButterflyImage"
+	_secret_image_container.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_secret_image_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_secret_image_container.mouse_filter = Control.MOUSE_FILTER_STOP
+	_secret_image_container.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	_secret_image_container.custom_minimum_size = icon_size
+	_secret_image_container.tooltip_text = _tr("EASTER_EGG_LEGAL_MAVERICKS_HINT").format({"remaining": LEGAL_MAVERICKS_CLICKS_NEEDED})
+	var frame := PanelContainer.new()
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.custom_minimum_size = icon_size
+	var frame_style := StyleBoxFlat.new()
+	frame_style.bg_color = Color(0.1, 0.12, 0.2, 0.8)
+	frame_style.border_color = Color(0.5, 0.65, 0.85, 0.35)
+	frame_style.border_width_left = 1
+	frame_style.border_width_top = 1
+	frame_style.border_width_right = 1
+	frame_style.border_width_bottom = 1
+	frame_style.corner_radius_top_left = 10
+	frame_style.corner_radius_top_right = 10
+	frame_style.corner_radius_bottom_left = 10
+	frame_style.corner_radius_bottom_right = 10
+	frame_style.shadow_color = Color(0.0, 0.0, 0.0, 0.2)
+	frame_style.shadow_size = 4
+	frame.add_theme_stylebox_override("panel", frame_style)
+	_secret_image_container.add_child(frame)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_theme_constant_override("margin_left", 4)
+	margin.add_theme_constant_override("margin_top", 4)
+	margin.add_theme_constant_override("margin_right", 4)
+	margin.add_theme_constant_override("margin_bottom", 4)
+	frame.add_child(margin)
+	_secret_image_rect = TextureRect.new()
+	_secret_image_rect.texture = texture
+	_secret_image_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_secret_image_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_secret_image_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_secret_image_rect.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_secret_image_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(_secret_image_rect)
+	# Add to HeaderBar (HBox) between TitleBlock and buttons, not inside TitleBlock (VBox)
+	_header_bar.add_child(_secret_image_container)
+	_header_bar.move_child(_secret_image_container, 1)
+	if not _secret_image_container.gui_input.is_connected(_on_secret_image_gui_input):
+		_secret_image_container.gui_input.connect(_on_secret_image_gui_input)
 func _set_badge_text(badge: Label, en_text: String, zh_text: String, tint: Color) -> void:
 	if not badge:
 		return
@@ -326,6 +414,165 @@ func _on_explain_pressed() -> void:
 		add_child(instance)
 		if instance.has_method("setup"):
 			instance.setup()
+func _on_secret_image_gui_input(event: InputEvent) -> void:
+	if _secret_easter_egg_unlocked:
+		return
+	if not (event is InputEventMouseButton):
+		return
+	var mb := event as InputEventMouseButton
+	if mb.button_index != MOUSE_BUTTON_LEFT or not mb.pressed:
+		return
+	_secret_click_count += 1
+	_pulse_secret_image()
+	if _secret_click_count >= LEGAL_MAVERICKS_CLICKS_NEEDED:
+		_secret_easter_egg_unlocked = true
+		if _audio_manager:
+			_audio_manager.play_sfx("group_present", 0.9)
+		OS.shell_open(LEGAL_MAVERICKS_URL)
+		_show_legal_mavericks_easter_egg()
+		return
+	var remaining := LEGAL_MAVERICKS_CLICKS_NEEDED - _secret_click_count
+	if _secret_image_container:
+		_secret_image_container.tooltip_text = _tr("EASTER_EGG_LEGAL_MAVERICKS_CLICK").format({"remaining": remaining})
+func _pulse_secret_image() -> void:
+	if not is_instance_valid(_secret_image_container):
+		return
+	var tween := create_tween()
+	tween.tween_property(_secret_image_container, "scale", Vector2(1.06, 1.06), 0.08)
+	tween.tween_property(_secret_image_container, "scale", Vector2.ONE, 0.08)
+func _show_legal_mavericks_easter_egg() -> void:
+	var overlay := Control.new()
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.z_index = 20
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.0, 0.0, 0.02, 0.95)
+	overlay.add_child(bg)
+	var vignette := ColorRect.new()
+	vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vignette.color = Color(0.02, 0.03, 0.06, 0.55)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(vignette)
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.add_child(center)
+	var popup_panel := Panel.new()
+	popup_panel.custom_minimum_size = Vector2(720, 600)
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = Color(0.03, 0.05, 0.09, 0.985)
+	sb.border_color = Color(0.36, 0.5, 0.7, 0.82)
+	sb.border_width_left = 2
+	sb.border_width_top = 2
+	sb.border_width_right = 2
+	sb.border_width_bottom = 2
+	sb.corner_radius_top_left = 18
+	sb.corner_radius_top_right = 18
+	sb.corner_radius_bottom_left = 18
+	sb.corner_radius_bottom_right = 18
+	sb.shadow_color = Color(0.0, 0.0, 0.0, 0.72)
+	sb.shadow_size = 26
+	popup_panel.add_theme_stylebox_override("panel", sb)
+	center.add_child(popup_panel)
+	var margin := MarginContainer.new()
+	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 36)
+	margin.add_theme_constant_override("margin_top", 28)
+	margin.add_theme_constant_override("margin_right", 36)
+	margin.add_theme_constant_override("margin_bottom", 28)
+	popup_panel.add_child(margin)
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 18)
+	margin.add_child(vbox)
+	var title_lbl := Label.new()
+	title_lbl.text = _tr("EASTER_EGG_LEGAL_MAVERICKS_TITLE")
+	title_lbl.add_theme_font_size_override("font_size", 26)
+	title_lbl.add_theme_color_override("font_color", Color(0.88, 0.93, 0.98))
+	title_lbl.add_theme_color_override("font_outline_color", Color(0.02, 0.02, 0.04, 1.0))
+	title_lbl.add_theme_constant_override("outline_size", 2)
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(title_lbl)
+	var subtitle_lbl := Label.new()
+	subtitle_lbl.text = _tr("EASTER_EGG_LEGAL_MAVERICKS_SUBTITLE")
+	subtitle_lbl.add_theme_font_size_override("font_size", 14)
+	subtitle_lbl.add_theme_color_override("font_color", Color(0.56, 0.66, 0.78))
+	subtitle_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	vbox.add_child(subtitle_lbl)
+	var sep := HSeparator.new()
+	sep.modulate = Color(0.36, 0.5, 0.7, 0.45)
+	vbox.add_child(sep)
+	var popup_texture := _load_texture_safe(SECRET_BUTTERFLY_TEXTURE_PATH)
+	if popup_texture:
+		var img_rect := TextureRect.new()
+		img_rect.texture = popup_texture
+		img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		img_rect.custom_minimum_size = Vector2(172, 172)
+		img_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		img_rect.modulate = Color(0.9, 0.92, 1.0, 0.96)
+		vbox.add_child(img_rect)
+	var body_panel := PanelContainer.new()
+	body_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var body_style := StyleBoxFlat.new()
+	body_style.bg_color = Color(0.06, 0.08, 0.12, 0.96)
+	body_style.border_color = Color(0.2, 0.28, 0.38, 0.9)
+	body_style.border_width_left = 1
+	body_style.border_width_top = 1
+	body_style.border_width_right = 1
+	body_style.border_width_bottom = 1
+	body_style.corner_radius_top_left = 14
+	body_style.corner_radius_top_right = 14
+	body_style.corner_radius_bottom_left = 14
+	body_style.corner_radius_bottom_right = 14
+	body_panel.add_theme_stylebox_override("panel", body_style)
+	vbox.add_child(body_panel)
+	var body_margin := MarginContainer.new()
+	body_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	body_margin.add_theme_constant_override("margin_left", 18)
+	body_margin.add_theme_constant_override("margin_top", 16)
+	body_margin.add_theme_constant_override("margin_right", 18)
+	body_margin.add_theme_constant_override("margin_bottom", 16)
+	body_panel.add_child(body_margin)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_margin.add_child(scroll)
+	var body_lbl := RichTextLabel.new()
+	body_lbl.bbcode_enabled = true
+	body_lbl.fit_content = true
+	body_lbl.scroll_active = false
+	body_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body_lbl.add_theme_font_size_override("normal_font_size", 20)
+	body_lbl.add_theme_color_override("default_color", Color(0.9, 0.92, 0.96))
+	body_lbl.add_theme_constant_override("line_separation", 10)
+	body_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	body_lbl.text = _tr("EASTER_EGG_LEGAL_MAVERICKS_BODY")
+	scroll.add_child(body_lbl)
+	var button_row := HBoxContainer.new()
+	button_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	button_row.add_theme_constant_override("separation", 12)
+	vbox.add_child(button_row)
+	var open_btn := Button.new()
+	open_btn.text = _tr("EASTER_EGG_LEGAL_MAVERICKS_OPEN")
+	open_btn.custom_minimum_size = Vector2(190, 44)
+	UIStyleManager.apply_button_style(open_btn, "accent", "medium")
+	UIStyleManager.add_hover_scale_effect(open_btn, 1.04)
+	open_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	open_btn.pressed.connect(func() -> void:
+		OS.shell_open(LEGAL_MAVERICKS_URL)
+	)
+	button_row.add_child(open_btn)
+	var close_btn := Button.new()
+	close_btn.text = _tr("EASTER_EGG_CLOSE")
+	close_btn.custom_minimum_size = Vector2(150, 44)
+	UIStyleManager.apply_button_style(close_btn, "normal", "medium")
+	UIStyleManager.add_hover_scale_effect(close_btn, 1.04)
+	close_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	close_btn.pressed.connect(overlay.queue_free)
+	button_row.add_child(close_btn)
+	overlay.modulate.a = 0.0
+	add_child(overlay)
+	UIStyleManager.fade_in(overlay, 0.25)
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		_on_close_pressed()
@@ -348,5 +595,10 @@ func _get_audio_manager() -> Variant:
 	if typeof(AudioManager) != TYPE_NIL:
 		return AudioManager
 	return null
+func _load_texture_safe(path: String) -> Texture2D:
+	var texture := load(path) as Texture2D
+	if texture == null:
+		ErrorReporterBridge.report_warning(ERROR_CONTEXT, "Failed to load butterfly effect easter egg texture", {"path": path})
+	return texture
 func _round_to_tenths(value: float) -> float:
 	return snappedf(value, 0.1)
