@@ -2652,6 +2652,12 @@ EASTER_EGG_SUPER_GIRLS_BTN,♪,♪,♪
 EASTER_EGG_SUPER_GIRLS_TITLE,~ ♪ Super Girls ♪ ~,~ ♪ Super Girls ♪ ~,~ ♪ Super Girls ♪ ~
 EASTER_EGG_SUPER_GIRLS_HINT,"Click... ({remaining} clicks remaining)","點擊看看...（還有 {remaining} 下）","Klicken... ({remaining} Klicks verbleibend)"
 EASTER_EGG_SUPER_GIRLS_CLICK,"Almost there... ({remaining} more)","快了...（還差 {remaining} 下）","Fast da... (noch {remaining} mal)"
+EASTER_EGG_LYRICS_TEXT,"As if it were real, as if it were a dream\nNothing in this world is absolute",仿佛似是真實 仿佛也是美夢\n世事何曾是絕對,"Als wäre es wahr, als wäre es ein Traum\nNichts auf dieser Welt ist absolut"
+EASTER_EGG_LYRICS_TITLE,~ ♪ Nothing Is Absolute ♪ ~,~ ♪ 世事何曾是絕對 ♪ ~,~ ♪ Nichts ist absolut ♪ ~
+EASTER_EGG_LYRICS_BODY,"[center]As if it were real, as if it were a dream\nNothing in this world is absolute\n\n[i]— from「世事何曾是絕對」[/i][/center]","[center]仿佛似是真實 仿佛也是美夢\n世事何曾是絕對\n\n[i]— 出自「世事何曾是絕對」[/i][/center]","[center]Als wäre es wahr, als wäre es ein Traum\nNichts auf dieser Welt ist absolut\n\n[i]— aus「世事何曾是絕對」[/i][/center]"
+EASTER_EGG_LYRICS_HINT,"Click... ({remaining} clicks remaining)","點擊...（還剩 {remaining} 下）","Klicken... ({remaining} Klicks verbleibend)"
+EASTER_EGG_LYRICS_CLICK,"Almost there... ({remaining} more)","快了...（還差 {remaining} 下）","Fast da... (noch {remaining} mal)"
+EASTER_EGG_LYRICS_LISTEN,♪ Listen,♪ 聆聽,♪ Anhören
 EASTER_EGG_LEGAL_MAVERICKS_TITLE,【踩過界】,【踩過界】,【踩過界】
 EASTER_EGG_LEGAL_MAVERICKS_SUBTITLE,Love Is Within Reach,愛近在眼前,Liebe ist ganz nah
 EASTER_EGG_LEGAL_MAVERICKS_BODY,"隨著日子消逝\n曾經封閉 情節已開啟\n渺小的仍然很矜貴\n我都可平凡得最美麗\n【踩過界】- 愛近在眼前","隨著日子消逝\n曾經封閉 情節已開啟\n渺小的仍然很矜貴\n我都可平凡得最美麗\n【踩過界】- 愛近在眼前","隨著日子消逝\n曾經封閉 情節已開啟\n渺小的仍然很矜貴\n我都可平凡得最美麗\n【踩過界】- 愛近在眼前"
